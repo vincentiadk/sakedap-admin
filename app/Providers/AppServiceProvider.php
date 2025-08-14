@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
     {
         if ((App::environment('production') || App::environment('demo')) && (str_contains(URL::to('/'), "edeposit.perpusnas.go.id"))) {
             URL::forceScheme('https');
+        } else {
+            URL::forceScheme('http');
         }
     }
 
