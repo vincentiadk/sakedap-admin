@@ -83,7 +83,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-                    
+
             		<div class="col-md-12">
                         <div class="form-group row">
                             <label class="col-md-2">Perpustakaan</label>
@@ -343,6 +343,9 @@
 			ajax: {
 				url: '{{ url("admin/report/collection_delivery/datatable") }}',
 				type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 				data: {
 					param: param,
 					type: $('#type').val(),

@@ -12,7 +12,7 @@
 					</div>
 				</div>
 			</div>
-            
+
 			<div class="content-header-right col-md-12 col-12 mb-2 mt-1">
 				<div class="card">
                     <div class="card-header">
@@ -26,7 +26,7 @@
                                 <h4 class="card-title">
                                     <a href="#" class="btn btn-danger btn-sm" onclick="reset()"><i class="la la-refresh"></i> Reset Filter</a>
                                 </h4>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group row">
                                     <label class="col-md-2">Provinsi</label>
@@ -301,13 +301,13 @@
 				Swal.fire('Ooopss!!', 'Harap mengisi harian awal dan harian akhir.', 'warning');
 			}
 		} else {
-			loadDataTable(param);		
+			loadDataTable(param);
         }
 	}
 
 	function reset() {
 		$('#publisher_id').val('').trigger('change');
-		$('#province_id').val('').trigger('change');		
+		$('#province_id').val('').trigger('change');
         $('#year_start').val('');
 		$('#year_end').val('');
 		$('#month_start').val('');
@@ -330,6 +330,9 @@
 			ajax: {
 				url: '{{ url("admin/report/publisher_isbn/datatable") }}',
                 type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 				data: {
 					publisher_id: $('#publisher_id').val(),
 					province_id: $('#province_id').val()

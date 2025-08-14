@@ -524,6 +524,9 @@
             ajax: {
                 url: '{{ url('admin/report/collection/kckra/datatable_summary') }}',
                 type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
                 data: {
                     param: param,
                     publisher_id: $('#publisher_id').val(),
@@ -595,6 +598,9 @@
             ajax: {
                 url: '{{ url('admin/report/collection/kckra/datatable_detail') }}',
                 type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
                 data: {
                     param: param,
                     publisher_id: $('#publisher_id').val(),

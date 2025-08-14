@@ -61,7 +61,10 @@
 			pagingType: 'input',
 			ajax: {
 				url: '{{ url("admin/report/log_activity/datatable") }}',
-				type: 'post'
+				type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 			},
 			columns: [
 				{

@@ -344,6 +344,9 @@
 			ajax: {
 				url: '{{ url("admin/report/publisher/datatable") }}',
 				type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 				data: {
 					param: param,
 					type: $('#type').val(),

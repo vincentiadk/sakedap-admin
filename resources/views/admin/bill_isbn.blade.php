@@ -423,6 +423,9 @@
 			ajax: {
 				url: '{{ url("admin/bill_isbn/datatable_summary") }}',
                 type:'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 				data: {
 					publisher_id: $('#publisher_id').val(),
 					province_id: $('#province_id').val()
@@ -507,6 +510,9 @@
 			ajax: {
 				url: '{{ url("admin/bill_isbn/datatable_detail") }}',
                 type: 'post',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
 				data: {
 					param: param,
 					publisher_id: $('#publisher_id').val(),
