@@ -50,7 +50,7 @@
 										<h4 class="form-section">Meta Data</h4>
 										<p>
 											<div class="form-group">
-												@php $watermark = $collection->collectionMedia->where('type', 4)->first(); @endphp
+												@php $watermark = $collection->collectionMedia->where('type', 2)->first(); @endphp
 												@if($watermark && Storage::disk($watermark->location->location)->exists($watermark->link))
 													<div class="row justify-content-center">
 														<div class="col-md-6">

@@ -180,9 +180,9 @@
                             if($d->type == 1 || $d->type == 2 || $d->type == 3 || $d->type == 4) {
                                 $media = App\Models\CollectionMedia::where('collection_id', $d->id)->where('type', 2)->first();
                             } else if($d->type == 5) {
-                                $media = App\Models\CollectionMedia::where('collection_id', $d->id)->where('type', 4)->first();
+                                $media = App\Models\CollectionMedia::where('collection_id', $d->id)->where('type', 2)->first();
                             } else {
-                                $media = App\Models\CollectionMedia::where('collection_id', $d->id)->where('type', 7)->first();
+                                $media = App\Models\CollectionMedia::where('collection_id', $d->id)->where('type', 2)->first();
                             }
                         @endphp
                         @if($media)

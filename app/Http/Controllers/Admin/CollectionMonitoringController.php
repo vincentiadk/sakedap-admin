@@ -7,8 +7,8 @@ use App\Models\Setting;
 use App\Models\Director;
 use App\Models\Location;
 use App\Models\Collection;
-use App\Models\Notification;
 use App\Jobs\WatermarkAudio;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Helper\GeneralHelper;
 use App\Jobs\SetIsbnReceived;
@@ -263,7 +263,7 @@ class CollectionMonitoringController extends Controller
 
                     if ($collection->type == 5) {
 
-                        $original = $collection->collectionMedia->where('type', 4)->first();
+                        $original = $collection->collectionMedia->where('type', 2)->first();
                         $dir_original = Storage::disk($this->location->location)->path($original->link);
 
                         $create_media = CollectionMedia::create([
@@ -273,7 +273,7 @@ class CollectionMonitoringController extends Controller
                             'extension'     => $original->extension,
                             'mimes'         => File::mimeType($dir_original),
                             'hash'          => md5_file($dir_original),
-                            'type'          => 4,
+                            'type'          => 2,
                             'method'        => 4,
                             'created_at'    => date('Y-m-d H:i:s'),
                             'updated_at'    => date('Y-m-d H:i:s'),

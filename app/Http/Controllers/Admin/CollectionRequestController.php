@@ -6,19 +6,19 @@ use App\Models\Solr;
 use App\Models\Author;
 use App\Models\Setting;
 use App\Models\Subject;
+use App\Jobs\BulkUpload;
+use App\Jobs\PDFToImage;
 use App\Models\Category;
 use App\Models\Director;
 use App\Models\Location;
-use App\Jobs\BulkUpload;
-use App\Jobs\PDFToImage;
 use App\Models\Publisher;
 use App\Models\Collection;
 use App\Models\ActivityLog;
 use App\Models\Contributor;
 use App\Models\DepositHead;
-use App\Models\Notification;
 use Illuminate\Support\Str;
 use App\Jobs\WatermarkAudio;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Helper\GeneralHelper;
 use App\Models\CollectionMedia;
@@ -26,9 +26,9 @@ use App\Models\CollectionSubject;
 use App\Models\CollectionCategory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -677,7 +677,7 @@ class CollectionRequestController extends Controller
                                 'extension'     => $original->getClientOriginalExtension(),
                                 'mimes'         => File::mimeType($original),
                                 'hash'          => md5_file($original),
-                                'type'          => 4,
+                                'type'          => 2,
                                 'method'        => 4,
                                 'created_at'    => date('Y-m-d H:i:s'),
                                 'updated_at'    => date('Y-m-d H:i:s'),
@@ -757,23 +757,23 @@ class CollectionRequestController extends Controller
                                     'extension'     => $original->getClientOriginalExtension(),
                                     'mimes'         => File::mimeType($original),
                                     'hash'          => md5_file($original),
-                                    'type'          => 7,
+                                    'type'          => 2,
                                     'method'        => 4,
                                     'created_at'    => date('Y-m-d H:i:s'),
                                     'updated_at'    => date('Y-m-d H:i:s')
                                 ],
-                                [
-                                    'collection_id' => $create->id,
-                                    'link'          => $link_collection_preview,
-                                    'size'          => File::size($path_preview),
-                                    'extension'     => $original->getClientOriginalExtension(),
-                                    'mimes'         => File::mimeType($path_preview),
-                                    'hash'          => md5_file($path_preview),
-                                    'type'          => 8,
-                                    'method'        => 4,
-                                    'created_at'    => date('Y-m-d H:i:s'),
-                                    'updated_at'    => date('Y-m-d H:i:s')
-                                ],
+                                // [
+                                //     'collection_id' => $create->id,
+                                //     'link'          => $link_collection_preview,
+                                //     'size'          => File::size($path_preview),
+                                //     'extension'     => $original->getClientOriginalExtension(),
+                                //     'mimes'         => File::mimeType($path_preview),
+                                //     'hash'          => md5_file($path_preview),
+                                //     'type'          => 8,
+                                //     'method'        => 4,
+                                //     'created_at'    => date('Y-m-d H:i:s'),
+                                //     'updated_at'    => date('Y-m-d H:i:s')
+                                // ],
                                 [
                                     'collection_id' => $create->id,
                                     'link'          => $link_collection_watermark,
@@ -781,7 +781,7 @@ class CollectionRequestController extends Controller
                                     'extension'     => $original->getClientOriginalExtension(),
                                     'mimes'         => File::mimeType($path_watermark),
                                     'hash'          => md5_file($path_watermark),
-                                    'type'          => 9,
+                                    'type'          => 3,
                                     'method'        => 4,
                                     'created_at'    => date('Y-m-d H:i:s'),
                                     'updated_at'    => date('Y-m-d H:i:s')

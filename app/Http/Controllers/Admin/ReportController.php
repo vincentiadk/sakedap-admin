@@ -12,16 +12,16 @@ use App\Models\Province;
 use App\Models\Publisher;
 use App\Models\Collection;
 use App\Models\Expedition;
+use App\Helper\CustomTCPDF;
 use App\Models\ActivityLog;
 use App\Models\DepositHead;
-use App\Helper\CustomTCPDF;
-use App\Models\DeliveryForm;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Models\DeliveryForm;
 use Illuminate\Http\Request;
 use App\Helper\GeneralHelper;
-use App\Models\CollectionCopy;
 use App\Jobs\DownloadDataIsrc;
+use App\Models\CollectionCopy;
 use App\Models\UserCertainAccess;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -748,9 +748,9 @@ class ReportController extends Controller
                 if ($val->type == 1 || $val->type == 2 || $val->type == 3 || $val->type == 4) {
                     $media = $val->collectionMedia->where('type', 2)->first();
                 } else if ($val->type == 5) {
-                    $media = $val->collectionMedia->where('type', 4)->first();
+                    $media = $val->collectionMedia->where('type', 2)->first();
                 } else {
-                    $media = $val->collectionMedia->where('type', 7)->first();
+                    $media = $val->collectionMedia->where('type', 2)->first();
                 }
 
                 $action = "";

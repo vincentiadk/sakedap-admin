@@ -87,7 +87,7 @@
 															<th colspan="2">
 																<div class="row justify-content-center">
 																	<div class="col-md-8">
-																		@php $original = $collection->collectionMedia->where('type', 4)->first(); @endphp
+																		@php $original = $collection->collectionMedia->where('type', 2)->first(); @endphp
 																		@if($original && Storage::disk($original->location->location)->exists($original->link))
 																			<div class="row justify-content-center">
 																				<div class="col-md-6">

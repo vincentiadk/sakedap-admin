@@ -4,18 +4,18 @@ namespace App\Imports;
 
 use App\Models\Bulk;
 use App\Models\Author;
+use App\Jobs\PDFToImage;
+use App\Models\Location;
 use App\Models\Publisher;
 use App\Models\BulkDetail;
 use App\Models\Collection;
-use App\Models\Location;
 use Illuminate\Support\Str;
 use App\Jobs\WatermarkAudio;
 use App\Helper\GeneralHelper;
-use App\Jobs\PDFToImage;
 use App\Models\CollectionMedia;
 use Illuminate\Validation\Rule;
-use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\File;
+use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -202,7 +202,7 @@ class CollectionImport implements ToCollection, WithBatchInserts, WithChunkReadi
                         'extension'     => 'wav',
                         'mimes'         => 'audio/x-wav',
                         'hash'          => md5_file($dir_original),
-                        'type'          => 5,
+                        'type'          => 2,
                         'method'        => 7,
                         'location_id'   => $this->location->id
                     ]);
@@ -216,7 +216,7 @@ class CollectionImport implements ToCollection, WithBatchInserts, WithChunkReadi
                             'extension'     => $extension,
                             'mimes'         => 'audio/x-wav',
                             'hash'          => md5_file($dir_preview),
-                            'type'          => 5,
+                            'type'          => 2,
                             'method'        => 7,
                             'created_at'    => date('Y-m-d H:i:s'),
                             'updated_at'    => date('Y-m-d H:i:s'),
@@ -229,7 +229,7 @@ class CollectionImport implements ToCollection, WithBatchInserts, WithChunkReadi
                             'extension'     => $extension,
                             'mimes'         => 'audio/x-wav',
                             'hash'          => md5_file($dir_watermark),
-                            'type'          => 6,
+                            'type'          => 3,
                             'method'        => 7,
                             'created_at'    => date('Y-m-d H:i:s'),
                             'updated_at'    => date('Y-m-d H:i:s'),
@@ -255,25 +255,25 @@ class CollectionImport implements ToCollection, WithBatchInserts, WithChunkReadi
                             'extension'     => $extension,
                             'mimes'         => 'video/mp4',
                             'hash'          => md5_file($dir_original),
-                            'type'          => 7,
+                            'type'          => 2,
                             'method'        => 7,
                             'created_at'    => date('Y-m-d H:i:s'),
                             'updated_at'    => date('Y-m-d H:i:s'),
                             'location_id'   => $this->location->id
                         ],
-                        [
-                            'collection_id' => $collection->id,
-                            'link'          => $link_preview,
-                            'size'          => File::size($dir_preview),
-                            'extension'     => $extension,
-                            'mimes'         => 'video/mp4',
-                            'hash'          => md5_file($dir_preview),
-                            'type'          => 8,
-                            'method'        => 7,
-                            'created_at'    => date('Y-m-d H:i:s'),
-                            'updated_at'    => date('Y-m-d H:i:s'),
-                            'location_id'   => $this->location->id
-                        ],
+                        // [
+                        //     'collection_id' => $collection->id,
+                        //     'link'          => $link_preview,
+                        //     'size'          => File::size($dir_preview),
+                        //     'extension'     => $extension,
+                        //     'mimes'         => 'video/mp4',
+                        //     'hash'          => md5_file($dir_preview),
+                        //     'type'          => 8,
+                        //     'method'        => 7,
+                        //     'created_at'    => date('Y-m-d H:i:s'),
+                        //     'updated_at'    => date('Y-m-d H:i:s'),
+                        //     'location_id'   => $this->location->id
+                        // ],
                         [
                             'collection_id' => $create->id,
                             'link'          => $link_watermark,
@@ -281,7 +281,7 @@ class CollectionImport implements ToCollection, WithBatchInserts, WithChunkReadi
                             'extension'     => $extension,
                             'mimes'         => 'video/mp4',
                             'hash'          => md5_file($dir_watermark),
-                            'type'          => 9,
+                            'type'          => 3,
                             'method'        => 7,
                             'created_at'    => date('Y-m-d H:i:s'),
                             'updated_at'    => date('Y-m-d H:i:s'),

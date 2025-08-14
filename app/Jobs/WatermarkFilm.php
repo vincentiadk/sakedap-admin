@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\Location;
+use App\Helper\GeneralHelper;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\CollectionMedia;
+use Illuminate\Support\Facades\File;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use App\Helper\GeneralHelper;
-use App\Models\CollectionMedia;
-use App\Models\Location;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class WatermarkFilm implements ShouldQueue
 {
@@ -61,7 +61,7 @@ class WatermarkFilm implements ShouldQueue
 
 
         $collectionMedia  = CollectionMedia::where('collection_id', $this->collMedia->collection_id)
-            ->where('type', 8)
+            ->where('type', 3)
             ->first();
 
         if ($collectionMedia) {
@@ -71,7 +71,7 @@ class WatermarkFilm implements ShouldQueue
                 'extension'         => $this->collMedia->extension,
                 'mimes'             => File::mimeType($path_preview),
                 'hash'              => md5_file($path_preview),
-                'type'              => 8,
+                'type'              => 3,
                 'status'            => 1,
                 'method'            => $this->collMedia->method,
                 'updated_at'        => date('Y-m-d H:i:s'),
@@ -84,7 +84,7 @@ class WatermarkFilm implements ShouldQueue
                 'extension'             => $this->collMedia->extension,
                 'mimes'                 => File::mimeType($path_preview),
                 'hash'                  => md5_file($path_preview),
-                'type'                  => 8,
+                'type'                  => 3,
                 'status'                => 1,
                 'method'                => $this->collMedia->method,
                 'created_at'            => date('Y-m-d H:i:s'),
@@ -94,7 +94,7 @@ class WatermarkFilm implements ShouldQueue
         }
 
         $collectionMedia  = CollectionMedia::where('collection_id', $this->collMedia->collection_id)
-            ->where('type', 9)
+            ->where('type', 3)
             ->first();
 
         if ($collectionMedia) {
@@ -104,7 +104,7 @@ class WatermarkFilm implements ShouldQueue
                 'extension'         => $this->collMedia->extension,
                 'mimes'             => File::mimeType($path_watermark),
                 'hash'              => md5_file($path_watermark),
-                'type'              => 9,
+                'type'              => 3,
                 'status'            => 1,
                 'method'            => $this->collMedia->method,
                 'updated_at'        => date('Y-m-d H:i:s'),
@@ -117,7 +117,7 @@ class WatermarkFilm implements ShouldQueue
                 'extension'             => $this->collMedia->extension,
                 'mimes'                 => File::mimeType($path_watermark),
                 'hash'                  => md5_file($path_watermark),
-                'type'                  => 9,
+                'type'                  => 3,
                 'method'                => $this->collMedia->method,
                 'created_at'            => date('Y-m-d H:i:s'),
                 'updated_at'            => date('Y-m-d H:i:s'),

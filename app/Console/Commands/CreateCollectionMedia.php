@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Helper\GeneralHelper;
 use App\Jobs\PDFToImage;
 use App\Jobs\WatermarkAudio;
+use App\Helper\GeneralHelper;
+use App\Models\CollectionMedia;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use App\Models\CollectionMedia;
 
 class CreateCollectionMedia extends Command
 {
@@ -43,7 +43,7 @@ class CreateCollectionMedia extends Command
      */
     public function handle()
     {
-        $collection_media = CollectionMedia::where('type', 4)->get();
+        $collection_media = CollectionMedia::where('type', 2)->get();
         foreach ($collection_media as $d) {
             switch ($d->collection->type) {
                 case 1:

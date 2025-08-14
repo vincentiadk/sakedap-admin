@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Helper\GeneralHelper;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Location;
+use App\Helper\GeneralHelper;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class CollectionMedia extends Model
 {
@@ -65,16 +65,16 @@ class CollectionMedia extends Model
         } else if ($this->type == 3) {
             $type = 'Pdf Watermark';
         } else if ($this->type == 4) {
-            $type = 'Audio Original';
-        } else if ($this->type == 5) {
-            $type = 'Audio Preview';
-        } else if ($this->type == 6) {
-            $type = 'Audio Watermark';
-        } else if ($this->type == 7) {
-            $type = 'Video Original';
-        } else if ($this->type == 8) {
-            $type = 'Video Preview';
-        } else if ($this->type == 9) {
+            //     $type = 'Audio Original';
+            // } else if ($this->type == 5) {
+            //     $type = 'Audio Preview';
+            // } else if ($this->type == 6) {
+            //     $type = 'Audio Watermark';
+            // } else if ($this->type == 7) {
+            //     $type = 'Video Original';
+            // } else if ($this->type == 8) {
+            //     $type = 'Video Preview';
+            // } else if ($this->type == 9) {
             $type = 'Video Watermark';
         } else {
             $type = 'Invalid';
