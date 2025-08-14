@@ -1064,6 +1064,21 @@ class ReportController extends Controller
             ]);
         }
 
+        if ($request->param) {
+            if ($request->param == 'annual') {
+                $start  = $request->year_start . '-01-01T00:00:00Z';
+                $finish = $request->year_end . '-12-31T23:59:59Z';
+            } else if ($request->param == 'monthly') {
+                $start  = $request->month_year_start . '-' . $request->month_start . '-01T00:00:00Z';
+                $finish = date('Y-m-t', strtotime($request->month_year_end . '-' . $request->month_end)) . 'T23:59:59Z';
+            } else if ($request->param == 'daily') {
+                $start  = $request->day_start . 'T00:00:00Z';
+                $finish = $request->day_end . 'T23:59:59Z';
+            }
+
+            array_push($data, ['created_date' => "[$start TO $finish]"]);
+        }
+
         if ($request->province_id) {
             $province = Province::find($request->province_id);
             array_push($data, ['provinsi' => '"' . $province->name . '"']);
@@ -1082,7 +1097,7 @@ class ReportController extends Controller
             'limit'  => $limit
         ];
 
-        $datatable = Solr::datatable('isbn', 'mst_penerbit', Arr::collapse($data), $pagination, $specific);
+        $datatable = Solr::datatable('isbn', 'complete', Arr::collapse($data), $pagination, $specific);
         $response['data'] = [];
         $nomor = $offset + 1;
 

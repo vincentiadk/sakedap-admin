@@ -170,13 +170,6 @@
                                                     </td>
                                                     <td>
                                                         {{$value->collection->code}}
-                                                        @php $cover = $value->collection->collectionMedia->where('type', 1)->first();
-                                                        @endphp
-                                                        @if(!empty($cover) && !empty($cover->link))
-                                                            <center>
-                                                                <img src="{{ asset(Storage::url($cover->link)) }}"  style="max-width:242px; max-height:280px;">
-                                                            </center>
-                                                        @endif
 													</td>
                                                     <td>{{$value->collection->depositHead->shape}}</td>
                                                     <td>{{$value->collection->title}}</td>

@@ -884,48 +884,48 @@
                                             @endif
                                         </div>
                                         @php
-                                            $showBtnCancelUpdate = false;
+                                            $showBtnCancelUpdate = true;
 
                                             if($collection->edit_by) {
                                                 if($collection->edit_by == session('id')) {
-                                                    $showBtnCancelUpdate = true;
+                                                    $showBtnCancelUpdate = false;
                                                 }
                                             }
                                         @endphp
 
-                                        @if($showBtnCancelUpdate)
+                                        <div class="form-group">
+                                            <hr>
+                                        </div>
+                                        <div class="form-group">
                                             <div class="form-group">
-                                                <hr>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <ul id="validation_contributor"
-                                                                class="text-danger font-italic"></ul>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="text-right">
-                                                                @if ($access_lock > 0)
-                                                                    <fieldset class="checkbox">
-                                                                        <label>
-                                                                            <input type="checkbox" name="lock"
-                                                                                onchange="formUrl()"
-                                                                                value="{{ $collection->lock }}"
-                                                                                {{ $collection->lock ? 'checked' : '' }}>
-                                                                            Kunci
-                                                                        </label>
-                                                                    </fieldset>
-                                                                @endif
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <ul id="validation_contributor"
+                                                            class="text-danger font-italic"></ul>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="text-right">
+                                                            @if ($access_lock > 0)
+                                                                <fieldset class="checkbox">
+                                                                    <label>
+                                                                        <input type="checkbox" name="lock"
+                                                                            onchange="formUrl()"
+                                                                            value="{{ $collection->lock }}"
+                                                                            {{ $collection->lock ? 'checked' : '' }}>
+                                                                        Kunci
+                                                                    </label>
+                                                                </fieldset>
+                                                            @endif
+                                                            @if($showBtnCancelUpdate)
                                                                 <button type="submit" name="cancel" value="cancel" class="btn btn-secondary">Batal Edit</button>
-                                                                <button type="reset" class="btn btn-danger" {{ $collection->lock ? 'disabled' : '' }}>Reset</button>
-                                                                <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
-                                                            </div>
+                                                            @endif
+                                                            <button type="reset" class="btn btn-danger" {{ $collection->lock ? 'disabled' : '' }}>Reset</button>
+                                                            <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endif
+                                        </div>
                                     </form>
                                 </div>
                             </div>

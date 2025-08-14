@@ -125,7 +125,7 @@
 			pagingType : 'input',
 			ajax: {
 				url: '{{ url("admin/report/file_download/datatable") }}',
-				type: 'post'
+				type: 'get'
 			},
 			columns: [
 				{

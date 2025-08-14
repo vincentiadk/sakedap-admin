@@ -149,7 +149,7 @@
 			pagingType : 'input',
 			ajax: {
 				url: '{{ url("admin/report/performance_user/datatable") }}',
-				type: 'post',
+				type: 'get',
 				data: {
 					causer_id: $('#filter_causer_id').val(),
 					start_date: $('#filter_start_date').val(),

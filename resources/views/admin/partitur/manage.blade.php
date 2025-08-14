@@ -82,7 +82,7 @@
 												<div class="col-md-10">
                                                     <select name="city" id="city" class="form-control" style="width:100%;">
 													@if(!empty(session('filter.collection.manage.2.city')))
-														<option value="{{session('filter.collection.manage.2.city')}}" selected="selected">{{ App\Models\ City::select('name')->where('id',session('filter.collection.manage.2.city'))->first()->name }}</option>
+														<option value="{{session('filter.collection.manage.2.city')}}" selected="selected">{{ App\Models\City::select('name')->where('id',session('filter.collection.manage.2.city'))->first()->name }}</option>
 													@endif
 													</select>
 												</div>
@@ -131,7 +131,7 @@
 											<div class="form-group row">
 												<label class="col-md-2">Tahun Terbit</label>
 												<div class="col-md-10">
-													<input type="number" name="publication_year" id="publication_year" class="form-control" value="{{ session('filter.collection.manage.2.publication_year') }}" > 
+													<input type="number" name="publication_year" id="publication_year" class="form-control" value="{{ session('filter.collection.manage.2.publication_year') }}" >
 												</div>
 											</div>
 										</div>

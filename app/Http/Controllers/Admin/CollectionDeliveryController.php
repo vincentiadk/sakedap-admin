@@ -11,9 +11,9 @@ use App\Models\Publisher;
 use App\Models\Expedition;
 use App\Models\Contributor;
 use App\Models\DepositHead;
+use Illuminate\Support\Str;
 use App\Models\CopyRejected;
 use App\Models\DeliveryForm;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Helper\GeneralHelper;
 use App\Models\CollectionCopy;
@@ -277,8 +277,7 @@ class CollectionDeliveryController extends Controller
 
     public function downloadReceipt($letter_no)
     {
-        $delivery = DeliveryForm::where('letter_no', $letter_no)
-            ->first();
+        $delivery = DeliveryForm::where('letter_no', $letter_no)->first();
 
         // dd($delivery);
         if ($delivery) {

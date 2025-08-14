@@ -31,6 +31,5 @@ return [
     App\Providers\TusServiceProvider::class,
     Maatwebsite\Excel\ExcelServiceProvider::class,
     ZanySoft\Zip\ZipServiceProvider::class,
-    Mccarlosen\LaravelMpdf\LaravelMpdfServiceProvider::class,
     Imtigger\LaravelJobStatus\LaravelJobStatusServiceProvider::class,
 ];

@@ -295,7 +295,7 @@
 																@foreach($edition as $e)
 																	<tr class="text-center">
 																		<td class="align-middle">{{ $e->edition }}</td>
-																		<td class="align-middle">{{ date('d-m-Y', strtotime($e->date)) }}</td>
+																		<td class="align-middle">{{ $e->date ?? '' }}</td>
 																		<td class="align-middle">
 																			@php $cover = $e->collectionMedia->where('type', 1)->first(); @endphp
 																			@if($cover)

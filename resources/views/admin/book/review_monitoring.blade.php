@@ -210,8 +210,7 @@
                                                     $watermark = $collection->collectionMedia->where('type', 3)->first();
                                                     @endphp
                                                     @if($original)
-                                                    @if($original->extension=="pdf" && $watermark &&
-                                                    count($watermark->jsonParse()) > 0)
+                                                    @if($original->extension=="pdf" && $watermark)
                                                     <center>
                                                         <div id="carouselExampleControls" class="carousel slide"
                                                             data-ride="carousel">

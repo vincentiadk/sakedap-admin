@@ -510,7 +510,7 @@
             iDisplayInLength: 10,
             ajax: {
                 url: '{{ url('admin/report/collection/datatable_summary') }}',
-                type: 'post',
+                type: 'GET',
                 data: {
                     param: param,
                     publisher_id: $('#publisher_id').val(),
@@ -581,7 +581,7 @@
             statesave: true,
             ajax: {
                 url: '{{ url('admin/report/collection/datatable_detail') }}',
-                type: 'post',
+                type: 'GET',
                 data: {
                     param: param,
                     publisher_id: $('#publisher_id').val(),

@@ -1,0 +1,5 @@
+@include('publisher.layout.head', $data)
+@include('publisher.layout.header')
+@include('publisher.layout.sidebar')
+@include($data['content'], $data)
+@include('publisher.layout.footer')

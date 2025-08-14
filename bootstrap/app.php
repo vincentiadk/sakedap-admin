@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
@@ -19,6 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->namespace('App\\Http\\Controllers')
                 ->group(base_path('routes/web.php'));
+
+            Route::middleware('web')
+                ->namespace('App\\Http\\Controllers')
+                ->group(base_path('routes/publisher.php'));
+
+            Route::middleware('web')
+                ->namespace('App\\Http\\Controllers')
+                ->group(base_path('routes/frontend.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -31,6 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'strip_tags' => \App\Http\Middleware\StripTagsFromInput::class,
             'throttle_form' => \App\Http\Middleware\ThrottleForm::class,
             'log_form' => \App\Http\Middleware\LogForm::class,
+        ]);
+
+        $middleware->web(append: [
+            VerifyCsrfToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

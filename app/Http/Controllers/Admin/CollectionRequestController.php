@@ -56,7 +56,6 @@ class CollectionRequestController extends Controller
         $cover    = $request->file('cover_field');
         $original = $request->file('original_field');
 
-
         $path_cover    = Storage::disk($this->location->location)->put('public/collection/serial/temporary', $cover);
         $path_original = Storage::disk($this->location->location)->put('public/collection/serial/temporary', $original);
 
@@ -539,40 +538,34 @@ class CollectionRequestController extends Controller
                                     'updated_by'   => session('id')
                                 ]);
 
-                                $cover_edition     = $request->edition_cover_field[$key];
-                                $original_edition  = $request->edition_original_field[$key];
-                                $path_tmp_cover    = 'public/collection/serial/temporary/' . $cover_edition;
-                                $path_tmp_original = 'public/collection/serial/temporary/' . $original_edition;
-                                $path_cover        = 'public/collection/serial/edition/cover/' . $edition->id . '/' . Str::random(40) . '.jpeg';
-                                $path_original     = 'public/collection/serial/edition/original/' . $edition->id . '/' . Str::random(40) . '.pdf';
+                                $path_cover = 'public/collection/serial/edition/cover/' . $edition->id . '/' . Str::random(40) . '.jpeg';
+                                $path_original = 'public/collection/serial/edition/original/' . $edition->id . '/' . Str::random(40) . '.pdf';
+
+                                Storage::disk($this->location->location)->copy('public/serial/temporary/' . $request->edition_cover_field[$key], $path_cover);
+                                Storage::disk($this->location->location)->copy('public/serial/temporary/' . $request->edition_original_field[$key], $path_original);
 
                                 Storage::disk($this->location->location)->makeDirectory('public/collection/serial/edition/watermark/' . $edition->id);
-                                CollectionMedia::insert([
-                                    [
-                                        'collection_id' => $edition->id,
-                                        'link'          => $path_cover,
-                                        'size'          => File::size(Storage::disk($this->location->location)->path($path_cover)),
-                                        'extension'     => pathinfo(Storage::disk($this->location->location)->path($path_cover), PATHINFO_EXTENSION),
-                                        'mimes'         => File::mimeType(Storage::disk($this->location->location)->path($path_cover)),
-                                        'hash'          => md5_file(Storage::disk($this->location->location)->path($path_cover)),
-                                        'type'          => 1,
-                                        'method'        => 4,
-                                        'created_at'    => date('Y-m-d H:i:s'),
-                                        'updated_at'    => date('Y-m-d H:i:s'),
-                                        'location_id'   => $this->location->id
-                                    ],
-                                    [
-                                        'collection_id' => $edition->id,
-                                        'link'          => $path_original,
-                                        'size'          => File::size(Storage::disk($this->location->location)->path($path_original)),
-                                        'extension'     => pathinfo(Storage::disk($this->location->location)->path($path_original), PATHINFO_EXTENSION),
-                                        'mimes'         => File::mimeType(Storage::disk($this->location->location)->path($path_original)),
-                                        'hash'          => md5_file(Storage::disk($this->location->location)->path($path_original)),
-                                        'type'          => 2,
-                                        'method'        => 4,
-                                        'created_at'    => date('Y-m-d H:i:s'),
-                                        'updated_at'    => date('Y-m-d H:i:s')
-                                    ]
+
+                                $edition->collectionMedia()->create([
+                                    'link'          => $path_cover,
+                                    'size'          => File::size(Storage::disk($this->location->location)->path($path_cover)),
+                                    'extension'     => pathinfo(Storage::disk($this->location->location)->path($path_cover), PATHINFO_EXTENSION),
+                                    'mimes'         => File::mimeType(Storage::disk($this->location->location)->path($path_cover)),
+                                    'hash'          => md5_file(Storage::disk($this->location->location)->path($path_cover)),
+                                    'type'          => 1,
+                                    'method'        => 4,
+                                    'location_id'   => $this->location->id
+                                ]);
+
+                                $edition->collectionMedia()->create([
+                                    'link'          => $path_original,
+                                    'size'          => File::size(Storage::disk($this->location->location)->path($path_original)),
+                                    'extension'     => pathinfo(Storage::disk($this->location->location)->path($path_original), PATHINFO_EXTENSION),
+                                    'mimes'         => File::mimeType(Storage::disk($this->location->location)->path($path_original)),
+                                    'hash'          => md5_file(Storage::disk($this->location->location)->path($path_original)),
+                                    'type'          => 2,
+                                    'method'        => 4,
+                                    'location_id'   => $this->location->id
                                 ]);
                             }
                         }
@@ -591,7 +584,6 @@ class CollectionRequestController extends Controller
                             $name_cover = 'film';
                         }
 
-                        $link_collection_cover = Storage::disk($this->location->location)->put('public/collection/' . $name_cover . '/cover/' . $create->id, $cover);
                         CollectionMedia::create([
                             'collection_id' => $create->id,
                             'link'          => Storage::disk($this->location->location)->put('public/collection/' . $name_cover . '/cover/' . $create->id, $cover),

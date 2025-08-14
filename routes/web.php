@@ -402,14 +402,14 @@ Route::group(['middleware' => 'protectLoginMiddleware'], function () {
             // Distribution
             Route::prefix('distribution')->middleware('protect.menu:admin/report/distribution')->group(function () {
                 Route::get('/', 'ReportController@distribution');
-                Route::post('datatable', 'ReportController@distributionDatatable');
+                Route::get('datatable', 'ReportController@distributionDatatable');
             });
 
             // Collection
             Route::prefix('collection')->middleware('protect.menu:admin/report/collection')->group(function () {
                 Route::get('/', 'ReportController@collection');
-                Route::post('datatable_summary', 'ReportController@collectionDatatableSummary');
-                Route::post('datatable_detail', 'ReportController@collectionDatatableDetail');
+                Route::get('datatable_summary', 'ReportController@collectionDatatableSummary');
+                Route::get('datatable_detail', 'ReportController@collectionDatatableDetail');
                 Route::get('download_receipt/{id}', 'ReportController@downloadReceipt');
                 // Collection KCRA
                 Route::prefix('kckra')->group(function () {
@@ -429,7 +429,7 @@ Route::group(['middleware' => 'protectLoginMiddleware'], function () {
             // Kinerja User
             Route::prefix('performance_user')->middleware('protect.menu:admin/report/performance_user')->group(function () {
                 Route::get('/', 'ReportController@performanceUser');
-                Route::post('datatable', 'ReportController@performanceUserDatatable');
+                Route::get('datatable', 'ReportController@performanceUserDatatable');
             });
 
             // Publisher
@@ -453,7 +453,7 @@ Route::group(['middleware' => 'protectLoginMiddleware'], function () {
             // File Download
             Route::prefix('file_download')->middleware('protect.menu:admin/report/file_download')->group(function () {
                 Route::get('/', 'ReportController@fileDownload');
-                Route::post('datatable', 'ReportController@fileDownloadDatatable');
+                Route::get('datatable', 'ReportController@fileDownloadDatatable');
                 Route::match(['get', 'post'], 'processing', 'ReportController@fileDownloadProcessing');
                 Route::get('show_description/{id}', 'ReportController@fileDownloadDescription');
                 Route::get('download/{id}', 'ReportController@fileDownloadRun');

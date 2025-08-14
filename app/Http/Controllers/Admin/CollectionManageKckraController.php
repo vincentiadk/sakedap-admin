@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\Author;
 use App\Models\Library;
 use App\Models\Subject;
@@ -20,8 +21,8 @@ use App\Models\CollectionSubject;
 use App\Models\UserCertainAccess;
 use App\Models\CollectionCategory;
 use App\Http\Controllers\Controller;
-use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\File;
+use App\Models\CollectionContributor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -637,7 +638,7 @@ class CollectionManageKckraController extends Controller
                     'code' => $val->code ? $val->code : '<i class="la la-times text-danger"></i>',
                     'updated_by' => $updatedBy,
                     'validated_by' => $receivedBy,
-                    'received_at' => date('d-m-Y', strtotime($val->received_at)),
+                    'received_at' => $val->received_at ? Carbon::parse($val->received_at)->format('Y-m-d') : '',
                     'delete' => $delete_button
                 ];
                 $nomor++;

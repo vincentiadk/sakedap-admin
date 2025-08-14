@@ -131,7 +131,7 @@
 			pagingType: 'input',
 			ajax: {
 				url: '{{ url("admin/report/distribution/datatable") }}',
-				type: 'post',
+				type: 'GET',
 				data: {
 					expedition_id: $('#expedition_id').val(),
 					publisher_id: $('#publisher_id').val(),
