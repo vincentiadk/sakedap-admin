@@ -18,7 +18,7 @@ $(window).on("load", function(){
 
     require.config({
         paths: {
-            echarts: '../../../app-assets/vendors/js/charts/echarts'
+            echarts: '../../../vendors/js/charts/echarts'
         }
     });
 
@@ -28,9 +28,9 @@ $(window).on("load", function(){
 
     require(
         [
-            'echarts',
-            'echarts/chart/bar',
-            'echarts/chart/line'
+            'https://cdn.jsdelivr.net/gh/rollerhafeezh/modernadmin@latest/vendors/js/charts/echarts/echarts',
+            'https://cdn.jsdelivr.net/gh/rollerhafeezh/modernadmin@latest/vendors/js/charts/echarts/chart/bar',
+            'https://cdn.jsdelivr.net/gh/rollerhafeezh/modernadmin@latest/vendors/js/charts/echarts/chart/line'
         ],
 
 

@@ -11,6 +11,7 @@
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Quicksand:300,400,500,700" rel="stylesheet">
         <link href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/vendors.css') }}">
+        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/icheck.css') }}">
         <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/custom.css') }}">
         <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/app.css') }}">
         <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/core/menu/menu-types/vertical-menu.css') }}">
@@ -98,7 +99,6 @@
         <script src="{{ asset('theme_admin/app-assets/js/core/app-menu.js') }}"></script>
         <script src="{{ asset('theme_admin/app-assets/js/core/app.js') }}"></script>
         <script src="{{ asset('theme_admin/app-assets/js/scripts/forms/form-login-register.js') }}"></script>
-        <script src="{{ asset('theme_admin/assets/js/scripts/disableAutoFill.js') }}"></script>
         @if(App::environment('production'))
             <script>
                 $(document).ready(function() {

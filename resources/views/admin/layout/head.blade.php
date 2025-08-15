@@ -2,7 +2,6 @@
 <html class="loading" lang="{{ config('app.locale') }}" data-textdirection="ltr">
 
 <head>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-F4VZCGM4KE"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -13,7 +12,6 @@
     </script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <title>{{ $title }}</title>
@@ -28,6 +26,7 @@
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/tables/datatable/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/selects/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/editors/summernote.css') }}">
+    <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/icheck.css') }}">
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/custom.css') }}">
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/ui/prism.min.css') }}">
     <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/bootstrap.min.css') }}">
@@ -83,13 +82,13 @@
     <script src="{{ asset('theme_admin/plugins/dataTables/input.js') }}"></script>
     <script src="{{ asset('theme_admin/assets/js/jszip.min.js') }}"></script>
     <script src="{{ asset('theme_admin/assets/js/epub.min.js') }}"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    {{-- <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.7/js/dataTables.checkboxes.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
     <script src="https://example.com/fontawesome/v5.15.4/js/fontawesome.js" data-auto-replace-svg="nest"></script>
     <script src="https://example.com/fontawesome/v5.15.4/js/solid.js"></script>
-    <script src="https://example.com/fontawesome/v5.15.4/js/brands.js"></script>
+    <script src="https://example.com/fontawesome/v5.15.4/js/brands.js"></script> --}}
 
     <style>
         .files input {

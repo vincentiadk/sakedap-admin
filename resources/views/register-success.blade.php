@@ -13,6 +13,7 @@
   <link href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome.min.css"
   rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/vendors.css') }}">
+  <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/icheck.css') }}">
   <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/custom.css') }}">
   <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/app.css') }}">
   <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/core/menu/menu-types/vertical-menu.css') }}">
