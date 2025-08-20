@@ -36,8 +36,6 @@
                         <th>Jumlah Koleksi</th>
                         <th>Nama</th>
                         <th>Title</th>
-                        <th>Tahun Kelahiran</th>
-                        <th>Tahun Kematian</th>
                         <th>Aksi</th>
                       </tr>
                     </thead>
@@ -73,14 +71,6 @@
           <div class="form-group">
             <label>Title :</label>
             <input type="text" name="title" id="title" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Tahun Kelahiran :</label>
-            <input type="text" name="year_of_birth" id="year_of_birth" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Tahun Kematian :</label>
-            <input type="text" name="year_of_death" id="year_of_death" class="form-control">
           </div>
         </form>
       </div>
@@ -155,14 +145,6 @@
           className: 'align-middle text-center'
         },
         {
-          name: 'year_of_birth',
-          className: 'align-middle text-center'
-        },
-        {
-          name: 'year_of_death',
-          className: 'align-middle text-center'
-        },
-        {
           name: 'action',
           searchable: false,
           orderable: false,
@@ -187,8 +169,6 @@
         loadingClose('.modal-content');
         $('#fullname').val(response.fullname);
         $('#title').val(response.title);
-        $('#year_of_birth').val(response.year_of_birth);
-        $('#year_of_death').val(response.year_of_death);
         $('#btn_update').attr('onclick', 'update(' + id + ')');
       },
       error: function() {
@@ -230,7 +210,7 @@
             icon: 'info',
             title: 'Validasi'
           });
-          
+
           $.each(response.error, function(i, val) {
             $('#validasi_content').append('<li>' + val + '</li>');
           })

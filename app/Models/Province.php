@@ -26,4 +26,9 @@ class Province extends Model
     {
         return $this->hasMany('App\Models\City');
     }
+
+    public function collection()
+    {
+        return $this->hasManyThrough(Collection::class, City::class);
+    }
 }

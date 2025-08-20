@@ -280,7 +280,7 @@
 			},
 			success: function(response) {
 				loadingClose('.modal-content');
-				$('#province_id').val(response.province_id);
+				$('#province_id').val(response.province_id).change();
 				$('#nip').val(response.nip);
 				$('#name').val(response.name);
 				$('#position').val(response.position);

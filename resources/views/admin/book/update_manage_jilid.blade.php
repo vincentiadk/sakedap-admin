@@ -163,18 +163,6 @@
 																	<input type="text" name="title_field" id="title_field" class="form-control" placeholder="Gelar">
 																</div>
 															</div>
-															<div class="col-md-4">
-																<div class="form-group">
-																	<label>Tahun Kelahiran :</label>
-																	<input type="number" name="year_of_birth_field" id="year_of_birth_field" class="form-control" placeholder="Tahun kelahiran">
-																</div>
-															</div>
-															<div class="col-md-4">
-																<div class="form-group">
-																	<label>Tahun Kematian :</label>
-																	<input type="number" name="year_of_death_field" id="year_of_death_field" class="form-control" placeholder="Tahun kematian">
-																</div>
-															</div>
 														</div>
 														<div class="form-group">
 															<button type="button" onclick="addContributor()" class="btn btn-success col-12">Tambah</button>
@@ -187,8 +175,6 @@
 																			<th>Kontributor</th>
 																			<th>Nama</th>
 																			<th>Gelar</th>
-																			<th>Tahun Kelahiran</th>
-																			<th>Tahun Kematian</th>
 																			<th>Hapus</th>
 																		</tr>
 																	</thead>
@@ -198,14 +184,10 @@
 																				<input type="hidden" name="contributor_contributor_id_field[]" value="{{ $cc->contributor_id }}">
 																				<input type="hidden" name="contributor_fullname_field[]" value="{{ $cc->author->fullname }}">
 																				<input type="hidden" name="contributor_title_field[]" value="{{ $cc->author->title }}">
-																				<input type="hidden" name="contributor_year_of_birth_field[]" value="{{ $cc->author->year_of_birth }}">
-																				<input type="hidden" name="contributor_year_of_death_field[]" value="{{ $cc->author->year_of_death }}">
 
 																				<td class="align-middle">{{ $cc->contributor->name }}</td>
 																				<td class="align-middle">{{ $cc->author->fullname }}</td>
 																				<td class="align-middle">{{ $cc->author->title }}</td>
-																				<td class="align-middle">{{ $cc->author->year_of_birth }}</td>
-																				<td class="align-middle">{{ $cc->author->year_of_death }}</td>
 																				<td class="align-middle">
 																					<button type="button" class="btn btn-danger btn-sm" id="remove_field_contributor">
 																						<i class="la la-trash"></i>
@@ -336,8 +318,6 @@
 		var contributor_id_field = $('#contributor_id_field').val();
 		var fullname_field       = $('#fullname_field').val();
 		var title_field          = $('#title_field').val();
-		var year_of_birth_field  = $('#year_of_birth_field').val();
-		var year_of_death_field  = $('#year_of_death_field').val();
 
 		if(!contributor_id_field || !fullname_field || !title_field) {
 			Swal.fire('Harap mengisi kontributor, nama, dan title!', '', 'warning');
@@ -357,24 +337,18 @@
 						<input type="hidden" name="contributor_contributor_id_field[]" value="` + contributor_id_field + `">
 						<input type="hidden" name="contributor_fullname_field[]" value="` + fullname_field + `">
 						<input type="hidden" name="contributor_title_field[]" value="` + title_field + `">
-						<input type="hidden" name="contributor_year_of_birth_field[]" value="` + year_of_birth_field + `">
-						<input type="hidden" name="contributor_year_of_death_field[]" value="` + year_of_death_field + `">
 					`);
 
 					$('#datatable_default').DataTable().row.add([
 						response.name,
 						fullname_field,
 						title_field,
-						year_of_birth_field,
-						year_of_death_field,
 						'<button type="button" class="btn btn-danger btn-sm" id="remove_field_contributor"><i class="la la-trash"></i></button>'
 					]).draw().node();
 
 					$('#contributor_id_field').val('').trigger('change');
 					$('#fullname_field').val('');
 					$('#title_field').val('');
-					$('#year_of_birth_field').val('');
-					$('#year_of_death_field').val('');
 				}
 			});
 		}

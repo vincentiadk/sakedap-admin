@@ -64,7 +64,8 @@ class CollectionMonitoringController extends Controller
 
     public function review(Request $request, $id)
     {
-        $collection    = Collection::find($id);
+        $collection = Collection::find($id);
+
         $collection_id = Collection::select('id')
             ->where('type', $collection->type)
             ->where('status', $collection->status)

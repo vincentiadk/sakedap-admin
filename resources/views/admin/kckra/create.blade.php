@@ -486,8 +486,6 @@
                                                                     <th>Kontributor</th>
                                                                     <th>Nama</th>
                                                                     <th>Jabatan</th>
-                                                                    <th>Tahun Kelahiran</th>
-                                                                    <th>Tahun Kematian</th>
                                                                     <th>Action</th>
                                                                 </tr>
                                                             </thead>
@@ -517,18 +515,6 @@
                                                                             class="form-control"
                                                                             oninput="validationContributor()"
                                                                             placeholder="Gelar">
-                                                                    </td>
-                                                                    <td class="align-middle">
-                                                                        <input type="number"
-                                                                            name="contributor_year_of_birth_field[]"
-                                                                            class="form-control"
-                                                                            placeholder="Thn. Lahir">
-                                                                    </td>
-                                                                    <td class="align-middle">
-                                                                        <input type="number"
-                                                                            name="contributor_year_of_death_field[]"
-                                                                            class="form-control"
-                                                                            placeholder="Thn. Mati">
                                                                     </td>
                                                                     <td class="align-middle">
                                                                         <button type="button"
@@ -1000,12 +986,6 @@
                 </td>
                 <td class="align-middle">
                     <input type="text" name="contributor_title_field[]" class="form-control" oninput="validationContributor()" placeholder="Gelar">
-                </td>
-                <td class="align-middle">
-                    <input type="number" name="contributor_year_of_birth_field[]" class="form-control" placeholder="Thn. Lahir">
-                </td>
-                <td class="align-middle">
-                    <input type="number" name="contributor_year_of_death_field[]" class="form-control" placeholder="Thn. Mati">
                 </td>
                 <td class="align-middle">
                     <button type="button" class="btn btn-danger btn-sm col-12" id="remove_row_contributor"><i class="la la-trash"></i></button>

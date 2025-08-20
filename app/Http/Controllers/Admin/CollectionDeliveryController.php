@@ -20,6 +20,7 @@ use App\Models\CollectionCopy;
 use App\Models\LibraryLocation;
 use App\Models\CopyRejectedProblem;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class CollectionDeliveryController extends Controller
@@ -279,14 +280,13 @@ class CollectionDeliveryController extends Controller
     {
         $delivery = DeliveryForm::where('letter_no', $letter_no)->first();
 
-        // dd($delivery);
         if ($delivery) {
-            $template           = Setting::where('slug', 'template-email-delivery-receipt')->first();
-            $header             = Setting::where('slug', 'template-email-header')->first();
-            $footer             = Setting::where('slug', 'template-email-footer')->first();
-            $link_header        = public_path('storage/' . str_replace('public/', '', $header->content));
-            $link_footer        = public_path('storage/' . str_replace('public/', '', $footer->content));
-            $received_at        = date('Y-m-m', strtotime($delivery->accepted_date));
+            $template = Setting::where('slug', 'template-email-delivery-receipt')->first();
+            $header = Setting::where('slug', 'template-email-header')->first();
+            $footer = Setting::where('slug', 'template-email-footer')->first();
+            $link_header = public_path('storage/' . str_replace('public/', '', $header->content));
+            $link_footer = public_path('storage/' . str_replace('public/', '', $footer->content));
+            $received_at = date('Y-m-m', strtotime($delivery->accepted_date));
             $director_signature = Director::where('province_id', session('province_id'))->whereDate('position_start', '<', $received_at)->first();
             $director = $director_signature;
 
@@ -300,19 +300,19 @@ class CollectionDeliveryController extends Controller
 
             $signature = '
                 ' . $director->position . '<br><br>
-                <img src="' . $signature_image . '" style="max-width:40px !important;"><br><br>
+                <img src="' . $signature_image . '" width="100"><br><br>
                 ' . $director->name . '<br>
                 <span style="font-weight:bold;">' . $director->nip . '</span>
             ';
 
             $data = [
                 'accepted_date' => date('d F Y', strtotime($delivery->accepted_date)),
-                'letter_no'        => $delivery->letter_no,
-                'publisher_name'   => $delivery->publisher->name,
-                'director'    => $signature,
-                'header'      => '<img src="' . $link_header . '" style="max-width:100%;">',
-                'footer'      => '<img src="' . $link_footer . '" style="max-width:100$; margin-bottom:10px">',
-                'qr'    => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $url,
+                'letter_no' => $delivery->letter_no,
+                'publisher_name' => $delivery->publisher->name,
+                'director' => $signature,
+                'header' => '<img src="' . $link_header . '" style="max-width:100%;">',
+                'footer' => '<img src="' . $link_footer . '" style="max-width:100$; margin-bottom:10px">',
+                'qr' => 'https://image-charts.com/chart?chs=50x50&cht=qr&chl=' . $url,
             ];
 
             $html = $template->parse($data);

@@ -205,8 +205,6 @@
 																<th>Kontributor</th>
 																<th>Nama</th>
 																<th>Gelar</th>
-																<th>Tahun Kelahiran</th>
-																<th>Tahun Kematian</th>
 															</tr>
 														</thead>
 														<tbody>
@@ -215,8 +213,6 @@
 																	<td class="align-middle">{{ $cc->contributor->name }}</td>
 																	<td class="align-middle">{{ $cc->author->fullname }}</td>
 																	<td class="align-middle">{{ $cc->author->title }}</td>
-																	<td class="align-middle">{{ $cc->author->year_of_birth }}</td>
-																	<td class="align-middle">{{ $cc->author->year_of_death }}</td>
 																</tr>
 															@endforeach
 														</tbody>

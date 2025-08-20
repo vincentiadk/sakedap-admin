@@ -7,10 +7,12 @@ use App\Models\Collection;
 use App\Models\ActivityLog;
 use App\Models\DepositHead;
 use Illuminate\Http\Request;
+use App\Models\CollectionCopy;
 use App\Models\CollectionMedia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class DashboardController extends Controller
 {
@@ -294,17 +296,14 @@ class DashboardController extends Controller
             return response()->json($getCache);
         } else if ($for == 'collection_location') {
             $getCache = Cache::remember('collection_location', 600, function () {
-                $data =  Province::selectRaw('count(collection_copies.id) as total_exemplar, count(DISTINCT collections.id) as total_collection, provinces.id, provinces.name')
-                    ->leftJoin('publishers', 'publishers.province_id', '=', 'provinces.id')
-                    ->leftJoin('collections', 'publishers.id', '=', 'collections.publisher_id')
-                    ->leftJoin('collection_copies', 'collections.id', '=', 'collection_copies.collection_id')
+                return Province::selectRaw('count(collection_copies.id) as total_exemplar, count(DISTINCT collections.id) as total_collection, provinces.id, provinces.name')
+                    ->join('publishers', 'publishers.province_id', '=', 'provinces.id')
+                    ->join('collections', 'publishers.id', '=', 'collections.publisher_id')
+                    ->join('collection_copies', 'collections.id', '=', 'collection_copies.collection_id')
                     ->groupBy('provinces.id')
-                    ->orderBy('total_collection', 'desc')
-                    ->limit(10)
                     ->get();
-
-                return $data;
             });
+
             return response()->json($getCache);
         } else if ($for == 'file_type') {
             $getCache = Cache::remember('file_type', 600, function () {

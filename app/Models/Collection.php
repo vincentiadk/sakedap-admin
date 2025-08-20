@@ -406,4 +406,18 @@ class Collection extends Model
             'id' // Local key on the edition table...
         );
     }
+
+    public function contributorFormatGroup()
+    {
+        $contributor = [];
+
+        foreach ($this->collectionContributor as $cc) {
+            $contributor[] = [
+                'position' => $cc->contributor->name,
+                'name' => $cc->author->name
+            ];
+        }
+
+        return collect($contributor)->groupBy('position')->all();
+    }
 }
