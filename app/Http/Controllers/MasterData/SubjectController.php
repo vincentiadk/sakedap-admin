@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\MasterData;
 
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class VisitController extends Controller
+class SubjectController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'master-data.visit'
+            'content' => 'master-data.subject'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -21,9 +22,9 @@ class VisitController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_kunjungan.ID',
+            'e_subjects.ID',
             null,
-            'e_kunjungan.NAME',
+            'e_subjects.NAME',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -37,7 +38,7 @@ class VisitController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = 'deleted_at is null';
 
         if ($search) {
             $terms = [];
@@ -65,14 +66,16 @@ class VisitController extends Controller
             select
                 count(*) as total
             from
-                e_kunjungan
+                e_subjects
+            where
+                deleted_at is null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_kunjungan
+                e_subjects
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -88,7 +91,7 @@ class VisitController extends Controller
                             select
                                 *
                             from
-                                e_kunjungan
+                                e_subjects
                             $whereClause
                             $orderBy
                         ) data
@@ -150,13 +153,14 @@ class VisitController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('e_kunjungan', [
+                QueryAPI::create('e_subjects', [
                     'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Membuat data kunjungan',
+                    'description' => 'Membuat data subjek',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -183,7 +187,7 @@ class VisitController extends Controller
             select
                 *
             from
-                e_kunjungan
+                e_subjects
             where
                 id = $id
         ", true);
@@ -207,13 +211,14 @@ class VisitController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('e_kunjungan', $id, [
-                    'name' => $request->name
+                QueryAPI::update('e_subjects', $id, [
+                    'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Mengubah data kunjungan',
+                    'description' => 'Mengubah data subjek',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -240,17 +245,19 @@ class VisitController extends Controller
             select
                 *
             from
-                e_kunjungan
+                e_subjects
             where
                 id = $id
         ", true);
 
         try {
-            QueryAPI::delete('e_kunjungan', $id);
+            QueryAPI::update('e_subjects', $id, [
+                'deleted_at' => date('Y-m-d')
+            ]);
 
             QueryAPI::activityLog([
                 'log_name' => 'default',
-                'description' => 'Menghapus data kunjungan',
+                'description' => 'Menghapus data subjek',
                 'causer_id' => session('id'),
                 'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
