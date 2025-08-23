@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Kecamatan</h4>
+            <h4 class="page-title mb-0">Kelurahan / Desa</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -22,7 +22,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Lokasi</a>
-                <span class="breadcrumb-item active">Kecamatan</span>
+                <span class="breadcrumb-item active">Kelurahan / Desa</span>
             </div>
         </div>
     </div>
@@ -35,7 +35,7 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Kota / Kabupaten</th>
+                        <th nowrap>Kecamatan</th>
                         <th nowrap>Nama</th>
                     </tr>
                 </thead>
@@ -59,8 +59,8 @@
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Kota / Kabupaten : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="city_id" id="city_id" data-dropdown-parent="#modal-form"></select>
+                        <label class="form-label">Kecamatan : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select" name="district_id" id="district_id" data-dropdown-parent="#modal-form"></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
@@ -90,7 +90,7 @@
     $(function() {
         loadData();
 
-        select2Serverside('#city_id', 'city');
+        select2Serverside('#district_id', 'district');
     });
 
     function onReloadTable() {
@@ -105,7 +105,7 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#city_id').val('').change();
+        $('#district_id').val('').change();
     }
 
     function onCreate() {
@@ -157,7 +157,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("location/district/datatable") }}',
+                url: '{{ url("location/village/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -187,7 +187,7 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("location/district/create-data") }}',
+            url: '{{ url("location/village/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -230,7 +230,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("location/district/show-data") }}',
+            url: '{{ url("location/village/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -244,8 +244,8 @@
                 onLoading('close', '.modal-content');
 
                 $('#table_id').val(response.ID);
-                $('#city_id').html('<option value="' + response.KABUPATENID + '" selected>' + response.NAMAKAB + '</option>');
-                $('#name').val(response.NAMAKEC);
+                $('#district_id').html('<option value="' + response.KECAMATANID + '" selected>' + response.NAMAKEC + '</option>');
+                $('#name').val(response.NAMAKEL);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -261,7 +261,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("location/district/update-data") }}',
+            url: '{{ url("location/village/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -316,7 +316,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("location/district/destroy-data") }}',
+                        url: '{{ url("location/village/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {
