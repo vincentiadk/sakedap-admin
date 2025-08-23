@@ -82,4 +82,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'OrganizationController@destroyData');
         });
     });
+
+    Route::prefix('location')->namespace('Location')->group(function () {
+        Route::prefix('province')->group(function () {
+            Route::get('/', 'ProvinceController@index');
+            Route::get('datatable', 'ProvinceController@datatable');
+            Route::post('create-data', 'ProvinceController@createData');
+            Route::get('show-data', 'ProvinceController@showData');
+            Route::post('update-data', 'ProvinceController@updateData');
+            Route::delete('destroy-data', 'ProvinceController@destroyData');
+        });
+    });
 });
