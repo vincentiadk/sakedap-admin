@@ -36,5 +36,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ContributorController@updateData');
             Route::delete('destroy-data', 'ContributorController@destroyData');
         });
+
+        Route::prefix('category')->group(function () {
+            Route::get('/', 'CategoryController@index');
+            Route::get('datatable', 'CategoryController@datatable');
+            Route::post('create-data', 'CategoryController@createData');
+            Route::get('show-data', 'CategoryController@showData');
+            Route::post('update-data', 'CategoryController@updateData');
+            Route::delete('destroy-data', 'CategoryController@destroyData');
+        });
     });
 });
