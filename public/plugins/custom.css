@@ -1,0 +1,26 @@
+.main-menu-sub .dropdown-item.active {
+    background: transparent !important;
+    font-weight: bold !important;
+}
+
+.main-menu-sub .dropdown-item:hover:not(.active) {
+    background: transparent !important;
+    font-weight: 500 !important;
+}
+
+.main-menu-sub .dropdown-item:focus:not(.active) {
+    background: transparent !important;
+    font-weight: 500 !important;
+}
+
+.no-click {
+    cursor: context-menu !important;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.table .dropdown-menu {
+    position: fixed !important;
+}

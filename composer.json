@@ -7,26 +7,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "ankitpokhrel/tus-php": "*",
-        "barryvdh/laravel-dompdf": "*",
-        "dipeshsukhia/laravel-html-minify": "*",
-        "falahati/php-mp3": "dev-master",
-        "guzzlehttp/guzzle": "*",
-        "imtigger/laravel-job-status": "*",
         "laravel/framework": "^12.0",
-        "laravel/passport": "^13.0",
         "laravel/tinker": "^2.10.1",
-        "maatwebsite/excel": "*",
-        "milon/barcode": "*",
-        "org_heigl/ghostscript": "*",
-        "rap2hpoutre/fast-excel": "*",
-        "setasign/fpdf": "*",
-        "setasign/fpdi": "*",
-        "solarium/solarium": "*",
-        "spatie/laravel-activitylog": "*",
-        "spatie/pdf-to-image": "*",
-        "tecnickcom/tcpdf": "*",
-        "zanysoft/laravel-zip": "*"
+        "yajra/laravel-datatables-oracle": "^12.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

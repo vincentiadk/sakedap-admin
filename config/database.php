@@ -55,55 +55,11 @@ return [
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => false,
+            'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
-        ],
-
-        'isrc' => [
-            'driver'         => 'mysql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_ISRC_HOST', '127.0.0.1'),
-            'port'           => env('DB_ISRC_PORT', '3306'),
-            'database'       => env('DB_ISRC_DATABASE', 'forge'),
-            'username'       => env('DB_ISRC_USERNAME', 'forge'),
-            'password'       => env('DB_ISRC_PASSWORD', ''),
-            'unix_socket'    => env('DB_ISRC_SOCKET', ''),
-            'charset'        => 'utf8mb4',
-            'collation'      => 'utf8mb4_unicode_ci',
-            'charset'        => 'utf8',
-            'collation'      => 'utf8_unicode_ci',
-            'engine'         => 'InnoDB',
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'strict'         => false,
-            'engine'         => null,
-            'options'        => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::ATTR_EMULATE_PREPARES => true
-            ]) : []
-        ],
-
-        'backup' => [
-            'driver'         => 'mysql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_BACKUP_HOST', '127.0.0.1'),
-            'port'           => env('DB_BACKUP_PORT', '3306'),
-            'database'       => env('DB_BACKUP_DATABASE', 'forge'),
-            'username'       => env('DB_BACKUP_USERNAME', 'forge'),
-            'password'       => env('DB_BACKUP_PASSWORD', ''),
-            'unix_socket'    => env('DB_BACKUP_SOCKET', ''),
-            'charset'        => 'utf8mb4',
-            'collation'      => 'utf8mb4_unicode_ci',
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'strict'         => true,
-            'engine'         => null,
-            'options'        => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : []
         ],
 
         'mariadb' => [
@@ -156,28 +112,6 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-        'isbn2' => [
-            'driver'         => 'sqlsrv',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_ISBN2_HOST', 'localhost'),
-            'port'           => env('DB_ISBN2_PORT', '1433'),
-            'database'       => env('DB_ISBN2_DATABASE', 'forge'),
-            'username'       => env('DB_ISBN2_USERNAME', 'forge'),
-            'password'       => env('DB_ISBN2_PASSWORD', ''),
-            'charset'        => 'utf8',
-            'prefix'         => '',
-            'prefix_indexes' => true
-        ],
-
-        'inlis' => [
-            'driver'   => 'oracle',
-            'tns'      => env('DB_INLIS_TNS'),
-            'database' => env('DB_INLIS_DATABASE', 'forge'),
-            'username' => env('DB_INLIS_USERNAME', 'forge'),
-            'password' => env('DB_INLIS_PASSWORD', ''),
-            'prefix'   => '',
-        ],
-
     ],
 
     /*
@@ -213,7 +147,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

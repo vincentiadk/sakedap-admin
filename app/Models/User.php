@@ -2,68 +2,47 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\UserAccess;
-use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
 
-    use SoftDeletes, Notifiable, HasApiTokens;
-
-    protected $connection = 'mysql';
-    protected $table      = 'users';
-    protected $dates      = ['deleted_at'];
-    protected $primaryKey = 'id';
-    protected $fillable   = [
-        'userable_type',
-        'userable_id',
-        'library_id',
-        'role_id',
-        'username',
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
         'email',
         'password',
-        'lang',
-        'last_login',
-        'enable',
-        'verification_at',
-        'user_agent_login'
     ];
 
-    public function role()
-    {
-        return $this->belongsTo('App\Models\Role');
-    }
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-    public function library()
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
     {
-        return $this->belongsTo('App\Models\Library');
-    }
-
-    public function admin()
-    {
-        return $this->hasOne('App\Models\Admin', 'id', 'userable_id');
-    }
-
-    public function publisher()
-    {
-        return $this->hasOne('App\Models\Publisher', 'id', 'userable_id');
-    }
-
-    public function userSystem()
-    {
-        return $this->hasOne('App\Models\UserSystem', 'id', 'userable_id');
-    }
-
-    public function hasAccess($role_id, $menu_id)
-    {
-        if (UserAccess::where('role_id', $role_id)->where('menu_id', $menu_id)->count() > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }

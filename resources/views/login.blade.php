@@ -1,136 +1,91 @@
-{{-- @if(\App::environment('production')) --}}
-    <!DOCTYPE html>
-    <html class="loading" lang="{{ config('app.locale') }}" data-textdirection="ltr">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-        <title>Login eDeposit</title>
-        <link rel="apple-touch-icon" href="{{ asset('main/favicon.png') }}">
-        <link rel="shortcut icon" type="image/png" href="{{ asset('main/favicon.png') }}">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Quicksand:300,400,500,700" rel="stylesheet">
-        <link href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/vendors.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/icheck.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/vendors/css/forms/icheck/custom.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/core/menu/menu-types/vertical-menu.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/core/colors/palette-gradient.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/app-assets/css/pages/login-register.css') }}">
-        <link rel="stylesheet" href="{{ asset('theme_admin/assets/css/style.css') }}">
-        <script async src="https://www.google.com/recaptcha/api.js"></script>
-    </head>
-    <body class="vertical-layout vertical-menu 1-column menu-expanded blank-page blank-page" data-open="click" data-menu="vertical-menu" data-col="1-column">
-        <div class="app-content content">
-            <div class="content-wrapper">
-                <div class="content-header row"></div>
-                <div class="content-body">
-                    <section class="flexbox-container">
-                        <div class="col-12 d-flex align-items-center justify-content-center">
-                            <div class="col-md-4 col-10 box-shadow-2 p-0">
-                                <div class="card border-grey border-lighten-3 m-0">
-                                    <div class="card-header border-0">
-                                        <div class="card-title text-center">
-                                            <div class="p-1">
-                                                <img src="{{ asset('main/logo.png') }}" alt="branding logo">
-                                            </div>
-                                        </div>
-                                        <h6 class="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                                            <span>eDeposit 5.0</span>
-                                        </h6>
-                                        <p>Silahkan masukkan username dan password Anda. Anda dapat menggunakan username dan password akun ISBN.</p>
+
+<!DOCTYPE html>
+<html lang="id" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>E-Deposit 5.0</title>
+    <link rel="shortcut icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
+	<link href="{{ asset('themes/fonts/inter/inter.css') }}?v={{ uniqid() }}" rel="stylesheet">
+	<link href="{{ asset('themes/icons/phosphor/styles.min.css') }}?v={{ uniqid() }}" rel="stylesheet">
+	<link href="{{ asset('themes/css/ltr/all.min.css') }}?v={{ uniqid() }}" id="stylesheet" rel="stylesheet">
+	<script src="{{ asset('themes/js/bootstrap/bootstrap.bundle.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('themes/js/app.js') }}?v={{ uniqid() }}"></script>
+
+    <style>
+        .page-content {
+            background: url('{{ asset("assets/bg-login.jpg") }}') no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+
+</head>
+
+<body class="bg-light">
+	<div class="page-content">
+		<div class="content-wrapper">
+			<div class="content-inner">
+				<div class="content d-flex justify-content-center align-items-center">
+					<form class="login-form" method="POST">
+                        @csrf
+						<div class="card mb-0">
+							<div class="card-body">
+								<div class="text-center mb-2">
+									<div class="d-inline-flex align-items-center justify-content-center mb-3 mt-2">
+										<img src="{{ asset('assets/icon.png') }}" style="max-width:150px" alt="">
+									</div>
+									<h5 class="mb-0">Masuk ke Akun Anda</h5>
+									<span class="d-block text-muted">Masukan Kredensial</span>
+								</div>
+                                @if($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul class="mb-0">
+                                            @foreach($errors->all() as $error)
+                                                <li>{!! $error !!}</li>
+                                            @endforeach
+                                        </ul>
                                     </div>
-                                    <div class="card-content">
-                                        <div class="card-body">
-                                            @if(session('success'))
-                                                <div class="text-center">
-                                                    <div class="alert bg-success">{{ session('success') }}</div>
-                                                </div>
-                                            @elseif(session('failed'))
-                                                <div class="text-center">
-                                                    <div class="alert bg-danger">{{ session('failed') }}</div>
-                                                </div>
-                                            @endif
-                                            <form class="form-horizontal form-simple" id="form-login" action="{{ url('login') }}" method="POST" novalidate autocomplete="off">
-                                                @csrf
-                                                <div class="form-group">
-                                                    <fieldset class="form-group position-relative has-icon-left mb-0">
-                                                        <input type="text" autocomplete="off" name="username" class="form-control form-control-lg input-lg" id="user-name" placeholder="Masukan username / email" required >
-                                                        <div class="form-control-position"><i class="ft-user"></i></div>
-                                                    </fieldset>
-                                                </div>
-                                                <div class="form-group">
-                                                    <fieldset class="form-group position-relative has-icon-left">
-                                                        <input type="password" autocomplete="off" name="password" class="form-control form-control-lg input-lg" id="user-password" placeholder="Enter Password" required >
-                                                        <div class="form-control-position"><i class="la la-key"></i></div>
-                                                    </fieldset>
-                                                </div>
-                                                @if(App::environment('production'))
-                                                    <div class="g-recaptcha pb-1" data-sitekey="6Lem1QQqAAAAABvlZDDWlreHM6zqxjjAZrDkrGsK"></div>
-                                                @endif
-                                                <div class="form-group row">
-                                                    <div class="col-md-12 col-12 text-center text-md-left">
-                                                        <div class="form-check">
-                                                            <input type="checkbox" id="remember-me" class="form-check-input">
-                                                            <label for="remember-me"> Remember Me</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-info btn-lg btn-block"
-                                               ><i class="ft-unlock"></i> Login</button><br>
-                                                <div class="form-group row">
-                                                    <div class="col-md-12 col-12 text-center text-md-right">
-                                                        <a href="{{ url('reset-password') }}">  Lupa Password ?</a>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
+                                @elseif(session('success'))
+                                    <div class="alert bg-success text-white fade show text-center">
+                                        {{ session('success') }}
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-        <script src="{{ asset('theme_admin/app-assets/vendors/js/vendors.min.js') }}"></script>
-        <script src="{{ asset('theme_admin/app-assets/vendors/js/forms/icheck/icheck.min.js') }}"></script>
-        <script src="{{ asset('theme_admin/app-assets/vendors/js/forms/validation/jqBootstrapValidation.js') }}"></script>
-        <script src="{{ asset('theme_admin/app-assets/js/core/app-menu.js') }}"></script>
-        <script src="{{ asset('theme_admin/app-assets/js/core/app.js') }}"></script>
-        <script src="{{ asset('theme_admin/app-assets/js/scripts/forms/form-login-register.js') }}"></script>
-        @if(App::environment('production'))
-            <script>
-                $(document).ready(function() {
-                    $('#form-login').submit(function(event) {
-                        event.preventDefault();
-                        if(window.location.href.toString().includes('edeposit.perpusnas.go.id')){
-                            var recaptchaResponse = grecaptcha.getResponse();
-                            if(recaptchaResponse.length == 0) {
-                                alert("Please complete the reCAPTCHA.");
-                            } else {
-                                event.currentTarget.submit();
-                            }
-                        } else {
-                            event.currentTarget.submit();
-                        }
-                    });
-                });
-            </script>
-        @endif
-    </body>
-    </html>
-{{-- @else
-    <script>
-    var message  = '{{ $message }}';
-    var redirect = '{{ $redirect }}';
-
-    if(message) {
-        alert(message);
-    }
-
-    window.location.href=redirect;
-    </script>
-
-
-@endif --}}
+                                @elseif(session('failed'))
+                                    <div class="alert bg-danger text-white fade show text-center">
+                                        {!! session('failed') !!}
+                                    </div>
+                                @endif
+								<div class="mb-3">
+									<label class="form-label">Username :</label>
+									<div class="form-control-feedback form-control-feedback-start">
+										<input type="text" class="form-control" name="username" id="username" placeholder="...................." required>
+										<div class="form-control-feedback-icon">
+											<i class="ph-user-circle text-muted"></i>
+										</div>
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="form-label">Password :</label>
+									<div class="form-control-feedback form-control-feedback-start">
+										<input type="password" class="form-control" name="password" id="password" placeholder="...................." required>
+										<div class="form-control-feedback-icon">
+											<i class="ph-lock text-muted"></i>
+										</div>
+									</div>
+								</div>
+								<div class="mb-3">
+									<button type="submit" class="btn btn-primary w-100">Masuk</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

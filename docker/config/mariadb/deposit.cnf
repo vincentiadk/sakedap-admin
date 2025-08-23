@@ -1,4 +1,0 @@
-max_allowed_packet = 256M
-innodb_buffer_pool_size = 256M
-innodb_log_file_size = 512M
-innodb_lock_wait_timeout = 180
