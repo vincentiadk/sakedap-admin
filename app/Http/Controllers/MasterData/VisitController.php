@@ -21,9 +21,9 @@ class VisitController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_kunjungan.ID',
+            'e_kunjungan.id',
             null,
-            'e_kunjungan.NAME',
+            'e_kunjungan.name',
         ];
 
         $draw = intval($request->draw ?? 0);

@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class SubjectController extends Controller
+class AuthorController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'master-data.subject'
+            'content' => 'master-data.author'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -22,9 +22,10 @@ class SubjectController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_subjects.id',
+            'e_authors.id',
             null,
-            'e_subjects.name',
+            'e_authors.fullname',
+            'e_authors.title',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -38,7 +39,7 @@ class SubjectController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'deleted_at is null';
+        $whereCondition = [];
 
         if ($search) {
             $terms = [];
@@ -66,16 +67,14 @@ class SubjectController extends Controller
             select
                 count(*) as total
             from
-                e_subjects
-            where
-                deleted_at is null
+                e_authors
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_subjects
+                e_authors
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -91,7 +90,7 @@ class SubjectController extends Controller
                             select
                                 *
                             from
-                                e_subjects
+                                e_authors
                             $whereClause
                             $orderBy
                         ) data
@@ -123,7 +122,8 @@ class SubjectController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME
+                    $val->FULLNAME,
+                    $val->TITLE,
                 ];
 
                 $start++;
@@ -141,9 +141,9 @@ class SubjectController extends Controller
     public function createData(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'name' => 'required',
+            'fullname' => 'required',
         ], [
-            'name.required' => 'Nama tidak boleh kosong'
+            'fullname.required' => 'Nama tidak boleh kosong'
         ]);
 
         if ($validation->fails()) {
@@ -153,16 +153,17 @@ class SubjectController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('e_subjects', [
-                    'name' => $request->name,
-                    'slug' => Str::slug($request->name, '-'),
+                QueryAPI::create('e_authors', [
+                    'fullname' => $request->fullname,
+                    'slug' => Str::slug($request->fullname, '-'),
+                    'title' => $request->title,
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Membuat data subjek',
+                    'description' => 'Membuat data pengarang',
                     'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
+                    'properties' => json_encode(['nama' => $request->fullname]),
                 ]);
 
                 $response = [
@@ -187,7 +188,7 @@ class SubjectController extends Controller
             select
                 *
             from
-                e_subjects
+                e_authors
             where
                 id = $id
         ", true);
@@ -199,9 +200,9 @@ class SubjectController extends Controller
     {
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
-            'name' => 'required',
+            'fullname' => 'required',
         ], [
-            'name.required' => 'Nama tidak boleh kosong'
+            'fullname.required' => 'Nama tidak boleh kosong'
         ]);
 
         if ($validation->fails()) {
@@ -211,16 +212,17 @@ class SubjectController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('e_subjects', $id, [
-                    'name' => $request->name,
-                    'slug' => Str::slug($request->name, '-'),
+                QueryAPI::update('e_authors', $id, [
+                    'fullname' => $request->fullname,
+                    'slug' => Str::slug($request->fullname, '-'),
+                    'title' => $request->title,
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Mengubah data subjek',
+                    'description' => 'Mengubah data pengarang',
                     'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
+                    'properties' => json_encode(['nama' => $request->fullname]),
                 ]);
 
                 $response = [
@@ -245,21 +247,19 @@ class SubjectController extends Controller
             select
                 *
             from
-                e_subjects
+                e_authors
             where
                 id = $id
         ", true);
 
         try {
-            QueryAPI::update('e_subjects', $id, [
-                'deleted_at' => date('Y-m-d')
-            ]);
+            QueryAPI::delete('e_authors', $id);
 
             QueryAPI::activityLog([
                 'log_name' => 'default',
-                'description' => 'Menghapus data subjek',
+                'description' => 'Menghapus data pengarang',
                 'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
+                'properties' => json_encode(['nama' => $data->FULLNAME ?? null]),
             ]);
 
             $response = [

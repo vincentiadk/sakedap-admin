@@ -21,9 +21,9 @@ class ProblemController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_problems.ID',
+            'e_problems.id',
             null,
-            'e_problems.NAME',
+            'e_problems.name',
         ];
 
         $draw = intval($request->draw ?? 0);

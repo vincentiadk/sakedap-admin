@@ -63,5 +63,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ProblemController@updateData');
             Route::delete('destroy-data', 'ProblemController@destroyData');
         });
+
+        Route::prefix('author')->group(function () {
+            Route::get('/', 'AuthorController@index');
+            Route::get('datatable', 'AuthorController@datatable');
+            Route::post('create-data', 'AuthorController@createData');
+            Route::get('show-data', 'AuthorController@showData');
+            Route::post('update-data', 'AuthorController@updateData');
+            Route::delete('destroy-data', 'AuthorController@destroyData');
+        });
     });
 });
