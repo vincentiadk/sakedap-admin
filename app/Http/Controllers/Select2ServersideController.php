@@ -20,8 +20,7 @@ class Select2ServersideController extends Controller
             from
                 propinsi
             where
-                namapropinsi like '%$search%' OR
-                code like '%$search%'
+                namapropinsi like '%$search%'
             order by
                 namapropinsi asc
         ");
@@ -36,6 +35,43 @@ class Select2ServersideController extends Controller
                 $response[] = [
                     'id' => $d->ID,
                     'text' => $d->NAMAPROPINSI,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function city(Request $request)
+    {
+        $response = [];
+        $search = Str::headline($request->search);
+
+        $data = QueryAPI::get("
+            select
+                kabupaten.*,
+                propinsi.namapropinsi as namapropinsi
+            from
+                kabupaten
+            join
+                propinsi on propinsi.id = kabupaten.propinsiid
+            where
+                kabupaten.namakab like '%$search%'
+            order by
+                kabupaten.namakab asc
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small>
+                    <div>' . $d->NAMAKAB . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->NAMAKAB,
                     'html' => $html,
                 ];
             }

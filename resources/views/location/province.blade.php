@@ -169,9 +169,6 @@
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
                 },
-                complete: function() {
-                    onLoading('close', '.dataTables_wrapper');
-                },
                 error: function(response) {
                     onLoading('close', '.dataTables_wrapper');
 
@@ -190,6 +187,8 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
             ]
+        }).on('draw.dt', function() {
+            onLoading('close', '.dataTables_wrapper');
         });
 
         window.gDataTable.columns.adjust().draw();

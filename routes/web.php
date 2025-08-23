@@ -12,6 +12,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('select2-serverside')->group(function () {
         Route::get('province', 'Select2ServersideController@province');
+        Route::get('city', 'Select2ServersideController@city');
     });
 
     Route::get('home', function () {
@@ -104,6 +105,15 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'CityController@showData');
             Route::post('update-data', 'CityController@updateData');
             Route::delete('destroy-data', 'CityController@destroyData');
+        });
+
+        Route::prefix('district')->group(function () {
+            Route::get('/', 'DistrictController@index');
+            Route::get('datatable', 'DistrictController@datatable');
+            Route::post('create-data', 'DistrictController@createData');
+            Route::get('show-data', 'DistrictController@showData');
+            Route::post('update-data', 'DistrictController@updateData');
+            Route::delete('destroy-data', 'DistrictController@destroyData');
         });
     });
 });

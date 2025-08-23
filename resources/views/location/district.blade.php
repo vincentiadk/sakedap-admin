@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Kota / Kabupaten</h4>
+            <h4 class="page-title mb-0">Kecamatan</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -22,7 +22,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Lokasi</a>
-                <span class="breadcrumb-item active">Kota / Kabupaten</span>
+                <span class="breadcrumb-item active">Kecamatan</span>
             </div>
         </div>
     </div>
@@ -35,11 +35,8 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Provinsi</th>
+                        <th nowrap>Kota / Kabupaten</th>
                         <th nowrap>Nama</th>
-                        <th nowrap>Latitude</th>
-                        <th nowrap>Longitude</th>
                     </tr>
                 </thead>
             </table>
@@ -62,24 +59,12 @@
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Kode : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="code" id="code" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Provinsi : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="province_id" id="province_id" data-dropdown-parent="#modal-form"></select>
+                        <label class="form-label">Kota / Kabupaten : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select" name="city_id" id="city_id" data-dropdown-parent="#modal-form"></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Latitude :</label>
-                        <input type="number" class="form-control" name="latitude" id="latitude" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Longitude :</label>
-                        <input type="number" class="form-control" name="longitude" id="longitude" placeholder="....................">
                     </div>
                 </form>
             </div>
@@ -105,7 +90,7 @@
     $(function() {
         loadData();
 
-        select2Serverside('#province_id', 'province');
+        select2Serverside('#city_id', 'city');
     });
 
     function onReloadTable() {
@@ -172,7 +157,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("location/city/datatable") }}',
+                url: '{{ url("location/district/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -190,11 +175,8 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -205,7 +187,7 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("location/city/create-data") }}',
+            url: '{{ url("location/district/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -248,7 +230,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("location/city/show-data") }}',
+            url: '{{ url("location/district/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -262,11 +244,8 @@
                 onLoading('close', '.modal-content');
 
                 $('#table_id').val(response.ID);
-                $('#code').val(response.CODE_KAB);
-                $('#province_id').html('<option value="' + response.propinsiid + '" selected>' + response.NAMAPROPINSI + '</option>');
-                $('#name').val(response.NAMAKAB);
-                $('#latitude').val(response.LATITUDE);
-                $('#longitude').val(response.LONGITUDE);
+                $('#city_id').html('<option value="' + response.KABUPATENID + '" selected>' + response.NAMAKAB + '</option>');
+                $('#name').val(response.NAMAKEC);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -282,7 +261,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("location/city/update-data") }}',
+            url: '{{ url("location/district/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -337,7 +316,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("location/city/destroy-data") }}',
+                        url: '{{ url("location/district/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

@@ -116,6 +116,7 @@ function datePickerBasic(selector, addNewConfig = {}) {
         {
             autoUpdateInput: false,
             showDropdowns: true,
+            searchDelay: 500,
             ranges: {
                 'Hari Ini': [moment(), moment()],
                 'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -144,7 +145,7 @@ function datePickerBasic(selector, addNewConfig = {}) {
     });
 }
 
-function select2Serverside(selector, endpoint) {
+function select2Serverside(selector, endpoint, payload = {}) {
     $(selector).select2({
         placeholder: 'Pilih',
         minimumInputLength: 3,
@@ -153,11 +154,11 @@ function select2Serverside(selector, endpoint) {
             url: window.gBaseUrl + 'select2-serverside/' + endpoint,
             type: 'GET',
             dataType: 'JSON',
-            delay: 250,
+            delay: 500,
             data: function (params) {
-                return {
+                return $.extend({
                     search: params.term,
-                };
+                }, payload);
             },
             processResults: function (data) {
                 return {
