@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\MasterData;
 
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class VisitController extends Controller
+class ContributorController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'master-data.visit'
+            'worksheet' => QueryAPI::get("select * from worksheets"),
+            'content' => 'master-data.contributor'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -21,9 +23,11 @@ class VisitController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_kunjungan.ID',
+            'e_contributors.id',
             null,
-            'e_kunjungan.NAME',
+            'e_contributors.name',
+            'worksheets.name',
+            'e_contributors.show',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -37,7 +41,7 @@ class VisitController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = 'e_contributors.deleted_at is null';
 
         if ($search) {
             $terms = [];
@@ -65,14 +69,18 @@ class VisitController extends Controller
             select
                 count(*) as total
             from
-                e_kunjungan
+                e_contributors
+            where
+                deleted_at is null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_kunjungan
+                e_contributors
+            left join
+                worksheets on worksheets.id = e_contributors.type
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -86,9 +94,12 @@ class VisitController extends Controller
                     from
                         (
                             select
-                                *
+                                e_contributors.*,
+                                worksheets.name as name_worksheet
                             from
-                                e_kunjungan
+                                e_contributors
+                            left join
+                                worksheets on worksheets.id = e_contributors.type
                             $whereClause
                             $orderBy
                         ) data
@@ -117,10 +128,19 @@ class VisitController extends Controller
                         </div>
                     </div>
                 ';
+
+                if ($val->SHOW == 1) {
+                    $show = '<span class="badge bg-success"><i class="ph-check"></i></span>';
+                } else {
+                    $show = '<span class="badge bg-danger"><i class="ph-x"></i></span>';
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME
+                    $val->NAME,
+                    $val->NAME_WORKSHEET,
+                    $show,
                 ];
 
                 $start++;
@@ -139,8 +159,12 @@ class VisitController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'name' => 'required',
+            'type' => 'required',
+            'show' => 'required',
         ], [
-            'name.required' => 'Nama tidak boleh kosong'
+            'name.required' => 'Nama tidak boleh kosong',
+            'type.required' => 'Jenis tidak boleh kosong',
+            'show.required' => 'Terlihat tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -150,13 +174,17 @@ class VisitController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('e_kunjungan', [
+                QueryAPI::create('e_contributors', [
                     'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
+                    'type' => $request->type,
+                    'is_creator' => 0,
+                    'show' => $request->show,
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Membuat data kunjungan',
+                    'description' => 'Membuat data kontributor',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -181,11 +209,14 @@ class VisitController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                e_contributors.*,
+                worksheets.name as name_worksheet
             from
-                e_kunjungan
+                e_contributors
+            left join
+                worksheets on worksheets.id = e_contributors.type
             where
-                id = $id
+                e_contributors.id = $id
         ", true);
 
         return response()->json($data);
@@ -196,8 +227,12 @@ class VisitController extends Controller
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
             'name' => 'required',
+            'type' => 'required',
+            'show' => 'required',
         ], [
-            'name.required' => 'nama agama tidak boleh kosong'
+            'name.required' => 'Nama tidak boleh kosong',
+            'type.required' => 'Jenis tidak boleh kosong',
+            'show.required' => 'Terlihat tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -207,13 +242,17 @@ class VisitController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('e_kunjungan', $id, [
-                    'name' => $request->name
+                QueryAPI::update('e_contributors', $id, [
+                    'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
+                    'type' => $request->type,
+                    'is_creator' => 0,
+                    'show' => $request->show,
                 ]);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Mengubah data kunjungan',
+                    'description' => 'Mengubah data kontributor',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -240,17 +279,19 @@ class VisitController extends Controller
             select
                 *
             from
-                e_kunjungan
+                e_contributors
             where
                 id = $id
         ", true);
 
         try {
-            QueryAPI::delete('e_kunjungan', $id);
+            QueryAPI::update('e_contributors', $id, [
+                'deleted_at' => date('Y-m-d')
+            ]);
 
             QueryAPI::activityLog([
                 'log_name' => 'default',
-                'description' => 'Menghapus data kunjungan',
+                'description' => 'Menghapus data kontributor',
                 'causer_id' => session('id'),
                 'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);

@@ -25,7 +25,14 @@ lightbox.option({
 $(function () {
     configDataTable();
     disableEnterFormAjax();
+    select2Basic();
 });
+
+function select2Basic() {
+    $('.select2-basic').select2({
+        placeholder: 'Pilih'
+    });
+}
 
 function disableEnterFormAjax() {
     $('.form-ajax').keydown(function (event) {
@@ -39,8 +46,8 @@ function disableEnterFormAjax() {
 function configDataTable() {
     $.extend($.fn.dataTable.defaults, {
         autoWidth: true,
-        lengthMenu: [25, 50, 75, 100],
-        pageLength: 25,
+        lengthMenu: [10, 25, 50, 75, 100],
+        pageLength: 10,
         stateDuration: 60 * 60 * 24,
         dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
         language: {

@@ -27,5 +27,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'VisitController@updateData');
             Route::delete('destroy-data', 'VisitController@destroyData');
         });
+
+        Route::prefix('contributor')->group(function () {
+            Route::get('/', 'ContributorController@index');
+            Route::get('datatable', 'ContributorController@datatable');
+            Route::post('create-data', 'ContributorController@createData');
+            Route::get('show-data', 'ContributorController@showData');
+            Route::post('update-data', 'ContributorController@updateData');
+            Route::delete('destroy-data', 'ContributorController@destroyData');
+        });
     });
 });

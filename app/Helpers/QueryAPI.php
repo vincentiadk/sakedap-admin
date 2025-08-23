@@ -27,7 +27,7 @@ class QueryAPI
     {
         static::initialize();
 
-        $data = [];
+        $data = null;
         $query = Http::withQueryParameters([
             'token' => static::$token,
             'op' => 'getlistraw',

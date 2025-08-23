@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Kunjungan</h4>
+            <h4 class="page-title mb-0">Kontributor</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -22,7 +22,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Master Data</a>
-                <span class="breadcrumb-item active">Kunjungan</span>
+                <span class="breadcrumb-item active">Kontributor</span>
             </div>
         </div>
     </div>
@@ -36,6 +36,8 @@
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
                         <th nowrap>Nama</th>
+                        <th nowrap>Jenis</th>
+                        <th nowrap>Terlihat</th>
                     </tr>
                 </thead>
             </table>
@@ -60,6 +62,23 @@
                     <div class="form-group">
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jenis : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select select2-basic" name="type" id="type" data-dropdown-parent="#modal-form">
+                            <option value=""></option>
+                            @foreach($worksheet as $w)
+                                <option value="{{ $w->ID }}">{{ $w->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Terlihat : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select" name="show" id="show">
+                            <option value="">Pilih</option>
+                            <option value="1">Ya</option>
+                            <option value="0">Tidak</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -98,6 +117,7 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
+        $('#type').val('').change();
     }
 
     function onCreate() {
@@ -149,7 +169,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("master-data/visit/datatable") }}',
+                url: '{{ url("master-data/contributor/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -171,6 +191,8 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center' },
             ]
         });
 
@@ -179,7 +201,7 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("master-data/visit/create-data") }}',
+            url: '{{ url("master-data/contributor/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -222,7 +244,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("master-data/visit/show-data") }}',
+            url: '{{ url("master-data/contributor/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -237,6 +259,8 @@
 
                 $('#table_id').val(response.ID);
                 $('#name').val(response.NAME);
+                $('#type').val(parseInt(response.TYPE)).change();
+                $('#show').val(response.SHOW);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -252,7 +276,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("master-data/visit/update-data") }}',
+            url: '{{ url("master-data/contributor/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -307,7 +331,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("master-data/visit/destroy-data") }}',
+                        url: '{{ url("master-data/contributor/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {
