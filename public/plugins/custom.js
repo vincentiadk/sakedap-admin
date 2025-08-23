@@ -143,3 +143,39 @@ function datePickerBasic(selector, addNewConfig = {}) {
         picker.element.val(picker.startDate.format(picker.locale.format) + " - " + picker.endDate.format(picker.locale.format));
     });
 }
+
+function select2Serverside(selector, endpoint) {
+    $(selector).select2({
+        placeholder: 'Pilih',
+        minimumInputLength: 3,
+        cache: true,
+        ajax: {
+            url: window.gBaseUrl + 'select2-serverside/' + endpoint,
+            type: 'GET',
+            dataType: 'JSON',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term,
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+        },
+        templateResult: function (data) {
+            if (data.loading) {
+                return data.text;
+            }
+
+            var $container = $(data.html);
+
+            return $container;
+        },
+        templateSelection: function (data) {
+            return data.text;
+        }
+    });
+}

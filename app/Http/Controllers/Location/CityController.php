@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class ProvinceController extends Controller
+class CityController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'location.province'
+            'content' => 'location.city'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -22,12 +22,13 @@ class ProvinceController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'propinsi.id',
+            'kabupaten.id',
             null,
-            'propinsi.code',
-            'propinsi.name',
-            'propinsi.latitude',
-            'propinsi.longitude',
+            'kabupaten.code_kab',
+            'propinsi.namapropinsi',
+            'kabupaten.namakab',
+            'kabupaten.latitude',
+            'kabupaten.longitude',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -69,14 +70,16 @@ class ProvinceController extends Controller
             select
                 count(*) as total
             from
-                propinsi
+                kabupaten
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                propinsi
+                kabupaten
+            left join
+                propinsi on propinsi.id = kabupaten.propinsiid
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -90,9 +93,12 @@ class ProvinceController extends Controller
                     from
                         (
                             select
-                                *
+                                kabupaten.*,
+                                propinsi.namapropinsi as namapropinsi
                             from
-                                propinsi
+                                kabupaten
+                            left join
+                                propinsi on propinsi.id = kabupaten.propinsiid
                             $whereClause
                             $orderBy
                         ) data
@@ -121,11 +127,13 @@ class ProvinceController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->CODE,
+                    $val->CODE_KAB,
                     $val->NAMAPROPINSI,
+                    $val->NAMAKAB,
                     $val->LATITUDE,
                     $val->LONGITUDE,
                 ];
@@ -145,11 +153,13 @@ class ProvinceController extends Controller
     public function createData(Request $request)
     {
         $validation = Validator::make($request->all(), [
+            'province_id' => 'required',
             'name' => 'required',
             'code' => 'required',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ], [
+            'province_id.required' => 'Provinsi tidak boleh kosong',
             'name.required' => 'Nama tidak boleh kosong',
             'code.required' => 'Kode tidak boleh kosong',
             'latitude.required' => 'Latitude harus angka',
@@ -163,20 +173,21 @@ class ProvinceController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('propinsi', [
-                    'namapropinsi' => $request->name,
+                QueryAPI::create('kabupaten', [
+                    'namakab' => $request->name,
+                    'propinsiid' => $request->province_id,
                     'createby' => session('fullname'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'updateby' => session('fullname'),
                     'updatedate' => date('Y-m-d H:i:s'),
-                    'code' => $request->code,
+                    'code_kab' => $request->code,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                 ], false);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Membuat data provinsi',
+                    'description' => 'Membuat data kota / kabupaten',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -201,11 +212,14 @@ class ProvinceController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                kabupaten.*,
+                propinsi.namapropinsi as namapropinsi
             from
-                propinsi
+                kabupaten
+            left join
+                propinsi on propinsi.id = kabupaten.propinsiid
             where
-                id = $id
+                kabupaten.id = $id
         ", true);
 
         return response()->json($data);
@@ -215,11 +229,13 @@ class ProvinceController extends Controller
     {
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
+            'province_id' => 'required',
             'name' => 'required',
             'code' => 'required',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ], [
+            'province_id.required' => 'Provinsi tidak boleh kosong',
             'name.required' => 'Nama tidak boleh kosong',
             'code.required' => 'Kode tidak boleh kosong',
             'latitude.required' => 'Latitude harus angka',
@@ -233,18 +249,19 @@ class ProvinceController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('propinsi', $id, [
-                    'namapropinsi' => $request->name,
+                QueryAPI::update('kabupaten', $id, [
+                    'namakab' => $request->name,
+                    'propinsiid' => $request->province_id,
                     'updateby' => session('fullname'),
                     'updatedate' => date('Y-m-d H:i:s'),
-                    'code' => $request->code,
+                    'code_kab' => $request->code,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                 ], false);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Mengubah data provinsi',
+                    'description' => 'Mengubah data kota / kabupaten',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -271,19 +288,19 @@ class ProvinceController extends Controller
             select
                 *
             from
-                propinsi
+                kabupaten
             where
                 id = $id
         ", true);
 
         try {
-            QueryAPI::delete('propinsi', $id);
+            QueryAPI::delete('kabupaten', $id);
 
             QueryAPI::activityLog([
                 'log_name' => 'default',
-                'description' => 'Menghapus data provinsi',
+                'description' => 'Menghapus data kota / kabupaten',
                 'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAMAPROPINSI ?? null]),
+                'properties' => json_encode(['nama' => $data->NAMAKAB ?? null]),
             ]);
 
             $response = [
