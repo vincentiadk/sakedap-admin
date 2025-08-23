@@ -72,5 +72,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'AuthorController@updateData');
             Route::delete('destroy-data', 'AuthorController@destroyData');
         });
+
+        Route::prefix('organization')->group(function () {
+            Route::get('/', 'OrganizationController@index');
+            Route::get('datatable', 'OrganizationController@datatable');
+            Route::post('create-data', 'OrganizationController@createData');
+            Route::get('show-data', 'OrganizationController@showData');
+            Route::post('update-data', 'OrganizationController@updateData');
+            Route::delete('destroy-data', 'OrganizationController@destroyData');
+        });
     });
 });
