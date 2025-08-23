@@ -54,5 +54,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'SubjectController@updateData');
             Route::delete('destroy-data', 'SubjectController@destroyData');
         });
+
+        Route::prefix('problem')->group(function () {
+            Route::get('/', 'ProblemController@index');
+            Route::get('datatable', 'ProblemController@datatable');
+            Route::post('create-data', 'ProblemController@createData');
+            Route::get('show-data', 'ProblemController@showData');
+            Route::post('update-data', 'ProblemController@updateData');
+            Route::delete('destroy-data', 'ProblemController@destroyData');
+        });
     });
 });
