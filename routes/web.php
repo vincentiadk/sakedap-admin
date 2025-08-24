@@ -176,5 +176,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('collection-problem')->group(function () {
             Route::match(['get', 'post'], '/', 'CollectionProblemController@index');
         });
+
+        Route::prefix('collection-submitted')->group(function () {
+            Route::match(['get', 'post'], '/', 'CollectionSubmittedController@index');
+        });
     });
 });
