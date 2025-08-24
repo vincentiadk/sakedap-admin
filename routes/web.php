@@ -160,5 +160,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('change-password')->group(function () {
             Route::match(['get', 'post'], '/', 'ChangePasswordController@index');
         });
+
+        Route::prefix('publisher-reject')->group(function () {
+            Route::match(['get', 'post'], '/', 'PublisherRejectController@index');
+        });
     });
 });
