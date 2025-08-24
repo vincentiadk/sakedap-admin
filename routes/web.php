@@ -168,5 +168,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('publisher-submission')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherSubmissionController@index');
         });
+
+        Route::prefix('publisher-accept')->group(function () {
+            Route::match(['get', 'post'], '/', 'PublisherAcceptController@index');
+        });
     });
 });
