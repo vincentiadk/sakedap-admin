@@ -156,5 +156,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('activation')->group(function () {
             Route::match(['get', 'post'], '/', 'ActivationController@index');
         });
+
+        Route::prefix('change-password')->group(function () {
+            Route::match(['get', 'post'], '/', 'ChangePasswordController@index');
+        });
     });
 });
