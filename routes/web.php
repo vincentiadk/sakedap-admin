@@ -152,5 +152,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('receipt')->group(function () {
             Route::match(['get', 'post'], '/', 'ReceiptController@index');
         });
+
+        Route::prefix('activation')->group(function () {
+            Route::match(['get', 'post'], '/', 'ActivationController@index');
+        });
     });
 });
