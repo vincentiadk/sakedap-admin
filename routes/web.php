@@ -180,5 +180,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('collection-submitted')->group(function () {
             Route::match(['get', 'post'], '/', 'CollectionSubmittedController@index');
         });
+
+        Route::prefix('collection-accept')->group(function () {
+            Route::match(['get', 'post'], '/', 'CollectionAcceptController@index');
+        });
     });
 });
