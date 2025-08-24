@@ -126,4 +126,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'VillageController@destroyData');
         });
     });
+
+    Route::prefix('publisher')->namespace('Publisher')->group(function () {
+        Route::prefix('group')->group(function () {
+            Route::get('/', 'GroupController@index');
+            Route::get('datatable', 'GroupController@datatable');
+            Route::post('create-data', 'GroupController@createData');
+            Route::get('show-data', 'GroupController@showData');
+            Route::post('update-data', 'GroupController@updateData');
+            Route::delete('destroy-data', 'GroupController@destroyData');
+        });
+    });
 });

@@ -140,6 +140,7 @@
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('publisher/group') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'group' ? 'active' : '' }}">Grup</a>
+                                                <a href="{{ url('publisher/access') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'access' ? 'active' : '' }}">Akses</a>
                                                 <a href="{{ url('publisher/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
                                                 <a href="{{ url('publisher/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
                                                 <a href="{{ url('publisher/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
