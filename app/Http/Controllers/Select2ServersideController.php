@@ -119,4 +119,42 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function branch(Request $request)
+    {
+        $response = [];
+        $search = Str::headline($request->search);
+
+        $data = QueryAPI::get("
+            select
+                branchs.*,
+                propinsi.namapropinsi as namapropinsi
+            from
+                branchs
+            join
+                propinsi on propinsi.id = branchs.province_id
+            where
+                branchs.name like '%$search%' and
+                branchs.isdelete = 0
+            order by
+                branchs.name asc
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
+                    <div>' . $d->NAME . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->NAME,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

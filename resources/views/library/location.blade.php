@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Data</h4>
+            <h4 class="page-title mb-0">Lokasi</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -22,7 +22,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Perpustakaan</a>
-                <span class="breadcrumb-item active">Data</span>
+                <span class="breadcrumb-item active">Lokasi</span>
             </div>
         </div>
     </div>
@@ -35,10 +35,9 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Provinsi</th>
+                        <th nowrap>Perpustakaan</th>
                         <th nowrap>Kode</th>
                         <th nowrap>Nama</th>
-                        <th nowrap>Alamat</th>
                     </tr>
                 </thead>
             </table>
@@ -61,8 +60,8 @@
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Provinsi : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="province_id" id="province_id" data-dropdown-parent="#modal-form"></select>
+                        <label class="form-label">Perpustakaan : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Kode : <span class="text-danger fw-bold">*</span></label>
@@ -71,10 +70,6 @@
                     <div class="form-group">
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Alamat :</label>
-                        <textarea class="form-control" name="address" id="address" placeholder="...................."></textarea>
                     </div>
                 </form>
             </div>
@@ -100,7 +95,7 @@
     $(function() {
         loadData();
 
-        select2Serverside('#province_id', 'province');
+        select2Serverside('#branch_id', 'branch');
     });
 
     function onReloadTable() {
@@ -115,7 +110,7 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#province_id').val('').change();
+        $('#branch_id').val('').change();
     }
 
     function onCreate() {
@@ -167,7 +162,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("library/data/datatable") }}',
+                url: '{{ url("library/location/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -188,7 +183,6 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -199,7 +193,7 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("library/data/create-data") }}',
+            url: '{{ url("library/location/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -242,7 +236,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("library/data/show-data") }}',
+            url: '{{ url("library/location/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -256,10 +250,9 @@
                 onLoading('close', '.modal-content');
 
                 $('#table_id').val(response.ID);
-                $('#province_id').html('<option value="' + response.PROVINCE_ID + '" selected>' + response.NAMAPROPINSI + '</option>');
+                $('#branch_id').html('<option value="' + response.BRANCH_ID + '" selected>' + response.NAME_BRANCH + '</option>');
                 $('#code').val(response.CODE);
                 $('#name').val(response.NAME);
-                $('#address').val(response.ALAMAT);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -275,7 +268,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("library/data/update-data") }}',
+            url: '{{ url("library/location/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -330,7 +323,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("library/data/destroy-data") }}',
+                        url: '{{ url("library/location/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

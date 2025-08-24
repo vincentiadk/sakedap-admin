@@ -14,6 +14,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('province', 'Select2ServersideController@province');
         Route::get('city', 'Select2ServersideController@city');
         Route::get('district', 'Select2ServersideController@district');
+        Route::get('branch', 'Select2ServersideController@branch');
     });
 
     Route::get('home', function () {
@@ -135,6 +136,15 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'DataController@showData');
             Route::post('update-data', 'DataController@updateData');
             Route::delete('destroy-data', 'DataController@destroyData');
+        });
+
+        Route::prefix('location')->group(function () {
+            Route::get('/', 'LocationController@index');
+            Route::get('datatable', 'LocationController@datatable');
+            Route::post('create-data', 'LocationController@createData');
+            Route::get('show-data', 'LocationController@showData');
+            Route::post('update-data', 'LocationController@updateData');
+            Route::delete('destroy-data', 'LocationController@destroyData');
         });
     });
 });
