@@ -30,7 +30,8 @@ $(function () {
 
 function select2Basic() {
     $('.select2-basic').select2({
-        placeholder: 'Pilih'
+        placeholder: 'Pilih',
+        language: 'id',
     });
 }
 
@@ -155,6 +156,7 @@ function select2Serverside(selector, endpoint, payload = {}) {
             type: 'GET',
             dataType: 'JSON',
             delay: 500,
+            language: 'id',
             data: function (params) {
                 return $.extend({
                     search: params.term,

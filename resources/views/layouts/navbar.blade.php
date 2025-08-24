@@ -19,7 +19,7 @@
 								<div class="d-flex flex-row flex-xl-column bg-light overflow-auto overflow-xl-visible rounded-top rounded-top-xl-0 rounded-start-xl">
 									<div class="flex-1 border-bottom border-bottom-xl-0 p-2 p-xl-3">
                                         <div class="fw-bold border-bottom d-none d-xl-block pb-2 mb-2">Main Menu</div>
-                                        <div style="max-height:35vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div style="max-height:50vh; overflow-y:auto; overflow-x:hidden;">
                                             <ul class="nav nav-pills flex-xl-column flex-nowrap text-nowrap justify-content-center wmin-xl-300" role="tablist">
                                                 <li class="nav-item" role="presentation">
                                                     <a href="{{ url('dashboard') }}" class="nav-link rounded {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}">
@@ -37,6 +37,12 @@
                                                     <a href="#menu-location" class="nav-link rounded {{ Request::segment(1) == 'location' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'location' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-buildings me-2"></i>
                                                         Lokasi
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <a href="#menu-library" class="nav-link rounded {{ Request::segment(1) == 'library' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'library' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-book-open me-2"></i>
+                                                        Perpustakaan
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
@@ -111,7 +117,7 @@
 								</div>
 								<div class="tab-content flex-xl-1 main-menu-sub">
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'master-data' ? 'show active' : '' }}" id="menu-master-data" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('master-data/visit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'visit' ? 'active' : '' }}">Kunjungan</a>
@@ -135,13 +141,19 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'library' ? 'show active' : '' }}" id="menu-library" role="tabpanel">
+                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-lg-4 mb-3 mb-lg-0">
+                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                                <a href="{{ url('library/data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'data' ? 'active' : '' }}">Data</a>
+                                                <a href="{{ url('library/location') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'location' ? 'active' : '' }}">Lokasi</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'publisher' ? 'show active' : '' }}" id="menu-publisher" role="tabpanel">
                                         <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('publisher/group') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'group' ? 'active' : '' }}">Grup</a>
-                                                <a href="{{ url('publisher/access') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'access' ? 'active' : '' }}">Akses</a>
-                                                <a href="{{ url('publisher/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
                                                 <a href="{{ url('publisher/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
                                                 <a href="{{ url('publisher/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
                                                 <a href="{{ url('publisher/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
@@ -165,7 +177,6 @@
                                         <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('kckra/depo') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'depo' ? 'active' : '' }}">Depo</a>
                                                 <a href="{{ url('kckra/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
                                                 <a href="{{ url('kckra/create-single') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'create-single' ? 'active' : '' }}">Tambah Tunggal</a>
                                                 <a href="{{ url('kckra/create-more') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'create-more' ? 'active' : '' }}">Tambah Banyak</a>
@@ -216,7 +227,6 @@
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('setting/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'user' ? 'active' : '' }}">Pengguna</a>
                                                 <a href="{{ url('setting/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
-                                                <a href="{{ url('setting/library') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'library' ? 'active' : '' }}">Perpustakaan</a>
                                                 <a href="{{ url('setting/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
                                                 <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
                                                 <a href="{{ url('setting/terms_conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'terms_conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>

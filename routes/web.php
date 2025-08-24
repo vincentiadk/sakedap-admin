@@ -127,14 +127,14 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
-    Route::prefix('publisher')->namespace('Publisher')->group(function () {
-        Route::prefix('group')->group(function () {
-            Route::get('/', 'GroupController@index');
-            Route::get('datatable', 'GroupController@datatable');
-            Route::post('create-data', 'GroupController@createData');
-            Route::get('show-data', 'GroupController@showData');
-            Route::post('update-data', 'GroupController@updateData');
-            Route::delete('destroy-data', 'GroupController@destroyData');
+    Route::prefix('library')->namespace('Library')->group(function () {
+        Route::prefix('data')->group(function () {
+            Route::get('/', 'DataController@index');
+            Route::get('datatable', 'DataController@datatable');
+            Route::post('create-data', 'DataController@createData');
+            Route::get('show-data', 'DataController@showData');
+            Route::post('update-data', 'DataController@updateData');
+            Route::delete('destroy-data', 'DataController@destroyData');
         });
     });
 });

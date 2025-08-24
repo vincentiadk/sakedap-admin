@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>E-Deposit 5.0</title>
+	<title>E-Deposit 5.0 | Admin Panel</title>
     <link rel="shortcut icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
 	<link href="{{ asset('themes/fonts/inter/inter.css') }}?v={{ uniqid() }}" rel="stylesheet">
@@ -37,7 +37,7 @@
 							<div class="card-body">
 								<div class="text-center mb-2">
 									<div class="d-inline-flex align-items-center justify-content-center mb-3 mt-2">
-										<img src="{{ asset('assets/icon.png') }}" style="max-width:150px" alt="">
+										<img src="{{ asset('assets/icon.png') }}" style="max-width:125px" alt="">
 									</div>
 									<h5 class="mb-0">Masuk ke Akun Anda</h5>
 									<span class="d-block text-muted">Masukan Kredensial</span>

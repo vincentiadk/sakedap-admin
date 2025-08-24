@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Publisher;
+namespace App\Http\Controllers\Library;
 
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class GroupController extends Controller
+class DataController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'publisher.group'
+            'content' => 'library.data'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -21,9 +21,12 @@ class GroupController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_publisher_groups.id',
+            'branchs.id',
             null,
-            'e_publisher_groups.name',
+            'propinsi.namapropinsi',
+            'branchs.code',
+            'branchs.name',
+            'branchs.alamat',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -37,7 +40,7 @@ class GroupController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'deleted_at is null';
+        $whereCondition[] = 'branchs.isdelete = 0';
 
         if ($search) {
             $terms = [];
@@ -65,16 +68,18 @@ class GroupController extends Controller
             select
                 count(*) as total
             from
-                e_publisher_groups
+                branchs
             where
-                deleted_at is null
+                isdelete = 0
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_publisher_groups
+                branchs
+            left join
+                propinsi on propinsi.id = branchs.province_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -88,9 +93,12 @@ class GroupController extends Controller
                     from
                         (
                             select
-                                *
+                                branchs.*,
+                                propinsi.namapropinsi as namapropinsi
                             from
-                                e_publisher_groups
+                                branchs
+                            left join
+                                propinsi on propinsi.id = branchs.province_id
                             $whereClause
                             $orderBy
                         ) data
@@ -119,10 +127,14 @@ class GroupController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME
+                    $val->NAMAPROPINSI,
+                    $val->CODE,
+                    $val->NAME,
+                    $val->ALAMAT,
                 ];
 
                 $start++;
@@ -141,8 +153,12 @@ class GroupController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'name' => 'required',
+            'code' => 'required',
+            'province_id' => 'required',
         ], [
-            'name.required' => 'Nama tidak boleh kosong'
+            'name.required' => 'Nama tidak boleh kosong',
+            'code.required' => 'Kode tidak boleh kosong',
+            'province_id.required' => 'Provinsi tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -152,13 +168,21 @@ class GroupController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('e_publisher_groups', [
+                QueryAPI::create('branchs', [
+                    'code' => $request->code,
                     'name' => $request->name,
-                ]);
+                    'isdelete' => 0,
+                    'createby' => session('fullname'),
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'updateby' => session('fullname'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'alamat' => $request->address,
+                    'province_id' => $request->province_id,
+                ], false);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Membuat data grup penerbit',
+                    'description' => 'Membuat data perpustakaan',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -183,11 +207,14 @@ class GroupController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                branchs.*,
+                propinsi.namapropinsi as namapropinsi
             from
-                e_publisher_groups
+                branchs
+            left join
+                propinsi on propinsi.id = branchs.province_id
             where
-                id = $id
+                branchs.id = $id
         ", true);
 
         return response()->json($data);
@@ -198,8 +225,12 @@ class GroupController extends Controller
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
             'name' => 'required',
+            'code' => 'required',
+            'province_id' => 'required',
         ], [
-            'name.required' => 'Nama tidak boleh kosong'
+            'name.required' => 'Nama tidak boleh kosong',
+            'code.required' => 'Kode tidak boleh kosong',
+            'province_id.required' => 'Provinsi tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -209,13 +240,18 @@ class GroupController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('e_publisher_groups', $id, [
+                QueryAPI::update('branchs', $id, [
+                    'code' => $request->code,
                     'name' => $request->name,
-                ]);
+                    'updateby' => session('fullname'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'alamat' => $request->address,
+                    'province_id' => $request->province_id,
+                ], false);
 
                 QueryAPI::activityLog([
                     'log_name' => 'default',
-                    'description' => 'Mengubah data grup penerbit',
+                    'description' => 'Mengubah data perpustakaan',
                     'causer_id' => session('id'),
                     'properties' => json_encode(['nama' => $request->name]),
                 ]);
@@ -242,19 +278,19 @@ class GroupController extends Controller
             select
                 *
             from
-                e_publisher_groups
+                branchs
             where
                 id = $id
         ", true);
 
         try {
-            QueryAPI::update('e_publisher_groups', $id, [
-                'deleted_at' => date('Y-m-d')
-            ]);
+            QueryAPI::update('branchs', $id, [
+                'isdelete' => 1
+            ], false);
 
             QueryAPI::activityLog([
                 'log_name' => 'default',
-                'description' => 'Menghapus data grup penerbit',
+                'description' => 'Menghapus data perpustakaan',
                 'causer_id' => session('id'),
                 'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
