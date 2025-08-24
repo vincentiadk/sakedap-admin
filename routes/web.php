@@ -172,5 +172,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('publisher-accept')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherAcceptController@index');
         });
+
+        Route::prefix('collection-problem')->group(function () {
+            Route::match(['get', 'post'], '/', 'CollectionProblemController@index');
+        });
     });
 });
