@@ -119,7 +119,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'location' ? 'show active' : '' }}" id="menu-location" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('location/province') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'province' ? 'active' : '' }}">Provinsi</a>
@@ -130,7 +130,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'library' ? 'show active' : '' }}" id="menu-library" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('library/data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'data' ? 'active' : '' }}">Data</a>
@@ -139,7 +139,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'publisher' ? 'show active' : '' }}" id="menu-publisher" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('publisher/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
@@ -149,7 +149,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'collection' ? 'show active' : '' }}" id="menu-collection" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('collection/create-single') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'create-single' ? 'active' : '' }}">Tambah Tunggal</a>
@@ -162,7 +162,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'kckra' ? 'show active' : '' }}" id="menu-kckra" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('kckra/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
@@ -176,7 +176,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'template-email' ? 'show active' : '' }}" id="menu-template-email" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('template-email/header') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'header' ? 'active' : '' }}">Header</a>
@@ -194,7 +194,7 @@
                                         </div>
                                     </div>
 									<div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'report' ? 'show active' : '' }}" id="menu-report" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
@@ -210,7 +210,7 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'setting' ? 'show active' : '' }}" id="menu-setting" role="tabpanel">
-                                        <div class="row" style="max-height:40vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('setting/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'user' ? 'active' : '' }}">Pengguna</a>

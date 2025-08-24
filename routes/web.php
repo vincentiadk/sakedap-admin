@@ -164,5 +164,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('publisher-reject')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherRejectController@index');
         });
+
+        Route::prefix('publisher-submission')->group(function () {
+            Route::match(['get', 'post'], '/', 'PublisherSubmissionController@index');
+        });
     });
 });

@@ -55,7 +55,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary" onclick="onLoading('show', 'body')">
+                    <button type="submit" class="btn btn-warning" onclick="onLoading('show', 'body')">
                         <i class="ph-floppy-disk me-1"></i>
                         Simpan Data
                     </button>
