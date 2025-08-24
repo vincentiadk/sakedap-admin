@@ -17,11 +17,17 @@
                                 </ul>
                             </div>
                         @elseif(session('success'))
-                            <div class="alert bg-success text-white fade show text-center">
+                            <div class="alert bg-success text-white alert-icon-start fade show border-0">
+                                <span class="alert-icon bg-black bg-opacity-20">
+                                    <i class="ph-check-circle"></i>
+                                </span>
                                 {{ session('success') }}
                             </div>
-                        @elseif(session('error') || session('failed'))
-                            <div class="alert bg-danger text-white fade show text-center">
+                        @elseif(session('error'))
+                            <div class="alert bg-danger text-white alert-icon-start fade show border-0">
+                                <span class="alert-icon bg-black bg-opacity-20">
+                                    <i class="ph-x-circle"></i>
+                                </span>
                                 {{ session('error') }}
                             </div>
                         @endif

@@ -147,4 +147,10 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'LocationController@destroyData');
         });
     });
+
+    Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
+        Route::prefix('receipt')->group(function () {
+            Route::match(['get', 'post'], '/', 'ReceiptController@index');
+        });
+    });
 });

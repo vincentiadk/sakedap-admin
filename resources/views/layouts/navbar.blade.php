@@ -76,18 +76,6 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('isrc') }}" class="nav-link rounded {{ Request::segment(1) == 'isrc' ? 'active' : '' }}">
-                                                        <i class="ph-music-note me-2"></i>
-                                                        ISRC
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('award') }}" class="nav-link rounded {{ Request::segment(1) == 'award' ? 'active' : '' }}">
-                                                        <i class="ph-trophy me-2"></i>
-                                                        Penghargaan
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('request-file') }}" class="nav-link rounded {{ Request::segment(1) == 'request-file' ? 'active' : '' }}">
                                                         <i class="ph-file-plus me-2"></i>
                                                         Permintaan File
@@ -253,6 +241,64 @@
 				</ul>
 			</div>
 			<ul class="nav gap-1 flex-xl-1 justify-content-end order-0 order-xl-1">
+                <li class="nav-item nav-item-dropdown-lg dropdown me-lg-1">
+                    <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+						<i class="ph-users-four"></i>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">0</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
+						<div class="d-flex align-items-center p-3">
+							<h6 class="mb-0">Notifikasi Pendaftaran Penerbit</h6>
+						</div>
+						<div class="dropdown-menu-scrollable pb-2">
+							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
+								<div class="me-3">
+                                    <img src="{{ asset('assets/team.png') }}" class="w-40px h-40px" alt="">
+								</div>
+								<div class="flex-1">
+									<span class="fw-semibold">James Alexander</span>
+									<span class="text-muted float-end fs-sm">04:58</span>
+									<div class="text-muted">who knows, maybe that would be the best thing for me...</div>
+								</div>
+							</a>
+						</div>
+						<div class="d-flex border-top py-2 px-3">
+							<a href="{{ url('publisher/review') }}" class="text-body mx-auto">
+								Lihat Selengkapnya
+								<i class="ph-arrow-circle-right ms-1"></i>
+							</a>
+						</div>
+					</div>
+                </li>
+                <li class="nav-item nav-item-dropdown-lg dropdown me-lg-3">
+                    <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+						<i class="ph-file-plus"></i>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">0</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
+						<div class="d-flex align-items-center p-3">
+							<h6 class="mb-0">Notifikasi Permintaan File</h6>
+						</div>
+						<div class="dropdown-menu-scrollable pb-2">
+							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
+								<div class="me-3">
+                                    <img src="{{ asset('assets/demand.png') }}" class="w-40px h-40px" alt="">
+								</div>
+								<div class="flex-1">
+									<span class="fw-semibold">James Alexander</span>
+									<span class="text-muted float-end fs-sm">04:58</span>
+									<div class="text-muted">who knows, maybe that would be the best thing for me...</div>
+								</div>
+							</a>
+						</div>
+						<div class="d-flex border-top py-2 px-3">
+							<a href="{{ url('request-file') }}" class="text-body mx-auto">
+								Lihat Selengkapnya
+								<i class="ph-arrow-circle-right ms-1"></i>
+							</a>
+						</div>
+					</div>
+                </li>
 				<li class="nav-item">
 					<a href="javascript:void(0);" class="navbar-nav-link align-items-center rounded-pill p-1 bg-transparent no-click">
                         <img src="{{ asset('assets/user.png') }}" class="w-32px h-32px rounded-pill" alt="">
