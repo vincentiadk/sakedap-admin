@@ -170,13 +170,6 @@ class VillageController extends Controller
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kelurahan / desa',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -235,13 +228,6 @@ class VillageController extends Controller
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kelurahan / desa',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -260,24 +246,9 @@ class VillageController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                kelurahan
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::delete('kelurahan', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kelurahan / desa',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAMAKEL ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

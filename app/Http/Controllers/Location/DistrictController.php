@@ -170,13 +170,6 @@ class DistrictController extends Controller
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kecamatan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -235,13 +228,6 @@ class DistrictController extends Controller
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kecamatan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -260,24 +246,9 @@ class DistrictController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                kecamatan
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::delete('kecamatan', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kecamatan',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAMAKEC ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

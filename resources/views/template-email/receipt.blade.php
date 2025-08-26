@@ -6,16 +6,6 @@
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="page-header-content d-lg-flex border-top">
         <div class="d-flex">

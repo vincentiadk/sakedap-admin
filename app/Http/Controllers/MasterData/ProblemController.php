@@ -119,6 +119,7 @@ class ProblemController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -154,13 +155,6 @@ class ProblemController extends Controller
             try {
                 QueryAPI::create('e_problems', [
                     'name' => $request->name,
-                ]);
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data masalah',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
                 ]);
 
                 $response = [
@@ -213,13 +207,6 @@ class ProblemController extends Controller
                     'name' => $request->name,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data masalah',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -250,13 +237,6 @@ class ProblemController extends Controller
         try {
             QueryAPI::update('e_problems', $id, [
                 'deleted_at' => date('Y-m-d')
-            ]);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data masalah',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
 
             $response = [

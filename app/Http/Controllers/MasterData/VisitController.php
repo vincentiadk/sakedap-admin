@@ -117,6 +117,7 @@ class VisitController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -152,13 +153,6 @@ class VisitController extends Controller
             try {
                 QueryAPI::create('e_kunjungan', [
                     'name' => $request->name,
-                ]);
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kunjungan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
                 ]);
 
                 $response = [
@@ -211,13 +205,6 @@ class VisitController extends Controller
                     'name' => $request->name
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kunjungan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -236,24 +223,9 @@ class VisitController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                e_kunjungan
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::delete('e_kunjungan', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kunjungan',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

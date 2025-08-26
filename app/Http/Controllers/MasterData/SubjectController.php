@@ -120,6 +120,7 @@ class SubjectController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -156,13 +157,6 @@ class SubjectController extends Controller
                 QueryAPI::create('e_subjects', [
                     'name' => $request->name,
                     'slug' => Str::slug($request->name, '-'),
-                ]);
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data subjek',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
                 ]);
 
                 $response = [
@@ -216,13 +210,6 @@ class SubjectController extends Controller
                     'slug' => Str::slug($request->name, '-'),
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data subjek',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -253,13 +240,6 @@ class SubjectController extends Controller
         try {
             QueryAPI::update('e_subjects', $id, [
                 'deleted_at' => date('Y-m-d')
-            ]);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data subjek',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
 
             $response = [

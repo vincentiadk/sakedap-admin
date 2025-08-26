@@ -182,13 +182,6 @@ class ContributorController extends Controller
                     'show' => $request->show,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kontributor',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -250,13 +243,6 @@ class ContributorController extends Controller
                     'show' => $request->show,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kontributor',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -287,13 +273,6 @@ class ContributorController extends Controller
         try {
             QueryAPI::update('e_contributors', $id, [
                 'deleted_at' => date('Y-m-d')
-            ]);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kontributor',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
 
             $response = [

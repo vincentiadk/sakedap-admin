@@ -96,6 +96,7 @@ class QueryAPI
             'token' => static::$token,
             'op' => 'add',
             'table' => $table,
+            'issavehistory' => 1,
             'ListAddItem' => json_encode($bodyJson)
         ])->post(static::$baseUrl);
 
@@ -148,6 +149,7 @@ class QueryAPI
             'op' => 'update',
             'table' => $table,
             'id' => $id,
+            'issavehistory' => 1,
             'ListUpdateItem' => json_encode($bodyJson)
         ])->post(static::$baseUrl);
 
@@ -194,16 +196,5 @@ class QueryAPI
         }
 
         return $data;
-    }
-
-    /**
-     * activityLog
-     *
-     * @param  mixed $payload
-     * @return void
-     */
-    public static function activityLog($payload)
-    {
-        static::create('e_activity_log', $payload);
     }
 }

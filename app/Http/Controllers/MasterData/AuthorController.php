@@ -119,6 +119,7 @@ class AuthorController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -157,13 +158,6 @@ class AuthorController extends Controller
                     'fullname' => $request->fullname,
                     'slug' => Str::slug($request->fullname, '-'),
                     'title' => $request->title,
-                ]);
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data pengarang',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->fullname]),
                 ]);
 
                 $response = [
@@ -218,13 +212,6 @@ class AuthorController extends Controller
                     'title' => $request->title,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data pengarang',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->fullname]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -254,13 +241,6 @@ class AuthorController extends Controller
 
         try {
             QueryAPI::delete('e_authors', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data pengarang',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->FULLNAME ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

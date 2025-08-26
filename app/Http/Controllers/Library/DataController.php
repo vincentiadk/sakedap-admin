@@ -180,13 +180,6 @@ class DataController extends Controller
                     'province_id' => $request->province_id,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data perpustakaan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -249,13 +242,6 @@ class DataController extends Controller
                     'province_id' => $request->province_id,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data perpustakaan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -287,13 +273,6 @@ class DataController extends Controller
             QueryAPI::update('branchs', $id, [
                 'isdelete' => 1
             ], false);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data perpustakaan',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

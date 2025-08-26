@@ -185,13 +185,6 @@ class CityController extends Controller
                     'longitude' => $request->longitude,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kota / kabupaten',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -259,13 +252,6 @@ class CityController extends Controller
                     'longitude' => $request->longitude,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kota / kabupaten',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -284,24 +270,9 @@ class CityController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                kabupaten
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::delete('kabupaten', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kota / kabupaten',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAMAKAB ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

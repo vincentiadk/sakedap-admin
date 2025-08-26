@@ -119,6 +119,7 @@ class OrganizationController extends Controller
                         </div>
                     </div>
                 ';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -154,13 +155,6 @@ class OrganizationController extends Controller
             try {
                 QueryAPI::create('e_organizations', [
                     'name' => $request->name,
-                ]);
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data subjek',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
                 ]);
 
                 $response = [
@@ -213,13 +207,6 @@ class OrganizationController extends Controller
                     'name' => $request->name,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data subjek',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -250,13 +237,6 @@ class OrganizationController extends Controller
         try {
             QueryAPI::update('e_organizations', $id, [
                 'deleted_at' => date('Y-m-d')
-            ]);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data subjek',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
 
             $response = [

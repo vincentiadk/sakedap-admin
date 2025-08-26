@@ -174,13 +174,6 @@ class ProvinceController extends Controller
                     'longitude' => $request->longitude,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data provinsi',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -242,13 +235,6 @@ class ProvinceController extends Controller
                     'longitude' => $request->longitude,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data provinsi',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -267,24 +253,9 @@ class ProvinceController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                propinsi
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::delete('propinsi', $id);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data provinsi',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAMAPROPINSI ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

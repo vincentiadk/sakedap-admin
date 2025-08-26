@@ -177,14 +177,6 @@ class LocationController extends Controller
                     'branch_id' => (int) $request->branch_id,
                 ], false);
 
-
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data lokasi perpustakaan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -246,13 +238,6 @@ class LocationController extends Controller
                     'branch_id' => $request->branch_id,
                 ], false);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data lokasi perpustakaan',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -284,13 +269,6 @@ class LocationController extends Controller
             QueryAPI::update('location_library', $id, [
                 'isdelete' => 1
             ], false);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data lokasi perpustakaan',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
-            ]);
 
             $response = [
                 'code' => 200,

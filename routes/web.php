@@ -15,6 +15,8 @@ Route::middleware('authentication')->group(function () {
         Route::get('city', 'Select2ServersideController@city');
         Route::get('district', 'Select2ServersideController@district');
         Route::get('branch', 'Select2ServersideController@branch');
+        Route::get('publisher', 'Select2ServersideController@publisher');
+        Route::get('location', 'Select2ServersideController@location');
     });
 
     Route::get('home', function () {
@@ -145,6 +147,13 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'LocationController@showData');
             Route::post('update-data', 'LocationController@updateData');
             Route::delete('destroy-data', 'LocationController@destroyData');
+        });
+    });
+
+    Route::prefix('publisher')->namespace('Publisher')->group(function () {
+        Route::prefix('create-data')->group(function () {
+            Route::get('/', 'CreateDataController@index');
+            Route::post('submitted', 'CreateDataController@submitted');
         });
     });
 

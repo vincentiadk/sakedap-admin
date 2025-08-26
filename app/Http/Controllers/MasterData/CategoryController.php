@@ -170,13 +170,6 @@ class CategoryController extends Controller
                     'type' => $request->type,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Membuat data kategori',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah ditambahkan'
@@ -234,13 +227,6 @@ class CategoryController extends Controller
                     'type' => $request->type,
                 ]);
 
-                QueryAPI::activityLog([
-                    'log_name' => 'default',
-                    'description' => 'Mengubah data kategori',
-                    'causer_id' => session('id'),
-                    'properties' => json_encode(['nama' => $request->name]),
-                ]);
-
                 $response = [
                     'code' => 200,
                     'message' => 'Data telah diubah'
@@ -271,13 +257,6 @@ class CategoryController extends Controller
         try {
             QueryAPI::update('e_categories', $id, [
                 'deleted_at' => date('Y-m-d')
-            ]);
-
-            QueryAPI::activityLog([
-                'log_name' => 'default',
-                'description' => 'Menghapus data kategori',
-                'causer_id' => session('id'),
-                'properties' => json_encode(['nama' => $data->NAME ?? null]),
             ]);
 
             $response = [

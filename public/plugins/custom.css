@@ -24,3 +24,7 @@
 .table .dropdown-menu {
     position: fixed !important;
 }
+
+.btn-to-top-visible {
+    display: none !important;
+}

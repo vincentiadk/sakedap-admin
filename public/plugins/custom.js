@@ -182,3 +182,63 @@ function select2Serverside(selector, endpoint, payload = {}) {
         }
     });
 }
+
+function dragAndDropFile(selector = '.file-input', config = {}) {
+    const previewZoomButtonClasses = {
+        rotate: 'btn btn-light btn-icon btn-sm',
+        toggleheader: 'btn btn-light btn-icon btn-header-toggle btn-sm',
+        fullscreen: 'btn btn-light btn-icon btn-sm',
+        borderless: 'btn btn-light btn-icon btn-sm',
+        close: 'btn btn-light btn-icon btn-sm',
+    };
+
+    const previewZoomButtonIcons = {
+        prev: document.dir == 'rtl' ? '<i class="ph-arrow-right"></i>' : '<i class="ph-arrow-left"></i>',
+        next: document.dir == 'rtl' ? '<i class="ph-arrow-left"></i>' : '<i class="ph-arrow-right"></i>',
+        rotate: '<i class="ph-arrow-clockwise"></i>',
+        toggleheader: '<i class="ph-arrows-down-up"></i>',
+        fullscreen: '<i class="ph-corners-out"></i>',
+        borderless: '<i class="ph-frame-corners"></i>',
+        close: '<i class="ph-x"></i>',
+    };
+
+    const fileActionSettings = {
+        zoomClass: '',
+        zoomIcon: '<i class="ph-magnifying-glass-plus"></i>',
+        dragClass: "p-2",
+        dragIcon: '<i class="ph-dots-six"></i>',
+        removeClass: "",
+        removeErrorClass: "text-danger",
+        removeIcon: '<i class="ph-trash"></i>',
+        indicatorNew: '<i class="ph-file-plus text-success"></i>',
+        indicatorSuccess: '<i class="ph-check file-icon-large text-success"></i>',
+        indicatorError: '<i class="ph-x text-danger"></i>',
+        indicatorLoading: '<i class="ph-spinner spinner text-muted"></i>',
+    };
+
+    var configuration = $.extend(
+        {
+            showUpload: false,
+            browseLabel: 'Telusuri',
+            browseOnZoneClick: true,
+            autoReplace: true,
+            browseIcon: '<i class="ph-file-plus me-2"></i>',
+            uploadIcon: '<i class="ph-file-arrow-up me-2"></i>',
+            removeIcon: '<i class="ph-x fs-base me-2"></i>',
+            layoutTemplates: {
+                icon: '<i class="ph-check"></i>',
+            },
+            browseClass: 'btn btn-light',
+            uploadClass: 'btn btn-light',
+            removeClass: 'btn btn-light',
+            initialCaption: 'Tidak ada file',
+            initialPreviewAsData: true,
+            previewZoomButtonClasses: previewZoomButtonClasses,
+            previewZoomButtonIcons: previewZoomButtonIcons,
+            fileActionSettings: fileActionSettings,
+        },
+        config
+    );
+
+    $(selector).fileinput(configuration);
+}
