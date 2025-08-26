@@ -155,6 +155,14 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'CreateDataController@index');
             Route::post('submitted', 'CreateDataController@submitted');
         });
+
+        Route::prefix('review')->group(function () {
+            Route::get('/', 'ReviewController@index');
+            Route::get('datatable', 'ReviewController@datatable');
+            Route::get('show-data', 'ReviewController@showData');
+            Route::post('update-data', 'ReviewController@updateData');
+            Route::delete('destroy-data', 'ReviewController@destroyData');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {

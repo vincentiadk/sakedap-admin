@@ -261,14 +261,6 @@ class ContributorController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                e_contributors
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::update('e_contributors', $id, [

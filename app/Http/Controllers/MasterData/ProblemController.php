@@ -225,14 +225,6 @@ class ProblemController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                e_problems
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::update('e_problems', $id, [

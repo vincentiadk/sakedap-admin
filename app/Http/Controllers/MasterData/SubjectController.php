@@ -228,14 +228,6 @@ class SubjectController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                e_subjects
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::update('e_subjects', $id, [

@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\MasterData;
+namespace App\Http\Controllers\Publisher;
 
+use Carbon\Carbon;
 use App\Helpers\QueryAPI;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 
-class AuthorController extends Controller
+class ReviewController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'master-data.author'
+            'content' => 'publisher.review'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -22,10 +21,14 @@ class AuthorController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_authors.id',
+            'penerbit.id',
             null,
-            'e_authors.fullname',
-            'e_authors.title',
+            'penerbit.name',
+            'penerbit.email1',
+            'penerbit_kategori.name',
+            'penerbit_jenis.name',
+            'penerbit.telp1',
+            'penerbit.createdate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -39,7 +42,8 @@ class AuthorController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = 'status = 1';
+        $whereCondition[] = "source_db = 'EDEPOSIT'";
 
         if ($search) {
             $terms = [];
@@ -67,14 +71,18 @@ class AuthorController extends Controller
             select
                 count(*) as total
             from
-                e_authors
+                penerbit
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_authors
+                penerbit
+            left join
+                penerbit_kategori on penerbit_kategori.id = penerbit.kategori_id
+            left join
+                penerbit_jenis on penerbit_jenis.id = penerbit.jenis_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -88,9 +96,15 @@ class AuthorController extends Controller
                     from
                         (
                             select
-                                *
+                                penerbit.*,
+                                penerbit_kategori.name as name_penerbit_kategori,
+                                penerbit_jenis.name as name_penerbit_jenis
                             from
-                                e_authors
+                                penerbit
+                            left join
+                                penerbit_kategori on penerbit_kategori.id = penerbit.kategori_id
+                            left join
+                                penerbit_jenis on penerbit_jenis.id = penerbit.jenis_id
                             $whereClause
                             $orderBy
                         ) data
@@ -109,8 +123,8 @@ class AuthorController extends Controller
                         </button>
                         <div class="dropdown-menu">
                             <a href="javascript:void(0);" class="dropdown-item fs-13" onclick="showDataUpdate(' . $val->ID . ')">
-                                <i class="ph-pen me-1"></i>
-                                Ubah Data
+                                <i class="ph-info me-1"></i>
+                                Tinjau Data
                             </a>
                             <a href="javascript:void(0);" class="dropdown-item fs-13" onclick="destroyData(' . $val->ID . ')">
                                 <i class="ph-trash-simple me-1"></i>
@@ -120,11 +134,25 @@ class AuthorController extends Controller
                     </div>
                 ';
 
+                $email = '
+                    <div>Utama : ' . $val->EMAIL1 . '</div>
+                    <div>Alternatif : ' . $val->EMAIL2 . '</div>
+                ';
+
+                $phone = '
+                    <div>Utama : ' . $val->TELP1 . '</div>
+                    <div>Alternatif : ' . $val->TELP2 . '</div>
+                ';
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->FULLNAME,
-                    $val->TITLE,
+                    $val->NAME,
+                    $email,
+                    $val->NAME_PENERBIT_KATEGORI,
+                    $val->NAME_PENERBIT_JENIS,
+                    $phone,
+                    Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
                 ];
 
                 $start++;
@@ -139,52 +167,37 @@ class AuthorController extends Controller
         ]);
     }
 
-    public function createData(Request $request)
-    {
-        $validation = Validator::make($request->all(), [
-            'fullname' => 'required',
-        ], [
-            'fullname.required' => 'Nama tidak boleh kosong'
-        ]);
-
-        if ($validation->fails()) {
-            $response = [
-                'code' => 400,
-                'error' => $validation->errors()->all(),
-            ];
-        } else {
-            try {
-                QueryAPI::create('e_authors', [
-                    'fullname' => $request->fullname,
-                    'slug' => Str::slug($request->fullname, '-'),
-                    'title' => $request->title,
-                ]);
-
-                $response = [
-                    'code' => 200,
-                    'message' => 'Data telah ditambahkan'
-                ];
-            } catch (\Exception $e) {
-                $response = [
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ];
-            }
-        }
-
-        return response()->json($response);
-    }
-
     public function showData(Request $request)
     {
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                penerbit.*,
+                penerbit_kategori.name as name_penerbit_kategori,
+                penerbit_jenis.name as name_penerbit_jenis,
+                parent.name as name_parent,
+                propinsi.namapropinsi as namapropinsi,
+                kabupaten.namakab as namakab,
+                kecamatan.namakec as namakec,
+                kelurahan.namakel as namakel
             from
-                e_authors
+                penerbit
+            left join
+                penerbit_kategori on penerbit_kategori.id = penerbit.kategori_id
+            left join
+                penerbit_jenis on penerbit_jenis.id = penerbit.jenis_id
+            left join
+                penerbit parent on parent.id = penerbit.parent_id
+            left join
+                propinsi on propinsi.id = penerbit.province_id
+            left join
+                kabupaten on kabupaten.id = penerbit.city_id
+            left join
+                kecamatan on kecamatan.id = penerbit.district_id
+            left join
+                kelurahan on kelurahan.id = penerbit.village_id
             where
-                id = $id
+                penerbit.id = $id
         ", true);
 
         return response()->json($data);
@@ -193,35 +206,39 @@ class AuthorController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $validation = Validator::make($request->all(), [
-            'fullname' => 'required',
-        ], [
-            'fullname.required' => 'Nama tidak boleh kosong'
-        ]);
+        $status = $request->status;
 
-        if ($validation->fails()) {
-            $response = [
-                'code' => 400,
-                'error' => $validation->errors()->all(),
-            ];
-        } else {
-            try {
-                QueryAPI::update('e_authors', $id, [
-                    'fullname' => $request->fullname,
-                    'slug' => Str::slug($request->fullname, '-'),
-                    'title' => $request->title,
-                ]);
+        try {
+            $payload = [];
 
-                $response = [
-                    'code' => 200,
-                    'message' => 'Data telah diubah'
+            if ($status == 3) {
+                $payload = [
+                    'status' => 3,
+                    'validateby' => session('fullname'),
+                    'validatedate' => date('Y-m-d H:i:s'),
+                    'is_validasi' => 1,
+                    'is_lock' => 1,
                 ];
-            } catch (\Exception $e) {
-                $response = [
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
+            } else {
+                $payload = [
+                    'status' => 3,
+                    'keterangan' => $request->description,
+                    'validateby' => session('fullname'),
+                    'validatedate' => date('Y-m-d H:i:s'),
                 ];
             }
+
+            QueryAPI::update('penerbit', $id, $payload, false);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah direview'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
         }
 
         return response()->json($response);
@@ -232,7 +249,7 @@ class AuthorController extends Controller
         $id = $request->id;
 
         try {
-            QueryAPI::delete('e_authors', $id);
+            QueryAPI::delete('penerbit', $id);
 
             $response = [
                 'code' => 200,

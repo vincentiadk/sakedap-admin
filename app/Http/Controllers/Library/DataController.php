@@ -260,14 +260,6 @@ class DataController extends Controller
     public function destroyData(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-            select
-                *
-            from
-                branchs
-            where
-                id = $id
-        ", true);
 
         try {
             QueryAPI::update('branchs', $id, [
