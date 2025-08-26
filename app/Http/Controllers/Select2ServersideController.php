@@ -276,14 +276,14 @@ class Select2ServersideController extends Controller
                         <div>' . $d->NAMAPROPINSI . '</div>
                     ';
                 } else if ($for == 'city') {
-                    $text = $d->NAMAKAB;
+                    $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB;
 
                     $html = '
                         <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
                         <div>' . $d->NAMAKAB . '</div>
                     ';
                 } else if ($for == 'district') {
-                    $text = $d->NAMAKEC;
+                    $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB . ' -> ' . $d->NAMAKEC;
 
                     $html = '
                         <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
@@ -291,7 +291,7 @@ class Select2ServersideController extends Controller
                         <div>' . $d->NAMAKEC . '</div>
                     ';
                 } else if ($for == 'village') {
-                    $text = $d->NAMAKEL;
+                    $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB . ' -> ' . $d->NAMAKEC . ' -> ' . $d->NAMAKEL;
 
                     $html = '
                         <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>

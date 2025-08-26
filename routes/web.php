@@ -163,6 +163,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ReviewController@updateData');
             Route::delete('destroy-data', 'ReviewController@destroyData');
         });
+
+        Route::prefix('manage')->group(function () {
+            Route::get('/', 'ManageController@index');
+            Route::get('datatable', 'ManageController@datatable');
+            Route::get('show-data', 'ManageController@showData');
+            Route::post('update-data', 'ManageController@updateData');
+            Route::delete('destroy-data', 'ManageController@destroyData');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {

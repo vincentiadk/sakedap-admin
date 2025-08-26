@@ -25,7 +25,7 @@ class CreateDataController extends Controller
     {
         $response = [];
 
-        if ($request->ajax() && $request->header('x-csrf-token') == csrf_token()) {
+        if ($request->ajax()) {
             $validation = Validator::make($request->all(), [
                 'name' => 'required',
                 'location_id' => 'required',
