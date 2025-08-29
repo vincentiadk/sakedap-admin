@@ -164,6 +164,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'CreateMoreController@index');
             Route::post('submitted', 'CreateMoreController@submitted');
         });
+
+        Route::prefix('reject')->group(function () {
+            Route::get('/', 'RejectController@index');
+            Route::get('datatable', 'RejectController@datatable');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {

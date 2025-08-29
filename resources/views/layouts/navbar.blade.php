@@ -162,12 +162,9 @@
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('kckra/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
-                                                <a href="{{ url('kckra/create-single') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'create-single' ? 'active' : '' }}">Tambah Tunggal</a>
-                                                <a href="{{ url('kckra/create-more') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'create-more' ? 'active' : '' }}">Tambah Banyak</a>
                                                 <a href="{{ url('kckra/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
                                                 <a href="{{ url('kckra/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
-                                                <a href="{{ url('kckra/internal') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'internal' ? 'active' : '' }}">Internal</a>
-                                                <a href="{{ url('kckra/external') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'external' ? 'active' : '' }}">Eksternal</a>
+                                                <a href="{{ url('kckra/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                             </div>
                                         </div>
                                     </div>

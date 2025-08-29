@@ -432,12 +432,12 @@ class Select2ServersideController extends Controller
             foreach ($data as $d) {
                 $html = '
                     <div><small class="text-muted">' . ($d->NAME_PENERBIT ?? '-') . '</small></div>
-                    <div>' . ($d->TITLE_ORI ?? $d->TITLE) . '</div>
+                    <div>' . ($d->TITLE ?? $d->TITLE_ORI) . '</div>
                 ';
 
                 $response[] = [
                     'id' => $d->ID,
-                    'text' => $d->TITLE_ORI ?? $d->TITLE,
+                    'text' => $d->TITLE ?? $d->TITLE_ORI,
                     'html' => $html,
                 ];
             }
