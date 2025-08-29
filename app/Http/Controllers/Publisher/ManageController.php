@@ -273,7 +273,7 @@ class ManageController extends Controller
                     'fax2' => $request->fax_alternative,
                     'website' => $request->website,
                     'rata_terbitan' => $request->publication_average,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 

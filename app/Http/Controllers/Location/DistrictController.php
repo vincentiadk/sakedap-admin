@@ -164,9 +164,9 @@ class DistrictController extends Controller
                 QueryAPI::create('kecamatan', [
                     'namakec' => $request->name,
                     'kabupatenid' => $request->city_id,
-                    'createby' => session('fullname'),
+                    'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
@@ -224,7 +224,7 @@ class DistrictController extends Controller
                 QueryAPI::update('kecamatan', $id, [
                     'namakec' => $request->name,
                     'kabupatenid' => $request->city_id,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 

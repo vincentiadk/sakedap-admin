@@ -176,9 +176,9 @@ class CityController extends Controller
                 QueryAPI::create('kabupaten', [
                     'namakab' => $request->name,
                     'propinsiid' => $request->province_id,
-                    'createby' => session('fullname'),
+                    'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'code_kab' => $request->code,
                     'latitude' => $request->latitude,
@@ -245,7 +245,7 @@ class CityController extends Controller
                 QueryAPI::update('kabupaten', $id, [
                     'namakab' => $request->name,
                     'propinsiid' => $request->province_id,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'code_kab' => $request->code,
                     'latitude' => $request->latitude,

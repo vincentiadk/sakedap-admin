@@ -23,6 +23,27 @@ class QueryAPI
     }
 
     /**
+     * login
+     *
+     * @param  mixed $username
+     * @param  mixed $password
+     * @return void
+     */
+    public static function login($username, $password)
+    {
+        static::initialize();
+
+        $query = Http::withQueryParameters([
+            'token' => static::$token,
+            'op' => 'isloginvalid',
+            'UserName' => $username,
+            'UserPassword' => $password,
+        ])->post(static::$baseUrl);
+
+        return $query->object();
+    }
+
+    /**
      * get
      *
      * @param  mixed $sql
@@ -218,7 +239,7 @@ class QueryAPI
         $param = array_merge($payload, [
             'token' => static::$token,
             'op' => 'uploadfile',
-            'uploadby' => session('fullname'),
+            'uploadby' => session('name'),
             'terminal' => request()->ip(),
         ]);
 
@@ -247,7 +268,7 @@ class QueryAPI
         $param = array_merge($payload, [
             'token' => static::$token,
             'op' => 'deletefile',
-            'actionby' => session('fullname'),
+            'actionby' => session('name'),
             'terminal' => request()->ip(),
         ]);
 

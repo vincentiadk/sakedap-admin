@@ -165,9 +165,9 @@ class ProvinceController extends Controller
             try {
                 QueryAPI::create('propinsi', [
                     'namapropinsi' => $request->name,
-                    'createby' => session('fullname'),
+                    'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'code' => $request->code,
                     'latitude' => $request->latitude,
@@ -228,7 +228,7 @@ class ProvinceController extends Controller
             try {
                 QueryAPI::update('propinsi', $id, [
                     'namapropinsi' => $request->name,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'code' => $request->code,
                     'latitude' => $request->latitude,

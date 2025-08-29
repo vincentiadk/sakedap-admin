@@ -164,9 +164,9 @@ class VillageController extends Controller
                 QueryAPI::create('kelurahan', [
                     'namakel' => $request->name,
                     'kecamatanid' => $request->district_id,
-                    'createby' => session('fullname'),
+                    'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 
@@ -224,7 +224,7 @@ class VillageController extends Controller
                 QueryAPI::update('kelurahan', $id, [
                     'namakel' => $request->name,
                     'kecamatanid' => $request->district_id,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                 ], false);
 

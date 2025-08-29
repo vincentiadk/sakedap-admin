@@ -214,7 +214,7 @@ class ReviewController extends Controller
             if ($status == 3) {
                 $payload = [
                     'status' => 3,
-                    'validateby' => session('fullname'),
+                    'validateby' => session('name'),
                     'validatedate' => date('Y-m-d H:i:s'),
                     'is_validasi' => 1,
                     'is_lock' => 1,
@@ -223,7 +223,7 @@ class ReviewController extends Controller
                 $payload = [
                     'status' => 3,
                     'keterangan' => $request->description,
-                    'validateby' => session('fullname'),
+                    'validateby' => session('name'),
                     'validatedate' => date('Y-m-d H:i:s'),
                 ];
             }

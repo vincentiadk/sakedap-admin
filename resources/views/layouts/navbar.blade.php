@@ -222,12 +222,6 @@
 							</div>
 						</div>
 					</li>
-					<li class="nav-item">
-						<a href="{{ url('auth/change-password') }}" class="navbar-nav-link rounded">
-							<i class="ph-key me-2"></i>
-							Ganti Password
-						</a>
-					</li>
                     <li class="nav-item">
 						<a href="javascript:void(0);" class="navbar-nav-link text-danger rounded" onclick="logout()">
 							<i class="ph-sign-out me-2"></i>
@@ -298,7 +292,7 @@
 				<li class="nav-item">
 					<a href="javascript:void(0);" class="navbar-nav-link align-items-center rounded-pill p-1 bg-transparent no-click">
                         <img src="{{ asset('assets/user.png') }}" class="w-32px h-32px rounded-pill" alt="">
-						<span class="d-none d-md-inline-block mx-md-2">{{ session('fullname') }}</span>
+						<span class="d-none d-md-inline-block mx-md-2">{{ session('name') }}</span>
 					</a>
 				</li>
 			</ul>

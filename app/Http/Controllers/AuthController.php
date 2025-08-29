@@ -19,91 +19,41 @@ class AuthController extends Controller
         if ($request->_token == csrf_token()) {
             $username = $request->username;
             $password = $request->password;
-            $lastLogin = date('Y-m-d H:i:s');
+            $login = QueryAPI::login($username, $password);
 
-            $user = QueryAPI::get("
-                select
-                    e_users.*,
-                    e_libraries.id as id_library,
-                    e_libraries.province_id as province_id_library,
-                    e_admins.fullname as fullname_admin,
-                    e_admins.address as address_admin
-                from
-                    e_users
-                left join
-                    e_libraries on e_libraries.id = e_users.library_id
-                inner join
-                    e_admins on e_admins.id = e_users.userable_id
-                where
-                    e_users.username = '$username' and
-                    e_users.userable_type = 'admins' and
-                    e_users.enable = 1 and
-                    e_users.verification_at is not null and
-                    e_users.deleted_at is null
-            ", true);
+            if (($login->Status ?? '') == 'Success') {
+                $userId = $login->Data->Id ?? null;
+                $user = QueryAPI::get("
+                    select
+                        users.*,
+                        branchs.province_id as province_id
+                    from
+                        users
+                    left join
+                        branchs on branchs.id = users.branch_id
+                    where
+                        users.id = $userId
+                ", true);
 
-            if ($user) {
-                session([
-                    'id' => $user->ID,
-                    'username' => $user->USERNAME,
-                    'userable_type' => $user->USERABLE_TYPE,
-                    'userable_id' => $user->USERABLE_ID,
-                    'library_id' => $user->ID_LIBRARY,
-                    'province_id' => $user->PROVINCE_ID_LIBRARY,
-                    'last_login' => $lastLogin,
-                    'fullname' => $user->FULLNAME_ADMIN,
-                    'email' => $user->EMAIL,
-                    'address' => $user->ADDRESS_ADMIN,
-                ]);
+                if ($user) {
+                    session([
+                        'id' => $user->ID,
+                        'username' => $user->USERNAME,
+                        'name' => $user->FULLNAME,
+                        'email' => $user->EMAILADDRESS,
+                        'province_id' => $user->PROVINCE_ID,
+                        'branch_id' => $user->BRANCH_ID,
+                        'role_id' => $user->ROLE_ID,
+                    ]);
 
-                return redirect()->intended('home');
+                    return redirect()->intended('home');
+                }
             }
 
-            return redirect('/')->with(['failed' => 'Username dan Password tidak ditemukan']);
+            return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan']);
         }
 
         return view('login');
-    }
-
-    public function changePassword(Request $request)
-    {
-        if ($request->_token == csrf_token()) {
-            $validation = Validator::make($request->all(), [
-                'new_password' => 'required',
-                'confirm_password' => 'required|same:new_password'
-            ], [
-                'new_password.required' => 'Password baru tidak boleh kosong',
-                'confirm_password.required' => 'Konfirmasi password tidak boleh kosong',
-                'confirm_password.same' => 'Konfirmasi password harus sama dengan password baru'
-            ]);
-
-            if ($validation->fails()) {
-                return redirect()->back()->withErrors($validation);
-            } else {
-                try {
-                    $change = QueryAPI::update('e_users', session('id'), [
-                        'password' => Hash::make($request->new_password)
-                    ]);
-
-                    if ($change) {
-                        $message = ['success' => 'Password berhasil diganti'];
-                    } else {
-                        $message = ['failed' => 'Password gagal diganti'];
-                    }
-                    return redirect('auth/change-password')->with($message);
-                } catch (\Exception $e) {
-                    return redirect()->back()->with([
-                        'error' => $e->getMessage()
-                    ]);
-                }
-            }
-        }
-
-        $data = [
-            'content' => 'change-password'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
     }
 
     public function logout()

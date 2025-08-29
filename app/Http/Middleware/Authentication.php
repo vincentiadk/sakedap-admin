@@ -17,10 +17,10 @@ class Authentication
     public function handle(Request $request, Closure $next): Response
     {
         $id = session('id');
-        $user = QueryAPI::get("select * from e_users where id = $id", true);
+        $user = QueryAPI::get("select * from users where id = $id", true);
 
         if ($user) {
-            if ($user->ENABLE == 1 && $user->USERABLE_TYPE == 'admins') {
+            if ($user->ISACTIVE == 1 && $user->ISDELETE == 0) {
                 return $next($request);
             }
         }

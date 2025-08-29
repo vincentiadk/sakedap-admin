@@ -170,9 +170,9 @@ class LocationController extends Controller
                     'code' => $request->code,
                     'name' => $request->name,
                     'isdelete' => 0,
-                    'createby' => session('fullname'),
+                    'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'branch_id' => (int) $request->branch_id,
                 ], false);
@@ -233,7 +233,7 @@ class LocationController extends Controller
                 QueryAPI::update('location_library', $id, [
                     'code' => $request->code,
                     'name' => $request->name,
-                    'updateby' => session('fullname'),
+                    'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'branch_id' => $request->branch_id,
                 ], false);
