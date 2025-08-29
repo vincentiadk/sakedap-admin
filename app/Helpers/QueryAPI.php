@@ -221,7 +221,8 @@ class QueryAPI
             'terminal' => request()->ip(),
         ]);
 
-        $query = Http::withQueryParameters($param)
+        $query = Http::attach('file', file_get_contents($payload['file']), $payload['file']->getClientOriginalName())
+            ->withQueryParameters($param)
             ->post(static::$baseUrl);
 
         if ($query->status() == 200) {

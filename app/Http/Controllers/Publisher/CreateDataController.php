@@ -36,8 +36,8 @@ class CreateDataController extends Controller
                 'phone_alternative' => 'nullable|min_digits:8|max_digits:13|numeric',
                 'fax' => 'nullable|min_digits:8|max_digits:13|numeric',
                 'fax_alternative' => 'nullable|min_digits:8|max_digits:13|numeric',
-                // 'file_deed' => 'required|file|mimes:pdf|max:512',
-                // 'file_statement' => 'required|file|mimes:pdf|max:512',
+                'file_deed' => 'required|file|mimes:pdf|max:512',
+                'file_statement' => 'required|file|mimes:pdf|max:512',
             ], [
                 'name.required' => 'Nama tidak boleh kosong',
                 'location_id.required' => 'Lokasi tidak boleh kosong',
@@ -57,14 +57,14 @@ class CreateDataController extends Controller
                 'fax_alternative.min_digits' => 'Fax alternatif minimal 8 digit',
                 'fax_alternative.max_digits' => 'Fax alternatif maksimal 13 digit',
                 'fax_alternative.numeric' => 'Fax alternatif harus angka',
-                // 'file_deed.required' => 'File akta tidak boleh kosong',
-                // 'file_deed.file' => 'File akta tidak valid',
-                // 'file_deed.file' => 'File akta harus pdf',
-                // 'file_deed.file' => 'File akta maksimal 512 KB',
-                // 'file_statement.required' => 'File pernyataan tidak boleh kosong',
-                // 'file_statement.file' => 'File pernyataan tidak valid',
-                // 'file_statement.file' => 'File pernyataan harus pdf',
-                // 'file_statement.file' => 'File pernyataan maksimal 512 KB',
+                'file_deed.required' => 'File akta tidak boleh kosong',
+                'file_deed.file' => 'File akta tidak valid',
+                'file_deed.file' => 'File akta harus pdf',
+                'file_deed.file' => 'File akta maksimal 512 KB',
+                'file_statement.required' => 'File pernyataan tidak boleh kosong',
+                'file_statement.file' => 'File pernyataan tidak valid',
+                'file_statement.file' => 'File pernyataan harus pdf',
+                'file_statement.file' => 'File pernyataan maksimal 512 KB',
             ]);
 
             if ($validation->fails()) {
@@ -76,7 +76,7 @@ class CreateDataController extends Controller
                 try {
                     $location = Main::locationById($request->location_id, 'village');
 
-                    QueryAPI::create('penerbit', [
+                    $createPublisher = QueryAPI::create('penerbit', [
                         'kategori_id' => $request->category_id,
                         'jenis_id' => $request->type_id,
                         'name' => $request->name,
@@ -119,6 +119,25 @@ class CreateDataController extends Controller
                         'status' => 3,
                         'tree_level' => $request->parent_id ? 2 : 1,
                     ], false);
+
+                    if ($createPublisher) {
+                        $fileDeed = $request->file('file_deed');
+                        $fileStatement = $request->file('file_statement');
+
+                        QueryAPI::uploadFile([
+                            'type' => 'penerbit_akte_notaris',
+                            'id' => $createPublisher->ID,
+                            'iszip' => false,
+                            'file' => $fileDeed,
+                        ]);
+
+                        QueryAPI::uploadFile([
+                            'type' => 'penerbit_surat_pernyataan',
+                            'id' => $createPublisher->ID,
+                            'iszip' => false,
+                            'file' => $fileStatement,
+                        ]);
+                    }
 
                     $response = [
                         'code' => 200,
