@@ -126,13 +126,13 @@
                             <div class="col-md-6">
                                 <div class="fw-bold border-bottom pb-2 mb-2">File Akta</div>
                                 <div class="ratio ratio-16x9">
-                                    <embed src="" id="file_deed">
+                                    <iframe src="" id="file_deed" frameborder="0"></iframe>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="fw-bold border-bottom pb-2 mb-2">File Pernyataan</div>
                                 <div class="ratio ratio-16x9">
-                                    <embed src="" id="file_statement">
+                                    <iframe src="" id="file_statement" frameborder="0"></iframe>
                                 </div>
                             </div>
                         </div>
@@ -186,6 +186,8 @@
 
         $('#modal-form').modal('hide');
         $('#form-data').trigger('reset');
+        $('#file_deed').attr('src', '');
+        $('#file_statement').attr('src', '');
     }
 
     function onCancel() {
@@ -298,6 +300,28 @@
                 $('#website').text(response.WEBSITE);
                 $('#publication_average').text(response.RATA_TERBITAN);
                 $('#registration_date').text(moment(response.CREATEDATE).format('DD/MM/YYYY'));
+
+                if(response.FILE_AKTE_NOTARIS) {
+                    var paramFile = {
+                        id: response.ID,
+                        type: 'penerbit_akte_notaris',
+                        filename: response.FILE_AKTE_NOTARIS,
+                        v: '{{ Str::random(40) }}'
+                    };
+
+                    $('#file_deed').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`)
+                }
+
+                if(response.FILE_SP) {
+                    var paramFile = {
+                        id: response.ID,
+                        type: 'penerbit_surat_pernyataan',
+                        filename: response.FILE_SP,
+                        v: '{{ Str::random(40) }}'
+                    };
+
+                    $('#file_statement').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`)
+                }
             },
             error: function(response) {
                 onLoading('close', '.modal-content');

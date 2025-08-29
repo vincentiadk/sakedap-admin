@@ -76,4 +76,47 @@ class Main
 
         return $data;
     }
+
+    /**
+     * contentType
+     *
+     * @param  mixed $filename
+     * @return void
+     */
+    public static function contentType($filename)
+    {
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+        if ($extension == 'pdf') {
+            $content = 'application/pdf';
+        } else if (in_array($extension, ['jpg', 'jpeg'])) {
+            $content = 'image/jpeg';
+        } else if ($extension == 'png') {
+            $content = 'image/png';
+        } else if ($extension == 'docx') {
+            $content = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } else if ($extension == 'doc') {
+            $content = 'application/msword';
+        } else if ($extension == 'xlsx') {
+            $content = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        } else if ($extension == 'xls') {
+            $content = 'application/vnd.ms-excel';
+        } else if ($extension == 'epub') {
+            $content = 'application/epub+zip';
+        } else if ($extension == 'mp3') {
+            $content = 'audio/mpeg';
+        } else if ($extension == 'mp4') {
+            $content = 'video/mp4';
+        } else if ($extension == 'wav') {
+            $content = 'audio/wav';
+        } else if ($extension == 'zip') {
+            $content = 'application/zip';
+        } else if ($extension == 'rar') {
+            $content = 'application/vnd.rar';
+        } else {
+            $content = 'application/octet-stream';
+        }
+
+        return $content;
+    }
 }

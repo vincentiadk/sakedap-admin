@@ -1,5 +1,8 @@
 <?php
 
+use App\Helpers\Main;
+use App\Helpers\QueryAPI;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::match(['get', 'post'], '/', 'AuthController@login');
@@ -25,6 +28,14 @@ Route::middleware('authentication')->group(function () {
         ];
 
         return view('layouts.index', ['data' => $data]);
+    });
+
+    Route::get('stream-file', function (Request $request) {
+        return QueryAPI::getFile([
+            'type' => $request->type,
+            'id' => $request->id,
+            'filename' => $request->filename,
+        ]);
     });
 
     Route::prefix('master-data')->namespace('MasterData')->group(function () {

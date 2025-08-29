@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Helpers\Main;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 
@@ -283,10 +284,22 @@ class QueryAPI
         ]);
 
         $query = Http::withQueryParameters($param)
+            ->withOptions(['stream' => true])
             ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
-            return $query->body();
+            $result = $query->getBody();
+
+            return response()->stream(function () use ($result) {
+                while (!$result->eof()) {
+                    echo $result->read(1024);
+
+                    flush();
+                }
+            }, 200, [
+                'Content-Type' => Main::contentType($payload['filename']),
+                'Content-Disposition' => 'inline; filename="' . $payload['filename'] . '"',
+            ]);
         }
 
         return $data;
