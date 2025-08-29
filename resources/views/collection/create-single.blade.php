@@ -115,20 +115,6 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Volume</label>
-                    <div class="col-md-10">
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <label>
-                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#volume').attr('disabled', true) : $('#volume').attr('disabled', false)" checked>
-                                    Tidak Ada
-                                </label>
-                            </span>
-                            <input type="text" class="form-control" name="volume" id="volume" placeholder="...................." disabled>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
                     <label class="col-form-label col-md-2">Serial</label>
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada">
