@@ -17,6 +17,7 @@
 	<link href="{{ asset('plugins/custom.css') }}?v={{ uniqid() }}" rel="stylesheet">
 	<script src="{{ asset('themes/js/bootstrap/bootstrap.bundle.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/jquery/jquery.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('plugins/moment.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/ui/prism.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/tables/datatables/datatables.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/notifications/sweet_alert.min.js') }}?v={{ uniqid() }}"></script>
@@ -24,11 +25,12 @@
 	<script src="{{ asset('themes/js/vendor/forms/selects/select2-lang/id.js') }}?v={{ uniqid() }}"></script>
     <script src="{{ asset('themes/js/vendor/notifications/noty.min.js') }}?v={{ uniqid() }}"></script>
     <script src="{{ asset('themes/js/vendor/uploaders/fileinput/fileinput.min.js') }}?v={{ uniqid() }}"></script>
+    <script src="{{ asset('themes/js/vendor/pickers/daterangepicker.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/app.js') }}?v={{ uniqid() }}"></script>
-	<script src="{{ asset('plugins/moment.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/lightbox/dist/js/lightbox.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/waitMe/waitMe.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/ckeditor/ckeditor.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/ckeditor/lang/id.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('plugins/number/jquery.number.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/custom.js') }}?v={{ uniqid() }}"></script>
 </head>

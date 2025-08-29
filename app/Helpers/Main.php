@@ -4,6 +4,13 @@ namespace App\Helpers;
 
 class Main
 {
+    /**
+     * locationById
+     *
+     * @param  mixed $id
+     * @param  mixed $for
+     * @return void
+     */
     public static function locationById($id, $for)
     {
         $data = null;

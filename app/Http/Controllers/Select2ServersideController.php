@@ -17,12 +17,18 @@ class Select2ServersideController extends Controller
         $data = QueryAPI::get("
             select
                 *
-            from
-                propinsi
+            from (
+                    select
+                        *
+                    from
+                        propinsi
+                    where
+                        namapropinsi like '%$search%'
+                    order by
+                        namapropinsi asc
+                )
             where
-                namapropinsi like '%$search%'
-            order by
-                namapropinsi asc
+                rownum <= 20
         ");
 
         if ($data) {
@@ -49,16 +55,22 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                kabupaten.*,
-                propinsi.namapropinsi as namapropinsi
-            from
-                kabupaten
-            join
-                propinsi on propinsi.id = kabupaten.propinsiid
+                *
+            from (
+                    select
+                        kabupaten.*,
+                        propinsi.namapropinsi as namapropinsi
+                    from
+                        kabupaten
+                    join
+                        propinsi on propinsi.id = kabupaten.propinsiid
+                    where
+                        kabupaten.namakab like '%$search%'
+                    order by
+                        kabupaten.namakab asc
+                )
             where
-                kabupaten.namakab like '%$search%'
-            order by
-                kabupaten.namakab asc
+                rownum <= 20
         ");
 
         if ($data) {
@@ -86,19 +98,25 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                kecamatan.*,
-                kabupaten.namakab as namakab,
-                propinsi.namapropinsi as namapropinsi
-            from
-                kecamatan
-            join
-                kabupaten on kabupaten.id = kecamatan.kabupatenid
-            join
-                propinsi on propinsi.id = kabupaten.propinsiid
+                *
+            from (
+                    select
+                        kecamatan.*,
+                        kabupaten.namakab as namakab,
+                        propinsi.namapropinsi as namapropinsi
+                    from
+                        kecamatan
+                    join
+                        kabupaten on kabupaten.id = kecamatan.kabupatenid
+                    join
+                        propinsi on propinsi.id = kabupaten.propinsiid
+                    where
+                        kecamatan.namakec like '%$search%'
+                    order by
+                        kecamatan.namakec asc
+                )
             where
-                kecamatan.namakec like '%$search%'
-            order by
-                kecamatan.namakec asc
+                rownum <= 20
         ");
 
         if ($data) {
@@ -127,17 +145,23 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                branchs.*,
-                propinsi.namapropinsi as namapropinsi
-            from
-                branchs
-            join
-                propinsi on propinsi.id = branchs.province_id
+                *
+            from (
+                    select
+                        branchs.*,
+                        propinsi.namapropinsi as namapropinsi
+                    from
+                        branchs
+                    join
+                        propinsi on propinsi.id = branchs.province_id
+                    where
+                        branchs.name like '%$search%' and
+                        branchs.isdelete = 0
+                    order by
+                        branchs.name asc
+                )
             where
-                branchs.name like '%$search%' and
-                branchs.isdelete = 0
-            order by
-                branchs.name asc
+                rownum <= 20
         ");
 
         if ($data) {
@@ -165,16 +189,22 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                penerbit.*,
-                propinsi.namapropinsi as namapropinsi
-            from
-                penerbit
-            join
-                propinsi on propinsi.id = penerbit.province_id
+                *
+            from (
+                    select
+                        penerbit.*,
+                        propinsi.namapropinsi as namapropinsi
+                    from
+                        penerbit
+                    join
+                        propinsi on propinsi.id = penerbit.province_id
+                    where
+                        penerbit.name like '%$search%'
+                    order by
+                        penerbit.name asc
+                )
             where
-                penerbit.name like '%$search%'
-            order by
-                penerbit.name asc
+                rownum <= 20
         ");
 
         if ($data) {
@@ -207,63 +237,87 @@ class Select2ServersideController extends Controller
             $data = QueryAPI::get("
                 select
                     *
-                from
-                    propinsi
+                from (
+                        select
+                            *
+                        from
+                            propinsi
+                        where
+                            namapropinsi like '%$search%'
+                        order by
+                            namapropinsi asc
+                    )
                 where
-                    namapropinsi like '%$search%'
-                order by
-                    namapropinsi asc
+                    rownum <= 20
             ");
         } else if ($for == 'city') {
             $data = QueryAPI::get("
                 select
-                    kabupaten.*,
-                    propinsi.namapropinsi as namapropinsi
-                from
-                    kabupaten
-                join
-                    propinsi on propinsi.id = kabupaten.propinsiid
+                    *
+                from (
+                        select
+                            kabupaten.*,
+                            propinsi.namapropinsi as namapropinsi
+                        from
+                            kabupaten
+                        join
+                            propinsi on propinsi.id = kabupaten.propinsiid
+                        where
+                            kabupaten.namakab like '%$search%'
+                        order by
+                            kabupaten.namakab asc
+                    )
                 where
-                    kabupaten.namakab like '%$search%'
-                order by
-                    kabupaten.namakab asc
+                    rownum <= 20
             ");
         } else if ($for == 'district') {
             $data = QueryAPI::get("
                 select
-                    kecamatan.*,
-                    kabupaten.namakab as namakab,
-                    propinsi.namapropinsi as namapropinsi
-                from
-                    kecamatan
-                join
-                    kabupaten on kabupaten.id = kecamatan.kabupatenid
-                join
-                    propinsi on propinsi.id = kabupaten.propinsiid
+                    *
+                from (
+                        select
+                            kecamatan.*,
+                            kabupaten.namakab as namakab,
+                            propinsi.namapropinsi as namapropinsi
+                        from
+                            kecamatan
+                        join
+                            kabupaten on kabupaten.id = kecamatan.kabupatenid
+                        join
+                            propinsi on propinsi.id = kabupaten.propinsiid
+                        where
+                            kecamatan.namakec like '%$search%'
+                        order by
+                            kecamatan.namakec asc
+                    )
                 where
-                    kecamatan.namakec like '%$search%'
-                order by
-                    kecamatan.namakec asc
+                    rownum <= 20
             ");
         } else if ($for == 'village') {
             $data = QueryAPI::get("
                 select
-                    kelurahan.*,
-                    kecamatan.namakec as namakec,
-                    kabupaten.namakab as namakab,
-                    propinsi.namapropinsi as namapropinsi
-                from
-                    kelurahan
-                join
-                    kecamatan on kecamatan.id = kelurahan.kecamatanid
-                join
-                    kabupaten on kabupaten.id = kecamatan.kabupatenid
-                join
-                    propinsi on propinsi.id = kabupaten.propinsiid
+                    *
+                from (
+                        select
+                            kelurahan.*,
+                            kecamatan.namakec as namakec,
+                            kabupaten.namakab as namakab,
+                            propinsi.namapropinsi as namapropinsi
+                        from
+                            kelurahan
+                        join
+                            kecamatan on kecamatan.id = kelurahan.kecamatanid
+                        join
+                            kabupaten on kabupaten.id = kecamatan.kabupatenid
+                        join
+                            propinsi on propinsi.id = kabupaten.propinsiid
+                        where
+                            kelurahan.namakel like '%$search%'
+                        order by
+                            kelurahan.namakel asc
+                    )
                 where
-                    kelurahan.namakel like '%$search%'
-                order by
-                    kelurahan.namakel asc
+                    rownum <= 20
             ");
         }
 
@@ -305,6 +359,38 @@ class Select2ServersideController extends Controller
                     'id' => $d->ID,
                     'text' => $text,
                     'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function subject(Request $request)
+    {
+        $response = [];
+        $search = $request->search;
+
+        $data = QueryAPI::get("
+            select
+                *
+            from (
+                    select
+                        *
+                    from
+                    e_subjects
+                    where
+                        dbms_lob.instr(name, '$search', 1, 1) > 0
+                )
+            where
+                rownum <= 20
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->NAME,
                 ];
             }
         }

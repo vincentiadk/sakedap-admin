@@ -109,11 +109,7 @@
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('master-data/visit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'visit' ? 'active' : '' }}">Kunjungan</a>
-                                                <a href="{{ url('master-data/contributor') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'contributor' ? 'active' : '' }}">Kontributor</a>
-                                                <a href="{{ url('master-data/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
-                                                <a href="{{ url('master-data/subject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'subject' ? 'active' : '' }}">Subjek</a>
                                                 <a href="{{ url('master-data/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
-                                                <a href="{{ url('master-data/author') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'author' ? 'active' : '' }}">Pengarang</a>
                                                 <a href="{{ url('master-data/organization') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'organization' ? 'active' : '' }}">Organisasi</a>
                                             </div>
                                         </div>

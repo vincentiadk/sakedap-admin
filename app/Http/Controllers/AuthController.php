@@ -43,26 +43,20 @@ class AuthController extends Controller
             ", true);
 
             if ($user) {
-                if (Hash::check($password, $user->PASSWORD)) {
-                    QueryAPI::update('e_users', $user->ID, [
-                        'last_login' => $lastLogin
-                    ]);
+                session([
+                    'id' => $user->ID,
+                    'username' => $user->USERNAME,
+                    'userable_type' => $user->USERABLE_TYPE,
+                    'userable_id' => $user->USERABLE_ID,
+                    'library_id' => $user->ID_LIBRARY,
+                    'province_id' => $user->PROVINCE_ID_LIBRARY,
+                    'last_login' => $lastLogin,
+                    'fullname' => $user->FULLNAME_ADMIN,
+                    'email' => $user->EMAIL,
+                    'address' => $user->ADDRESS_ADMIN,
+                ]);
 
-                    session([
-                        'id' => $user->ID,
-                        'username' => $user->USERNAME,
-                        'userable_type' => $user->USERABLE_TYPE,
-                        'userable_id' => $user->USERABLE_ID,
-                        'library_id' => $user->ID_LIBRARY,
-                        'province_id' => $user->PROVINCE_ID_LIBRARY,
-                        'last_login' => $lastLogin,
-                        'fullname' => $user->FULLNAME_ADMIN,
-                        'email' => $user->EMAIL,
-                        'address' => $user->ADDRESS_ADMIN,
-                    ]);
-
-                    return redirect()->intended('home');
-                }
+                return redirect()->intended('home');
             }
 
             return redirect('/')->with(['failed' => 'Username dan Password tidak ditemukan']);

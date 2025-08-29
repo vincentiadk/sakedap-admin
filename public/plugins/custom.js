@@ -115,9 +115,10 @@ function datePickerBasic(selector, addNewConfig = {}) {
 
     var configuration = $.extend(
         {
+            parentEl: '.content-inner',
             autoUpdateInput: false,
+            language: 'id',
             showDropdowns: true,
-            searchDelay: 500,
             ranges: {
                 'Hari Ini': [moment(), moment()],
                 'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -146,6 +147,33 @@ function datePickerBasic(selector, addNewConfig = {}) {
     });
 }
 
+function datePickerSingle(selector, config = {}) {
+    moment.locale('id');
+
+    var configuration = $.extend(
+        {
+            parentEl: '.content-inner',
+            autoUpdateInput: false,
+            singleDatePicker: true,
+            showDropdowns: true,
+            language: 'id',
+            locale: {
+                applyLabel: 'Terapkan',
+                cancelLabel: 'Batal',
+                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                firstDay: 1,
+                format: 'YYYY/MM/DD',
+            },
+        },
+        config
+    );
+
+    $(selector).daterangepicker(configuration).on('apply.daterangepicker', function (e, picker) {
+        picker.element.val(picker.startDate.format(picker.locale.format));
+    });
+}
+
 function select2Serverside(selector, endpoint, payload = {}) {
     $(selector).select2({
         placeholder: 'Pilih',
@@ -155,7 +183,7 @@ function select2Serverside(selector, endpoint, payload = {}) {
             url: window.gBaseUrl + 'select2-serverside/' + endpoint,
             type: 'GET',
             dataType: 'JSON',
-            delay: 500,
+            delay: 250,
             language: 'id',
             data: function (params) {
                 return $.extend({
@@ -179,6 +207,46 @@ function select2Serverside(selector, endpoint, payload = {}) {
         },
         templateSelection: function (data) {
             return data.text;
+        }
+    });
+}
+
+function select2ServersideTag(selector, endpoint, payload = {}) {
+    $(selector).select2({
+        placeholder: 'Pilih',
+        minimumInputLength: 1,
+        cache: true,
+        tags: true,
+        multiple: true,
+        ajax: {
+            url: window.gBaseUrl + 'select2-serverside/' + endpoint,
+            type: 'GET',
+            dataType: 'JSON',
+            delay: 250,
+            language: 'id',
+            data: function (params) {
+                return $.extend({
+                    search: params.term,
+                }, payload);
+            },
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+        },
+        createTag: function (params) {
+            var term = $.trim(params.term);
+
+            if (term === '') {
+                return null;
+            } else {
+                return {
+                    id: term,
+                    text: term,
+                    newTag: true
+                }
+            }
         }
     });
 }

@@ -10,10 +10,15 @@ class QueryAPI
     private static $token;
     private static $baseUrl;
 
+    /**
+     * initialize
+     *
+     * @return void
+     */
     public static function initialize()
     {
-        static::$token = App::environment('production') ? config('query-api.prod.token') : config('query-api.dev.token');
-        static::$baseUrl = App::environment('production') ? config('query-api.prod.base_url') : config('query-api.dev.base_url');
+        static::$token = App::environment('production') ? config('inlis.prod.token') : config('inlis.dev.token');
+        static::$baseUrl = App::environment('production') ? config('inlis.prod.base_url') : config('inlis.dev.base_url');
     }
 
     /**
@@ -183,6 +188,124 @@ class QueryAPI
             'op' => 'delete',
             'table' => $table,
             'id' => $id,
+        ])->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            $response = $query->object();
+
+            if ($response->Status == 'Success') {
+                $data = true;
+            } else {
+                dd($response);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * uploadFile
+     *
+     * @param  mixed $payload
+     * @return void
+     */
+    public static function uploadFile($payload = [])
+    {
+        static::initialize();
+
+        $data = false;
+        $param = array_merge($payload, [
+            'token' => static::$token,
+            'op' => 'uploadfile',
+            'uploadby' => session('fullname'),
+            'terminal' => request()->ip(),
+        ]);
+
+        $query = Http::withQueryParameters($param)
+            ->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            $response = $query->object();
+
+            if ($response->Status == 'Success') {
+                $data = true;
+            } else {
+                dd($response);
+            }
+        }
+
+        return $data;
+    }
+
+    public static function removeFile($payload = [])
+    {
+        static::initialize();
+
+        $data = false;
+        $param = array_merge($payload, [
+            'token' => static::$token,
+            'op' => 'deletefile',
+            'actionby' => session('fullname'),
+            'terminal' => request()->ip(),
+        ]);
+
+        $query = Http::withQueryParameters($param)
+            ->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            $response = $query->object();
+
+            if ($response->Status == 'Success') {
+                $data = true;
+            } else {
+                dd($response);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * getFile
+     *
+     * @param  mixed $payload
+     * @return void
+     */
+    public static function getFile($payload = [])
+    {
+        static::initialize();
+
+        $data = false;
+        $param = array_merge($payload, [
+            'token' => static::$token,
+            'op' => 'getfile',
+        ]);
+
+        $query = Http::withQueryParameters($param)
+            ->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            return $query->body();
+        }
+
+        return $data;
+    }
+
+    /**
+     * verificationCollection
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public static function verificationCollection($id)
+    {
+        static::initialize();
+
+        $data = false;
+        $query = Http::withQueryParameters([
+            'token' => static::$token,
+            'op' => 'verifikasikoleksiditerima',
+            'id' => $id
         ])->post(static::$baseUrl);
 
         if ($query->status() == 200) {

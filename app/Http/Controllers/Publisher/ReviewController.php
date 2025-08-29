@@ -91,7 +91,7 @@ class ReviewController extends Controller
                 *
             from (
                     select
-                        ROWNUM as rnum,
+                        rownum as rnum,
                         data.*
                     from
                         (

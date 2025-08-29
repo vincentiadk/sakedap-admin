@@ -37,15 +37,6 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'VisitController@destroyData');
         });
 
-        Route::prefix('contributor')->group(function () {
-            Route::get('/', 'ContributorController@index');
-            Route::get('datatable', 'ContributorController@datatable');
-            Route::post('create-data', 'ContributorController@createData');
-            Route::get('show-data', 'ContributorController@showData');
-            Route::post('update-data', 'ContributorController@updateData');
-            Route::delete('destroy-data', 'ContributorController@destroyData');
-        });
-
         Route::prefix('category')->group(function () {
             Route::get('/', 'CategoryController@index');
             Route::get('datatable', 'CategoryController@datatable');
@@ -55,15 +46,6 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'CategoryController@destroyData');
         });
 
-        Route::prefix('subject')->group(function () {
-            Route::get('/', 'SubjectController@index');
-            Route::get('datatable', 'SubjectController@datatable');
-            Route::post('create-data', 'SubjectController@createData');
-            Route::get('show-data', 'SubjectController@showData');
-            Route::post('update-data', 'SubjectController@updateData');
-            Route::delete('destroy-data', 'SubjectController@destroyData');
-        });
-
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
             Route::get('datatable', 'ProblemController@datatable');
@@ -71,24 +53,6 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'ProblemController@showData');
             Route::post('update-data', 'ProblemController@updateData');
             Route::delete('destroy-data', 'ProblemController@destroyData');
-        });
-
-        Route::prefix('author')->group(function () {
-            Route::get('/', 'AuthorController@index');
-            Route::get('datatable', 'AuthorController@datatable');
-            Route::post('create-data', 'AuthorController@createData');
-            Route::get('show-data', 'AuthorController@showData');
-            Route::post('update-data', 'AuthorController@updateData');
-            Route::delete('destroy-data', 'AuthorController@destroyData');
-        });
-
-        Route::prefix('organization')->group(function () {
-            Route::get('/', 'OrganizationController@index');
-            Route::get('datatable', 'OrganizationController@datatable');
-            Route::post('create-data', 'OrganizationController@createData');
-            Route::get('show-data', 'OrganizationController@showData');
-            Route::post('update-data', 'OrganizationController@updateData');
-            Route::delete('destroy-data', 'OrganizationController@destroyData');
         });
     });
 
@@ -170,6 +134,14 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'ManageController@showData');
             Route::post('update-data', 'ManageController@updateData');
             Route::delete('destroy-data', 'ManageController@destroyData');
+        });
+    });
+
+    Route::prefix('collection')->namespace('Collection')->group(function () {
+        Route::prefix('create-single')->group(function () {
+            Route::get('/', 'CreateSingleController@index');
+            Route::get('check-isbn-code', 'CreateSingleController@checkISBNCode');
+            Route::post('submitted', 'CreateSingleController@submitted');
         });
     });
 
