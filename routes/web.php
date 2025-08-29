@@ -13,6 +13,10 @@ Route::middleware('authentication')->group(function () {
         Route::get('logout', 'AuthController@logout');
     });
 
+    Route::prefix('download')->group(function () {
+        Route::get('from-public', 'DownloadController@fromPublic');
+    });
+
     Route::prefix('select2-serverside')->group(function () {
         Route::get('province', 'Select2ServersideController@province');
         Route::get('city', 'Select2ServersideController@city');
@@ -20,6 +24,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('branch', 'Select2ServersideController@branch');
         Route::get('publisher', 'Select2ServersideController@publisher');
         Route::get('location', 'Select2ServersideController@location');
+        Route::get('collection-parent', 'Select2ServersideController@collectionParent');
     });
 
     Route::get('home', function () {
@@ -153,6 +158,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'CreateSingleController@index');
             Route::get('check-isbn-code', 'CreateSingleController@checkISBNCode');
             Route::post('submitted', 'CreateSingleController@submitted');
+        });
+
+        Route::prefix('create-more')->group(function () {
+            Route::get('/', 'CreateMoreController@index');
+            Route::post('submitted', 'CreateMoreController@submitted');
         });
     });
 

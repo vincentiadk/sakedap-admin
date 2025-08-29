@@ -378,7 +378,7 @@ class Select2ServersideController extends Controller
                     select
                         *
                     from
-                    e_subjects
+                        e_subjects
                     where
                         dbms_lob.instr(name, '$search', 1, 1) > 0
                 )
@@ -391,6 +391,54 @@ class Select2ServersideController extends Controller
                 $response[] = [
                     'id' => $d->ID,
                     'text' => $d->NAME,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function collectionParent(Request $request)
+    {
+        $response = [];
+        $search = $request->search;
+
+        $data = QueryAPI::get("
+            select
+                *
+            from (
+                    select
+                        e_collections.*,
+                        penerbit.name as name_penerbit
+                    from
+                        e_collections
+                    join
+                        penerbit on penerbit.id = e_collections.penerbit_id
+                    where
+                        (
+                            e_collections.parent_id is null OR
+                            e_collections.parent_id = 0
+                        ) AND
+                        (
+                            e_collections.title_ori like '%$search%' OR
+                            e_collections.title like '%$search%'
+                        )
+                )
+            where
+                rownum <= 20
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . ($d->NAME_PENERBIT ?? '-') . '</small></div>
+                    <div>' . ($d->TITLE_ORI ?? $d->TITLE) . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->TITLE_ORI ?? $d->TITLE,
+                    'html' => $html,
                 ];
             }
         }
