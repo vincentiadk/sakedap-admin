@@ -78,12 +78,12 @@ class Main
     }
 
     /**
-     * contentType
+     * contentTypeFile
      *
      * @param  mixed $filename
      * @return void
      */
-    public static function contentType($filename)
+    public static function contentTypeFile($filename)
     {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
 

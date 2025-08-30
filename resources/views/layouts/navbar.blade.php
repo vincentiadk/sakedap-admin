@@ -148,7 +148,8 @@
                                                 <a href="{{ url('collection/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
                                                 <a href="{{ url('collection/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
                                                 <a href="{{ url('collection/digital') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'digital' ? 'active' : '' }}">Digital</a>
-                                                <a href="{{ url('collection/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'accept' ? 'active' : '' }}">Cetak / Analog</a>
+                                                <a href="{{ url('collection/analog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog' ? 'active' : '' }}">Cetak / Analog</a>
+                                                <a href="{{ url('collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
                                                 <a href="{{ url('collection/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                             </div>
                                         </div>
@@ -178,8 +179,8 @@
                                                 <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
                                                 <a href="{{ url('report/publisher') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'publisher' ? 'active' : '' }}">Penerbit</a>
                                                 <a href="{{ url('report/publisher-isbn') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'publisher-isbn' ? 'active' : '' }}">Penerbit ISBN</a>
-                                                <a href="{{ url('report/collection') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'collection' ? 'active' : '' }}">Koleksi</a>
-                                                <a href="{{ url('report/kckra') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'kckra' ? 'active' : '' }}">KCKRA</a>
+                                                <a href="{{ url('report/digital') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital' ? 'active' : '' }}">Digital</a>
+                                                <a href="{{ url('report/analog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'analog' ? 'active' : '' }}">Cetak / Analog</a>
                                                 <a href="{{ url('report/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                                 <a href="{{ url('report/perfomance-user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'perfomance-user' ? 'active' : '' }}">Performa User</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
@@ -191,7 +192,6 @@
                                         <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('setting/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'user' ? 'active' : '' }}">Pengguna</a>
                                                 <a href="{{ url('setting/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
                                                 <a href="{{ url('setting/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
                                                 <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>

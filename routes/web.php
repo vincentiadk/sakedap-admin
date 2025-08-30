@@ -36,11 +36,13 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::get('stream-file', function (Request $request) {
-        return QueryAPI::getFile([
-            'type' => $request->type,
-            'id' => $request->id,
-            'filename' => $request->filename,
-        ]);
+        if ($request->type && $request->id && $request->filename) {
+            return QueryAPI::getFile([
+                'type' => $request->type,
+                'id' => $request->id,
+                'filename' => $request->filename,
+            ]);
+        }
     });
 
     Route::prefix('master-data')->namespace('MasterData')->group(function () {
@@ -173,6 +175,12 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
             Route::get('datatable', 'ProblemController@datatable');
+        });
+
+        Route::prefix('review')->group(function () {
+            Route::get('/', 'ReviewController@index');
+            Route::get('datatable', 'ReviewController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
         });
     });
 

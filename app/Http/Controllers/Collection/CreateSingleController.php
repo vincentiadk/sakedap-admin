@@ -97,7 +97,6 @@ class CreateSingleController extends Controller
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),
                         'series' => $request->series,
-                        'edition' => $request->edition,
                         'serial' => $request->serial,
                         'ddc' => $request->ddc,
                         'code' => $request->code,

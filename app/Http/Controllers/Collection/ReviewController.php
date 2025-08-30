@@ -1,0 +1,365 @@
+<?php
+
+namespace App\Http\Controllers\Collection;
+
+use Carbon\Carbon;
+use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+
+class ReviewController extends Controller
+{
+    public function index()
+    {
+        $data = [
+            'worksheet' => QueryAPI::get("select * from worksheets"),
+            'content' => 'collection.review'
+        ];
+
+        return view('layouts.index', ['data' => $data]);
+    }
+
+    public function datatable(Request $request)
+    {
+        $column = [
+            'e_collections.id',
+            null,
+            'penerbit.name',
+            'e_collections.title',
+            'worksheets.name',
+            'e_collections.code',
+            'e_collections.updated_at',
+        ];
+
+        $draw = intval($request->draw ?? 0);
+        $start = intval($request->start ?? 0);
+        $length = $start + intval($request->length ?? 0);
+
+        $data = [];
+        $search = $request->search['value'];
+
+        $orderBy = '';
+        $order = $request->order;
+
+        $whereClause = '';
+        $whereCondition[] = 'e_collections.status = 1';
+
+        if ($request->title) {
+            $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
+        }
+
+        if ($request->publisher_id) {
+            $whereCondition[] = "e_collections.penerbit_id = $request->publisher_id";
+        }
+
+        if ($request->province_id) {
+            $whereCondition[] = "kabupaten.propinsiid = $request->province_id";
+        }
+
+        if ($request->year) {
+            $whereCondition[] = "e_collections.publication_year = $request->year";
+        }
+
+        if ($request->worksheet_id) {
+            $whereCondition[] = "e_collections.worksheet_id = $request->worksheet_id";
+        }
+
+        if ($request->date) {
+            $explodeDate = explode(' - ', $request->date);
+            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+            $whereCondition[] = "(e_collections.updated_at >= date '$startDate' and e_collections.updated_at <= date '$endDate')";
+        }
+
+        if ($search) {
+            $terms = [];
+
+            foreach ($column as $c) {
+                if ($c) {
+                    $terms[] = "$c like '%$search%'";
+                }
+            }
+
+            $whereCondition[] = '(' . implode(' or ', $terms) . ')';
+        }
+
+        if ($whereCondition) {
+            $whereClause = "where " . implode(' and ', $whereCondition);
+        }
+
+        if ($order) {
+            $orderColumnIndex = $order[0]['column'];
+            $orderDir = $order[0]['dir'];
+            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
+        }
+
+        $totalData = QueryAPI::get("
+            select
+                count(*) as total
+            from
+                e_collections
+        ", true)->TOTAL ?? 0;
+
+        $totalFiltered = QueryAPI::get("
+            select
+                count(*) as total
+            from
+                e_collections
+            join
+                penerbit on penerbit.id = e_collections.penerbit_id
+            join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
+            left join
+                worksheets on worksheets.id = e_collections.worksheet_id
+            $whereClause
+        ", true)->TOTAL ?? 0;
+
+        $queryData = QueryAPI::get("
+            select
+                *
+            from (
+                    select
+                        rownum as rnum,
+                        data.*
+                    from
+                        (
+                            select
+                                e_collections.*,
+                                penerbit.name as name_penerbit,
+                                worksheets.name as name_worksheet
+                            from
+                                e_collections
+                            join
+                                penerbit on penerbit.id = e_collections.penerbit_id
+                            join
+                                kabupaten on kabupaten.id = e_collections.kabupaten_id
+                            left join
+                                worksheets on worksheets.id = e_collections.worksheet_id
+                            $whereClause
+                            $orderBy
+                        ) data
+                )
+            where
+                rnum > $start and rnum <= $length
+        ");
+
+        if ($queryData) {
+            foreach ($queryData as $val) {
+                $action = '
+                    <a href="' . url('collection/review/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                        <i class="ph-check-square-offset me-1"></i>
+                        Tinjau
+                    </a>
+                ';
+
+                $data[] = [
+                    $start + 1,
+                    $action,
+                    $val->NAME_PENERBIT,
+                    ($val->TITLE ?? $val->TITLE_ORI),
+                    $val->NAME_WORKSHEET,
+                    $val->CODE,
+                    Carbon::parse($val->UPDATED_AT)->format('d/m/Y'),
+                ];
+
+                $start++;
+            }
+        }
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalData,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $data
+        ]);
+    }
+
+    public function detail(Request $request, $id)
+    {
+        $collection = QueryAPI::get("
+            select
+                e_collections.*,
+                penerbit.name as name_penerbit,
+                kabupaten.namakab as namakab,
+                propinsi.namapropinsi as namapropinsi
+            from
+                e_collections
+            join
+                penerbit on penerbit.id = e_collections.penerbit_id
+            join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
+            join
+                propinsi on propinsi.id = kabupaten.propinsiid
+            where
+                e_collections.id = $id
+        ", true);
+
+        if ($request->ajax()) {
+            $validation = Validator::make($request->all(), [
+                'worksheet_id' => 'required',
+                'city_id' => 'required',
+                'title' => 'required',
+                'collection_media_id' => 'required',
+                'received_at' => 'required',
+                'access' => 'required',
+            ], [
+                'worksheet_id.required' => 'Jenis tidak boleh kosong',
+                'city_id.required' => 'Kota tidak boleh kosong',
+                'title.required' => 'Judul tidak boleh kosong',
+                'collection_media_id.required' => 'Media tidak boleh kosong',
+                'received_at.required' => 'Tanggal terima tidak boleh kosong',
+                'access.required' => 'Akses tidak boleh kosong',
+            ]);
+
+            if ($validation->fails()) {
+                $response = [
+                    'code' => 400,
+                    'error' => $validation->errors()->all(),
+                ];
+            } else {
+                try {
+                    $updateCollection = QueryAPI::update('e_collections', $id, [
+                        'city_id' => $request->city_id,
+                        'title_ori' => $request->title,
+                        'album' => $request->album,
+                        'slug' => Str::slug($request->title, '-'),
+                        'series' => $request->series,
+                        'serial' => $request->serial,
+                        'ddc' => $request->ddc,
+                        'publication_month' => date('m', strtotime($request->publish_time)),
+                        'publication_year' => date('Y', strtotime($request->publish_time)),
+                        'preview' => $request->preview,
+                        'description' => $request->description,
+                        'akses' => $request->access,
+                        'status' => $request->status,
+                        'received_at' => $request->status == 2 ? date('Y-m-d H:i:s', strtotime($request->received_at)) : null,
+                        'received_by' => $request->status == 2 ? session('id') : null,
+                        'validated_at' => $request->status == 2 ? date('Y-m-d H:i:s') : null,
+                        'validated_by' => $request->status == 2 ? session('id') : null,
+                        'price' => str_replace([',', '.'], '', $request->price),
+                        'worksheet_id' => $request->worksheet_id,
+                        'collection_media_id' => $request->collection_media_id,
+                        'kabupaten_id' => $request->city_id,
+                        'title' => $request->title,
+                    ]);
+
+                    if ($updateCollection) {
+                        if ($request->status == 3) {
+                            if ($request->collection_problem) {
+                                foreach ($request->collection_problem as $cp) {
+                                    QueryAPI::create('e_collection_problems', [
+                                        'problem_id' => $cp,
+                                        'collection_id' => $id,
+                                        'solved' => 0
+                                    ]);
+                                }
+                            }
+
+                            QueryAPI::update('e_collections', $id, [
+                                'problem' => $request->problem
+                            ]);
+                        }
+
+                        if ($request->status == 5) {
+                            QueryAPI::update('e_collections', $id, [
+                                'reject' => $request->reject
+                            ]);
+                        }
+
+                        if ($request->status == 2) {
+                            QueryAPI::verificationCollection($id);
+                        }
+                    }
+
+                    $response = [
+                        'code' => 200,
+                        'message' => 'Data telah disimpan'
+                    ];
+                } catch (\Exception $e) {
+                    $response = [
+                        'code' => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ];
+                }
+            }
+
+            return response()->json($response);
+        }
+
+        $collectionCategory = [];
+        $dataCollectionCategory = QueryAPI::get("
+            select
+                *
+            from
+                e_collection_categories
+            where
+                collection_id = $id
+        ");
+
+        if ($dataCollectionCategory) {
+            foreach ($dataCollectionCategory as $dcc) {
+                $collectionCategory[] = $dcc->category_id;
+            }
+        }
+
+        $collectionCopy = QueryAPI::get("
+            select
+                *
+            from
+                e_collections
+            where
+                parent_id = $id
+        ");
+
+        $collectionCover = QueryAPI::get("
+            select
+                *
+            from
+                catalogcovers
+            where
+                e_col_id = $id
+        ");
+
+        $collectionContent = QueryAPI::get("
+            select
+                *
+            from
+                catalogfiles
+            where
+                e_col_id = $id
+        ");
+
+        $collectionProblemHistory = QueryAPI::get("
+            select
+                e_collection_problems.*,
+                e_problems.name as name_problem
+            from
+                e_collection_problems
+            join
+                e_problems on e_problems.id = e_collection_problems.problem_id
+            where
+                e_collection_problems.collection_id = $id
+        ");
+
+        $data = [
+            'worksheet' => QueryAPI::get("select * from worksheets"),
+            'media' => QueryAPI::get("select * from collectionmedias"),
+            'category' => QueryAPI::get("select * from e_categories"),
+            'contributor' => QueryAPI::get("select * from e_contributors where show = 1"),
+            'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
+            'collection' => $collection,
+            'collectionCategory' => $collectionCategory,
+            'collectionContributor' => explode(';', ($collection->DESCRIPTION ?? '')),
+            'collectionCopy' => $collectionCopy,
+            'collectionCover' => $collectionCover,
+            'collectionContent' => $collectionContent,
+            'collectionProblemHistory' => $collectionProblemHistory,
+            'content' => 'collection.review-detail'
+        ];
+
+        return view('layouts.index', ['data' => $data]);
+    }
+}

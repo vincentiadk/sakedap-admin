@@ -318,7 +318,7 @@ class QueryAPI
                     flush();
                 }
             }, 200, [
-                'Content-Type' => Main::contentType($payload['filename']),
+                'Content-Type' => Main::contentTypeFile($payload['filename']),
                 'Content-Disposition' => 'inline; filename="' . $payload['filename'] . '"',
             ]);
         }
