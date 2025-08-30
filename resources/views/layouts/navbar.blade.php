@@ -58,12 +58,6 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-kckra" class="nav-link rounded {{ Request::segment(1) == 'kckra' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'kckra' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-book me-2"></i>
-                                                        KCKRA
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('article') }}" class="nav-link rounded {{ Request::segment(1) == 'article' ? 'active' : '' }}">
                                                         <i class="ph-newspaper me-2"></i>
                                                         Artikel
@@ -153,18 +147,9 @@
                                                 <a href="{{ url('collection/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
                                                 <a href="{{ url('collection/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
                                                 <a href="{{ url('collection/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('collection/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'kckra' ? 'show active' : '' }}" id="menu-kckra" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('kckra/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
-                                                <a href="{{ url('kckra/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
-                                                <a href="{{ url('kckra/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
-                                                <a href="{{ url('kckra/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'kckra' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
+                                                <a href="{{ url('collection/digital') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'digital' ? 'active' : '' }}">Digital</a>
+                                                <a href="{{ url('collection/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'accept' ? 'active' : '' }}">Cetak / Analog</a>
+                                                <a href="{{ url('collection/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                             </div>
                                         </div>
                                     </div>

@@ -223,8 +223,6 @@ class ReviewController extends Controller
                 $payload = [
                     'status' => 3,
                     'keterangan' => $request->description,
-                    'validateby' => session('name'),
-                    'validatedate' => date('Y-m-d H:i:s'),
                 ];
             }
 
