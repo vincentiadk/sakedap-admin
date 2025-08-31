@@ -69,7 +69,7 @@
         </div>
         <div class="card-footer bg-white">
             <div class="text-end">
-                <a href="{{ url('collection/reject') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                <a href="{{ url('collection/review') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
                     <i class="ph-arrows-clockwise me-1"></i>
                     Reset Filter
                 </a>

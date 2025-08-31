@@ -188,6 +188,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'DigitalWorkController@datatable');
             Route::get('detail/{id}', 'DigitalWorkController@detail');
         });
+
+        Route::prefix('printed-work')->group(function () {
+            Route::get('/', 'PrintedWorkController@index');
+            Route::get('datatable', 'PrintedWorkController@datatable');
+            Route::get('detail/{id}', 'PrintedWorkController@detail');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
