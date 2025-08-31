@@ -2,8 +2,14 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
+
 class Main
 {
+    const COLLECTION_DIGITAL = 'KRD';
+    const COLLECTION_PRINTED = 'KC';
+    const COLLECTION_ANALOG = 'KRA';
+
     /**
      * locationById
      *
@@ -118,5 +124,61 @@ class Main
         }
 
         return $content;
+    }
+
+    /**
+     * generateNumberDeposit
+     *
+     * @param  mixed $param
+     * @return void
+     */
+    public static function generateNumberDeposit($param = null)
+    {
+        $date = Carbon::parse($param ?? date('Y-m-d'))->format('Ymd');
+        $seq = 1;
+
+        $data = QueryAPI::get("
+            select
+                max(substr(deposit, 12)) as unique_code
+            from
+                e_collections
+            where
+                deposit like '%DEP$date%'
+        ", true);
+
+        if ($data) {
+            $seq = (int) $data->UNIQUE_CODE;
+            $seq += 1;
+        }
+
+        return 'DEP' . $date . sprintf('%05s', $seq);
+    }
+
+    /**
+     * generateNumberCopy
+     *
+     * @param  mixed $param
+     * @return void
+     */
+    public static function generateNumberCopy($param = null)
+    {
+        $date = Carbon::parse($param ?? date('Y-m-d'))->format('Ymd');
+        $seq = 1;
+
+        $data = QueryAPI::get("
+            select
+                max(substr(code, 8)) as unique_code
+            from
+                e_collection_copies
+            where
+                code like '%C$date%'
+        ", true);
+
+        if ($data) {
+            $seq = (int) $data->UNIQUE_CODE;
+            $seq += 1;
+        }
+
+        return 'C' . $date . sprintf('%05s', $seq);
     }
 }

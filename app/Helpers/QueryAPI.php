@@ -33,12 +33,15 @@ class QueryAPI
     {
         static::initialize();
 
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'isloginvalid',
-            'UserName' => $username,
-            'UserPassword' => $password,
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'isloginvalid',
+                'UserName' => $username,
+                'UserPassword' => $password,
+            ])
+            ->post(static::$baseUrl);
 
         return $query->object();
     }
@@ -55,11 +58,14 @@ class QueryAPI
         static::initialize();
 
         $data = null;
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'getlistraw',
-            'sql' => $sql
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'getlistraw',
+                'sql' => $sql
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -119,13 +125,16 @@ class QueryAPI
         }
 
         $data = [];
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'add',
-            'table' => $table,
-            'issavehistory' => 1,
-            'ListAddItem' => json_encode($bodyJson)
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'add',
+                'table' => $table,
+                'issavehistory' => 1,
+                'ListAddItem' => json_encode($bodyJson)
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -171,14 +180,17 @@ class QueryAPI
         }
 
         $data = false;
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'update',
-            'table' => $table,
-            'id' => $id,
-            'issavehistory' => 1,
-            'ListUpdateItem' => json_encode($bodyJson)
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'update',
+                'table' => $table,
+                'id' => $id,
+                'issavehistory' => 1,
+                'ListUpdateItem' => json_encode($bodyJson)
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -205,12 +217,15 @@ class QueryAPI
         static::initialize();
 
         $data = false;
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'delete',
-            'table' => $table,
-            'id' => $id,
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'delete',
+                'table' => $table,
+                'id' => $id,
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -243,7 +258,9 @@ class QueryAPI
             'terminal' => request()->ip(),
         ]);
 
-        $query = Http::attach('file', file_get_contents($payload['file']), $payload['file']->getClientOriginalName())
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->attach('file', file_get_contents($payload['file']), $payload['file']->getClientOriginalName())
             ->withQueryParameters($param)
             ->post(static::$baseUrl);
 
@@ -272,7 +289,9 @@ class QueryAPI
             'terminal' => request()->ip(),
         ]);
 
-        $query = Http::withQueryParameters($param)
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters($param)
             ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
@@ -304,7 +323,9 @@ class QueryAPI
             'op' => 'getfile',
         ]);
 
-        $query = Http::withQueryParameters($param)
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters($param)
             ->withOptions(['stream' => true])
             ->post(static::$baseUrl);
 
@@ -337,11 +358,14 @@ class QueryAPI
         static::initialize();
 
         $data = false;
-        $query = Http::withQueryParameters([
-            'token' => static::$token,
-            'op' => 'verifikasikoleksiditerima',
-            'id' => $id
-        ])->post(static::$baseUrl);
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'verifikasikoleksiditerima',
+                'id' => $id
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();

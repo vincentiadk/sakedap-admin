@@ -156,7 +156,7 @@ class Select2ServersideController extends Controller
                         propinsi on propinsi.id = branchs.province_id
                     where
                         branchs.name like '%$search%' and
-                        branchs.isdelete = 0
+                        branchs.isdelete != 1
                     order by
                         branchs.name asc
                 )
@@ -366,38 +366,6 @@ class Select2ServersideController extends Controller
         return response()->json($response);
     }
 
-    public function subject(Request $request)
-    {
-        $response = [];
-        $search = $request->search;
-
-        $data = QueryAPI::get("
-            select
-                *
-            from (
-                    select
-                        *
-                    from
-                        e_subjects
-                    where
-                        dbms_lob.instr(name, '$search', 1, 1) > 0
-                )
-            where
-                rownum <= 20
-        ");
-
-        if ($data) {
-            foreach ($data as $d) {
-                $response[] = [
-                    'id' => $d->ID,
-                    'text' => $d->NAME,
-                ];
-            }
-        }
-
-        return response()->json($response);
-    }
-
     public function collectionParent(Request $request)
     {
         $response = [];
@@ -415,6 +383,7 @@ class Select2ServersideController extends Controller
                     join
                         penerbit on penerbit.id = e_collections.penerbit_id
                     where
+                        e_collections.deleted_at is null
                         (
                             e_collections.parent_id is null OR
                             e_collections.parent_id = 0

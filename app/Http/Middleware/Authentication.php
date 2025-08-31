@@ -20,7 +20,7 @@ class Authentication
         $user = QueryAPI::get("select * from users where id = $id", true);
 
         if ($user) {
-            if ($user->ISACTIVE == 1 && $user->ISDELETE == 0) {
+            if ($user->ISACTIVE == 1 && $user->ISDELETE != 1) {
                 return $next($request);
             }
         }

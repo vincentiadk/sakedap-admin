@@ -32,7 +32,8 @@ class AuthController extends Controller
                     left join
                         branchs on branchs.id = users.branch_id
                     where
-                        users.id = $userId
+                        users.id = $userId and
+                        users.isdelete != 1
                 ", true);
 
                 if ($user) {

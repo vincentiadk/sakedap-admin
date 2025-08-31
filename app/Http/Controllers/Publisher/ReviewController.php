@@ -122,11 +122,11 @@ class ReviewController extends Controller
                             Aksi
                         </button>
                         <div class="dropdown-menu">
-                            <a href="javascript:void(0);" class="dropdown-item fs-13" onclick="showDataUpdate(' . $val->ID . ')">
+                            <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
                                 <i class="ph-info me-1"></i>
                                 Tinjau Data
                             </a>
-                            <a href="javascript:void(0);" class="dropdown-item fs-13" onclick="destroyData(' . $val->ID . ')">
+                            <a href="javascript:void(0);" class="dropdown-item" onclick="destroyData(' . $val->ID . ')">
                                 <i class="ph-trash-simple me-1"></i>
                                 Hapus Data
                             </a>

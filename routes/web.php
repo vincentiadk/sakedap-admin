@@ -182,6 +182,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'ReviewController@datatable');
             Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
         });
+
+        Route::prefix('digital-work')->group(function () {
+            Route::get('/', 'DigitalWorkController@index');
+            Route::get('datatable', 'DigitalWorkController@datatable');
+            Route::get('detail/{id}', 'DigitalWorkController@detail');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {

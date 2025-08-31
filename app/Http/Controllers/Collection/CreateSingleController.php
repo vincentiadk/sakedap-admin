@@ -15,10 +15,10 @@ class CreateSingleController extends Controller
     public function index()
     {
         $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets"),
-            'media' => QueryAPI::get("select * from collectionmedias"),
-            'category' => QueryAPI::get("select * from e_categories"),
-            'contributor' => QueryAPI::get("select * from e_contributors where show = 1"),
+            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+            'media' => QueryAPI::get("select * from collectionmedias where isdelete != 1"),
+            'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
+            'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
             'content' => 'collection.create-single'
         ];
 
@@ -80,7 +80,7 @@ class CreateSingleController extends Controller
                         foreach ($request->cc_contributor as $key => $ccc) {
                             $contributorId = isset($request->cc_contributor_id[$key]) ? $request->cc_contributor_id[$key] : null;
                             $contributorName = isset($request->cc_contributor_name[$key]) ? $request->cc_contributor_name[$key] : null;
-                            $contributorData = QueryAPI::get("select * from e_contributors where id = $contributorId", true);
+                            $contributorData = QueryAPI::get("select * from e_contributors where id = $contributorId and deleted_at is null", true);
 
                             if ($contributorData && $contributorName) {
                                 $author[] = '(' . $contributorData->NAME . ') ' . $contributorName;

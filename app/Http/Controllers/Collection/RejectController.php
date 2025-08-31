@@ -12,7 +12,7 @@ class RejectController extends Controller
     public function index()
     {
         $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets"),
+            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
             'content' => 'collection.reject'
         ];
 
@@ -43,7 +43,7 @@ class RejectController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'e_collections.status = 5';
+        $whereCondition[] = '(e_collections.status = 5 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
 
         if ($request->title) {
             $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
@@ -100,6 +100,15 @@ class RejectController extends Controller
                 count(*) as total
             from
                 e_collections
+            where
+                (
+                    parent_id = 0 or
+                    parent_id is null
+                ) and
+                (
+                    status = 5 and
+                    deleted_at is null
+                )
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

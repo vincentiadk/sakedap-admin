@@ -5,18 +5,23 @@ namespace App\Http\Controllers\Collection;
 use Carbon\Carbon;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 
-class ReviewController extends Controller
+class DigitalWorkController extends Controller
 {
+    private $worksheetCategory;
+
+    public function __construct()
+    {
+        $this->worksheetCategory = Main::COLLECTION_DIGITAL;
+    }
+
     public function index()
     {
         $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'content' => 'collection.review'
+            'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
+            'content' => 'collection.digital-work'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -27,11 +32,12 @@ class ReviewController extends Controller
         $column = [
             'e_collections.id',
             null,
+            'e_collections.deposit',
             'penerbit.name',
             'e_collections.title',
             'worksheets.name',
             'e_collections.code',
-            'e_collections.updated_at',
+            'e_collections.validated_date',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -45,10 +51,19 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = '(e_collections.status = 1 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
+        $whereCondition[] = "
+            e_collections.status = 2 and
+            (
+                e_collections.deleted_at is null and
+                worksheets.category = '$this->worksheetCategory'
+            ) and
+            (
+                e_collections.parent_id = 0 or
+                e_collections.parent_id is null
+            )";
 
         if ($request->title) {
-            $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
+            $whereCondition[] = "e_collections.title like '%$search%'";
         }
 
         if ($request->publisher_id) {
@@ -72,7 +87,7 @@ class ReviewController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(e_collections.updated_at >= date '$startDate' and e_collections.updated_at <= date '$endDate')";
+            $whereCondition[] = "(e_collections.validatedate >= date '$startDate' and e_collections.validatedate <= date '$endDate')";
         }
 
         if ($search) {
@@ -102,14 +117,17 @@ class ReviewController extends Controller
                 count(*) as total
             from
                 e_collections
+            left join
+                worksheets on worksheets.id = e_collections.worksheet_id
             where
+                e_collections.status = 2 and
                 (
-                    parent_id = 0 or
-                    parent_id is null
+                    e_collections.parent_id = 0 or
+                    e_collections.parent_id is null
                 ) and
                 (
-                    status = 1 and
-                    deleted_at is null
+                    e_collections.deleted_at is null and
+                    worksheets.category = '$this->worksheetCategory'
                 )
         ", true)->TOTAL ?? 0;
 
@@ -121,7 +139,7 @@ class ReviewController extends Controller
             join
                 penerbit on penerbit.id = e_collections.penerbit_id
             join
-                kabupaten on kabupaten.id = e_collections.kabupaten_id
+                kabupaten on kabupaten.id = e_collections.city_id
             left join
                 worksheets on worksheets.id = e_collections.worksheet_id
             $whereClause
@@ -145,7 +163,7 @@ class ReviewController extends Controller
                             join
                                 penerbit on penerbit.id = e_collections.penerbit_id
                             join
-                                kabupaten on kabupaten.id = e_collections.kabupaten_id
+                                kabupaten on kabupaten.id = e_collections.city_id
                             left join
                                 worksheets on worksheets.id = e_collections.worksheet_id
                             $whereClause
@@ -159,20 +177,21 @@ class ReviewController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('collection/review/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
-                        <i class="ph-check-square-offset me-1"></i>
-                        Tinjau
+                    <a href="' . url('collection/digital-work/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                        <i class="ph-info me-1"></i>
+                        Detail
                     </a>
                 ';
 
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->DEPOSIT,
                     $val->NAME_PENERBIT,
-                    ($val->TITLE ?? $val->TITLE_ORI),
+                    $val->TITLE,
                     $val->NAME_WORKSHEET,
                     $val->CODE,
-                    Carbon::parse($val->UPDATED_AT)->format('d/m/Y'),
+                    Carbon::parse($val->VALIDATED_AT)->format('d/m/Y'),
                 ];
 
                 $start++;
@@ -187,7 +206,7 @@ class ReviewController extends Controller
         ]);
     }
 
-    public function detail(Request $request, $id)
+    public function detail($id)
     {
         $collection = QueryAPI::get("
             select
@@ -210,101 +229,8 @@ class ReviewController extends Controller
                 ) and
                 e_collections.id = $id and
                 e_collections.deleted_at is null and
-                e_collections.status = 1
+                e_collections.status = 2
         ", true);
-
-        if ($request->ajax()) {
-            $validation = Validator::make($request->all(), [
-                'worksheet_id' => 'required',
-                'city_id' => 'required',
-                'title' => 'required',
-                'collection_media_id' => 'required',
-                'received_at' => 'required',
-                'access' => 'required',
-            ], [
-                'worksheet_id.required' => 'Jenis tidak boleh kosong',
-                'city_id.required' => 'Kota tidak boleh kosong',
-                'title.required' => 'Judul tidak boleh kosong',
-                'collection_media_id.required' => 'Media tidak boleh kosong',
-                'received_at.required' => 'Tanggal terima tidak boleh kosong',
-                'access.required' => 'Akses tidak boleh kosong',
-            ]);
-
-            if ($validation->fails()) {
-                $response = [
-                    'code' => 400,
-                    'error' => $validation->errors()->all(),
-                ];
-            } else {
-                try {
-                    $updateCollection = QueryAPI::update('e_collections', $id, [
-                        'city_id' => $request->city_id,
-                        'title_ori' => $request->title,
-                        'album' => $request->album,
-                        'slug' => Str::slug($request->title, '-'),
-                        'deposit' => $request->status == 2 ? Main::generateNumberDeposit($request->received_at) : null,
-                        'series' => $request->series,
-                        'serial' => $request->serial,
-                        'ddc' => $request->ddc,
-                        'publication_month' => date('m', strtotime($request->publish_time)),
-                        'publication_year' => date('Y', strtotime($request->publish_time)),
-                        'preview' => $request->preview,
-                        'description' => $request->description,
-                        'akses' => $request->access,
-                        'status' => $request->status,
-                        'received_at' => $request->status == 2 ? date('Y-m-d H:i:s', strtotime($request->received_at)) : null,
-                        'received_by' => $request->status == 2 ? session('id') : null,
-                        'validated_at' => $request->status == 2 ? date('Y-m-d H:i:s') : null,
-                        'validated_by' => $request->status == 2 ? session('id') : null,
-                        'price' => str_replace([',', '.'], '', $request->price),
-                        'worksheet_id' => $request->worksheet_id,
-                        'collection_media_id' => $request->collection_media_id,
-                        'kabupaten_id' => $request->city_id,
-                        'title' => $request->title,
-                    ]);
-
-                    if ($updateCollection) {
-                        if ($request->status == 3) {
-                            if ($request->collection_problem) {
-                                foreach ($request->collection_problem as $cp) {
-                                    QueryAPI::create('e_collection_problems', [
-                                        'problem_id' => $cp,
-                                        'collection_id' => $id,
-                                        'solved' => 0
-                                    ]);
-                                }
-                            }
-
-                            QueryAPI::update('e_collections', $id, [
-                                'problem' => $request->problem
-                            ]);
-                        }
-
-                        if ($request->status == 5) {
-                            QueryAPI::update('e_collections', $id, [
-                                'reject' => $request->reject
-                            ]);
-                        }
-
-                        if ($request->status == 2) {
-                            QueryAPI::verificationCollection($id);
-                        }
-                    }
-
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Data telah disimpan'
-                    ];
-                } catch (\Exception $e) {
-                    $response = [
-                        'code' => $e->getCode(),
-                        'message' => $e->getMessage()
-                    ];
-                }
-            }
-
-            return response()->json($response);
-        }
 
         $collectionCategory = [];
         $dataCollectionCategory = QueryAPI::get("
@@ -350,18 +276,6 @@ class ReviewController extends Controller
                 e_col_id = $id
         ");
 
-        $collectionProblemHistory = QueryAPI::get("
-            select
-                e_collection_problems.*,
-                e_problems.name as name_problem
-            from
-                e_collection_problems
-            join
-                e_problems on e_problems.id = e_collection_problems.problem_id
-            where
-                e_collection_problems.collection_id = $id
-        ");
-
         $data = [
             'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
             'media' => QueryAPI::get("select * from collectionmedias where isdelete != 1"),
@@ -374,8 +288,7 @@ class ReviewController extends Controller
             'collectionCopy' => $collectionCopy,
             'collectionCover' => $collectionCover,
             'collectionContent' => $collectionContent,
-            'collectionProblemHistory' => $collectionProblemHistory,
-            'content' => 'collection.review-detail'
+            'content' => 'collection.digital-work-detail'
         ];
 
         return view('layouts.index', ['data' => $data]);

@@ -104,7 +104,6 @@
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('master-data/visit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'visit' ? 'active' : '' }}">Kunjungan</a>
                                                 <a href="{{ url('master-data/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
-                                                <a href="{{ url('master-data/organization') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'organization' ? 'active' : '' }}">Organisasi</a>
                                             </div>
                                         </div>
                                     </div>
@@ -147,8 +146,9 @@
                                                 <a href="{{ url('collection/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
                                                 <a href="{{ url('collection/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
                                                 <a href="{{ url('collection/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('collection/digital') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'digital' ? 'active' : '' }}">Digital</a>
-                                                <a href="{{ url('collection/analog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog' ? 'active' : '' }}">Cetak / Analog</a>
+                                                <a href="{{ url('collection/digital-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'digital-work' ? 'active' : '' }}">Karya Digital</a>
+                                                <a href="{{ url('collection/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
+                                                <a href="{{ url('collection/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
                                                 <a href="{{ url('collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
                                                 <a href="{{ url('collection/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                             </div>
@@ -179,8 +179,9 @@
                                                 <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
                                                 <a href="{{ url('report/publisher') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'publisher' ? 'active' : '' }}">Penerbit</a>
                                                 <a href="{{ url('report/publisher-isbn') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'publisher-isbn' ? 'active' : '' }}">Penerbit ISBN</a>
-                                                <a href="{{ url('report/digital') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital' ? 'active' : '' }}">Digital</a>
-                                                <a href="{{ url('report/analog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'analog' ? 'active' : '' }}">Cetak / Analog</a>
+                                                <a href="{{ url('report/digital-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital-work' ? 'active' : '' }}">Karya Digital</a>
+                                                <a href="{{ url('report/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
+                                                <a href="{{ url('report/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
                                                 <a href="{{ url('report/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                                 <a href="{{ url('report/perfomance-user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'perfomance-user' ? 'active' : '' }}">Performa User</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
