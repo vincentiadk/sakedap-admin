@@ -194,6 +194,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'PrintedWorkController@datatable');
             Route::get('detail/{id}', 'PrintedWorkController@detail');
         });
+
+        Route::prefix('analog-work')->group(function () {
+            Route::get('/', 'AnalogWorkController@index');
+            Route::get('datatable', 'AnalogWorkController@datatable');
+            Route::get('detail/{id}', 'AnalogWorkController@detail');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
