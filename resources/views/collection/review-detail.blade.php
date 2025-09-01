@@ -279,7 +279,7 @@
                                                 catalogcovers
                                             where
                                                 e_col_id = $cc->ID
-                                        ");
+                                        ", true);
 
                                         $content = QueryAPI::get("
                                             select
@@ -288,11 +288,11 @@
                                                 catalogfiles
                                             where
                                                 e_col_id = $cc->ID
-                                        ");
+                                        ", true);
                                     @endphp
                                     <tr>
-                                        <td>{{ $cc->edition }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($cc->date)->format('d/m/Y') }}</td>
+                                        <td>{{ $cc->EDITION }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
                                         <td>
                                             @if($cover)
                                                 <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
@@ -305,7 +305,7 @@
                                         </td>
                                         <td>
                                             @if($content)
-                                                <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
+                                                <a href="{{ url('stream-file') }}?type=file_preview&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
                                                     <i class="ph-file me-1"></i>
                                                     Lihat
                                                 </a>

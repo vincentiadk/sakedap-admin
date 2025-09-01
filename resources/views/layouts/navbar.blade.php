@@ -58,6 +58,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="#menu-delivery" class="nav-link rounded {{ Request::segment(1) == 'delivery' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'delivery' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-truck me-2"></i>
+                                                        Pengiriman
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('article') }}" class="nav-link rounded {{ Request::segment(1) == 'article' ? 'active' : '' }}">
                                                         <i class="ph-newspaper me-2"></i>
                                                         Artikel
@@ -150,7 +156,15 @@
                                                 <a href="{{ url('collection/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
                                                 <a href="{{ url('collection/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
                                                 <a href="{{ url('collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
-                                                <a href="{{ url('collection/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'delivery' ? 'show active' : '' }}" id="menu-delivery" role="tabpanel">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-lg-4 mb-3 mb-lg-0">
+                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                                <a href="{{ url('delivery/delivered') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'delivered' ? 'active' : '' }}">Diantar</a>
+                                                <a href="{{ url('delivery/independent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'independent' ? 'active' : '' }}">Mandiri</a>
                                             </div>
                                         </div>
                                     </div>

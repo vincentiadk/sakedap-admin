@@ -16,7 +16,7 @@ class CreateSingleController extends Controller
     {
         $data = [
             'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'media' => QueryAPI::get("select * from collectionmedias where isdelete != 1"),
+            'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
             'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
             'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
             'content' => 'collection.create-single'
@@ -116,6 +116,7 @@ class CreateSingleController extends Controller
                         'validated_at' => date('Y-m-d H:i:s'),
                         'validated_by' => session('id'),
                         'price' => str_replace([',', '.'], '', $request->price),
+                        'copyright' => Main::copyright($request->publisher_id),
                         'worksheet_id' => $request->worksheet_id,
                         'collection_media_id' => $request->collection_media_id,
                         'penerbit_id' => $request->publisher_id,
@@ -145,11 +146,24 @@ class CreateSingleController extends Controller
                                     $createEdition = QueryAPI::create('e_collections', [
                                         'id_old' => 0,
                                         'publisher_id' => $request->publisher_id,
+                                        'city_id' => $request->city_id,
                                         'parent_id' => $createCollection->id,
+                                        'title_ori' => $request->title,
+                                        'album' => $request->album,
+                                        'slug' => Str::slug($request->title, '-'),
+                                        'series' => $request->series,
+                                        'serial' => $request->serial,
+                                        'ddc' => $request->ddc,
+                                        'code' => $request->code,
+                                        'code_type' => $request->code_type ?? 0,
+                                        'publication_month' => date('m', strtotime($editionDate)),
+                                        'publication_year' => date('Y', strtotime($editionDate)),
+                                        'preview' => $request->preview,
                                         'edition' => $editionTitle,
                                         'preview' => $request->preview,
                                         'sync' => 0,
                                         'manual' => 1,
+                                        'akses' => $request->access,
                                         'date' => $editionDate,
                                         'status' => 2,
                                         'received_at' => date('Y-m-d H:i:s', strtotime($request->received_at)),
@@ -159,11 +173,13 @@ class CreateSingleController extends Controller
                                         'validated_at' => date('Y-m-d H:i:s'),
                                         'validated_by' => session('id'),
                                         'price' => str_replace([',', '.'], '', $request->price),
+                                        'copyright' => Main::copyright($request->publisher_id),
                                         'worksheet_id' => $request->worksheet_id,
                                         'collection_media_id' => $request->collection_media_id,
                                         'penerbit_id' => $request->publisher_id,
                                         'kabupaten_id' => $request->city_id,
-                                        'title' => $editionTitle,
+                                        'title' => $request->title,
+                                        'author' => collect($author)->implode(';'),
                                     ]);
 
                                     if ($createEdition) {

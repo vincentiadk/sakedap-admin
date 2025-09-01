@@ -40,7 +40,7 @@ class DataController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'branchs.isdelete != 1';
+        $whereCondition[] = '(branchs.isdelete = 0 or branchs.isdelete is null)';
 
         if ($search) {
             $terms = [];
@@ -70,7 +70,8 @@ class DataController extends Controller
             from
                 branchs
             where
-                isdelete != 1
+                isdelete = 0 or
+                isdelete is null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

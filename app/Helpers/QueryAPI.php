@@ -83,7 +83,7 @@ class QueryAPI
                     }
                 }
             } else {
-                dd($response);
+                dd($response, $sql);
             }
         }
 

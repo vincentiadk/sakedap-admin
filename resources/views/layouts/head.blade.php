@@ -20,6 +20,8 @@
 	<script src="{{ asset('plugins/moment.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/ui/prism.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/tables/datatables/datatables.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('themes/js/vendor/tables/datatables/extensions/select.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('themes/js/vendor/tables/datatables/extensions/buttons.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/notifications/sweet_alert.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/forms/selects/select2.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/vendor/forms/selects/select2-lang/id.js') }}?v={{ uniqid() }}"></script>

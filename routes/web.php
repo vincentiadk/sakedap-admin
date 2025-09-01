@@ -200,6 +200,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'AnalogWorkController@datatable');
             Route::get('detail/{id}', 'AnalogWorkController@detail');
         });
+
+        Route::prefix('label')->group(function () {
+            Route::get('/', 'LabelController@index');
+            Route::get('datatable', 'LabelController@datatable');
+            Route::get('print/{type}', 'LabelController@print');
+        });
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {

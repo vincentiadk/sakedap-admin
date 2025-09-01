@@ -39,7 +39,7 @@ class LocationController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'location_library.isdelete != 1';
+        $whereCondition[] = '(location_library.isdelete = 0 or location_library.isdelete is null)';
 
         if ($search) {
             $terms = [];
@@ -69,7 +69,8 @@ class LocationController extends Controller
             from
                 location_library
             where
-                isdelete != 1
+                isdelete = 0
+                isdelete is null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

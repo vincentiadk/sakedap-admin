@@ -131,6 +131,8 @@ return [
         'Request' => Illuminate\Support\Facades\Request::class,
         'Cache' => Illuminate\Support\Facades\Cache::class,
         'File' => Illuminate\Support\Facades\File::class,
+        'DNS1D' => Milon\Barcode\Facades\DNS1DFacade::class,
+        'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
     ],
 
 ];

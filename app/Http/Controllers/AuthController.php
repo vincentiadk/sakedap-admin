@@ -33,7 +33,10 @@ class AuthController extends Controller
                         branchs on branchs.id = users.branch_id
                     where
                         users.id = $userId and
-                        users.isdelete != 1
+                        (
+                            users.isdelete = 0 or
+                            users.isdelete is null
+                        )
                 ", true);
 
                 if ($user) {

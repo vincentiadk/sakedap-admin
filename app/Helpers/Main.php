@@ -181,4 +181,28 @@ class Main
 
         return 'C' . $date . sprintf('%05s', $seq);
     }
+
+    /**
+     * copyright
+     *
+     * @param  mixed $publisherId
+     * @return void
+     */
+    public static function copyright($publisherId)
+    {
+        $publisher = QueryAPI::get("
+            select
+                *
+            from
+                penerbit
+            where
+                id = $publisherId
+        ", true);
+
+        if ($publisher) {
+            return 'Copyrights (c) ' . date('Y') . ' ' . $publisher->NAME;
+        }
+
+        return null;
+    }
 }

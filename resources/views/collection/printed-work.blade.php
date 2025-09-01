@@ -87,7 +87,6 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Deposit</th>
                         <th nowrap>Pengelola</th>
                         <th nowrap>Judul</th>
                         <th nowrap>Jenis</th>
@@ -144,7 +143,6 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },

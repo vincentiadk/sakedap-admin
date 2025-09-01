@@ -60,7 +60,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Judul</label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="title" id="title" value="{{ $collection->TITLE ?? $collection->TITLE_ORI }}" placeholder="...................." disabled>
+                        <input type="text" class="form-control" name="title" id="title" value="{{ $collection->TITLE }}" placeholder="...................." disabled>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -69,13 +69,13 @@
                         <div class="input-group">
                             <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" disabled>
                                 <option value="">Tidak Ada</option>
-                                <option value="1" {{ $collection->CODE_TYPE == 1 ? 'selected' : ''  }}>ISBN</option>
-                                <option value="2" {{ $collection->CODE_TYPE == 2 ? 'selected' : ''  }}>ISMN</option>
-                                <option value="3" {{ $collection->CODE_TYPE == 3 ? 'selected' : ''  }}>ISRC</option>
-                                <option value="4" {{ $collection->CODE_TYPE == 4 ? 'selected' : ''  }}>ISSN</option>
-                                <option value="5" {{ $collection->CODE_TYPE == 5 ? 'selected' : ''  }}>ISAN</option>
+                                <option value="1" {{ $collection->CODE_TYPE_E_COLLECTION == 1 ? 'selected' : ''  }}>ISBN</option>
+                                <option value="2" {{ $collection->CODE_TYPE_E_COLLECTION == 2 ? 'selected' : ''  }}>ISMN</option>
+                                <option value="3" {{ $collection->CODE_TYPE_E_COLLECTION == 3 ? 'selected' : ''  }}>ISRC</option>
+                                <option value="4" {{ $collection->CODE_TYPE_E_COLLECTION == 4 ? 'selected' : ''  }}>ISSN</option>
+                                <option value="5" {{ $collection->CODE_TYPE_E_COLLECTION == 5 ? 'selected' : ''  }}>ISAN</option>
                             </select>
-                            <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->CODE) ? '-' : $collection->CODE }}" placeholder="...................." disabled>
+                            <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->ISBN) ? '-' : $collection->ISBN }}" placeholder="...................." disabled>
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                     <label class="col-form-label col-md-2">Kota</label>
                     <div class="col-md-10">
                         <select class="form-select" name="city_id" id="city_id" disabled>
-                            <option value="{{ $collection->KABUPATEN_ID }}" selected>
+                            <option value="{{ $collection->CITY_ID }}" selected>
                                 {{ $collection->NAMAPROPINSI }} -> {{ $collection->NAMAKAB }}
                             </option>
                         </select>
@@ -95,7 +95,7 @@
                         <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id" disabled>
                             <option value=""></option>
                             @foreach($media as $m)
-                                <option value="{{ $m->ID }}" {{ $collection->COLLECTION_MEDIA_ID == $m->ID ? 'selected' : '' }}>{{ $m->NAME }}</option>
+                                <option value="{{ $m->ID }}" {{ $collection->COLLECTIONMEDIA_ID == $m->ID ? 'selected' : '' }}>{{ $m->NAME }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -120,11 +120,11 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 <label>
-                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#ddc').attr('disabled', true) : $('#ddc').attr('disabled', false)"  @if(empty($collection->DDC)) checked @endif disabled>
+                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#ddc').attr('disabled', true) : $('#ddc').attr('disabled', false)"  @if(empty($collection->DEWEYNO)) checked @endif disabled>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="ddc" id="ddc" value="{{ $collection->DDC }}" placeholder="...................."  @if(empty($collection->DDC)) disabled @endif>
+                            <input type="text" class="form-control" name="ddc" id="ddc" value="{{ $collection->DEWEYNO }}" placeholder="...................."  @if(empty($collection->DEWEYNO)) disabled @endif>
                         </div>
                     </div>
                 </div>
@@ -133,28 +133,28 @@
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada" disabled>
                             <option value=""></option>
-                            <option value="1" {{ $collection->SERIAL == 1 ? 'selected' : '' }}>Harian</option>
-                            <option value="2" {{ $collection->SERIAL == 2 ? 'selected' : '' }}>Mingguan</option>
-                            <option value="3" {{ $collection->SERIAL == 3 ? 'selected' : '' }}>Bulanan</option>
-                            <option value="4" {{ $collection->SERIAL == 4 ? 'selected' : '' }}>3 Bulan Sekali</option>
-                            <option value="5" {{ $collection->SERIAL == 5 ? 'selected' : '' }}>4 Bulan Sekali</option>
-                            <option value="6" {{ $collection->SERIAL == 6 ? 'selected' : '' }}>6 Bulan Sekali</option>
-                            <option value="7" {{ $collection->SERIAL == 7 ? 'selected' : '' }}>Tahunan</option>
-                            <option value="8" {{ $collection->SERIAL == 8 ? 'selected' : '' }}>2 Tahun Sekali</option>
-                            <option value="9" {{ $collection->SERIAL == 9 ? 'selected' : '' }}>3 Tahun Sekali</option>
+                            <option value="1" {{ $collection->SERIAL_E_COLLECTION == 1 ? 'selected' : '' }}>Harian</option>
+                            <option value="2" {{ $collection->SERIAL_E_COLLECTION == 2 ? 'selected' : '' }}>Mingguan</option>
+                            <option value="3" {{ $collection->SERIAL_E_COLLECTION == 3 ? 'selected' : '' }}>Bulanan</option>
+                            <option value="4" {{ $collection->SERIAL_E_COLLECTION == 4 ? 'selected' : '' }}>3 Bulan Sekali</option>
+                            <option value="5" {{ $collection->SERIAL_E_COLLECTION == 5 ? 'selected' : '' }}>4 Bulan Sekali</option>
+                            <option value="6" {{ $collection->SERIAL_E_COLLECTION == 6 ? 'selected' : '' }}>6 Bulan Sekali</option>
+                            <option value="7" {{ $collection->SERIAL_E_COLLECTION == 7 ? 'selected' : '' }}>Tahunan</option>
+                            <option value="8" {{ $collection->SERIAL_E_COLLECTION == 8 ? 'selected' : '' }}>2 Tahun Sekali</option>
+                            <option value="9" {{ $collection->SERIAL_E_COLLECTION == 9 ? 'selected' : '' }}>3 Tahun Sekali</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Waktu Publish</label>
                     <div class="col-md-10">
-                        <input type="month" class="form-control" name="publish_time" id="publish_time" value="{{ $collection->PUBLICATION_YEAR . '-' . $collection->PUBLICATION_MONTH }}" disabled>
+                        <input type="month" class="form-control" name="publish_time" id="publish_time" value="{{ $collection->PUBLISHYEAR . '-' . $collection->PUBLISH_MONTH }}" disabled>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Tanggal Terima</label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ \Carbon\Carbon::parse($collection->RECEIVED_AT)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly disabled>
+                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ \Carbon\Carbon::parse($collection->RECEIVED_AT_E_COLLECTION)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly disabled>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -180,7 +180,7 @@
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">Rp</span>
-                            <input type="text" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="...................." disabled>
+                            <input type="text" class="form-control" name="price" id="price" value="{{ $collection->PRICE_E_COLLECTION }}" placeholder="...................." disabled>
                         </div>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                                                 catalogcovers
                                             where
                                                 e_col_id = $cc->ID
-                                        ");
+                                        ", true);
 
                                         $content = QueryAPI::get("
                                             select
@@ -264,11 +264,11 @@
                                                 catalogfiles
                                             where
                                                 e_col_id = $cc->ID
-                                        ");
+                                        ", true);
                                     @endphp
                                     <tr>
-                                        <td>{{ $cc->edition }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($cc->date)->format('d/m/Y') }}</td>
+                                        <td>{{ $cc->EDITION }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
                                         <td>
                                             @if($cover)
                                                 <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
@@ -281,7 +281,7 @@
                                         </td>
                                         <td>
                                             @if($content)
-                                                <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
+                                                <a href="{{ url('stream-file') }}?type=file_preview&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
                                                     <i class="ph-file me-1"></i>
                                                     Lihat
                                                 </a>

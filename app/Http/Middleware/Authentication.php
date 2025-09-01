@@ -17,16 +17,24 @@ class Authentication
     public function handle(Request $request, Closure $next): Response
     {
         $id = session('id');
-        $user = QueryAPI::get("select * from users where id = $id", true);
 
-        if ($user) {
-            if ($user->ISACTIVE == 1 && $user->ISDELETE != 1) {
-                return $next($request);
+        if ($id) {
+            $user = QueryAPI::get("select * from users where id = $id", true);
+
+            if ($user) {
+                if ($user->ISACTIVE == 1 && $user->ISDELETE != 1) {
+                    return $next($request);
+                }
             }
         }
 
         session()->flush();
 
-        return redirect('/');
+        echo '
+            <script>
+                alert("Sesi login anda telah habis, anda akan di arahkan ke halaman login kembali!!");
+                document.location.href="' . url('/') . '"
+            </script>
+        ';
     }
 }

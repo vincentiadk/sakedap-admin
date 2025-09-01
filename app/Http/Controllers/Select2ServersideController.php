@@ -156,7 +156,10 @@ class Select2ServersideController extends Controller
                         propinsi on propinsi.id = branchs.province_id
                     where
                         branchs.name like '%$search%' and
-                        branchs.isdelete != 1
+                        (
+                            branchs.isdelete = 0 or
+                            branchs.isdelete is null
+                        )
                     order by
                         branchs.name asc
                 )
