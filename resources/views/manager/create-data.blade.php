@@ -11,7 +11,7 @@
         <div class="d-flex">
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
-                <a href="javascript:void(0);" class="breadcrumb-item">Penerbit</a>
+                <a href="javascript:void(0);" class="breadcrumb-item">Pengelola</a>
                 <span class="breadcrumb-item active">Tambah Data</span>
             </div>
         </div>
@@ -196,7 +196,7 @@
 
     function submitted() {
         $.ajax({
-            url: '{{ url("publisher/create-data/submitted") }}',
+            url: '{{ url("manager/create-data/submitted") }}',
             type: 'POST',
             dataType: 'JSON',
             data: new FormData($('#form-data')[0]),
@@ -227,7 +227,7 @@
                         if (result.isConfirmed) {
                             onLoading('show', 'body');
 
-                            location.href = '{{ url("publisher/create-data") }}';
+                            location.href = '{{ url("manager/create-data") }}';
                         }
                     });
                 } else if(response.code == 400) {

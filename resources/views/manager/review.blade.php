@@ -11,7 +11,7 @@
         <div class="d-flex">
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
-                <a href="javascript:void(0);" class="breadcrumb-item">Penerbit</a>
+                <a href="javascript:void(0);" class="breadcrumb-item">Pengelola</a>
                 <span class="breadcrumb-item active">Peninjauan</span>
             </div>
         </div>
@@ -228,7 +228,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("publisher/review/datatable") }}',
+                url: '{{ url("manager/review/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -262,7 +262,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("publisher/review/show-data") }}',
+            url: '{{ url("manager/review/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -337,7 +337,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("publisher/review/update-data") }}',
+            url: '{{ url("manager/review/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -392,7 +392,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("publisher/review/destroy-data") }}',
+                        url: '{{ url("manager/review/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

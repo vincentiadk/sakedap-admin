@@ -78,7 +78,7 @@
             `);
 
             $('#param-id').html(`
-                <select class="form-select" name="id" id="id" data-placeholder="Pilih Penerbit"></select>
+                <select class="form-select" name="id" id="id" data-placeholder="Pilih Pengelola"></select>
             `);
 
             select2Serverside('#id', 'publisher');

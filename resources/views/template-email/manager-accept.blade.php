@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Penerbit Diterima</h4>
+            <h4 class="page-title mb-0">Pengelola Diterima</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -12,7 +12,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Template Email</a>
-                <span class="breadcrumb-item active">Penerbit Diterima</span>
+                <span class="breadcrumb-item active">Pengelola Diterima</span>
             </div>
         </div>
     </div>

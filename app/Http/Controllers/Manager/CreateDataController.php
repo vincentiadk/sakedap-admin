@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Publisher;
+namespace App\Http\Controllers\Manager;
 
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
@@ -15,7 +15,7 @@ class CreateDataController extends Controller
         $data = [
             'category' => QueryAPI::get("select * from penerbit_kategori"),
             'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'publisher.create-data'
+            'content' => 'manager.create-data'
         ];
 
         return view('layouts.index', ['data' => $data]);

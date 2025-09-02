@@ -29,7 +29,7 @@ class CreateMoreController extends Controller
                 'file' => 'required|file|mimes:zip|max:500000',
             ], [
                 'type.required' => 'Jenis tidak boleh kosong',
-                'id.required' => 'Penerbit (Non Serial) / Koleksi (Serial) tidak boleh kosong',
+                'id.required' => 'Pengelola (Non Serial) / Koleksi (Serial) tidak boleh kosong',
                 'file_cover.required' => 'File tidak boleh kosong',
                 'file_cover.file' => 'File tidak valid',
                 'file_cover.mimes' => 'File harus zip',

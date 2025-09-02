@@ -46,9 +46,9 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-publisher" class="nav-link rounded {{ Request::segment(1) == 'publisher' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'publisher' ? 'true' : 'false' }}" role="tab">
+                                                    <a href="#menu-manager" class="nav-link rounded {{ Request::segment(1) == 'manager' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'manager' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-users-four me-2"></i>
-                                                        Penerbit
+                                                        Pengelola
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
@@ -127,13 +127,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'publisher' ? 'show active' : '' }}" id="menu-publisher" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'manager' ? 'show active' : '' }}" id="menu-manager" role="tabpanel">
                                         <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('publisher/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
-                                                <a href="{{ url('publisher/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('publisher/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'publisher' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
+                                                <a href="{{ url('manager/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'manager' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
+                                                <a href="{{ url('manager/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'manager' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
+                                                <a href="{{ url('manager/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'manager' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
                                             </div>
                                         </div>
                                     </div>
@@ -171,9 +171,9 @@
                                                 <a href="{{ url('template-email/receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'receipt' ? 'active' : '' }}">Tanda Terima</a>
                                                 <a href="{{ url('template-email/activation') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'activation' ? 'active' : '' }}">Aktivasi</a>
                                                 <a href="{{ url('template-email/change-password') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'change-password' ? 'active' : '' }}">Ganti Password</a>
-                                                <a href="{{ url('template-email/publisher-reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'publisher-reject' ? 'active' : '' }}">Penerbit Ditolak</a>
-                                                <a href="{{ url('template-email/publisher-submission') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'publisher-submission' ? 'active' : '' }}">Penerbit Pengajuan</a>
-                                                <a href="{{ url('template-email/publisher-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'publisher-accept' ? 'active' : '' }}">Penerbit Diterima</a>
+                                                <a href="{{ url('template-email/manager-reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'manager-reject' ? 'active' : '' }}">Pengelola Ditolak</a>
+                                                <a href="{{ url('template-email/manager-submission') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'manager-submission' ? 'active' : '' }}">Pengelola Pengajuan</a>
+                                                <a href="{{ url('template-email/manager-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'manager-accept' ? 'active' : '' }}">Pengelola Diterima</a>
                                                 <a href="{{ url('template-email/collection-problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-problem' ? 'active' : '' }}">Koleksi Bermasalah</a>
                                                 <a href="{{ url('template-email/collection-submitted') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-submitted' ? 'active' : '' }}">Koleksi Diserahkan</a>
                                                 <a href="{{ url('template-email/collection-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-accept' ? 'active' : '' }}">Koleksi Diterima</a>
@@ -185,7 +185,7 @@
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
-                                                <a href="{{ url('report/publisher') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'publisher' ? 'active' : '' }}">Penerbit</a>
+                                                <a href="{{ url('report/manager') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'manager' ? 'active' : '' }}">Pengelola</a>
                                                 <a href="{{ url('report/digital-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital-work' ? 'active' : '' }}">Karya Digital</a>
                                                 <a href="{{ url('report/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
                                                 <a href="{{ url('report/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
@@ -227,7 +227,7 @@
 					</a>
 					<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
 						<div class="d-flex align-items-center p-3">
-							<h6 class="mb-0">Notifikasi Pendaftaran Penerbit</h6>
+							<h6 class="mb-0">Notifikasi Pendaftaran Pengelola</h6>
 						</div>
 						<div class="dropdown-menu-scrollable pb-2">
 							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
@@ -242,7 +242,7 @@
 							</a>
 						</div>
 						<div class="d-flex border-top py-2 px-3">
-							<a href="{{ url('publisher/review') }}" class="text-body mx-auto">
+							<a href="{{ url('manager/review') }}" class="text-body mx-auto">
 								Lihat Selengkapnya
 								<i class="ph-arrow-circle-right ms-1"></i>
 							</a>

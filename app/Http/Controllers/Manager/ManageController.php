@@ -1,18 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Publisher;
+namespace App\Http\Controllers\Manager;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
-class ReviewController extends Controller
+class ManageController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'publisher.review'
+            'category' => QueryAPI::get("select * from penerbit_kategori"),
+            'type' => QueryAPI::get("select * from penerbit_jenis"),
+            'content' => 'manager.manage'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -29,6 +33,7 @@ class ReviewController extends Controller
             'penerbit_jenis.name',
             'penerbit.telp1',
             'penerbit.createdate',
+            'penerbit.validatedate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -42,8 +47,8 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'status = 1';
-        $whereCondition[] = "source_db = 'EDEPOSIT'";
+        $whereCondition[] = 'penerbit.status = 3';
+        $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
 
         if ($search) {
             $terms = [];
@@ -72,6 +77,9 @@ class ReviewController extends Controller
                 count(*) as total
             from
                 penerbit
+            where
+                penerbit.status = 3 and
+                penerbit.source_db = 'EDEPOSIT'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -123,8 +131,8 @@ class ReviewController extends Controller
                         </button>
                         <div class="dropdown-menu">
                             <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
-                                <i class="ph-info me-1"></i>
-                                Tinjau Data
+                                <i class="ph-pen me-1"></i>
+                                Edit Data
                             </a>
                             <a href="javascript:void(0);" class="dropdown-item" onclick="destroyData(' . $val->ID . ')">
                                 <i class="ph-trash-simple me-1"></i>
@@ -153,6 +161,7 @@ class ReviewController extends Controller
                     $val->NAME_PENERBIT_JENIS,
                     $phone,
                     Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
+                    Carbon::parse($val->VALIDATEDATE)->format('d/m/Y'),
                 ];
 
                 $start++;
@@ -206,37 +215,81 @@ class ReviewController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $status = $request->status;
+        $validation = Validator::make($request->all(), [
+            'location_id' => 'required',
+            'email' => 'nullable|email',
+            'email_alternative' => 'nullable|email',
+            'postal_code' => 'nullable|digits:5|numeric',
+            'phone' => 'nullable|min_digits:8|max_digits:13|numeric',
+            'phone_alternative' => 'nullable|min_digits:8|max_digits:13|numeric',
+            'fax' => 'nullable|min_digits:8|max_digits:13|numeric',
+            'fax_alternative' => 'nullable|min_digits:8|max_digits:13|numeric',
+        ], [
+            'location_id.required' => 'Lokasi tidak boleh kosong',
+            'email.email' => 'Email tidak valid',
+            'email_alternative.email' => 'Email alternatif tidak valid',
+            'postal_code.digits' => 'Kode pos harus 5 digit',
+            'postal_code.numeric' => 'Kode pos harus angka',
+            'phone.min_digits' => 'Telepon minimal 8 digit',
+            'phone.max_digits' => 'Telepon maksimal 13 digit',
+            'phone.numeric' => 'Telepon harus angka',
+            'phone_alternative.min_digits' => 'Telepon alternatif minimal 8 digit',
+            'phone_alternative.max_digits' => 'Telepon alternatif maksimal 13 digit',
+            'phone_alternative.numeric' => 'Telepon alternatif harus angka',
+            'fax.min_digits' => 'Fax minimal 8 digit',
+            'fax.max_digits' => 'Fax maksimal 13 digit',
+            'fax.numeric' => 'Fax harus angka',
+            'fax_alternative.min_digits' => 'Fax alternatif minimal 8 digit',
+            'fax_alternative.max_digits' => 'Fax alternatif maksimal 13 digit',
+            'fax_alternative.numeric' => 'Fax alternatif harus angka',
+        ]);
 
-        try {
-            $payload = [];
+        if ($validation->fails()) {
+            $response = [
+                'code' => 400,
+                'error' => $validation->errors()->all(),
+            ];
+        } else {
+            try {
+                $location = Main::locationById($request->location_id, 'village');
 
-            if ($status == 3) {
-                $payload = [
-                    'status' => 3,
-                    'validateby' => session('name'),
-                    'validatedate' => date('Y-m-d H:i:s'),
-                    'is_validasi' => 1,
-                    'is_lock' => 1,
+                QueryAPI::update('penerbit', $id, [
+                    'kategori_id' => $request->category_id,
+                    'jenis_id' => $request->type_id,
+                    'parent_id' => $request->parent_id,
+                    'lembaga_penaung' => $request->shelter_institution,
+                    'nama_gedung' => $request->building,
+                    'kontak1' => $request->admin,
+                    'kontak2' => $request->admin_alternative,
+                    'province_id' => $location->PROPINSIID ?? null,
+                    'provinsi' => $location->NAMAPROPINSI ?? null,
+                    'city_id' => $location->KABUPATENID ?? null,
+                    'city' => $location->NAMAKAB ?? null,
+                    'district_id' => $location->KECAMATANID ?? null,
+                    'village_id' => $location->ID ?? null,
+                    'email1' => $request->email,
+                    'email2' => $request->email_alternative,
+                    'kodepos' => $request->postal_code,
+                    'telp1' => $request->phone,
+                    'telp2' => $request->phone_alternative,
+                    'fax1' => $request->fax,
+                    'fax2' => $request->fax_alternative,
+                    'website' => $request->website,
+                    'rata_terbitan' => $request->publication_average,
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                ], false);
+
+                $response = [
+                    'code' => 200,
+                    'message' => 'Data telah diubah'
                 ];
-            } else {
-                $payload = [
-                    'status' => 3,
-                    'keterangan' => $request->description,
+            } catch (\Exception $e) {
+                $response = [
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage()
                 ];
             }
-
-            QueryAPI::update('penerbit', $id, $payload, false);
-
-            $response = [
-                'code' => 200,
-                'message' => 'Data telah direview'
-            ];
-        } catch (\Exception $e) {
-            $response = [
-                'code' => $e->getCode(),
-                'message' => $e->getMessage()
-            ];
         }
 
         return response()->json($response);
