@@ -261,4 +261,11 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], '/', 'CollectionAcceptController@index');
         });
     });
+
+    Route::prefix('report')->namespace('Report')->group(function () {
+        Route::prefix('periodic')->group(function () {
+            Route::get('/', 'PeriodicController@index');
+            Route::get('load-data', 'PeriodicController@loadData');
+        });
+    });
 });
