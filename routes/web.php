@@ -225,6 +225,10 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], '/', 'HeaderController@index');
         });
 
+        Route::prefix('footer')->group(function () {
+            Route::match(['get', 'post'], '/', 'FooterController@index');
+        });
+
         Route::prefix('receipt')->group(function () {
             Route::match(['get', 'post'], '/', 'ReceiptController@index');
         });
