@@ -64,12 +64,6 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('article') }}" class="nav-link rounded {{ Request::segment(1) == 'article' ? 'active' : '' }}">
-                                                        <i class="ph-newspaper me-2"></i>
-                                                        Artikel
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('bill-isbn') }}" class="nav-link rounded {{ Request::segment(1) == 'bill-isbn' ? 'active' : '' }}">
                                                         <i class="ph-cardholder me-2"></i>
                                                         Tagihan ISBN

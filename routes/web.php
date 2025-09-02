@@ -208,6 +208,11 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('bill-isbn')->group(function () {
+        Route::get('/', 'BillISBNController@index');
+        Route::get('datatable', 'BillISBNController@datatable');
+    });
+
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
         Route::prefix('receipt')->group(function () {
             Route::match(['get', 'post'], '/', 'ReceiptController@index');
