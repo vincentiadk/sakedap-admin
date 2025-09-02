@@ -268,7 +268,7 @@ class QueryAPI
             $response = $query->object();
 
             if ($response->Status == 'Success') {
-                $data = true;
+                $data = isset($response->Data) ? $response->Data : true;
             } else {
                 dd($response);
             }

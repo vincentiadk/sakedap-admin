@@ -221,6 +221,10 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
+        Route::prefix('header')->group(function () {
+            Route::match(['get', 'post'], '/', 'HeaderController@index');
+        });
+
         Route::prefix('receipt')->group(function () {
             Route::match(['get', 'post'], '/', 'ReceiptController@index');
         });
