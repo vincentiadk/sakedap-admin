@@ -205,4 +205,25 @@ class Main
 
         return null;
     }
+
+    /**
+     * parseTemplateEmail
+     *
+     * @param  mixed $payload
+     * @param  mixed $template
+     * @return void
+     */
+    public static function parseTemplateEmail($payload, $template)
+    {
+        $parsed = preg_replace_callback('/{{(.*?)}}/', function ($matches) use ($payload, $template) {
+            list($shortCode, $index) = $matches;
+            if (isset($payload[$index])) {
+                return $payload[$index];
+            } else {
+                throw new \Exception("Shortcode {$shortCode} not found in template id {$template->ID}", 1);
+            }
+        }, $template->CONTENT);
+
+        return $parsed;
+    }
 }

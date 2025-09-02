@@ -7,14 +7,25 @@ use Illuminate\Support\Facades\Route;
 
 Route::match(['get', 'post'], '/', 'AuthController@login');
 
+Route::get('stream-file', function (Request $request) {
+    if ($request->type && $request->id && $request->filename) {
+        return QueryAPI::getFile([
+            'type' => $request->type,
+            'id' => $request->id,
+            'filename' => $request->filename,
+        ]);
+    }
+});
+
+Route::prefix('download')->group(function () {
+    Route::get('from-public', 'DownloadController@fromPublic');
+    Route::get('request-file', 'DownloadController@requestFile');
+});
+
 Route::middleware('authentication')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::match(['get', 'post'], 'change-password', 'AuthController@changePassword');
         Route::get('logout', 'AuthController@logout');
-    });
-
-    Route::prefix('download')->group(function () {
-        Route::get('from-public', 'DownloadController@fromPublic');
     });
 
     Route::prefix('select2-serverside')->group(function () {
@@ -33,16 +44,6 @@ Route::middleware('authentication')->group(function () {
         ];
 
         return view('layouts.index', ['data' => $data]);
-    });
-
-    Route::get('stream-file', function (Request $request) {
-        if ($request->type && $request->id && $request->filename) {
-            return QueryAPI::getFile([
-                'type' => $request->type,
-                'id' => $request->id,
-                'filename' => $request->filename,
-            ]);
-        }
     });
 
     Route::prefix('master-data')->namespace('MasterData')->group(function () {
@@ -211,6 +212,12 @@ Route::middleware('authentication')->group(function () {
     Route::prefix('bill-isbn')->group(function () {
         Route::get('/', 'BillISBNController@index');
         Route::get('datatable', 'BillISBNController@datatable');
+    });
+
+    Route::prefix('request-file')->group(function () {
+        Route::get('/', 'RequestFileController@index');
+        Route::get('datatable', 'RequestFileController@datatable');
+        Route::post('set-status', 'RequestFileController@setStatus');
     });
 
     Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
