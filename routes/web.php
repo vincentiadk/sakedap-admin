@@ -317,5 +317,9 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'FaqController@updateData');
             Route::delete('destroy-data', 'FaqController@destroyData');
         });
+
+        Route::prefix('terms-conditions')->group(function () {
+            Route::match(['get', 'post'], '/', 'TermsConditionsController@index');
+        });
     });
 });

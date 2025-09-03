@@ -200,7 +200,7 @@
                                                 <a href="{{ url('setting/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
                                                 <a href="{{ url('setting/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
                                                 <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
-                                                <a href="{{ url('setting/terms_conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'terms_conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>
+                                                <a href="{{ url('setting/terms-conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'terms-conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>
                                                 <a href="{{ url('setting/about-us') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'about-us' ? 'active' : '' }}">Tentang Kami</a>
                                             </div>
                                         </div>
