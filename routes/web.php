@@ -308,5 +308,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'BannerController@updateData');
             Route::delete('destroy-data', 'BannerController@destroyData');
         });
+
+        Route::prefix('faq')->group(function () {
+            Route::get('/', 'FaqController@index');
+            Route::get('datatable', 'FaqController@datatable');
+            Route::post('create-data', 'FaqController@createData');
+            Route::get('show-data', 'FaqController@showData');
+            Route::post('update-data', 'FaqController@updateData');
+            Route::delete('destroy-data', 'FaqController@destroyData');
+        });
     });
 });

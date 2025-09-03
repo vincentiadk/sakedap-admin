@@ -14,6 +14,7 @@
 	<link href="{{ asset('themes/css/ltr/all.min.css') }}?v={{ uniqid() }}" id="stylesheet" rel="stylesheet">
 	<link href="{{ asset('plugins/lightbox/dist/css/lightbox.min.css') }}?v={{ uniqid() }}" rel="stylesheet">
 	<link href="{{ asset('plugins/waitMe/waitMe.min.css') }}?v={{ uniqid() }}" rel="stylesheet">
+	<link href="{{ asset('plugins/summernote/summernote-lite.min.css') }}?v={{ uniqid() }}" rel="stylesheet">
 	<link href="{{ asset('plugins/custom.css') }}?v={{ uniqid() }}" rel="stylesheet">
 	<script src="{{ asset('themes/js/bootstrap/bootstrap.bundle.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/jquery/jquery.min.js') }}?v={{ uniqid() }}"></script>
@@ -34,5 +35,7 @@
 	<script src="{{ asset('plugins/ckeditor/ckeditor.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/ckeditor/lang/id.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/number/jquery.number.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('plugins/summernote/summernote-lite.min.js') }}?v={{ uniqid() }}"></script>
+	<script src="{{ asset('plugins/summernote/lang/summernote-id-ID.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/custom.js') }}?v={{ uniqid() }}"></script>
 </head>
