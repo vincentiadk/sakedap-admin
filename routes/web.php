@@ -299,5 +299,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'LeaderController@updateData');
             Route::delete('destroy-data', 'LeaderController@destroyData');
         });
+
+        Route::prefix('banner')->group(function () {
+            Route::get('/', 'BannerController@index');
+            Route::get('datatable', 'BannerController@datatable');
+            Route::post('create-data', 'BannerController@createData');
+            Route::get('show-data', 'BannerController@showData');
+            Route::post('update-data', 'BannerController@updateData');
+            Route::delete('destroy-data', 'BannerController@destroyData');
+        });
     });
 });
