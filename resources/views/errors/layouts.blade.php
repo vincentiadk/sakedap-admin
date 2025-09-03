@@ -21,13 +21,13 @@
 				<div class="content d-flex justify-content-center align-items-center">
 					<div class="flex-fill">
 						<div class="text-center mb-4">
-							<img src="{{ asset('template/assets/images/error_bg.svg') }}" class="img-fluid mb-3" height="230" alt="">
+							<img src="{{ asset('themes/images/error_bg.svg') }}" class="img-fluid mb-3" height="230" alt="">
 							<h1 class="display-3 fw-semibold lh-1 mb-3">@yield('code')</h1>
 							<h4 class="mx-md-auto">@yield('message')</h4>
 						</div>
 						<div class="text-center">
 							<a href="{{ url('/') }}" class="btn btn-primary">
-                                <i class="ph-arrow-left me-2"></i>
+                                <i class="ph-arrow-left me-1"></i>
 								Kembali
 							</a>
 						</div>

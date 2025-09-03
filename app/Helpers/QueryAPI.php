@@ -323,7 +323,7 @@ class QueryAPI
             'op' => 'getfile',
         ]);
 
-        $query = Http::connectTimeout(60)
+        $query = Http::dd()->connectTimeout(60)
             ->timeout(120)
             ->withQueryParameters($param)
             ->withOptions(['stream' => true])

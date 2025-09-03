@@ -289,4 +289,15 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'LogController@datatable');
         });
     });
+
+    Route::prefix('setting')->namespace('Setting')->group(function () {
+        Route::prefix('leader')->group(function () {
+            Route::get('/', 'LeaderController@index');
+            Route::get('datatable', 'LeaderController@datatable');
+            Route::post('create-data', 'LeaderController@createData');
+            Route::get('show-data', 'LeaderController@showData');
+            Route::post('update-data', 'LeaderController@updateData');
+            Route::delete('destroy-data', 'LeaderController@destroyData');
+        });
+    });
 });

@@ -320,7 +320,7 @@
                         v: '{{ Str::random(40) }}'
                     };
 
-                    $('#file_deed').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`)
+                    $('#file_deed').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
                 }
 
                 if(response.FILE_SP) {
@@ -331,7 +331,7 @@
                         v: '{{ Str::random(40) }}'
                     };
 
-                    $('#file_statement').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`)
+                    $('#file_statement').attr('src', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
                 }
             },
             error: function(response) {

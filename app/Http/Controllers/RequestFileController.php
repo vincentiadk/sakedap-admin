@@ -259,7 +259,7 @@ class RequestFileController extends Controller
 
         $response = [
             'code' => 200,
-            'message' => 'Status telah di ubah'
+            'message' => 'Status telah diubah'
         ];
 
         return response()->json($response);
