@@ -1,27 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\Collection;
+namespace App\Http\Controllers\Report;
 
 use Carbon\Carbon;
-use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class DigitalWorkController extends Controller
+class CollectionController extends Controller
 {
-    private $worksheetCategory;
-
-    public function __construct()
-    {
-        $this->worksheetCategory = Main::COLLECTION_DIGITAL;
-    }
-
     public function index()
     {
         $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
-            'content' => 'collection.digital-work'
+            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+            'content' => 'report.collection'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -33,9 +25,18 @@ class DigitalWorkController extends Controller
             'catalogs.id',
             null,
             'penerbit.name',
+            'propinsi.namapropinsi',
+            'kabupaten.namakab',
             'catalogs.title',
             'worksheets.name',
+            'catalogs.album',
+            'catalogs.series',
+            'catalogs.edition',
+            'catalogs.deweyno',
+            'catalogs.volume',
             'catalogs.isbn',
+            'catalogs.publishyear',
+            'catalogs.preview',
             'catalogs.validatedate',
         ];
 
@@ -55,7 +56,6 @@ class DigitalWorkController extends Controller
                 catalogs.isdelete = 0 or
                 catalogs.isdelete is null
             ) and
-            worksheets.category = '$this->worksheetCategory' and
             catalogs.edeposit_col_id is not null
         ";
 
@@ -114,15 +114,12 @@ class DigitalWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            left join
-                worksheets on worksheets.id = catalogs.worksheet_id
             where
                 (
-                    catalogs.isdelete = 0 or
-                    catalogs.isdelete is null
+                    isdelete = 0 or
+                    isdelete is null
                 ) and
-                worksheets.category = '$this->worksheetCategory' and
-                catalogs.edeposit_col_id is not null
+                edeposit_col_id is not null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -134,6 +131,8 @@ class DigitalWorkController extends Controller
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
                 kabupaten on kabupaten.id = catalogs.city_id
+            left join
+                propinsi on propinsi.id = kabupaten.propinsiid
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
@@ -150,17 +149,28 @@ class DigitalWorkController extends Controller
                         (
                             select
                                 catalogs.id,
-                                catalogs.title,
-                                catalogs.isbn,
-                                catalogs.validatedate,
                                 penerbit.name as name_penerbit,
-                                worksheets.name as name_worksheet
+                                propinsi.namapropinsi as namapropinsi,
+                                kabupaten.namakab as namakab,
+                                catalogs.title,
+                                worksheets.name as name_worksheet,
+                                catalogs.album,
+                                catalogs.series,
+                                catalogs.edition,
+                                catalogs.deweyno,
+                                catalogs.volume,
+                                catalogs.isbn,
+                                catalogs.publishyear,
+                                catalogs.preview,
+                                catalogs.validatedate
                             from
                                 catalogs
                             left join
                                 penerbit on penerbit.id = catalogs.penerbit_id
                             left join
                                 kabupaten on kabupaten.id = catalogs.city_id
+                            left join
+                                propinsi on propinsi.id = kabupaten.propinsiid
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
@@ -174,7 +184,7 @@ class DigitalWorkController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('collection/digital-work/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                    <a href="' . url('report/collection/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>
@@ -184,9 +194,18 @@ class DigitalWorkController extends Controller
                     $start + 1,
                     $action,
                     $val->NAME_PENERBIT,
+                    $val->NAMAPROPINSI,
+                    $val->NAMAKAB,
                     $val->TITLE,
                     $val->NAME_WORKSHEET,
+                    $val->ALBUM,
+                    $val->SERIES,
+                    $val->EDITION,
+                    $val->DEWEYNO,
+                    $val->VOLUME,
                     $val->ISBN,
+                    $val->PUBLISHYEAR,
+                    $val->PREVIEW,
                     Carbon::parse($val->VALIDATEDATE)->format('d/m/Y'),
                 ];
 
@@ -293,7 +312,7 @@ class DigitalWorkController extends Controller
             'collectionCopy' => $collectionCopy,
             'collectionCover' => $collectionCover,
             'collectionContent' => $collectionContent,
-            'content' => 'collection.digital-work-detail'
+            'content' => 'report.collection-detail'
         ];
 
         return view('layouts.index', ['data' => $data]);

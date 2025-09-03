@@ -272,5 +272,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'ManagerController@index');
             Route::get('datatable', 'ManagerController@datatable');
         });
+
+        Route::prefix('collection')->group(function () {
+            Route::get('/', 'CollectionController@index');
+            Route::get('datatable', 'CollectionController@datatable');
+            Route::get('detail/{id}', 'CollectionController@detail');
+        });
     });
 });

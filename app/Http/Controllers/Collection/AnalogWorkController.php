@@ -130,8 +130,6 @@ class AnalogWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
