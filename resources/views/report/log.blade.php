@@ -1,7 +1,7 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Performa User</h4>
+            <h4 class="page-title mb-0">Log</h4>
             <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
                 <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
             </a>
@@ -12,7 +12,7 @@
             <div class="breadcrumb py-2">
                 <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
                 <a href="javascript:void(0);" class="breadcrumb-item">Laporan</a>
-                <span class="breadcrumb-item active">Performa User</span>
+                <span class="breadcrumb-item active">Log</span>
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@
         </div>
         <div class="card-footer bg-white">
             <div class="text-end">
-                <a href="{{ url('report/performance-user') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                <a href="{{ url('report/log') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
                     <i class="ph-arrows-clockwise me-1"></i>
                     Reset Filter
                 </a>
@@ -83,7 +83,7 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap>Aksi</th>
-                        <th nowrap>Judul</th>
+                        <th nowrap>Tabel</th>
                         <th nowrap>User</th>
                         <th nowrap>Tanggal</th>
                         <th nowrap>IP</th>
@@ -111,7 +111,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("report/performance-user/datatable") }}',
+                url: '{{ url("report/log/datatable") }}',
                 dataType: 'JSON',
                 data: {
                     action: $('#action').val(),
@@ -134,7 +134,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },

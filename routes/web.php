@@ -283,5 +283,10 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'PerformanceUserController@index');
             Route::get('datatable', 'PerformanceUserController@datatable');
         });
+
+        Route::prefix('log')->group(function () {
+            Route::get('/', 'LogController@index');
+            Route::get('datatable', 'LogController@datatable');
+        });
     });
 });
