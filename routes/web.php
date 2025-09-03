@@ -278,5 +278,10 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'CollectionController@datatable');
             Route::get('detail/{id}', 'CollectionController@detail');
         });
+
+        Route::prefix('performance-user')->group(function () {
+            Route::get('/', 'PerformanceUserController@index');
+            Route::get('datatable', 'PerformanceUserController@datatable');
+        });
     });
 });
