@@ -321,5 +321,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('terms-conditions')->group(function () {
             Route::match(['get', 'post'], '/', 'TermsConditionsController@index');
         });
+
+        Route::prefix('about-us')->group(function () {
+            Route::match(['get', 'post'], '/', 'AboutUsController@index');
+        });
     });
 });
