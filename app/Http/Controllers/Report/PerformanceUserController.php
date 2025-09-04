@@ -9,11 +9,22 @@ use App\Http\Controllers\Controller;
 
 class PerformanceUserController extends Controller
 {
+    private $tableName;
+
+    public function __construct()
+    {
+        $this->tableName = "
+            'catalogs',
+            'collections',
+            'e_collections'
+        ";
+    }
+
     public function index()
     {
         $data = [
-            'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where lower(tablename) = 'collections' or lower(tablename) = 'catalogs'"),
-            'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where lower(tablename) = 'collections' or lower(tablename) = 'catalogs'"),
+            'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where lower(tablename) in ($this->tableName)"),
+            'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where lower(tablename) in ($this->tableName)"),
             'content' => 'report.performance-user'
         ];
 
@@ -43,7 +54,7 @@ class PerformanceUserController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(lower(tablename) = 'collections' or lower(tablename) = 'catalogs')";
+        $whereCondition[] = "lower(tablename) in ($this->tableName)";
 
         if ($search) {
             $terms = [];
@@ -89,8 +100,7 @@ class PerformanceUserController extends Controller
             from
                 historydata
             where
-                lower(tablename) = 'collections' or
-                lower(tablename) = 'catalogs'
+                lower(tablename) in ($this->tableName)
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

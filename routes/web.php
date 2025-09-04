@@ -46,6 +46,17 @@ Route::middleware('authentication')->group(function () {
         return view('layouts.index', ['data' => $data]);
     });
 
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/', 'DashboardController@index');
+        Route::get('data-province', 'DashboardController@dataProvince');
+        Route::get('data-activity', 'DashboardController@dataActivity');
+        Route::get('data-digital-work', 'DashboardController@dataDigitalWork');
+        Route::get('data-analog-work', 'DashboardController@dataAnalogWork');
+        Route::get('data-printed-work', 'DashboardController@dataPrintedWork');
+        Route::get('data-collection', 'DashboardController@dataCollection');
+        Route::get('data-type', 'DashboardController@dataType');
+    });
+
     Route::prefix('master-data')->namespace('MasterData')->group(function () {
         Route::prefix('visit')->group(function () {
             Route::get('/', 'VisitController@index');
@@ -207,11 +218,6 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'LabelController@datatable');
             Route::get('print/{type}', 'LabelController@print');
         });
-    });
-
-    Route::prefix('bill-isbn')->group(function () {
-        Route::get('/', 'BillISBNController@index');
-        Route::get('datatable', 'BillISBNController@datatable');
     });
 
     Route::prefix('request-file')->group(function () {

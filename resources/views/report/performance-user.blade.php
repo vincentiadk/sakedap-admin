@@ -30,7 +30,7 @@
                         <select class="form-select select2-basic" name="action" id="action" data-placeholder="Semua">
                             <option value=""></option>
                             @foreach($action as $a)
-                                <option value="{{ $a->NAME }}">{{ $a->NAME }}</option>
+                                <option value="{{ $a->NAME }}">{{ ucwords($a->NAME) }}</option>
                             @endforeach
                         </select>
                     </div>

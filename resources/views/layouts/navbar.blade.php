@@ -23,7 +23,7 @@
                                             <ul class="nav nav-pills flex-xl-column flex-nowrap text-nowrap justify-content-center wmin-xl-300" role="tablist">
                                                 <li class="nav-item" role="presentation">
                                                     <a href="{{ url('dashboard') }}" class="nav-link rounded {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}">
-                                                        <i class="ph-house me-2"></i>
+                                                        <i class="ph-chart-bar me-2"></i>
                                                         Dasboard
                                                     </a>
                                                 </li>
@@ -64,9 +64,9 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('bill-isbn') }}" class="nav-link rounded {{ Request::segment(1) == 'bill-isbn' ? 'active' : '' }}">
-                                                        <i class="ph-cardholder me-2"></i>
-                                                        Tagihan ISBN
+                                                    <a href="#menu-supervision" class="nav-link rounded {{ Request::segment(1) == 'supervision' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'supervision' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-eye me-2"></i>
+                                                        Pengawasan
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
@@ -159,6 +159,16 @@
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('delivery/delivered') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'delivered' ? 'active' : '' }}">Diantar</a>
                                                 <a href="{{ url('delivery/independent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'independent' ? 'active' : '' }}">Mandiri</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'supervision' ? 'show active' : '' }}" id="menu-supervision" role="tabpanel">
+                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-lg-4 mb-3 mb-lg-0">
+                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                                <a href="{{ url('supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
+                                                <a href="{{ url('supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
+                                                <a href="{{ url('supervision/bill') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'bill' ? 'active' : '' }}">Tagihan</a>
                                             </div>
                                         </div>
                                     </div>

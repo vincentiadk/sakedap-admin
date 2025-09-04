@@ -28,3 +28,15 @@
 .btn-to-top-visible {
     display: none !important;
 }
+
+.table-fix-header {
+    overflow: auto;
+    height: 400px;
+    border: 1px solid #D1D5DB;
+}
+
+.table-fix-header table thead {
+    position: sticky;
+    top: -1px;
+    z-index: 1;
+}

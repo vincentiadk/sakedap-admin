@@ -1,0 +1,262 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Carbon\Carbon;
+use App\Helpers\Main;
+use App\Helpers\QueryAPI;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class DashboardController extends Controller
+{
+    private $worksheetCategoryAnalog;
+    private $worksheetCategoryDigital;
+    private $worksheetCategoryPrinted;
+
+    public function __construct()
+    {
+        $this->worksheetCategoryAnalog = Main::COLLECTION_ANALOG;
+        $this->worksheetCategoryDigital = Main::COLLECTION_DIGITAL;
+        $this->worksheetCategoryPrinted = Main::COLLECTION_PRINTED;
+    }
+
+    public function index()
+    {
+        $data = [
+            'content' => 'dashboard'
+        ];
+
+        return view('layouts.index', ['data' => $data]);
+    }
+
+    public function dataProvince(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = QueryAPI::get("
+            select
+                propinsi.namapropinsi,
+                sum(case when worksheets.category = '$this->worksheetCategoryDigital' then 1 else 0 end) as total_digital,
+                sum(case when worksheets.category = '$this->worksheetCategoryAnalog' then 1 else 0 end) as total_analog,
+                sum(case when worksheets.category = '$this->worksheetCategoryPrinted' then 1 else 0 end) as total_printed
+            from
+                propinsi
+            left join
+                kabupaten on kabupaten.propinsiid = propinsi.id
+            left join
+                catalogs on catalogs.city_id = kabupaten.id and
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+            left join
+                worksheets on worksheets.id = catalogs.worksheet_id
+            group by
+                propinsi.namapropinsi
+            order by
+                propinsi.namapropinsi
+        ");
+
+        return response()->json($response);
+    }
+
+    public function dataActivity()
+    {
+        $response = QueryAPI::get("
+            select
+                *
+            from
+                historydata
+            where
+                rownum <= 10
+            order by
+                actiondate desc
+        ");
+
+        return response()->json($response);
+    }
+
+    public function dataDigitalWork(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $data = QueryAPI::get("
+            select
+                worksheets.name,
+                count(catalogs.id) as total
+            from
+                worksheets
+            left join
+                catalogs on catalogs.worksheet_id = worksheets.id and
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+            where
+                worksheets.category = '$this->worksheetCategoryDigital'
+            group by
+                worksheets.name
+            order by
+                worksheets.name
+        ");
+
+        foreach (($data ?? []) as $d) {
+            $response[] = [
+                'name' => $d->NAME,
+                'value' => $d->TOTAL
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function dataAnalogWork(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $data = QueryAPI::get("
+            select
+                worksheets.name,
+                count(catalogs.id) as total
+            from
+                worksheets
+            left join
+                catalogs on catalogs.worksheet_id = worksheets.id and
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+            where
+                worksheets.category = '$this->worksheetCategoryAnalog'
+            group by
+                worksheets.name
+            order by
+                worksheets.name
+        ");
+
+        foreach (($data ?? []) as $d) {
+            $response[] = [
+                'name' => $d->NAME,
+                'value' => $d->TOTAL
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function dataPrintedWork(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $data = QueryAPI::get("
+            select
+                worksheets.name,
+                count(catalogs.id) as total
+            from
+                worksheets
+            left join
+                catalogs on catalogs.worksheet_id = worksheets.id and
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+            where
+                worksheets.category = '$this->worksheetCategoryPrinted'
+            group by
+                worksheets.name
+            order by
+                worksheets.name
+        ");
+
+        foreach (($data ?? []) as $d) {
+            $response[] = [
+                'name' => $d->NAME,
+                'value' => $d->TOTAL
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function dataCollection(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $data = QueryAPI::get("
+            select
+                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryDigital' then 1 else 0 end), 0) as total_digital,
+                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryAnalog' then 1 else 0 end), 0) as total_analog,
+                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryPrinted' then 1 else 0 end), 0) as total_printed
+            from
+                catalogs
+            left join
+                worksheets on worksheets.id = catalogs.id
+            where
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+        ", true);
+
+        $response = [
+            'label' => [
+                'Karya Digital',
+                'Karya Analog',
+                'Karya Cetak'
+            ],
+            'data' => [
+                $data->TOTAL_DIGITAL ?? 0,
+                $data->TOTAL_ANALOG ?? 0,
+                $data->TOTAL_PRINTED ?? 0,
+            ]
+        ];
+
+        return response()->json($response);
+    }
+
+    public function dataType(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $data = QueryAPI::get("
+            select
+                worksheets.name,
+                count(catalogs.id) as total
+            from
+                worksheets
+            left join
+                catalogs on catalogs.worksheet_id = worksheets.id and
+                catalogs.validatedate >= date '$startDate' and
+                catalogs.validatedate <= date '$endDate'
+            where
+                worksheets.category is not null
+            group by
+                worksheets.name
+            order by
+                worksheets.name
+        ");
+
+        foreach (($data ?? []) as $d) {
+            $response[] = [
+                'name' => $d->NAME,
+                'value' => $d->TOTAL
+            ];
+        }
+
+        return response()->json($response);
+    }
+}

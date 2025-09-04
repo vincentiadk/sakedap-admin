@@ -29,6 +29,7 @@
     <script src="{{ asset('themes/js/vendor/notifications/noty.min.js') }}?v={{ uniqid() }}"></script>
     <script src="{{ asset('themes/js/vendor/uploaders/fileinput/fileinput.min.js') }}?v={{ uniqid() }}"></script>
     <script src="{{ asset('themes/js/vendor/pickers/daterangepicker.js') }}?v={{ uniqid() }}"></script>
+    <script src="{{ asset('themes/js/vendor/visualization/echarts/echarts.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/app.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/lightbox/dist/js/lightbox.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('plugins/waitMe/waitMe.min.js') }}?v={{ uniqid() }}"></script>
