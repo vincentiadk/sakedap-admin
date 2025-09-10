@@ -52,6 +52,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="{{ url('bill-isbn') }}" class="nav-link rounded {{ Request::segment(1) == 'bill-isbn' ? 'active' : '' }}">
+                                                        <i class="ph-cardholder me-2"></i>
+                                                        Tagihan ISBN
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="#menu-collection" class="nav-link rounded {{ Request::segment(1) == 'collection' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'collection' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-books me-2"></i>
                                                         Koleksi
@@ -169,7 +175,7 @@
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
                                                 <a href="{{ url('supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
                                                 <a href="{{ url('supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
-                                                <a href="{{ url('supervision/bill') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'bill' ? 'active' : '' }}">Tagihan</a>
+                                                <a href="{{ url('supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
                                             </div>
                                         </div>
                                     </div>

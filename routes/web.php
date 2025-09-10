@@ -39,11 +39,11 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::get('home', function () {
-        $data = [
-            'content' => 'home'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'home'
+            ]
+        ]);
     });
 
     Route::prefix('dashboard')->group(function () {
@@ -167,6 +167,11 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('bill-isbn')->group(function () {
+        Route::get('/', 'BillISBNController@index');
+        Route::get('datatable', 'BillISBNController@datatable');
+    });
+
     Route::prefix('collection')->namespace('Collection')->group(function () {
         Route::prefix('create-single')->group(function () {
             Route::get('/', 'CreateSingleController@index');
@@ -217,6 +222,35 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'LabelController@index');
             Route::get('datatable', 'LabelController@datatable');
             Route::get('print/{type}', 'LabelController@print');
+        });
+    });
+
+    Route::prefix('supervision')->group(function () {
+        Route::get('compliance', function () {
+            return view('layouts.index', [
+                'data' => [
+                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataPenerbit.aspx',
+                    'content' => 'supervision'
+                ]
+            ]);
+        });
+
+        Route::get('coaching', function () {
+            return view('layouts.index', [
+                'data' => [
+                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataJadwalPembinaanList.aspx',
+                    'content' => 'supervision'
+                ]
+            ]);
+        });
+
+        Route::get('monitoring', function () {
+            return view('layouts.index', [
+                'data' => [
+                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataBuktiPemantauanList.aspx',
+                    'content' => 'supervision'
+                ]
+            ]);
         });
     });
 
