@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Library;
 
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -41,6 +42,10 @@ class DataController extends Controller
 
         $whereClause = '';
         $whereCondition[] = '(branchs.isdelete = 0 or branchs.isdelete is null)';
+
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'propinsi.id = ' . session('province_id');
+        }
 
         if ($search) {
             $terms = [];

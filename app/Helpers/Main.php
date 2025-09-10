@@ -9,6 +9,7 @@ class Main
     const COLLECTION_DIGITAL = 'KRD';
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
+    const IS_CENTER_BRANCH = 37;
 
     /**
      * locationById
@@ -225,5 +226,15 @@ class Main
         }, $template->CONTENT);
 
         return $parsed;
+    }
+
+    /**
+     * isNotCenterBranch
+     *
+     * @return void
+     */
+    public static function isNotCenterBranch()
+    {
+        return (int) session('branch_id') !== static::IS_CENTER_BRANCH;
     }
 }

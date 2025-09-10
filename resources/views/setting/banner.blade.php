@@ -107,8 +107,6 @@
 
 <script>
     $(function() {
-        select2Serverside('#branch_id', 'branch');
-
         loadData();
     });
 

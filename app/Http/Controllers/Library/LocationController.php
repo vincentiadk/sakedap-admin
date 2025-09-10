@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Library;
 
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -41,6 +42,10 @@ class LocationController extends Controller
         $whereClause = '';
         $whereCondition[] = '(location_library.isdelete = 0 or location_library.isdelete is null)';
 
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'propinsi.id = ' . session('province_id');
+        }
+
         if ($search) {
             $terms = [];
 
@@ -69,7 +74,7 @@ class LocationController extends Controller
             from
                 location_library
             where
-                isdelete = 0
+                isdelete = 0 and
                 isdelete is null
         ", true)->TOTAL ?? 0;
 
@@ -80,6 +85,8 @@ class LocationController extends Controller
                 location_library
             left join
                 branchs on branchs.id = location_library.branch_id
+            left join
+                propinsi on propinsi.id = branchs.province_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -99,6 +106,8 @@ class LocationController extends Controller
                                 location_library
                             left join
                                 branchs on branchs.id = location_library.branch_id
+                            left join
+                                propinsi on propinsi.id = branchs.province_id
                             $whereClause
                             $orderBy
                         ) data

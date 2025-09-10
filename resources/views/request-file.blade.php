@@ -71,8 +71,15 @@
 
 <script>
     $(function() {
-        select2Serverside('#publisher_id', 'publisher');
         datePickerBasic('#date');
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#publisher_id', 'publisher', {
+                province_id: '{{ session("province_id") }}',
+            });
+        } else {
+            select2Serverside('#publisher_id', 'publisher');
+        }
 
         loadData();
     });

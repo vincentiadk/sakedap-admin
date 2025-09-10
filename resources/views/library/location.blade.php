@@ -94,8 +94,6 @@
 <script>
     $(function() {
         loadData();
-
-        select2Serverside('#branch_id', 'branch');
     });
 
     function onReloadTable() {
@@ -111,6 +109,16 @@
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
         $('#branch_id').val('').change();
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#branch_id', 'branch', {
+                province_id: '{{ session("province_id") }}'
+            }, {
+                minimumInputLength: 0
+            });
+        } else {
+            select2Serverside('#branch_id', 'branch');
+        }
     }
 
     function onCreate() {

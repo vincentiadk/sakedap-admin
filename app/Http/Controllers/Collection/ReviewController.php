@@ -194,7 +194,8 @@ class ReviewController extends Controller
                 e_collections.*,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
-                propinsi.namapropinsi as namapropinsi
+                propinsi.namapropinsi as namapropinsi,
+                branchs.name as name_branch
             from
                 e_collections
             join
@@ -203,6 +204,8 @@ class ReviewController extends Controller
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             join
                 propinsi on propinsi.id = kabupaten.propinsiid
+            left join
+                branchs on branchs.id = e_collections.branch_id
             where
                 (
                     e_collections.parent_id = 0 or
@@ -217,6 +220,7 @@ class ReviewController extends Controller
             $validation = Validator::make($request->all(), [
                 'worksheet_id' => 'required',
                 'city_id' => 'required',
+                'branch_id' => 'required',
                 'title' => 'required',
                 'collection_media_id' => 'required',
                 'received_at' => 'required',
@@ -224,6 +228,7 @@ class ReviewController extends Controller
             ], [
                 'worksheet_id.required' => 'Jenis tidak boleh kosong',
                 'city_id.required' => 'Kota tidak boleh kosong',
+                'branch_id.required' => 'Perpustakaan tidak boleh kosong',
                 'title.required' => 'Judul tidak boleh kosong',
                 'collection_media_id.required' => 'Media tidak boleh kosong',
                 'received_at.required' => 'Tanggal terima tidak boleh kosong',
@@ -239,6 +244,7 @@ class ReviewController extends Controller
                 try {
                     $updateCollection = QueryAPI::update('e_collections', $id, [
                         'city_id' => $request->city_id,
+                        'branch_id' => $request->branch_id,
                         'title_ori' => $request->title,
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),

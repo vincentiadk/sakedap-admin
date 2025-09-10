@@ -207,6 +207,7 @@ class DigitalWorkController extends Controller
         $collection = QueryAPI::get("
             select
                 catalogs.*,
+                branchs.name as name_branch,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
                 propinsi.namapropinsi as namapropinsi,
@@ -226,6 +227,8 @@ class DigitalWorkController extends Controller
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
+            left join
+                branchs on branchs.id = e_collections.branch_id
             where
                 (
                     catalogs.isdelete = 0 or

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manager;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -45,6 +46,10 @@ class ReviewController extends Controller
         $whereCondition[] = 'penerbit.status = 1';
         $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
 
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
+        }
+
         if ($search) {
             $terms = [];
 
@@ -73,8 +78,8 @@ class ReviewController extends Controller
             from
                 penerbit
             where
-                penerbit.status = 3 and
-                penerbit.source_db = 'EDEPOSIT'
+                status = 3 and
+                source_db = 'EDEPOSIT'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

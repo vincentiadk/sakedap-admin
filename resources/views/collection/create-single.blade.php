@@ -70,6 +70,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-form-label col-md-2">Perpustakaan <span class="text-danger fw-bold">*</span></label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="branch_id" id="branch_id"></select>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
                         <select class="form-select" name="city_id" id="city_id"></select>
@@ -291,9 +297,33 @@
 
 <script>
     $(function() {
-        select2Serverside('#publisher_id', 'publisher');
-        select2Serverside('#city_id', 'location', { for: 'city' });
         datePickerSingle('#received_at');
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#branch_id', 'branch', {
+                province_id: '{{ session("province_id") }}'
+            }, {
+                minimumInputLength: 0
+            });
+
+            select2Serverside('#city_id', 'location', {
+                for: 'city',
+                province_id: '{{ session("province_id") }}',
+            }, {
+                minimumInputLength: 0
+            });
+
+            select2Serverside('#publisher_id', 'publisher', {
+                province_id: '{{ session("province_id") }}',
+            });
+        } else {
+            select2Serverside('#branch_id', 'branch');
+            select2Serverside('#publisher_id', 'publisher');
+
+            select2Serverside('#branch_id', 'city', {
+                for: 'city'
+            });
+        }
 
         $('#price').number(true);
 

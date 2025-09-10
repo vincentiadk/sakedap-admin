@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Setting;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -47,6 +48,10 @@ class LeaderController extends Controller
 
         $whereClause = '';
         $whereCondition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'branchs.province_id = ' . session('province_id');
+        }
 
         if ($search) {
             $terms = [];

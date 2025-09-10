@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -29,18 +30,25 @@ class PeriodicController extends Controller
 
             for ($i = 1; $i <= 12; $i++) {
                 $month = sprintf('%02s', $i);
+                $condition = [];
+                $condition[] = "catalogs.worksheet_id = $w->ID";
+                $condition[] = "catalogs.edeposit_col_id is not null";
+                $condition[] = "(to_char(catalogs.validatedate, 'YYYY') = '$year' and to_char(catalogs.validatedate, 'MM') = '$month')";
+
+                if (Main::isNotCenterBranch()) {
+                    $condition[] = 'penerbit.province_id = ' . session('province_id');
+                }
+
+                $whereClause = "where " . implode(' and ', $condition);
+
                 $catalog = QueryAPI::get("
                     select
                         count(*) as total
                     from
                         catalogs
-                    where
-                        worksheet_id = $w->ID and
-                        edeposit_col_id is not null and
-                        (
-                            to_char(validatedate, 'YYYY') = '$year' and
-                            to_char(validatedate, 'MM') = '$month'
-                        )
+                    left join
+                        penerbit on penerbit.id = catalogs.penerbit_id
+                    $whereClause
                 ", true);
 
                 $data[] = number_format($catalog->TOTAL ?? 0);

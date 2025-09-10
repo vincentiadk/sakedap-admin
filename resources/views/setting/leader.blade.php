@@ -121,8 +121,6 @@
 
 <script>
     $(function() {
-        select2Serverside('#branch_id', 'branch');
-
         loadData();
     });
 
@@ -141,6 +139,16 @@
         $('#branch_id').val('').change();
         $('#signature-preview').attr('href', 'javascript:void(0);');
         $('#signature-preview').hide();
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#branch_id', 'branch', {
+                province_id: '{{ session("province_id") }}'
+            }, {
+                minimumInputLength: 0
+            });
+        } else {
+            select2Serverside('#branch_id', 'branch');
+        }
     }
 
     function onCreate() {

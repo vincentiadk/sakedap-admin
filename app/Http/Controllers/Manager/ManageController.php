@@ -50,6 +50,10 @@ class ManageController extends Controller
         $whereCondition[] = 'penerbit.status = 3';
         $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
 
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
+        }
+
         if ($search) {
             $terms = [];
 
@@ -78,8 +82,8 @@ class ManageController extends Controller
             from
                 penerbit
             where
-                penerbit.status = 3 and
-                penerbit.source_db = 'EDEPOSIT'
+                status = 3 and
+                source_db = 'EDEPOSIT'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

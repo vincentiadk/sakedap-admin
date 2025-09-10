@@ -141,7 +141,22 @@ class Select2ServersideController extends Controller
     public function branch(Request $request)
     {
         $response = [];
+        $condition = [];
+
+        $whereClause = '';
         $search = Str::headline($request->search);
+        $provinceId = $request->province_id;
+
+        $condition[] = "branchs.name like '%$search%'";
+        $condition[] = "(branchs.isdelete = 0 or branchs.isdelete is null)";
+
+        if ($provinceId) {
+            $condition[] = "propinsi.id = $provinceId";
+        }
+
+        if ($condition) {
+            $whereClause = "where " . implode(' and ', $condition);
+        }
 
         $data = QueryAPI::get("
             select
@@ -154,12 +169,7 @@ class Select2ServersideController extends Controller
                         branchs
                     join
                         propinsi on propinsi.id = branchs.province_id
-                    where
-                        branchs.name like '%$search%' and
-                        (
-                            branchs.isdelete = 0 or
-                            branchs.isdelete is null
-                        )
+                    $whereClause
                     order by
                         branchs.name asc
                 )
@@ -187,8 +197,20 @@ class Select2ServersideController extends Controller
 
     public function publisher(Request $request)
     {
-        $response = [];
+        $whereClause = '';
+        $provinceId = $request->province_id ?? null;
         $search = Str::headline($request->search);
+
+        $response = [];
+        $condition = ["penerbit.name like '%$search%'"];
+
+        if ($provinceId) {
+            $condition[] = "propinsi.id = $provinceId";
+        }
+
+        if ($condition) {
+            $whereClause = "where " . implode(' and ', $condition);
+        }
 
         $data = QueryAPI::get("
             select
@@ -201,8 +223,7 @@ class Select2ServersideController extends Controller
                         penerbit
                     join
                         propinsi on propinsi.id = penerbit.province_id
-                    where
-                        penerbit.name like '%$search%'
+                    $whereClause
                     order by
                         penerbit.name asc
                 )
@@ -232,11 +253,21 @@ class Select2ServersideController extends Controller
     {
         $response = [];
         $data = [];
+        $condition = [];
 
         $for = $request->for ?? 'village';
+        $provinceId = $request->province_id ?? null;
         $search = Str::headline($request->search);
 
         if ($for == 'province') {
+            $condition[] = "namapropinsi like '%$search%'";
+
+            if ($provinceId) {
+                $condition[] = "id = $provinceId";
+            }
+
+            $whereClause = "where " . implode(' and ', $condition);
+
             $data = QueryAPI::get("
                 select
                     *
@@ -245,8 +276,7 @@ class Select2ServersideController extends Controller
                             *
                         from
                             propinsi
-                        where
-                            namapropinsi like '%$search%'
+                        $whereClause
                         order by
                             namapropinsi asc
                     )
@@ -254,6 +284,14 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'city') {
+            $condition[] = "kabupaten.namakab like '%$search%'";
+
+            if ($provinceId) {
+                $condition[] = "propinsi.id = $provinceId";
+            }
+
+            $whereClause = "where " . implode(' and ', $condition);
+
             $data = QueryAPI::get("
                 select
                     *
@@ -265,8 +303,7 @@ class Select2ServersideController extends Controller
                             kabupaten
                         join
                             propinsi on propinsi.id = kabupaten.propinsiid
-                        where
-                            kabupaten.namakab like '%$search%'
+                        $whereClause
                         order by
                             kabupaten.namakab asc
                     )
@@ -274,6 +311,14 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'district') {
+            $condition[] = "kecamatan.namakec like '%$search%'";
+
+            if ($provinceId) {
+                $condition[] = "propinsi.id = $provinceId";
+            }
+
+            $whereClause = "where " . implode(' and ', $condition);
+
             $data = QueryAPI::get("
                 select
                     *
@@ -288,8 +333,7 @@ class Select2ServersideController extends Controller
                             kabupaten on kabupaten.id = kecamatan.kabupatenid
                         join
                             propinsi on propinsi.id = kabupaten.propinsiid
-                        where
-                            kecamatan.namakec like '%$search%'
+                        $whereClause
                         order by
                             kecamatan.namakec asc
                     )
@@ -297,6 +341,14 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'village') {
+            $condition[] = "kelurahan.namakel like '%$search%'";
+
+            if ($provinceId) {
+                $condition[] = "propinsi.id = $provinceId";
+            }
+
+            $whereClause = "where " . implode(' and ', $condition);
+
             $data = QueryAPI::get("
                 select
                     *
@@ -314,8 +366,7 @@ class Select2ServersideController extends Controller
                             kabupaten on kabupaten.id = kecamatan.kabupatenid
                         join
                             propinsi on propinsi.id = kabupaten.propinsiid
-                        where
-                            kelurahan.namakel like '%$search%'
+                        $whereClause
                         order by
                             kelurahan.namakel asc
                     )

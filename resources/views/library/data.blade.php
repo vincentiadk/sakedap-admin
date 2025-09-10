@@ -115,7 +115,16 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#province_id').val('').change();
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            $('#province_id').select2();
+            $('#province_id').select2('destroy');
+            $('#province_id').html(`
+                <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+            `);
+        } else {
+            $('#province_id').val('').change();
+        }
     }
 
     function onCreate() {

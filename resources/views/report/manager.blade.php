@@ -49,7 +49,11 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
-                        <select class="form-select" name="province_id" id="province_id"></select>
+                        <select class="form-select" name="province_id" id="province_id">
+                            @if(Main::isNotCenterBranch())
+                                <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                            @endif
+                        </select>
                     </div>
                 </div>
             </div>
@@ -98,7 +102,16 @@
 
 <script>
     $(function() {
-        select2Serverside('#province_id', 'location', { for: 'province' });
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#province_id', 'location', {
+                for: 'province',
+                province_id: '{{ session("province_id") }}',
+            }, {
+                minimumInputLength: 0
+            });
+        } else {
+            select2Serverside('#province_id', 'location');
+        }
 
         loadData();
     });

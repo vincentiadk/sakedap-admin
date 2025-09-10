@@ -81,7 +81,13 @@
                 <select class="form-select" name="id" id="id" data-placeholder="Pilih Pengelola"></select>
             `);
 
-            select2Serverside('#id', 'publisher');
+            if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+                select2Serverside('#id', 'publisher');
+            } else {
+                select2Serverside('#id', 'publisher', {
+                    province_id: '{{ session("province_id") }}'
+                });
+            }
         } else if(type == 'bulk_serial') {
             $('#btn-template').html(`
                 <a href="{{ url('download/from-public') }}?path=assets/template-excel/bulk_serial.zip" class="btn btn-success rounded-start-0" target="_blank">

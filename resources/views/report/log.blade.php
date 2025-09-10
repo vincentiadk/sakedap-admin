@@ -45,10 +45,14 @@
                     <div class="form-group">
                         <label class="form-label">User :</label>
                         <select class="form-select select2-basic" name="action_by" id="action_by" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($actionBy as $ab)
-                                <option value="{{ $ab->NAME }}">{{ $ab->NAME }}</option>
-                            @endforeach
+                            @if(Main::isNotCenterBranch())
+                                <option value="{{ session('username') }}" selected>{{ session('username') }}</option>
+                            @else
+                                <option value=""></option>
+                                @foreach($actionBy as $ab)
+                                    <option value="{{ $ab->NAME }}">{{ $ab->NAME }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                 </div>

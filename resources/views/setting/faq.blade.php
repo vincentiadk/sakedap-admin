@@ -118,8 +118,6 @@
 
 <script>
     $(function() {
-        select2Serverside('#branch_id', 'branch');
-
         $('#question').summernote({
             height: 300
         });

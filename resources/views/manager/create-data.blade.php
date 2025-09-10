@@ -164,8 +164,18 @@
 
 <script>
     $(function() {
-        select2Serverside('#parent_id', 'publisher');
-        select2Serverside('#location_id', 'location');
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#location_id', 'location', {
+                province_id: '{{ session("province_id") }}'
+            });
+
+            select2Serverside('#parent_id', 'publisher', {
+                province_id: '{{ session("province_id") }}'
+            });
+        } else {
+            select2Serverside('#parent_id', 'publisher');
+            select2Serverside('#location_id', 'location');
+        }
 
         dragAndDropFile('#file_deed', {
             maxFileCount: 1,

@@ -46,6 +46,10 @@ class RequestFileController extends Controller
         $whereClause = '';
         $whereCondition = [];
 
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
+        }
+
         if ($request->publisher_id) {
             $whereCondition[] = "catalogs.penerbit_id = $request->publisher_id";
         }

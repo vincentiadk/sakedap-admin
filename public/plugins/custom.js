@@ -110,72 +110,66 @@ function logout() {
     });
 }
 
-function datePickerBasic(selector, addNewConfig = {}) {
+function datePickerBasic(selector, additionalConfig = {}) {
     moment.locale('id');
 
-    var configuration = $.extend(
-        {
-            parentEl: '.content-inner',
-            autoUpdateInput: false,
-            language: 'id',
-            showDropdowns: true,
-            ranges: {
-                'Hari Ini': [moment(), moment()],
-                'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                '7 Hari Terakhir': [moment().subtract(6, 'days'), moment()],
-                '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()],
-                '1 Bulan Sebelumnya': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                'Bulan Ini': [moment().startOf('month'), moment().endOf('month')],
-            },
-            locale: {
-                applyLabel: 'Terapkan',
-                cancelLabel: 'Batal',
-                startLabel: 'Dari Tanggal',
-                endLabel: 'Sampai Tanggal',
-                customRangeLabel: 'Pilih Sendiri',
-                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                firstDay: 1,
-                format: 'YYYY/MM/DD',
-            },
+    var configuration = $.extend({
+        parentEl: '.content-inner',
+        autoUpdateInput: false,
+        language: 'id',
+        showDropdowns: true,
+        ranges: {
+            'Hari Ini': [moment(), moment()],
+            'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            '7 Hari Terakhir': [moment().subtract(6, 'days'), moment()],
+            '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()],
+            '1 Bulan Sebelumnya': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Bulan Ini': [moment().startOf('month'), moment().endOf('month')],
         },
-        addNewConfig
-    );
+        locale: {
+            applyLabel: 'Terapkan',
+            cancelLabel: 'Batal',
+            startLabel: 'Dari Tanggal',
+            endLabel: 'Sampai Tanggal',
+            customRangeLabel: 'Pilih Sendiri',
+            daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+            monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            firstDay: 1,
+            format: 'YYYY/MM/DD',
+        },
+    }, additionalConfig);
 
     $(selector).daterangepicker(configuration).on('apply.daterangepicker', function (e, picker) {
         picker.element.val(picker.startDate.format(picker.locale.format) + " - " + picker.endDate.format(picker.locale.format));
     });
 }
 
-function datePickerSingle(selector, config = {}) {
+function datePickerSingle(selector, additionalConfig = {}) {
     moment.locale('id');
 
-    var configuration = $.extend(
-        {
-            parentEl: '.content-inner',
-            autoUpdateInput: false,
-            singleDatePicker: true,
-            showDropdowns: true,
-            language: 'id',
-            locale: {
-                applyLabel: 'Terapkan',
-                cancelLabel: 'Batal',
-                daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                firstDay: 1,
-                format: 'YYYY/MM/DD',
-            },
+    var configuration = $.extend({
+        parentEl: '.content-inner',
+        autoUpdateInput: false,
+        singleDatePicker: true,
+        showDropdowns: true,
+        language: 'id',
+        locale: {
+            applyLabel: 'Terapkan',
+            cancelLabel: 'Batal',
+            daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+            monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            firstDay: 1,
+            format: 'YYYY/MM/DD',
         },
-        config
-    );
+    }, additionalConfig);
 
     $(selector).daterangepicker(configuration).on('apply.daterangepicker', function (e, picker) {
         picker.element.val(picker.startDate.format(picker.locale.format));
     });
 }
 
-function select2Serverside(selector, endpoint, payload = {}) {
-    $(selector).select2({
+function select2Serverside(selector, endpoint, payload = {}, additionalConfig = {}) {
+    var configuration = $.extend({
         placeholder: 'Pilih',
         minimumInputLength: 3,
         cache: true,
@@ -208,7 +202,9 @@ function select2Serverside(selector, endpoint, payload = {}) {
         templateSelection: function (data) {
             return data.text;
         }
-    });
+    }, additionalConfig);
+
+    $(selector).select2(configuration);
 }
 
 function select2ServersideTag(selector, endpoint, payload = {}) {
@@ -251,7 +247,7 @@ function select2ServersideTag(selector, endpoint, payload = {}) {
     });
 }
 
-function dragAndDropFile(selector = '.file-input', config = {}) {
+function dragAndDropFile(selector = '.file-input', additionalConfig = {}) {
     const previewZoomButtonClasses = {
         rotate: 'btn btn-light btn-icon btn-sm',
         toggleheader: 'btn btn-light btn-icon btn-header-toggle btn-sm',
@@ -284,29 +280,26 @@ function dragAndDropFile(selector = '.file-input', config = {}) {
         indicatorLoading: '<i class="ph-spinner spinner text-muted"></i>',
     };
 
-    var configuration = $.extend(
-        {
-            showUpload: false,
-            browseLabel: 'Telusuri',
-            browseOnZoneClick: true,
-            autoReplace: true,
-            browseIcon: '<i class="ph-file-plus me-2"></i>',
-            uploadIcon: '<i class="ph-file-arrow-up me-2"></i>',
-            removeIcon: '<i class="ph-x fs-base me-2"></i>',
-            layoutTemplates: {
-                icon: '<i class="ph-check"></i>',
-            },
-            browseClass: 'btn btn-light',
-            uploadClass: 'btn btn-light',
-            removeClass: 'btn btn-light',
-            initialCaption: 'Tidak ada file',
-            initialPreviewAsData: true,
-            previewZoomButtonClasses: previewZoomButtonClasses,
-            previewZoomButtonIcons: previewZoomButtonIcons,
-            fileActionSettings: fileActionSettings,
+    var configuration = $.extend({
+        showUpload: false,
+        browseLabel: 'Telusuri',
+        browseOnZoneClick: true,
+        autoReplace: true,
+        browseIcon: '<i class="ph-file-plus me-2"></i>',
+        uploadIcon: '<i class="ph-file-arrow-up me-2"></i>',
+        removeIcon: '<i class="ph-x fs-base me-2"></i>',
+        layoutTemplates: {
+            icon: '<i class="ph-check"></i>',
         },
-        config
-    );
+        browseClass: 'btn btn-light',
+        uploadClass: 'btn btn-light',
+        removeClass: 'btn btn-light',
+        initialCaption: 'Tidak ada file',
+        initialPreviewAsData: true,
+        previewZoomButtonClasses: previewZoomButtonClasses,
+        previewZoomButtonIcons: previewZoomButtonIcons,
+        fileActionSettings: fileActionSettings,
+    }, additionalConfig);
 
     $(selector).fileinput(configuration);
 }

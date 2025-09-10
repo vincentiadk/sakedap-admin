@@ -36,6 +36,13 @@ class DashboardController extends Controller
         $explodeDate = explode(' - ', $date);
         $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+        $condition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? "where " . implode(' and ', $condition) : '';
 
         $response = QueryAPI::get("
             select
@@ -53,6 +60,7 @@ class DashboardController extends Controller
                 catalogs.validatedate <= date '$endDate'
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
+            $whereClause
             group by
                 propinsi.namapropinsi
             order by
@@ -64,13 +72,21 @@ class DashboardController extends Controller
 
     public function dataActivity()
     {
+        $condition = ['rownum <= 10'];
+
+        if (Main::isNotCenterBranch()) {
+            $usernameSession = session('username');
+            $condition[] = "actionby = '$usernameSession'";
+        }
+
+        $whereClause = !empty($condition) ? "where " . implode(' and ', $condition) : '';
+
         $response = QueryAPI::get("
             select
                 *
             from
                 historydata
-            where
-                rownum <= 10
+            $whereClause
             order by
                 actiondate desc
         ");
@@ -86,6 +102,14 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
         $response = [];
+        $condition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
+
         $data = QueryAPI::get("
             select
                 worksheets.name,
@@ -96,6 +120,11 @@ class DashboardController extends Controller
                 catalogs on catalogs.worksheet_id = worksheets.id and
                 catalogs.validatedate >= date '$startDate' and
                 catalogs.validatedate <= date '$endDate'
+            left join
+                branchs on branchs.id = catalogs.id
+            left join
+                propinsi on propinsi.id = branchs.province_id and
+                $whereClause
             where
                 worksheets.category = '$this->worksheetCategoryDigital'
             group by
@@ -121,7 +150,14 @@ class DashboardController extends Controller
         $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-        $response = [];
+        $condition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
+
         $data = QueryAPI::get("
             select
                 worksheets.name,
@@ -132,6 +168,11 @@ class DashboardController extends Controller
                 catalogs on catalogs.worksheet_id = worksheets.id and
                 catalogs.validatedate >= date '$startDate' and
                 catalogs.validatedate <= date '$endDate'
+            left join
+                branchs on branchs.id = catalogs.id
+            left join
+                propinsi on propinsi.id = branchs.province_id and
+                $whereClause
             where
                 worksheets.category = '$this->worksheetCategoryAnalog'
             group by
@@ -158,6 +199,14 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
         $response = [];
+        $condition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
+
         $data = QueryAPI::get("
             select
                 worksheets.name,
@@ -168,6 +217,11 @@ class DashboardController extends Controller
                 catalogs on catalogs.worksheet_id = worksheets.id and
                 catalogs.validatedate >= date '$startDate' and
                 catalogs.validatedate <= date '$endDate'
+            left join
+                branchs on branchs.id = catalogs.id
+            left join
+                propinsi on propinsi.id = branchs.province_id and
+                $whereClause
             where
                 worksheets.category = '$this->worksheetCategoryPrinted'
             group by
@@ -194,6 +248,14 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
         $response = [];
+        $condition = ["(catalogs.validatedate >= date '$startDate' and catalogs.validatedate <= date '$endDate')"];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? "where " . implode(' and ', $condition) : '';
+
         $data = QueryAPI::get("
             select
                 coalesce(sum(case when worksheets.category = '$this->worksheetCategoryDigital' then 1 else 0 end), 0) as total_digital,
@@ -203,9 +265,11 @@ class DashboardController extends Controller
                 catalogs
             left join
                 worksheets on worksheets.id = catalogs.id
-            where
-                catalogs.validatedate >= date '$startDate' and
-                catalogs.validatedate <= date '$endDate'
+            left join
+                branchs on branchs.id = catalogs.id
+            left join
+                propinsi on propinsi.id = branchs.province_id
+            $whereClause
         ", true);
 
         $response = [
@@ -232,6 +296,14 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
         $response = [];
+        $condition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $condition[] = "propinsi.id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
+
         $data = QueryAPI::get("
             select
                 worksheets.name,
@@ -242,6 +314,11 @@ class DashboardController extends Controller
                 catalogs on catalogs.worksheet_id = worksheets.id and
                 catalogs.validatedate >= date '$startDate' and
                 catalogs.validatedate <= date '$endDate'
+            left join
+                branchs on branchs.id = catalogs.id
+            left join
+                propinsi on propinsi.id = branchs.province_id and
+                $whereClause
             where
                 worksheets.category is not null
             group by
