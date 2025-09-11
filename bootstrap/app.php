@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\Framing;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\Authentication;
@@ -18,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            Framing::class,
+        ]);
+
         $middleware->alias([
             'authentication' => Authentication::class,
         ]);

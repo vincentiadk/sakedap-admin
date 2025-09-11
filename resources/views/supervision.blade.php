@@ -14,5 +14,5 @@
     }
 </style>
 <div class="content p-0">
-    <iframe src="{{ $framing }}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <iframe src="{!! $framing !!}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 </div>

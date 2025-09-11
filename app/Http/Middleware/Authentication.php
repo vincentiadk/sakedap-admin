@@ -30,11 +30,6 @@ class Authentication
 
         session()->flush();
 
-        echo '
-            <script>
-                alert("Sesi login anda telah habis, anda akan di arahkan ke halaman login kembali!!");
-                document.location.href="' . url('/') . '"
-            </script>
-        ';
+        return redirect('/');
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 
 class ISBN
@@ -17,8 +16,8 @@ class ISBN
      */
     public static function initialize()
     {
-        static::$token = App::environment('production') ? config('isbn.prod.token') : config('isbn.dev.token');
-        static::$baseUrl = App::environment('production') ? config('isbn.prod.base_url') : config('isbn.dev.base_url');
+        static::$token = config('isbn.token');
+        static::$baseUrl = config('isbn.base_url');
     }
 
     /**

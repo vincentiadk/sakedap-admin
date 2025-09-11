@@ -106,6 +106,8 @@ class DashboardController extends Controller
 
         if (Main::isNotCenterBranch()) {
             $condition[] = "propinsi.id = " . session('province_id');
+        } else {
+            $condition[] = "propinsi.id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -154,6 +156,8 @@ class DashboardController extends Controller
 
         if (Main::isNotCenterBranch()) {
             $condition[] = "propinsi.id = " . session('province_id');
+        } else {
+            $condition[] = "propinsi.id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -203,6 +207,8 @@ class DashboardController extends Controller
 
         if (Main::isNotCenterBranch()) {
             $condition[] = "propinsi.id = " . session('province_id');
+        } else {
+            $condition[] = "propinsi.id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -300,6 +306,8 @@ class DashboardController extends Controller
 
         if (Main::isNotCenterBranch()) {
             $condition[] = "propinsi.id = " . session('province_id');
+        } else {
+            $condition[] = "propinsi.id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';

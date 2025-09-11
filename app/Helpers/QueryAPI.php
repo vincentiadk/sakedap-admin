@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Helpers\Main;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 
 class QueryAPI
@@ -18,8 +17,8 @@ class QueryAPI
      */
     public static function initialize()
     {
-        static::$token = App::environment('production') ? config('inlis.prod.token') : config('inlis.dev.token');
-        static::$baseUrl = App::environment('production') ? config('inlis.prod.base_url') : config('inlis.dev.base_url');
+        static::$token = config('inlis.token');
+        static::$baseUrl = config('inlis.base_url');
     }
 
     /**

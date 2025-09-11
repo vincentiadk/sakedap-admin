@@ -1,6 +1,5 @@
 <?php
 
-use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;

@@ -2,7 +2,6 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 
 class RajaOngkir
@@ -17,8 +16,8 @@ class RajaOngkir
      */
     public static function initialize()
     {
-        static::$token = App::environment('production') ? config('raja-ongkir.prod.token') : config('raja-ongkir.dev.token');
-        static::$baseUrl = App::environment('production') ? config('raja-ongkir.prod.base_url') : config('raja-ongkir.dev.base_url');
+        static::$token = config('raja-ongkir.token');
+        static::$baseUrl = config('raja-ongkir.base_url');
     }
 
     /**

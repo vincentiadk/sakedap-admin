@@ -237,4 +237,81 @@ class Main
     {
         return (int) session('branch_id') !== static::IS_CENTER_BRANCH;
     }
+
+    /**
+     * AESCrypt
+     *
+     * @param  mixed $text
+     * @return void
+     */
+    public static function AESCrypt($text)
+    {
+        $cipher = 'aes-256-cbc';
+        $encrypted = openssl_encrypt($text, $cipher, env('AES_KEY'), OPENSSL_RAW_DATA, env('AES_IV'));
+
+        return base64_encode($encrypted);
+    }
+
+    /**
+     * AESDecrypt
+     *
+     * @param  mixed $text
+     * @return void
+     */
+    public static function AESDecrypt($text)
+    {
+        $cipher = 'aes-256-cbc';
+        $decoded = base64_decode($text);
+
+        $decrypted = openssl_decrypt($decoded, $cipher, env('AES_KEY'), OPENSSL_RAW_DATA, env('AES_IV'));
+
+        return $decrypted;
+    }
+
+    public static function login($username, $password)
+    {
+        $response = false;
+        $login = QueryAPI::login($username, $password);
+
+        if (($login->Status ?? '') == 'Success') {
+            $userId = $login->Data->Id ?? null;
+            $user = QueryAPI::get("
+                select
+                    users.*,
+                    branchs.province_id as province_id,
+                    branchs.name as name_branch,
+                    propinsi.namapropinsi as namapropinsi
+                from
+                    users
+                left join
+                    branchs on branchs.id = users.branch_id
+                left join
+                    propinsi on propinsi.id = branchs.province_id
+                where
+                    users.id = $userId and
+                    (
+                        users.isdelete = 0 or
+                        users.isdelete is null
+                    )
+            ", true);
+
+            if ($user) {
+                session([
+                    'id' => $user->ID,
+                    'username' => $user->USERNAME,
+                    'name' => $user->FULLNAME,
+                    'email' => $user->EMAILADDRESS,
+                    'province_id' => $user->PROVINCE_ID,
+                    'province_name' => $user->NAMAPROPINSI,
+                    'branch_id' => $user->BRANCH_ID,
+                    'branch_name' => $user->NAME_BRANCH,
+                    'role_id' => $user->ROLE_ID,
+                ]);
+
+                $response = true;
+            }
+        }
+
+        return $response;
+    }
 }
