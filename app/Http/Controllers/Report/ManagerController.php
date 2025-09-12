@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Report;
 
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use App\Jobs\ExcelDownloadBackgroundJob;
 
 class ManagerController extends Controller
 {
@@ -20,8 +23,27 @@ class ManagerController extends Controller
         $this->worksheetCategoryPrinted = Main::COLLECTION_PRINTED;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->exported) {
+            $jobID = (string) Str::uuid();
+            $userId = session('id');
+            $userKey = "user:$userId:download";
+
+            $payload = [
+                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'type_id' => $request->type_id,
+                'category_id' => $request->category_id,
+                'province_id' => $request->province_id
+            ];
+
+            Redis::lpush($userKey, $jobID);
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-manager', $payload)
+                ->onQueue('report');
+
+            return redirect('report/manager')->with(['success' => 'Data laporan sedang diproses']);
+        }
+
         $data = [
             'category' => QueryAPI::get("select * from penerbit_kategori"),
             'type' => QueryAPI::get("select * from penerbit_jenis"),
@@ -126,6 +148,7 @@ class ManagerController extends Controller
                     from
                         (
                             select
+                                penerbit.id,
                                 penerbit.name,
                                 penerbit_jenis.name AS name_penerbit_jenis,
                                 penerbit_kategori.name AS name_penerbit_kategori,
@@ -161,7 +184,7 @@ class ManagerController extends Controller
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
-                            GROUP BY
+                            group by
                                 penerbit.id,
                                 penerbit_jenis.name,
                                 penerbit_kategori.name,

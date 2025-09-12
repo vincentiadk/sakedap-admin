@@ -114,7 +114,29 @@
         }
 
         loadData();
+        notifSuccessFromSession();
     });
+
+    function notifSuccessFromSession() {
+        var notif = '{{ session("success") }}';
+
+        if(notif) {
+            swalInit.fire('Berhasil', notif, 'success');
+        }
+    }
+
+    function downloadExcel() {
+        var queryString = {
+            exported: true,
+            type_id: $('#type_id').val(),
+            category_id: $('#category_id').val(),
+            province_id: $('#province_id').val()
+        }
+
+        onLoading('show', 'body');
+
+        location.href = '{{ url("report/manager?") }}' + $.param(queryString);
+    }
 
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({

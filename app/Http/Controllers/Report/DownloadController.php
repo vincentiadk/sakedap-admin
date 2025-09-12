@@ -42,8 +42,8 @@ class DownloadController extends Controller
 
             if ($types == 'report-periodic') {
                 $typeText = 'Laporan Periodik';
-            } else if ($types == '') {
-                $typeText = '';
+            } else if ($types == 'report-manager') {
+                $typeText = 'Laporan Pengelola';
             } else {
                 $typeText = 'N/A';
             }

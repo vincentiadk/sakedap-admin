@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Exports\ReportManagerExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
@@ -63,6 +64,9 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
             switch ($this->type) {
                 case 'report-periodic':
                     Excel::store(new ReportPeriodicExport($this->request), $filename, 'public');
+                    break;
+                case 'report-manager':
+                    Excel::store(new ReportManagerExport($this->request), $filename, 'public');
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');
