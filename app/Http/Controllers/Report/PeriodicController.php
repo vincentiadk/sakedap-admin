@@ -4,13 +4,34 @@ namespace App\Http\Controllers\Report;
 
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use App\Jobs\ExcelDownloadBackgroundJob;
 
 class PeriodicController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->exported) {
+            $jobID = (string) Str::uuid();
+            $userId = session('id');
+            $userKey = "user:$userId:download";
+
+            $payload = [
+                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'year' => $request->year,
+                'province_id' => session('province_id')
+            ];
+
+            Redis::lpush($userKey, $jobID);
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-periodic', $payload)
+                ->onQueue('report');
+
+            return redirect('report/periodic')->with(['success' => 'Data laporan sedang diproses']);
+        }
+
         $data = [
             'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
             'content' => 'report.periodic'

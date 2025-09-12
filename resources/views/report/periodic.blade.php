@@ -18,7 +18,7 @@
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card" id="card-data">
         <div class="card-body">
             <div class="input-group">
                 <span class="input-group-text">Tahun</span>
@@ -53,7 +53,27 @@
 <script>
     $(function() {
         loadData();
+        notifSuccessFromSession();
     });
+
+    function notifSuccessFromSession() {
+        var notif = '{{ session("success") }}';
+
+        if(notif) {
+            swalInit.fire('Berhasil', notif, 'success');
+        }
+    }
+
+    function downloadExcel() {
+        var queryString = {
+            exported: true,
+            year: $('#year').val()
+        }
+
+        onLoading('show', 'body');
+
+        location.href = '{{ url("report/periodic?") }}' + $.param(queryString);
+    }
 
     function loadData() {
         $.ajax({
@@ -64,7 +84,7 @@
                 year: $('#year').val()
             },
             beforeSend: function() {
-                onLoading('show', 'body');
+                onLoading('show', '#card-data');
 
                 $('#table-data').html('');
             },
@@ -86,10 +106,10 @@
                     `);
                 });
 
-                onLoading('close', 'body');
+                onLoading('close', '#card-data');
             },
             error: function(response) {
-                onLoading('close', 'body');
+                onLoading('close', '#card-data');
 
                 swalInit.fire({
                     html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,

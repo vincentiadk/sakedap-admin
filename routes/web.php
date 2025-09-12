@@ -327,6 +327,10 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'LogController@index');
             Route::get('datatable', 'LogController@datatable');
         });
+
+        Route::prefix('download')->group(function () {
+            Route::get('/', 'DownloadController@index');
+        });
     });
 
     Route::prefix('setting')->namespace('Setting')->group(function () {

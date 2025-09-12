@@ -4,4 +4,5 @@ return [
     App\Providers\AppServiceProvider::class,
     Barryvdh\DomPDF\ServiceProvider::class,
     Milon\Barcode\BarcodeServiceProvider::class,
+    Maatwebsite\Excel\ExcelServiceProvider::class,
 ];
