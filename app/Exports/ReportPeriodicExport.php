@@ -83,7 +83,7 @@ class ReportPeriodicExport implements FromView, ShouldAutoSize
 
         return view('export.report-periodic', [
             'request' => $request,
-            'data' => $result
+            'data' => $result ?? []
         ]);
     }
 }

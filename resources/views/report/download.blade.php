@@ -48,7 +48,7 @@
                                 @else
                                     <button type="button" class="btn btn-primary btn-sm" disabled>
                                         <i class="ph-hourglass-medium me-1"></i>
-                                        Sedang Diproses ...
+                                        Proses ...
                                     </button>
                                 @endif
                             </td>

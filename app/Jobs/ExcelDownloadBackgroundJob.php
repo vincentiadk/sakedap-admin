@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Queue\SerializesModels;
+use App\Exports\ReportCollectionExport;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,29 +55,33 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Redis::hset('download_status:' . $this->jobID, 'status', 'processing');
-        Redis::hset('download_status:' . $this->jobID, 'type', $this->type);
-        Redis::hset('download_status:' . $this->jobID, 'date', date('Y-m-d H:i:s'));
+        Redis::hset('download:' . $this->jobID, 'status', 'processing');
+        Redis::hset('download:' . $this->jobID, 'type', $this->type);
+        Redis::hset('download:' . $this->jobID, 'date', date('Y-m-d H:i:s'));
 
         try {
             $filename = 'download/' . $this->type . '-' . $this->jobID . '.xlsx';
+            $disk = 'public';
 
             switch ($this->type) {
                 case 'report-periodic':
-                    Excel::store(new ReportPeriodicExport($this->request), $filename, 'public');
+                    Excel::store(new ReportPeriodicExport($this->request), $filename, $disk);
                     break;
                 case 'report-manager':
-                    Excel::store(new ReportManagerExport($this->request), $filename, 'public');
+                    Excel::store(new ReportManagerExport($this->request), $filename, $disk);
+                    break;
+                case 'report-collection':
+                    Excel::store(new ReportCollectionExport($this->request), $filename, $disk);
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');
             }
 
-            Redis::hset('download_status:' . $this->jobID, 'status', 'completed');
-            Redis::hset('download_status:' . $this->jobID, 'filename', $filename);
+            Redis::hset('download:' . $this->jobID, 'status', 'completed');
+            Redis::hset('download:' . $this->jobID, 'filename', $filename);
         } catch (\Exception $e) {
-            Redis::hset('download_status:' . $this->jobID, 'status', 'failed');
-            Log::error('Gagal : ' . $e->getMessage());
+            Redis::hset('download:' . $this->jobID, 'status', 'failed');
+            Log::channel('background')->error('Gagal : ' . $e->getMessage());
         }
     }
 
@@ -85,7 +90,7 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Redis::hset('download_status:' . $this->jobID, 'status', 'failed');
-        Log::error('Gagal : ' . $exception->getMessage());
+        Redis::hset('download:' . $this->jobID, 'status', 'failed');
+        Log::channel('background')->error('Gagal : ' . $exception->getMessage());
     }
 }

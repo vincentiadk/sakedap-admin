@@ -1,10 +1,5 @@
 <table>
     <thead>
-        <tr>
-            <th colspan="23" style="font-size:15px; font-weight:bold; border:1px solid black; text-align:center; vertical-align:center; background:#149848;">
-                LAPORAN PENGELOLA
-            </th>
-        </tr>
         @if($request->type_id)
             @php
                 $id = $request->type_id;
@@ -12,8 +7,8 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="23" style="font-size:15px; font-weight:bold; border:1px solid black; text-align:center; vertical-align:center; background:#149848;">
-                        {{ $getRow->NAME }}
+                    <th colspan="23" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                        Jenis : {{ $getRow->NAME }}
                     </th>
                 </tr>
             @endif
@@ -25,8 +20,8 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="23" style="font-size:15px; font-weight:bold; border:1px solid black; text-align:center; vertical-align:center; background:#149848;">
-                        {{ $getRow->NAME }}
+                    <th colspan="23" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                        Kategori : {{ $getRow->NAME }}
                     </th>
                 </tr>
             @endif
@@ -38,8 +33,8 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="23" style="font-size:15px; font-weight:bold; border:1px solid black; text-align:center; vertical-align:center; background:#149848;">
-                        {{ $getRow->NAMAPROPINSI }}
+                    <th colspan="23" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                        Provinsi : {{ $getRow->NAMAPROPINSI }}
                     </th>
                 </tr>
             @endif
@@ -71,34 +66,37 @@
         </tr>
     </thead>
     <tbody>
-        @if($data)
-            @foreach($data as $key => $d)
+        @php $no = 1; @endphp
+        @foreach(collect($data)->chunk(500) as $group)
+            @foreach($group as $val)
                 <tr>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $key + 1 }}</td>
-                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $d->TOTAL_DIGITAL }}</td>
-                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $d->TOTAL_ANALOG }}</td>
-                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $d->TOTAL_PRINTED }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAME }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->ALIAS }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->ALAMAT }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NOSIUP }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->KONTAK1 }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->TELP1 }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->FAX1 }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->EMAIL1 }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->WEBSITE }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->KODEPOS }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->RATA_TERBITAN }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->LEMBAGA_PENAUNG }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAME_PARENT }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAME_PENERBIT_JENIS }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAME_PENERBIT_KATEGORI }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAMAPROPINSI }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAMAKAB }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAMAKEC }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $d->NAMAKEL }}</td>
+                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $no }}</td>
+                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $val->TOTAL_DIGITAL }}</td>
+                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $val->TOTAL_ANALOG }}</td>
+                    <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $val->TOTAL_PRINTED }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->ALIAS }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->ALAMAT }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NOSIUP }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->KONTAK1 }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->TELP1 }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->FAX1 }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->EMAIL1 }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->WEBSITE }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->KODEPOS }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->RATA_TERBITAN }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->LEMBAGA_PENAUNG }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PARENT }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT_JENIS }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT_KATEGORI }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAPROPINSI }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAKAB }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAKEC }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAKEL }}</td>
                 </tr>
+
+                @php $no++; @endphp
             @endforeach
-        @endif
+        @endforeach
     </tbody>
 </table>

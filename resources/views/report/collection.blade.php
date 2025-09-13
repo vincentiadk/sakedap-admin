@@ -125,8 +125,6 @@
     $(function() {
         datePickerBasic('#date');
 
-        datePickerBasic('#date');
-
         if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
@@ -144,7 +142,32 @@
         }
 
         loadData();
+        notifSuccessFromSession();
     });
+
+    function notifSuccessFromSession() {
+        var notif = '{{ session("success") }}';
+
+        if(notif) {
+            swalInit.fire('Berhasil', notif, 'success');
+        }
+    }
+
+    function downloadExcel() {
+        var queryString = {
+            exported: true,
+            title: $('#title').val(),
+            publisher_id: $('#publisher_id').val(),
+            province_id: $('#province_id').val(),
+            year: $('#year').val(),
+            worksheet_id: $('#worksheet_id').val(),
+            date: $('#date').val(),
+        }
+
+        onLoading('show', 'body');
+
+        location.href = '{{ url("report/collection?") }}' + $.param(queryString);
+    }
 
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({

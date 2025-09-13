@@ -3,14 +3,40 @@
 namespace App\Http\Controllers\Report;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use App\Jobs\ExcelDownloadBackgroundJob;
 
 class CollectionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->exported) {
+            $jobID = (string) Str::uuid();
+            $userId = session('id');
+            $userKey = "user:$userId:download";
+
+            $payload = [
+                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'title' => $request->title,
+                'publisher_id' => $request->publisher_id,
+                'province_id' => $request->province_id,
+                'year' => $request->year,
+                'worksheet_id' => $request->worksheet_id,
+                'date' => $request->date
+            ];
+
+            Redis::lpush($userKey, $jobID);
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-collection', $payload)
+                ->onQueue('report');
+
+            return redirect('report/collection')->with(['success' => 'Data laporan sedang diproses']);
+        }
+
         $data = [
             'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
             'content' => 'report.collection'
@@ -51,16 +77,11 @@ class CollectionController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "
-            (
-                catalogs.isdelete = 0 or
-                catalogs.isdelete is null
-            ) and
-            catalogs.edeposit_col_id is not null
-        ";
+        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
+        $whereCondition[] = "catalogs.edeposit_col_id is not null";
 
         if ($request->title) {
-            $whereCondition[] = "catalogs.title like '%$search%'";
+            $whereCondition[] = "catalogs.title like '%$request->title%'";
         }
 
         if ($request->publisher_id) {
@@ -149,11 +170,7 @@ class CollectionController extends Controller
                         (
                             select
                                 catalogs.id,
-                                penerbit.name as name_penerbit,
-                                propinsi.namapropinsi as namapropinsi,
-                                kabupaten.namakab as namakab,
                                 catalogs.title,
-                                worksheets.name as name_worksheet,
                                 catalogs.album,
                                 catalogs.series,
                                 catalogs.edition,
@@ -162,7 +179,11 @@ class CollectionController extends Controller
                                 catalogs.isbn,
                                 catalogs.publishyear,
                                 catalogs.preview,
-                                catalogs.validatedate
+                                catalogs.validatedate,
+                                penerbit.name as name_penerbit,
+                                propinsi.namapropinsi as namapropinsi,
+                                kabupaten.namakab as namakab,
+                                worksheets.name as name_worksheet
                             from
                                 catalogs
                             left join

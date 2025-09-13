@@ -46,11 +46,19 @@ return [
     | of powerful log handlers and formatters that you're free to use.
     |
     | Available drivers: "single", "daily", "slack", "syslog",
-    |                    "errorlog", "monolog", "custom", "stack"
+    |                    "errorlog", "monolog", "custom", "stack", "background"
     |
     */
 
     'channels' => [
+        'background' => [
+            'driver' => 'background',
+            'channels' => 'single',
+            'ignore_exceptions' => false,
+            'path' => storage_path('logs/background.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,
+        ],
 
         'stack' => [
             'driver' => 'stack',
@@ -89,7 +97,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],

@@ -144,7 +144,7 @@ class Select2ServersideController extends Controller
         $condition = [];
 
         $whereClause = '';
-        $search = Str::headline($request->search);
+        $search = $request->search;
         $provinceId = $request->province_id;
 
         $condition[] = "branchs.name like '%$search%'";
@@ -199,7 +199,7 @@ class Select2ServersideController extends Controller
     {
         $whereClause = '';
         $provinceId = $request->province_id ?? null;
-        $search = Str::headline($request->search);
+        $search = $request->search;
 
         $response = [];
         $condition = ["penerbit.name like '%$search%'"];

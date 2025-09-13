@@ -14,8 +14,8 @@ class DownloadController extends Controller
     {
         if ($request->downloaded) {
             $param = $request->param;
-            $status = Redis::hget('download_status:' . $param, 'status');
-            $filename = Redis::hget('download_status:' . $param, 'filename');
+            $status = Redis::hget('download:' . $param, 'status');
+            $filename = Redis::hget('download:' . $param, 'filename');
 
             if ($status !== 'completed' || empty($filename)) {
                 abort(404, 'File laporan belum siap atau tidak ditemukan.');
@@ -34,16 +34,18 @@ class DownloadController extends Controller
         $result = [];
 
         foreach ($listData as $ld) {
-            $status = Redis::hget('download_status:' . $ld, 'status');
-            $filename = Redis::hget('download_status:' . $ld, 'filename');
-            $date = Redis::hget('download_status:' . $ld, 'date');
-            $type = Redis::hget('download_status:' . $ld, 'type');
+            $status = Redis::hget('download:' . $ld, 'status');
+            $filename = Redis::hget('download:' . $ld, 'filename');
+            $date = Redis::hget('download:' . $ld, 'date');
+            $type = Redis::hget('download:' . $ld, 'type');
             $types = $type ?? null;
 
             if ($types == 'report-periodic') {
                 $typeText = 'Laporan Periodik';
             } else if ($types == 'report-manager') {
                 $typeText = 'Laporan Pengelola';
+            } else if ($types == 'report-collection') {
+                $typeText = 'Laporan Koleksi';
             } else {
                 $typeText = 'N/A';
             }
