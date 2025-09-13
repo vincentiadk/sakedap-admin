@@ -1,10 +1,9 @@
 <div class="page-header page-header-light shadow mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
-            <h4 class="page-title mb-0">Kategori</h4>
-            <a href="#page-header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
-                <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
-            </a>
+            <h4 class="page-title mb-0">
+                Master Data - <span class="fw-normal">Kategori</span>
+            </h4>
         </div>
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
             <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
@@ -14,15 +13,6 @@
                         Tambah Data
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="page-header-content d-lg-flex border-top">
-        <div class="d-flex">
-            <div class="breadcrumb py-2">
-                <a href="{{ url('home') }}" class="breadcrumb-item"><i class="ph-house"></i></a>
-                <a href="javascript:void(0);" class="breadcrumb-item">Master Data</a>
-                <span class="breadcrumb-item active">Kategori</span>
             </div>
         </div>
     </div>

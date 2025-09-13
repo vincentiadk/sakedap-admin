@@ -164,8 +164,13 @@
                                         <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
                                                 <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('delivery/delivered') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'delivered' ? 'active' : '' }}">Diantar</a>
-                                                <a href="{{ url('delivery/independent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'independent' ? 'active' : '' }}">Mandiri</a>
+                                                <a href="{{ url('delivery/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
+                                                <a href="{{ url('delivery/list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'list' ? 'active' : '' }}">Daftar</a>
+                                                <a href="{{ url('delivery/sent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'sent' ? 'active' : '' }}">Dikirim</a>
+                                                <a href="{{ url('delivery/accepted') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'accepted' ? 'active' : '' }}">Diterima</a>
+                                                <a href="{{ url('delivery/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
+                                                <a href="{{ url('delivery/grant') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'grant' ? 'active' : '' }}">Dihibahkan</a>
+                                                <a href="{{ url('delivery/return') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'return' ? 'active' : '' }}">Retur</a>
                                             </div>
                                         </div>
                                     </div>
