@@ -104,7 +104,29 @@
         datePickerBasic('#date');
 
         loadData();
+        notifSuccessFromSession();
     });
+
+    function notifSuccessFromSession() {
+        var notif = '{{ session("success") }}';
+
+        if(notif) {
+            swalInit.fire('Berhasil', notif, 'success');
+        }
+    }
+
+    function downloadExcel() {
+        var queryString = {
+            exported: true,
+            action: $('#action').val(),
+            action_by: $('#action_by').val(),
+            date: $('#date').val(),
+        }
+
+        onLoading('show', 'body');
+
+        location.href = '{{ url("report/performance-user?") }}' + $.param(queryString);
+    }
 
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({

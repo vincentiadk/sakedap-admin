@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Report;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use App\Jobs\ExcelDownloadBackgroundJob;
 
 class PerformanceUserController extends Controller
 {
@@ -20,8 +24,27 @@ class PerformanceUserController extends Controller
         ";
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->exported) {
+            $jobID = (string) Str::uuid();
+            $userId = session('id');
+            $userKey = "user:$userId:download";
+
+            $payload = [
+                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'action' => $request->action,
+                'action_by' => $request->action_by,
+                'date' => $request->date
+            ];
+
+            Redis::lpush($userKey, $jobID);
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-performance-user', $payload)
+                ->onQueue('report');
+
+            return redirect('report/performance-user')->with(['success' => 'Data laporan sedang diproses']);
+        }
+
         $data = [
             'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where lower(tablename) in ($this->tableName)"),
             'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where lower(tablename) in ($this->tableName)"),
@@ -34,13 +57,13 @@ class PerformanceUserController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'id',
-            'action',
+            'historydata.id',
+            'historydata.action',
             null,
-            'actionby',
-            'actiondate',
-            'actionterminal',
-            'note',
+            'historydata.actionby',
+            'historydata.actiondate',
+            'historydata.actionterminal',
+            'historydata.note',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -54,7 +77,7 @@ class PerformanceUserController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "lower(tablename) in ($this->tableName)";
+        $whereCondition[] = "lower(historydata.tablename) in ($this->tableName)";
 
         if ($search) {
             $terms = [];
@@ -69,11 +92,11 @@ class PerformanceUserController extends Controller
         }
 
         if ($request->action) {
-            $whereCondition[] = "lower(action) = lower('$request->action')";
+            $whereCondition[] = "lower(historydata.action) = lower('$request->action')";
         }
 
         if ($request->action_by) {
-            $whereCondition[] = "actionby = '$request->action_by'";
+            $whereCondition[] = "historydata.actionby = '$request->action_by'";
         }
 
         if ($request->date) {
@@ -81,7 +104,7 @@ class PerformanceUserController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(actiondate >= date '$startDate' and actiondate <= date '$endDate')";
+            $whereCondition[] = "(historydata.actiondate >= date '$startDate' and historydata.actiondate <= date '$endDate')";
         }
 
         if ($whereCondition) {
@@ -121,9 +144,20 @@ class PerformanceUserController extends Controller
                     from
                         (
                             select
-                                *
+                                historydata.*,
+                                coalesce(
+                                    cast(catalogs.title as varchar2(4000)),
+                                    cast(collections.title as varchar2(4000)),
+                                    cast(e_collections.title as varchar2(4000))
+                                ) as title
                             from
                                 historydata
+                            left join
+                                catalogs on historydata.idref = catalogs.id and lower(historydata.tablename) = 'catalogs'
+                            left join
+                                collections on historydata.idref = collections.id and lower(historydata.tablename) = 'collections'
+                            left join
+                                e_collections on historydata.idref = e_collections.id and lower(historydata.tablename) = 'e_collections'
                             $whereClause
                             $orderBy
                         ) data
@@ -134,14 +168,10 @@ class PerformanceUserController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $tableName = strtolower($val->TABLENAME);
-                $tableId = (int) $val->IDREF;
-                $collection = QueryAPI::get("select $tableName.title from $tableName where id = $tableId", true);
-
                 $data[] = [
                     $start + 1,
                     ucwords($val->ACTION),
-                    $collection->TITLE ?? null,
+                    $val->TITLE,
                     $val->ACTIONBY,
                     Carbon::parse($val->ACTIONDATE)->format('d/m/Y'),
                     $val->ACTIONTERMINAL,

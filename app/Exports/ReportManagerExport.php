@@ -5,7 +5,6 @@ namespace App\Exports;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
