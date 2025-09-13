@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exports\ReportLogExport;
 use Illuminate\Support\Facades\Log;
 use App\Exports\ReportManagerExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -75,6 +76,8 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
                     break;
                 case 'report-performance-user':
                     Excel::store(new ReportPerformanceUserExport($this->request), $filename, $disk);
+                case 'report-log':
+                    Excel::store(new ReportLogExport($this->request), $filename, $disk);
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');

@@ -2,14 +2,14 @@
     <thead>
         @if($request->date)
             <tr>
-                <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                     Tanggal : {{ $request->date }}
                 </th>
             </tr>
         @endif
         @if($request->title)
             <tr>
-                <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                     Judul : {{ $request->title }}
                 </th>
             </tr>
@@ -21,7 +21,7 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                    <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                         Pengelola : {{ $getRow->NAME }}
                     </th>
                 </tr>
@@ -34,7 +34,7 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                    <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                         Provinsi : {{ $getRow->NAME }}
                     </th>
                 </tr>
@@ -47,7 +47,7 @@
             @endphp
             @if($getRow)
                 <tr>
-                    <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                    <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                         Provinsi : {{ $getRow->NAMAPROPINSI }}
                     </th>
                 </tr>
@@ -55,7 +55,7 @@
         @endif
         @if($request->year)
             <tr>
-                <th colspan="14" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
+                <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
                     Tahun : {{ $request->year }}
                 </th>
             </tr>

@@ -3,14 +3,37 @@
 namespace App\Http\Controllers\Report;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use App\Jobs\ExcelDownloadBackgroundJob;
 
 class LogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->exported) {
+            $jobID = (string) Str::uuid();
+            $userId = session('id');
+            $userKey = "user:$userId:download";
+
+            $payload = [
+                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'action' => $request->action,
+                'action_by' => $request->action_by,
+                'date' => $request->date
+            ];
+
+            Redis::lpush($userKey, $jobID);
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-log', $payload)
+                ->onQueue('report');
+
+            return redirect('report/log')->with(['success' => 'Data laporan sedang diproses']);
+        }
+
         $data = [
             'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata"),
             'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata"),
