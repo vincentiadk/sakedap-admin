@@ -28,11 +28,14 @@ class BillISBNController extends Controller
         $filter = [
             'start' => $start,
             'length' => $length,
-            'penerbit_id' => $request->publisher_id,
         ];
 
-        if ($request->search) {
+        if ($search) {
             $filter['search'] = $search;
+        }
+
+        if ($request->publisher) {
+            $filter['nama_penerbit'] = $request->publisher;
         }
 
         if ($request->title) {
@@ -63,16 +66,58 @@ class BillISBNController extends Controller
             $filter['jenis_media'] = $request->media;
         }
 
+        if ($request->province_id) {
+            $filter['province_id'] = $request->province_id;
+        }
+
+        if ($request->received_date_kckr) {
+            $explodeDate = explode(' - ', $request->received_date_kckr);
+            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+            $filter['received_date_kckr_from'] = $startDate;
+            $filter['received_date_kckr_to'] = $endDate;
+        }
+
+        if ($request->received_date_province) {
+            $explodeDate = explode(' - ', $request->received_date_province);
+            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+            $filter['received_date_prov_from'] = $startDate;
+            $filter['received_date_prov_to'] = $endDate;
+        }
+
         $data = [];
         $result = ISBN::get('search', $filter);
         $resultData = $result->data ?? [];
 
         if (count($resultData) > 0) {
             foreach ($resultData as $val) {
+                if (isset($val->sinopsis)) {
+                    $sinopsis = '
+                        <button type="button" class="btn btn-light btn-sm" onclick="onPopover(this, ' . "'$val->sinopsis'" . ')">Lihat</button>
+                    ';
+                } else {
+                    $sinopsis = '
+                        <button type="button" class="btn btn-light btn-sm" disabled>Tidak Ada</button>
+                    ';
+                }
+
+                if (isset($val->kepeng)) {
+                    $author = '
+                        <button type="button" class="btn btn-light btn-sm" onclick="onPopover(this, ' . "'$val->kepeng'" . ')">Lihat</button>
+                    ';
+                } else {
+                    $author = '
+                        <button type="button" class="btn btn-light btn-sm" disabled>Tidak Ada</button>
+                    ';
+                }
+
                 $data[] = [
                     $start +  1,
                     isset($val->title) ? $val->title : '',
-                    isset($val->kepeng) ? $val->kepeng : '',
+                    $author,
                     isset($val->nama_penerbit) ? $val->nama_penerbit : '',
                     isset($val->tahun_terbit) ? $val->tahun_terbit : '',
                     isset($val->tempat_terbit) ? $val->tempat_terbit : '',
@@ -81,7 +126,7 @@ class BillISBNController extends Controller
                     isset($val->jenis_media) ? ucwords($val->jenis_media) : '',
                     isset($val->jenis_pustaka) ? ucwords($val->jenis_pustaka) : '',
                     isset($val->received_date_kckr) ? Carbon::parse($val->received_date_kckr)->format('d/m/Y') : '',
-                    isset($val->sinopsis) ? $val->sinopsis : '',
+                    $sinopsis,
                     isset($val->acceptdate) ? Carbon::parse($val->acceptdate)->format('d/m/Y') : '',
                     isset($val->createdate) ? Carbon::parse($val->createdate)->format('d/m/Y') : '',
                     isset($val->updatedate) ? Carbon::parse($val->updatedate)->format('d/m/Y') : '',

@@ -303,3 +303,19 @@ function dragAndDropFile(selector = '.file-input', additionalConfig = {}) {
 
     $(selector).fileinput(configuration);
 }
+
+function onPopover(selector, content, title = '') {
+    if ($('.popover').length == 0) {
+        var myPopover = new bootstrap.Popover($(selector), {
+            container: 'body',
+            trigger: 'focus',
+            html: true,
+            content: content,
+            title: title,
+            placement: 'auto',
+        });
+
+        myPopover.enable();
+        myPopover.show();
+    }
+}
