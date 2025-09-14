@@ -133,26 +133,33 @@ class Main
      * @param  mixed $param
      * @return void
      */
-    public static function generateNumberDeposit($param = null)
+    public static function generateNumberDeposit($worksheetId, $branchId, $year, $cityId)
     {
-        $date = Carbon::parse($param ?? date('Y-m-d'))->format('Ymd');
+        $worksheet = QueryAPI::get("select depositformat_code as code from worksheet where id = $worksheetId", true);
+        $city = QueryAPI::get("select code_kab as code from kabupaten where id = $cityId", true);
         $seq = 1;
+
+        $cityCode = $branchId == static::IS_CENTER_BRANCH ? substr($city->CODE ?? '', 0, -3) : ($city->CODE ?? '');
+        $worksheetCode = $worksheet->CODE ?? '';
+        $yearNow = date('Y');
 
         $data = QueryAPI::get("
             select
-                max(substr(deposit, 12)) as unique_code
+                max(substr(deposit, -5)) as unique_code
             from
                 e_collections
             where
-                deposit like '%DEP$date%'
+                deposit is not null and
+                to_char(created_at, 'YYYY') = '$yearNow'
         ", true);
 
         if ($data) {
             $seq = (int) $data->UNIQUE_CODE;
             $seq += 1;
+            $seq = sprintf('%05d', $seq);
         }
 
-        return 'DEP' . $date . sprintf('%05s', $seq);
+        return "$worksheetCode-$cityCode<br>$year-$seq";
     }
 
     /**

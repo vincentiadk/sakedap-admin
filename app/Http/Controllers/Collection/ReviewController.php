@@ -242,13 +242,20 @@ class ReviewController extends Controller
                 ];
             } else {
                 try {
+                    $deposit = Main::generateNumberDeposit(
+                        $request->worksheet_id,
+                        $request->branch_id,
+                        $request->year ?? date('Y'),
+                        $request->city_id
+                    );
+
                     $updateCollection = QueryAPI::update('e_collections', $id, [
                         'city_id' => $request->city_id,
                         'branch_id' => $request->branch_id,
                         'title_ori' => $request->title,
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),
-                        'deposit' => $request->status == 2 ? Main::generateNumberDeposit($request->received_at) : null,
+                        'deposit' => $request->status == 2 ? $deposit : null,
                         'series' => $request->series,
                         'serial' => $request->serial,
                         'ddc' => $request->ddc,

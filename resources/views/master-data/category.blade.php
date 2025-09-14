@@ -57,7 +57,7 @@
                         <select class="form-select select2-basic" name="type" id="type" data-dropdown-parent="#modal-form">
                             <option value=""></option>
                             @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CODE }}]</option>
+                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
                     </div>
