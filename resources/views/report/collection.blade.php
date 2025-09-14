@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Pengelola :</label>
+                        <label class="form-label">Penerbit :</label>
                         <select class="form-select" name="publisher_id" id="publisher_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Pengelola</th>
+                        <th nowrap>Penerbit</th>
                         <th nowrap>Provinsi</th>
                         <th nowrap>Kota</th>
                         <th nowrap>Judul</th>

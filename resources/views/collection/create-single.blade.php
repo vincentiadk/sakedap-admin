@@ -351,7 +351,7 @@
                         title: 'Data ditemukan',
                         icon: 'success',
                         showDenyButton: true,
-                        confirmButtonText: 'Otomatis Isi Judul & Pengelola',
+                        confirmButtonText: 'Otomatis Isi Judul & Penerbit',
                         denyButtonText: 'Hanya Cek Kode'
                     }).then((result) => {
                         if (result.isConfirmed) {

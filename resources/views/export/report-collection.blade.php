@@ -22,7 +22,7 @@
             @if($getRow)
                 <tr>
                     <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
-                        Pengelola : {{ $getRow->NAME }}
+                        Penerbit : {{ $getRow->NAME }}
                     </th>
                 </tr>
             @endif
@@ -72,7 +72,7 @@
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Tahun</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Preview</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Tgl Validasi</th>
-            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Pengelola</th>
+            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Penerbit</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Provinsi</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Kabupaten</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Jenis</th>

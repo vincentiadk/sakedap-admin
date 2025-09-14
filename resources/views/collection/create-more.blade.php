@@ -68,7 +68,7 @@
             `);
 
             $('#param-id').html(`
-                <select class="form-select" name="id" id="id" data-placeholder="Pilih Pengelola"></select>
+                <select class="form-select" name="id" id="id" data-placeholder="Pilih Penerbit"></select>
             `);
 
             if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {

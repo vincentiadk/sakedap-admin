@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Pengelola - <span class="fw-normal">Tambah Data</span>
+                Penerbit - <span class="fw-normal">Tambah Data</span>
             </h4>
         </div>
     </div>
@@ -196,7 +196,7 @@
 
     function submitted() {
         $.ajax({
-            url: '{{ url("manager/create-data/submitted") }}',
+            url: '{{ url("publisher/create-data/submitted") }}',
             type: 'POST',
             dataType: 'JSON',
             data: new FormData($('#form-data')[0]),
@@ -227,7 +227,7 @@
                         if (result.isConfirmed) {
                             onLoading('show', 'body');
 
-                            location.href = '{{ url("manager/create-data") }}';
+                            location.href = '{{ url("publisher/create-data") }}';
                         }
                     });
                 } else if(response.code == 400) {

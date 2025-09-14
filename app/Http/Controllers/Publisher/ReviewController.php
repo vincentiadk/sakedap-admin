@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Manager;
+namespace App\Http\Controllers\Publisher;
 
 use Carbon\Carbon;
 use App\Helpers\Main;
@@ -13,7 +13,7 @@ class ReviewController extends Controller
     public function index()
     {
         $data = [
-            'content' => 'manager.review'
+            'content' => 'publisher.review'
         ];
 
         return view('layouts.index', ['data' => $data]);

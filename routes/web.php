@@ -143,7 +143,7 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
-    Route::prefix('manager')->namespace('Manager')->group(function () {
+    Route::prefix('publisher')->namespace('Publisher')->group(function () {
         Route::prefix('create-data')->group(function () {
             Route::get('/', 'CreateDataController@index');
             Route::post('submitted', 'CreateDataController@submitted');
@@ -276,15 +276,15 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], '/', 'ActivationController@index');
         });
 
-        Route::prefix('manager-reject')->group(function () {
+        Route::prefix('publisher-reject')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherRejectController@index');
         });
 
-        Route::prefix('manager-submission')->group(function () {
+        Route::prefix('publisher-submission')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherSubmissionController@index');
         });
 
-        Route::prefix('manager-accept')->group(function () {
+        Route::prefix('publisher-accept')->group(function () {
             Route::match(['get', 'post'], '/', 'PublisherAcceptController@index');
         });
 
@@ -307,7 +307,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('load-data', 'PeriodicController@loadData');
         });
 
-        Route::prefix('manager')->group(function () {
+        Route::prefix('publisher')->group(function () {
             Route::get('/', 'ManagerController@index');
             Route::get('datatable', 'ManagerController@datatable');
         });

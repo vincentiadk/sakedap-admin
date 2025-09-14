@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Jobs\ExcelDownloadBackgroundJob;
 
-class ManagerController extends Controller
+class PublisherController extends Controller
 {
     private $worksheetCategoryAnalog;
     private $worksheetCategoryDigital;
@@ -38,16 +38,16 @@ class ManagerController extends Controller
             ];
 
             Redis::lpush($userKey, $jobID);
-            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-manager', $payload)
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-publisher', $payload)
                 ->onQueue('report');
 
-            return redirect('report/manager')->with(['success' => 'Data laporan sedang diproses']);
+            return redirect('report/publisher')->with(['success' => 'Data laporan sedang diproses']);
         }
 
         $data = [
             'category' => QueryAPI::get("select * from penerbit_kategori"),
             'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'report.manager'
+            'content' => 'report.publisher'
         ];
 
         return view('layouts.index', ['data' => $data]);

@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class ReportManagerExport implements FromView, ShouldAutoSize
+class ReportPublisherExport implements FromView, ShouldAutoSize
 {
     use Exportable;
 
@@ -166,7 +166,7 @@ class ReportManagerExport implements FromView, ShouldAutoSize
                 kelurahan.namakel
         ");
 
-        return view('export.report-manager', [
+        return view('export.report-publisher', [
             'request' => $request,
             'data' => $result ?? []
         ]);

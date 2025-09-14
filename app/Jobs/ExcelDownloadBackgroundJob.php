@@ -4,10 +4,10 @@ namespace App\Jobs;
 
 use App\Exports\ReportLogExport;
 use Illuminate\Support\Facades\Log;
-use App\Exports\ReportManagerExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
+use App\Exports\ReportPublisherExport;
 use Illuminate\Queue\SerializesModels;
 use App\Exports\ReportCollectionExport;
 use Illuminate\Queue\InteractsWithQueue;
@@ -68,8 +68,8 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
                 case 'report-periodic':
                     Excel::store(new ReportPeriodicExport($this->request), $filename, $disk);
                     break;
-                case 'report-manager':
-                    Excel::store(new ReportManagerExport($this->request), $filename, $disk);
+                case 'report-publisher':
+                    Excel::store(new ReportPublisherExport($this->request), $filename, $disk);
                     break;
                 case 'report-collection':
                     Excel::store(new ReportCollectionExport($this->request), $filename, $disk);

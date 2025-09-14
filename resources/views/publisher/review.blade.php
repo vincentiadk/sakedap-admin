@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Pengelola - <span class="fw-normal">Pengelolaan</span>
+                Penerbit - <span class="fw-normal">Peninjauan</span>
             </h4>
         </div>
     </div>
@@ -21,7 +21,6 @@
                         <th nowrap>Jenis</th>
                         <th nowrap>Telp</th>
                         <th nowrap>Tgl Daftar</th>
-                        <th nowrap>Tgl Diterima</th>
                     </tr>
                 </thead>
             </table>
@@ -32,7 +31,7 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Data</h5>
+                <h5 class="modal-title">Tinjau Data</h5>
                 <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
                     <i class="ph-x"></i>
                 </button>
@@ -40,104 +39,78 @@
             <div class="modal-body">
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Kategori :</label>
-                                <select class="form-select select2-basic" name="category_id" id="category_id" data-placeholder="Tidak Ada" data-dropdown-parent="#modal-form">
-                                    <option value="">Tidak Ada</option>
-                                    @foreach($category as $c)
-                                        <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
-                                <input type="text" class="form-control" name="name" id="name" placeholder="...................." disabled>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Lembaga Penaung :</label>
-                                <input type="text" class="form-control" name="shelter_institution" id="shelter_institution" placeholder="....................">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Admin :</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="admin" id="admin" placeholder="....................">
-                                    <span class="input-group-text">Alternatif</span>
-                                    <input type="text" class="form-control" name="admin_alternative" id="admin_alternative" placeholder="....................">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Email :</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="email" id="email" placeholder="....................">
-                                    <span class="input-group-text">Alternatif</span>
-                                    <input type="text" class="form-control" name="email_alternative" id="email_alternative" placeholder="....................">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Telepon :</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="phone" id="phone" placeholder="....................">
-                                    <span class="input-group-text">Alternatif</span>
-                                    <input type="text" class="form-control" name="phone_alternative" id="phone_alternative" placeholder="....................">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Fax :</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="fax" id="fax" placeholder="....................">
-                                    <span class="input-group-text">Alternatif</span>
-                                    <input type="text" class="form-control" name="fax_alternative" id="fax_alternative" placeholder="....................">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Jenis :</label>
-                                <select class="form-select select2-basic" name="type_id" id="type_id" data-placeholder="Tidak Ada" data-dropdown-parent="#modal-form">
-                                    <option value=""></option>
-                                    @foreach($type as $t)
-                                        <option value="{{ $t->ID }}">{{ $t->NAME }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Induk :</label>
-                                <select class="form-select" name="parent_id" id="parent_id" data-placeholder="Tidak Ada" data-dropdown-parent="#modal-form"></select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Gedung :</label>
-                                <input type="text" class="form-control" name="building" id="building" placeholder="....................">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Lokasi : <span class="text-danger fw-bold">*</span></label>
-                                <select class="form-select" name="location_id" id="location_id" data-placeholder="Tidak Ada" data-dropdown-parent="#modal-form"></select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Kode Pos :</label>
-                                <input type="text" class="form-control" name="postal_code" id="postal_code" placeholder="....................">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Alamat :</label>
-                                <input type="text" class="form-control" name="address" id="address" placeholder="...................." disabled>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Website :</label>
-                                        <input type="text" class="form-control" name="website" id="website" placeholder="....................">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Rata - Rata Terbitan :</label>
-                                        <input type="number" class="form-control" name="publication_average" id="publication_average" placeholder="....................">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <table class="table table-bordered mb-4" id="info-detail">
+                        <tbody>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Kategori</th>
+                                <td class="align-top" width="80%" id="category" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Nama</th>
+                                <td class="align-top" width="80%" id="name" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Induk</th>
+                                <td class="align-top" width="80%" id="parent" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Lembaga Penaung</th>
+                                <td class="align-top" width="80%" id="shelter_institution" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Gedung</th>
+                                <td class="align-top" width="80%" id="building" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Lokasi</th>
+                                <td class="align-top" width="80%" id="location" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Kode Pos</th>
+                                <td class="align-top" width="80%" id="postal_code" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Alamat</th>
+                                <td class="align-top" width="80%" id="address" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Admin</th>
+                                <td class="align-top" width="30%" id="admin"></td>
+                                <th class="table-primary align-top" width="20%">Alternatif</th>
+                                <td class="align-top" width="30%" id="admin_alternative"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Email</th>
+                                <td class="align-top" width="30%" id="email"></td>
+                                <th class="table-primary align-top" width="20%">Alternatif</th>
+                                <td class="align-top" width="30%" id="email_alternative"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Telepon</th>
+                                <td class="align-top" width="30%" id="phone"></td>
+                                <th class="table-primary align-top" width="20%">Alternatif</th>
+                                <td class="align-top" width="30%" id="phone_alternative"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Fax</th>
+                                <td class="align-top" width="30%" id="fax"></td>
+                                <th class="table-primary align-top" width="20%">Alternatif</th>
+                                <td class="align-top" width="30%" id="fax_alternative"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Website</th>
+                                <td class="align-top" width="80%" id="website" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Rata Penerbitan</th>
+                                <td class="align-top" width="80%" id="publication_average" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-primary align-top" width="20%">Tanggal Daftar</th>
+                                <td class="align-top" width="80%" id="registration_date" colspan="3"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <div class="form-group mb-4">
                         <div class="row">
                             <div class="col-md-6">
@@ -154,16 +127,25 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="btn-group d-flex">
+                            <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
+                            <label class="btn btn-outline-danger" for="status-2">Bermasalah</label>
+                            <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
+                            <label class="btn btn-outline-success" for="status-3">Terima</label>
+                        </div>
+                    </div>
+                    <textarea class="form-control d-none" name="description" id="description" placeholder="Keterangan masalah"></textarea>
                 </form>
             </div>
             <div class="modal-footer justify-content-end">
                 <button class="btn btn-danger" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
-                    Batalkan Perubahan
+                    Batal
                 </button>
-                <button class="btn btn-warning" id="btn-update" onclick="updateData()">
-                    <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                <button class="btn btn-success" id="btn-update" onclick="updateData()">
+                    <i class="ph-check me-1"></i>
+                    Konfirmasi
                 </button>
             </div>
         </div>
@@ -173,10 +155,17 @@
 <script>
     $(function() {
         loadData();
-
-        select2Serverside('#parent_id', 'publisher');
-        select2Serverside('#location_id', 'location');
     });
+
+    function changeStatus() {
+        var status = $('input[name="status"]:checked').val();
+
+        if(status == 2) {
+            $('#description').removeClass('d-none');
+        } else {
+            $('#description').addClass('d-none');
+        }
+    }
 
     function onReloadTable() {
         window.gDataTable.ajax.reload(null, false);
@@ -187,10 +176,6 @@
 
         $('#modal-form').modal('hide');
         $('#form-data').trigger('reset');
-        $('#category_id').val('').change();
-        $('#type_id').val('').change();
-        $('#parent_id').val('').change();
-        $('#location_id').val('').change();
         $('#file_deed').attr('src', '');
         $('#file_statement').attr('src', '');
     }
@@ -233,7 +218,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("manager/manage/datatable") }}',
+                url: '{{ url("publisher/review/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -257,7 +242,6 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -268,7 +252,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("manager/manage/show-data") }}',
+            url: '{{ url("publisher/review/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -277,30 +261,35 @@
             beforeSend: function() {
                 onLoading('show', '.modal-content');
                 onUpdate();
+
+                $('#status').prop('checked', false);
+                $('#description').addClass('d-none');
+                $('#info-detail tbody tr td').text('');
             },
             success: function(response) {
                 onLoading('close', '.modal-content');
 
                 $('#table_id').val(response.ID);
-                $('#category_id').val(response.KATEGORI_ID).change();
-                $('#type_id').val(response.JENIS_ID).change();
-                $('#name').val(response.NAME);
-                $('#parent_id').html('<option value="' + response.PARENT_ID + '" selected>' + response.NAME_PARENT + '</option>');
-                $('#shelter_institution').val(response.LEMBAGA_PENAUNG);
-                $('#building').val(response.NAMA_GEDUNG);
-                $('#admin').val(response.KONTAK1);
-                $('#admin_alternative').val(response.KONTAK2);
-                $('#location_id').html('<option value="' + response.VILLAGE_ID + '" selected>' + response.NAMAPROPINSI + ' -> ' + response.NAMAKAB + ' -> ' + response.NAMAKEC + ' -> ' + response.NAMAKEL + '</option>');
-                $('#email').val(response.EMAIL1);
-                $('#email_alternative').val(response.EMAIL2);
-                $('#postal_code').val(response.KODEPOS);
-                $('#phone').val(response.TELP1);
-                $('#phone_alternative').val(response.TELP2);
-                $('#address').val(response.ALAMAT);
-                $('#fax').val(response.FAX1);
-                $('#fax_alternative').val(response.FAX2);
-                $('#website').val(response.WEBSITE);
-                $('#publication_average').val(response.RATA_TERBITAN);
+                $('#category').text(response.NAME_PENERBIT_KATEGORI);
+                $('#type').text(response.NAME_PENERBIT_JENIS);
+                $('#name').text(response.NAME);
+                $('#parent').text(response.NAME_PARENT);
+                $('#shelter_institution').text(response.LEMBAGA_PENAUNG);
+                $('#building').text(response.NAMA_GEDUNG);
+                $('#admin').text(response.KONTAK1);
+                $('#admin_alternative').text(response.KONTAK2);
+                $('#location').text(response.NAMAPROPINSI + ' -> ' + response.NAMAKAB + ' -> ' + response.NAMAKEC + ' -> ' + response.NAMAKEL);
+                $('#email').text(response.EMAIL1);
+                $('#email_alternative').text(response.EMAIL2);
+                $('#postal_code').text(response.KODEPOS);
+                $('#phone').text(response.TELP1);
+                $('#phone_alternative').text(response.TELP2);
+                $('#address').text(response.ALAMAT);
+                $('#fax').text(response.FAX1);
+                $('#fax_alternative').text(response.FAX2);
+                $('#website').text(response.WEBSITE);
+                $('#publication_average').text(response.RATA_TERBITAN);
+                $('#registration_date').text(moment(response.CREATEDATE).format('DD/MM/YYYY'));
 
                 if(response.FILE_AKTE_NOTARIS) {
                     var paramFile = {
@@ -338,7 +327,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("manager/manage/update-data") }}',
+            url: '{{ url("publisher/review/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -393,7 +382,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("manager/manage/destroy-data") }}',
+                        url: '{{ url("publisher/review/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {
