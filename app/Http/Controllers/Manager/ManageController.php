@@ -47,8 +47,7 @@ class ManageController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'penerbit.status = 3';
-        $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
+        $whereCondition[] = "penerbit.status = '3'";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
@@ -82,8 +81,7 @@ class ManageController extends Controller
             from
                 penerbit
             where
-                status = 3 and
-                source_db = 'EDEPOSIT'
+                status = '3'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

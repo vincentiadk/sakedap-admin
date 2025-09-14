@@ -12,7 +12,7 @@ class Select2ServersideController extends Controller
     public function province(Request $request)
     {
         $response = [];
-        $search = Str::headline($request->search);
+        $search = Str::upper($request->search);
 
         $data = QueryAPI::get("
             select
@@ -23,7 +23,7 @@ class Select2ServersideController extends Controller
                     from
                         propinsi
                     where
-                        namapropinsi like '%$search%'
+                        upper(namapropinsi) like '%$search%'
                     order by
                         namapropinsi asc
                 )
@@ -51,7 +51,7 @@ class Select2ServersideController extends Controller
     public function city(Request $request)
     {
         $response = [];
-        $search = Str::headline($request->search);
+        $search = Str::upper($request->search);
 
         $data = QueryAPI::get("
             select
@@ -65,7 +65,7 @@ class Select2ServersideController extends Controller
                     join
                         propinsi on propinsi.id = kabupaten.propinsiid
                     where
-                        kabupaten.namakab like '%$search%'
+                        upper(kabupaten.namakab) like '%$search%'
                     order by
                         kabupaten.namakab asc
                 )
@@ -94,7 +94,7 @@ class Select2ServersideController extends Controller
     public function district(Request $request)
     {
         $response = [];
-        $search = Str::headline($request->search);
+        $search = Str::upper($request->search);
 
         $data = QueryAPI::get("
             select
@@ -111,7 +111,7 @@ class Select2ServersideController extends Controller
                     join
                         propinsi on propinsi.id = kabupaten.propinsiid
                     where
-                        kecamatan.namakec like '%$search%'
+                        upper(kecamatan.namakec) like '%$search%'
                     order by
                         kecamatan.namakec asc
                 )
@@ -144,10 +144,10 @@ class Select2ServersideController extends Controller
         $condition = [];
 
         $whereClause = '';
-        $search = $request->search;
+        $search = Str::upper($request->search);
         $provinceId = $request->province_id;
 
-        $condition[] = "branchs.name like '%$search%'";
+        $condition[] = "upper(branchs.name) like '%$search%'";
         $condition[] = "(branchs.isdelete = 0 or branchs.isdelete is null)";
 
         if ($provinceId) {
@@ -199,10 +199,10 @@ class Select2ServersideController extends Controller
     {
         $whereClause = '';
         $provinceId = $request->province_id ?? null;
-        $search = $request->search;
+        $search = Str::upper($request->search);
 
         $response = [];
-        $condition = ["penerbit.name like '%$search%'"];
+        $condition = ["upper(penerbit.name) like '%$search%'"];
 
         if ($provinceId) {
             $condition[] = "propinsi.id = $provinceId";
@@ -257,10 +257,10 @@ class Select2ServersideController extends Controller
 
         $for = $request->for ?? 'village';
         $provinceId = $request->province_id ?? null;
-        $search = Str::headline($request->search);
+        $search = Str::upper($request->search);
 
         if ($for == 'province') {
-            $condition[] = "namapropinsi like '%$search%'";
+            $condition[] = "upper(namapropinsi) like '%$search%'";
 
             if ($provinceId) {
                 $condition[] = "id = $provinceId";
@@ -284,7 +284,7 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'city') {
-            $condition[] = "kabupaten.namakab like '%$search%'";
+            $condition[] = "upper(kabupaten.namakab) like '%$search%'";
 
             if ($provinceId) {
                 $condition[] = "propinsi.id = $provinceId";
@@ -311,7 +311,7 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'district') {
-            $condition[] = "kecamatan.namakec like '%$search%'";
+            $condition[] = "upper(kecamatan.namakec) like '%$search%'";
 
             if ($provinceId) {
                 $condition[] = "propinsi.id = $provinceId";
@@ -341,7 +341,7 @@ class Select2ServersideController extends Controller
                     rownum <= 20
             ");
         } else if ($for == 'village') {
-            $condition[] = "kelurahan.namakel like '%$search%'";
+            $condition[] = "upper(kelurahan.namakel) like '%$search%'";
 
             if ($provinceId) {
                 $condition[] = "propinsi.id = $provinceId";
@@ -423,7 +423,7 @@ class Select2ServersideController extends Controller
     public function collectionParent(Request $request)
     {
         $response = [];
-        $search = $request->search;
+        $search = Str::upper($request->search);
 
         $data = QueryAPI::get("
             select
@@ -443,8 +443,8 @@ class Select2ServersideController extends Controller
                             e_collections.parent_id = 0
                         ) AND
                         (
-                            e_collections.title_ori like '%$search%' OR
-                            e_collections.title like '%$search%'
+                            upper(e_collections.title_ori) like '%$search%' OR
+                            upper(e_collections.title) like '%$search%'
                         )
                 )
             where

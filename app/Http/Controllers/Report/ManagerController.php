@@ -77,8 +77,7 @@ class ManagerController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'penerbit.status = 3';
-        $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
+        $whereCondition[] = "penerbit.status = '3'";
 
         if ($search) {
             $terms = [];
@@ -120,8 +119,7 @@ class ManagerController extends Controller
             from
                 penerbit
             where
-                penerbit.status = 3 and
-                penerbit.source_db = 'EDEPOSIT'
+                penerbit.status = '3'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

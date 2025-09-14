@@ -13,6 +13,7 @@
 	<link href="{{ asset('themes/css/ltr/all.min.css') }}?v={{ uniqid() }}" id="stylesheet" rel="stylesheet">
 	<script src="{{ asset('themes/js/bootstrap/bootstrap.bundle.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/app.js') }}?v={{ uniqid() }}"></script>
+    {!! NoCaptcha::renderJs() !!}
 
     <style>
         .page-content {
@@ -83,6 +84,9 @@
 										</div>
 									</div>
 								</div>
+                                <div class="mb-3 d-flex justify-content-center w-100">
+                                    {!! NoCaptcha::display() !!}
+                                </div>
 								<div class="mb-3">
 									<button type="submit" class="btn btn-primary w-100">Masuk</button>
 								</div>

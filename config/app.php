@@ -136,6 +136,7 @@ return [
         'Main' => App\Helpers\Main::class,
         'Redis' => Illuminate\Support\Facades\Redis::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
     ],
 
 ];

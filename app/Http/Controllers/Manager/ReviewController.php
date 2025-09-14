@@ -43,8 +43,7 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'penerbit.status = 1';
-        $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
+        $whereCondition[] = "penerbit.status = '1'";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
@@ -78,8 +77,7 @@ class ReviewController extends Controller
             from
                 penerbit
             where
-                status = 3 and
-                source_db = 'EDEPOSIT'
+                status = '1'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

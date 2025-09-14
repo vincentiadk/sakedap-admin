@@ -5,4 +5,5 @@ return [
     Barryvdh\DomPDF\ServiceProvider::class,
     Milon\Barcode\BarcodeServiceProvider::class,
     Maatwebsite\Excel\ExcelServiceProvider::class,
+    Anhskohbo\NoCaptcha\NoCaptchaServiceProvider::class,
 ];

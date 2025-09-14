@@ -66,8 +66,7 @@ class ReportManagerExport implements FromView, ShouldAutoSize
     {
         $request = (object) $this->request;
         $whereClause = '';
-        $whereCondition[] = 'penerbit.status = 3';
-        $whereCondition[] = "penerbit.source_db = 'EDEPOSIT'";
+        $whereCondition[] = "penerbit.status = '3'";
 
         if ($request->type_id) {
             $whereCondition[] = "penerbit.jenis_id = $request->type_id";
