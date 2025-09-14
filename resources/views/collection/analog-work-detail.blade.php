@@ -44,7 +44,7 @@
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" disabled>
                             <option value=""></option>
                             @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}" {{ $collection->WORKSHEET_ID == $w->ID ? 'selected' : '' }}>{{ $w->NAME }}</option>
+                                <option value="{{ $w->ID }}" {{ $collection->WORKSHEET_ID == $w->ID ? 'selected' : '' }}>{{ $w->NAME }} [{{ $w->CODE }}]</option>
                             @endforeach
                         </select>
                     </div>
