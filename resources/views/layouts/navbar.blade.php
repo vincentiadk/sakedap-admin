@@ -1,5 +1,5 @@
 <body>
-	<div class="navbar navbar-expand-xl navbar-static shadow">
+	<div class="navbar navbar-expand-xl navbar-static shadow iframeable">
 		<div class="container-fluid">
 			<div class="navbar-brand flex-1">
 				<a href="{{ url('home') }}" class="d-inline-flex align-items-center">

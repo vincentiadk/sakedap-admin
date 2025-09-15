@@ -1,4 +1,4 @@
-                <div class="navbar navbar-sm navbar-footer border-top">
+                <div class="navbar navbar-sm navbar-footer border-top iframeable">
                     <div class="container-fluid">
                         <span>
                             &copy; {{ date('Y') }}

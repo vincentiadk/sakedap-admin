@@ -26,7 +26,18 @@ $(function () {
     configDataTable();
     disableEnterFormAjax();
     select2Basic();
+    iframeable();
 });
+
+function iframeable() {
+    try {
+        if (window.self !== window.top) {
+            $('.iframeable').hide();
+        }
+    } catch (e) {
+        $('.iframeable').hide();
+    }
+}
 
 function select2Basic() {
     $('.select2-basic').select2({
