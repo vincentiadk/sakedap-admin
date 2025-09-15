@@ -33,10 +33,10 @@ class Framing
 
             $segment = isset($param['segment']) ? $param['segment'] : null;
             $username = isset($param['username']) ? $param['username'] : null;
-            $password = isset($param['password']) ? Main::AESDecrypt($param['password']) : null;
+            $password = isset($param['password']) ? str_replace(' ', '+', $param['password']) : null;
 
             if ($segment && $username && $password) {
-                $login = Main::login($username, $password);
+                $login = Main::login($username, Main::AESDecrypt($password));
 
                 if ($login) {
                     return redirect($segment ?? '/');
