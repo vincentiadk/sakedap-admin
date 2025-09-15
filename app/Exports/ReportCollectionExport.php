@@ -49,8 +49,8 @@ class ReportCollectionExport implements FromView, ShouldAutoSize
             $whereCondition[] = "catalogs.title like '%$request->title%'";
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "catalogs.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {

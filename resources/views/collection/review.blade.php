@@ -22,8 +22,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Penerbit :</label>
-                        <select class="form-select" name="publisher_id" id="publisher_id" data-placeholder="Semua"></select>
+                        <label class="form-label">Pelaksana Serah :</label>
+                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -81,7 +81,7 @@
                     <tr>
                         <th nowrap>No</th>
                         <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Penerbit</th>
+                        <th nowrap>Pelaksana Serah</th>
                         <th nowrap>Judul</th>
                         <th nowrap>Jenis</th>
                         <th nowrap>Kode</th>
@@ -105,11 +105,11 @@
                 minimumInputLength: 0
             });
 
-            select2Serverside('#publisher_id', 'publisher', {
+            select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
         } else {
-            select2Serverside('#publisher_id', 'publisher');
+            select2Serverside('#executor_id', 'executor');
             select2Serverside('#province_id', 'location');
         }
 
@@ -129,7 +129,7 @@
                 dataType: 'JSON',
                 data: {
                     title: $('#title').val(),
-                    publisher_id: $('#publisher_id').val(),
+                    executor_id: $('#executor_id').val(),
                     province_id: $('#province_id').val(),
                     year: $('#year').val(),
                     worksheet_id: $('#worksheet_id').val(),

@@ -63,8 +63,8 @@ class PrintedWorkController extends Controller
             $whereCondition[] = "catalogs.title like '%$search%'";
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "catalogs.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {

@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Laporan - <span class="fw-normal">Penerbit</span>
+                Laporan - <span class="fw-normal">Pelaksana Serah</span>
             </h4>
         </div>
     </div>
@@ -50,7 +50,7 @@
         </div>
         <div class="card-footer bg-white">
             <div class="text-end">
-                <a href="{{ url('report/publisher') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                <a href="{{ url('report/executor') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
                     <i class="ph-arrows-clockwise me-1"></i>
                     Reset Filter
                 </a>
@@ -76,7 +76,7 @@
                 <thead class="text-bg-light">
                     <tr>
                         <th nowrap>No</th>
-                        <th nowrap>Penerbit</th>
+                        <th nowrap>Pelaksana Serah</th>
                         <th nowrap>Jenis</th>
                         <th nowrap>Kategori</th>
                         <th nowrap>Provinsi</th>
@@ -125,7 +125,7 @@
 
         onLoading('show', 'body');
 
-        location.href = '{{ url("report/publisher?") }}' + $.param(queryString);
+        location.href = '{{ url("report/executor?") }}' + $.param(queryString);
     }
 
     function loadData() {
@@ -137,7 +137,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("report/publisher/datatable") }}',
+                url: '{{ url("report/executor/datatable") }}',
                 dataType: 'JSON',
                 data: {
                     type_id: $('#type_id').val(),

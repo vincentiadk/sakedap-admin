@@ -42,8 +42,8 @@ class DownloadController extends Controller
 
             if ($types == 'report-periodic') {
                 $typeText = 'Laporan Periodik';
-            } else if ($types == 'report-publisher') {
-                $typeText = 'Laporan Penerbit';
+            } else if ($types == 'report-executor') {
+                $typeText = 'Laporan Pelaksana Serah';
             } else if ($types == 'report-collection') {
                 $typeText = 'Laporan Koleksi';
             } else if ($types == 'report-performance-user') {

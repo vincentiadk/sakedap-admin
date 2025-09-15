@@ -14,15 +14,15 @@
                 </th>
             </tr>
         @endif
-        @if($request->publisher_id)
+        @if($request->executor_id)
             @php
-                $id = $request->publisher_id;
+                $id = $request->executor_id;
                 $getRow = QueryAPI::get("select * from penerbit where id = $id", true);
             @endphp
             @if($getRow)
                 <tr>
                     <th colspan="15" style="border:1px solid black; text-align:left; vertical-align:center; background:#149848;">
-                        Penerbit : {{ $getRow->NAME }}
+                        Pelaksana Serah : {{ $getRow->NAME }}
                     </th>
                 </tr>
             @endif
@@ -72,7 +72,7 @@
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Tahun</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Preview</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Tgl Validasi</th>
-            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Penerbit</th>
+            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Pelaksana Serah</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Provinsi</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Kabupaten</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Jenis</th>

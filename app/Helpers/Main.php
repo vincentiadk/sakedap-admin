@@ -193,22 +193,22 @@ class Main
     /**
      * copyright
      *
-     * @param  mixed $publisherId
+     * @param  mixed $executorId
      * @return void
      */
-    public static function copyright($publisherId)
+    public static function copyright($executorId)
     {
-        $publisher = QueryAPI::get("
+        $executor = QueryAPI::get("
             select
                 *
             from
                 penerbit
             where
-                id = $publisherId
+                id = $executorId
         ", true);
 
-        if ($publisher) {
-            return 'Copyrights (c) ' . date('Y') . ' ' . $publisher->NAME;
+        if ($executor) {
+            return 'Copyrights (c) ' . date('Y') . ' ' . $executor->NAME;
         }
 
         return null;

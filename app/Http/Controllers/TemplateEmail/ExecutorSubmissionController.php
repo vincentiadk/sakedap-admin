@@ -6,7 +6,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class PublisherSubmissionController extends Controller
+class ExecutorSubmissionController extends Controller
 {
     public function index(Request $request)
     {
@@ -31,14 +31,14 @@ class PublisherSubmissionController extends Controller
                 ]);
             }
 
-            return redirect('template-email/publisher-submission')->with([
+            return redirect('template-email/executor-submission')->with([
                 'success' => 'Data berhasil disimpan'
             ]);
         }
 
         $data = [
             'template' => $template,
-            'content' => 'template-email.publisher-submission'
+            'content' => 'template-email.executor-submission'
         ];
 
         return view('layouts.index', ['data' => $data]);

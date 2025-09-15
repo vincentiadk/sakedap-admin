@@ -195,7 +195,7 @@ class Select2ServersideController extends Controller
         return response()->json($response);
     }
 
-    public function publisher(Request $request)
+    public function executor(Request $request)
     {
         $whereClause = '';
         $provinceId = $request->province_id ?? null;

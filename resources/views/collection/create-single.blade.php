@@ -14,10 +14,10 @@
     <form id="form-data">
         <div class="card">
             <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Penerbit / Produser / Label / Rumah Produksi <span class="text-danger fw-bold">*</span></h5>
+                <h5 class="hstack gap-2 mb-0">Pelaksana Serah <span class="text-danger fw-bold">*</span></h5>
             </div>
             <div class="card-body">
-                <select class="form-select" name="publisher_id" id="publisher_id"></select>
+                <select class="form-select" name="executor_id" id="executor_id"></select>
             </div>
         </div>
         <div class="card">
@@ -303,12 +303,12 @@
                 minimumInputLength: 0
             });
 
-            select2Serverside('#publisher_id', 'publisher', {
+            select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
         } else {
             select2Serverside('#branch_id', 'branch');
-            select2Serverside('#publisher_id', 'publisher');
+            select2Serverside('#executor_id', 'executor');
 
             select2Serverside('#branch_id', 'city', {
                 for: 'city'
@@ -351,12 +351,12 @@
                         title: 'Data ditemukan',
                         icon: 'success',
                         showDenyButton: true,
-                        confirmButtonText: 'Otomatis Isi Judul & Penerbit',
+                        confirmButtonText: 'Otomatis Isi Judul & Pelaksana Serah',
                         denyButtonText: 'Hanya Cek Kode'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $('#title').val(response.data.title);
-                            $('#publisher_id').html(`<option value="` + response.data.penerbit_id + `">` + response.data.nama_penerbit + `</option>`);
+                            $('#executor_id').html(`<option value="` + response.data.penerbit_id + `">` + response.data.nama_penerbit + `</option>`);
                         }
                     });
                 } else {

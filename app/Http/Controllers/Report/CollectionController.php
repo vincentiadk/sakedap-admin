@@ -23,7 +23,7 @@ class CollectionController extends Controller
             $payload = [
                 'is_not_center_branch' => Main::isNotCenterBranch(),
                 'title' => $request->title,
-                'publisher_id' => $request->publisher_id,
+                'executor_id' => $request->executor_id,
                 'province_id' => $request->province_id,
                 'year' => $request->year,
                 'worksheet_id' => $request->worksheet_id,
@@ -84,8 +84,8 @@ class CollectionController extends Controller
             $whereCondition[] = "catalogs.title like '%$request->title%'";
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "catalogs.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {

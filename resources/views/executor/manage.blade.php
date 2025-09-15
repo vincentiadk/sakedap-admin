@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Penerbit - <span class="fw-normal">Pengelolaan</span>
+                Pelaksana Serah - <span class="fw-normal">Pengelolaan</span>
             </h4>
         </div>
     </div>
@@ -174,7 +174,7 @@
     $(function() {
         loadData();
 
-        select2Serverside('#parent_id', 'publisher');
+        select2Serverside('#parent_id', 'executor');
         select2Serverside('#location_id', 'location');
     });
 
@@ -233,7 +233,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("publisher/manage/datatable") }}',
+                url: '{{ url("executor/manage/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -268,7 +268,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("publisher/manage/show-data") }}',
+            url: '{{ url("executor/manage/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -338,7 +338,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("publisher/manage/update-data") }}',
+            url: '{{ url("executor/manage/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -393,7 +393,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("publisher/manage/destroy-data") }}',
+                        url: '{{ url("executor/manage/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

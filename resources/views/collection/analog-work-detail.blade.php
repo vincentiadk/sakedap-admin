@@ -27,7 +27,7 @@
     <form id="form-data">
         <div class="card">
             <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Penerbit / Produser / Label / Rumah Produksi</h5>
+                <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
             </div>
             <div class="card-body">
                 {{ $collection->NAME_PENERBIT }}

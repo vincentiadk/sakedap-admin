@@ -32,7 +32,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('city', 'Select2ServersideController@city');
         Route::get('district', 'Select2ServersideController@district');
         Route::get('branch', 'Select2ServersideController@branch');
-        Route::get('publisher', 'Select2ServersideController@publisher');
+        Route::get('executor', 'Select2ServersideController@executor');
         Route::get('location', 'Select2ServersideController@location');
         Route::get('collection-parent', 'Select2ServersideController@collectionParent');
     });
@@ -143,7 +143,7 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
-    Route::prefix('publisher')->namespace('Publisher')->group(function () {
+    Route::prefix('executor')->namespace('Executor')->group(function () {
         Route::prefix('create-data')->group(function () {
             Route::get('/', 'CreateDataController@index');
             Route::post('submitted', 'CreateDataController@submitted');
@@ -276,16 +276,16 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], '/', 'ActivationController@index');
         });
 
-        Route::prefix('publisher-reject')->group(function () {
-            Route::match(['get', 'post'], '/', 'PublisherRejectController@index');
+        Route::prefix('executor-reject')->group(function () {
+            Route::match(['get', 'post'], '/', 'ExecutorRejectController@index');
         });
 
-        Route::prefix('publisher-submission')->group(function () {
-            Route::match(['get', 'post'], '/', 'PublisherSubmissionController@index');
+        Route::prefix('executor-submission')->group(function () {
+            Route::match(['get', 'post'], '/', 'ExecutorSubmissionController@index');
         });
 
-        Route::prefix('publisher-accept')->group(function () {
-            Route::match(['get', 'post'], '/', 'PublisherAcceptController@index');
+        Route::prefix('executor-accept')->group(function () {
+            Route::match(['get', 'post'], '/', 'ExecutorAcceptController@index');
         });
 
         Route::prefix('collection-problem')->group(function () {
@@ -307,7 +307,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('load-data', 'PeriodicController@loadData');
         });
 
-        Route::prefix('publisher')->group(function () {
+        Route::prefix('executor')->group(function () {
             Route::get('/', 'ManagerController@index');
             Route::get('datatable', 'ManagerController@datatable');
         });

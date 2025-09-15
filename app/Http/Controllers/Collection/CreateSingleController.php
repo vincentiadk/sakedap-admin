@@ -42,7 +42,7 @@ class CreateSingleController extends Controller
 
         if ($request->ajax()) {
             $validation = Validator::make($request->all(), [
-                'publisher_id' => 'required',
+                'executor_id' => 'required',
                 'worksheet_id' => 'required',
                 'city_id' => 'required',
                 'branch_id' => 'required',
@@ -53,7 +53,7 @@ class CreateSingleController extends Controller
                 'file_cover' => 'required|image|mimes:png,jpg,jpeg',
                 'file_content' => 'required|file|mimes:pdf,epub,mp3,mp4,wav',
             ], [
-                'publisher_id.required' => 'Penerbit tidak boleh kosong',
+                'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
                 'worksheet_id.required' => 'Jenis tidak boleh kosong',
                 'city_id.required' => 'Kota tidak boleh kosong',
                 'city_id.required' => 'Perpustakaan tidak boleh kosong',
@@ -92,7 +92,7 @@ class CreateSingleController extends Controller
 
                     $createCollection = QueryAPI::create('e_collections', [
                         'id_old' => 0,
-                        'publisher_id' => $request->publisher_id,
+                        'publisher_id' => $request->executor_id,
                         'city_id' => $request->city_id,
                         'parent_id' => 0,
                         'branch_id' => $request->branch_id,
@@ -119,10 +119,10 @@ class CreateSingleController extends Controller
                         'validated_at' => date('Y-m-d H:i:s'),
                         'validated_by' => session('id'),
                         'price' => str_replace([',', '.'], '', $request->price),
-                        'copyright' => Main::copyright($request->publisher_id),
+                        'copyright' => Main::copyright($request->executor_id),
                         'worksheet_id' => $request->worksheet_id,
                         'collection_media_id' => $request->collection_media_id,
-                        'penerbit_id' => $request->publisher_id,
+                        'penerbit_id' => $request->executor_id,
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
                         'author' => collect($author)->implode(';'),
@@ -148,7 +148,7 @@ class CreateSingleController extends Controller
                                 if ($editionTitle && $editionDate && $editionCover && $editionContent) {
                                     $createEdition = QueryAPI::create('e_collections', [
                                         'id_old' => 0,
-                                        'publisher_id' => $request->publisher_id,
+                                        'publisher_id' => $request->executor_id,
                                         'city_id' => $request->city_id,
                                         'branch_id' => $request->branch_id,
                                         'parent_id' => $createCollection->id,
@@ -177,10 +177,10 @@ class CreateSingleController extends Controller
                                         'validated_at' => date('Y-m-d H:i:s'),
                                         'validated_by' => session('id'),
                                         'price' => str_replace([',', '.'], '', $request->price),
-                                        'copyright' => Main::copyright($request->publisher_id),
+                                        'copyright' => Main::copyright($request->executor_id),
                                         'worksheet_id' => $request->worksheet_id,
                                         'collection_media_id' => $request->collection_media_id,
-                                        'penerbit_id' => $request->publisher_id,
+                                        'penerbit_id' => $request->executor_id,
                                         'kabupaten_id' => $request->city_id,
                                         'title' => $request->title,
                                         'author' => collect($author)->implode(';'),

@@ -64,8 +64,8 @@ class LabelController extends Controller
             $whereCondition[] = "collections.title like '%$search%'";
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "collections.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "collections.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {

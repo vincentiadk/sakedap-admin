@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Publisher;
+namespace App\Http\Controllers\Executor;
 
 use Carbon\Carbon;
 use App\Helpers\Main;
@@ -16,7 +16,7 @@ class ManageController extends Controller
         $data = [
             'category' => QueryAPI::get("select * from penerbit_kategori"),
             'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'publisher.manage'
+            'content' => 'executor.manage'
         ];
 
         return view('layouts.index', ['data' => $data]);

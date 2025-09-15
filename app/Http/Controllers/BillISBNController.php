@@ -34,8 +34,8 @@ class BillISBNController extends Controller
             $filter['search'] = $search;
         }
 
-        if ($request->publisher) {
-            $filter['nama_penerbit'] = $request->publisher;
+        if ($request->executor) {
+            $filter['nama_penerbit'] = $request->executor;
         }
 
         if ($request->title) {

@@ -50,8 +50,8 @@ class ProblemController extends Controller
             $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "e_collections.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "e_collections.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {

@@ -22,8 +22,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="form-label">Penerbit :</label>
-                        <input type="text" class="form-control" name="publisher" id="publisher" placeholder="....................">
+                        <label class="form-label">Pelaksana Serah :</label>
+                        <input type="text" class="form-control" name="executor" id="executor" placeholder="....................">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -119,7 +119,7 @@
                         <th nowrap>No</th>
                         <th nowrap>Judul</th>
                         <th nowrap>Kepeng</th>
-                        <th nowrap>Penerbit</th>
+                        <th nowrap>Pelaksana Serah</th>
                         <th nowrap>Tahun</th>
                         <th nowrap>Tempat</th>
                         <th nowrap>Provinsi</th>
@@ -168,7 +168,7 @@
                 url: '{{ url("bill-isbn/datatable") }}',
                 dataType: 'JSON',
                 data: {
-                    publisher: $('#publisher').val(),
+                    executor: $('#executor').val(),
                     title: $('#title').val(),
                     author: $('#author').val(),
                     year: $('#year').val(),

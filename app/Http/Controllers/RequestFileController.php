@@ -50,8 +50,8 @@ class RequestFileController extends Controller
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 
-        if ($request->publisher_id) {
-            $whereCondition[] = "catalogs.penerbit_id = $request->publisher_id";
+        if ($request->executor_id) {
+            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
         }
 
         if ($request->date) {

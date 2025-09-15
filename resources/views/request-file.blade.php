@@ -22,8 +22,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="form-label">Penerbit :</label>
-                        <select class="form-select" name="publisher_id" id="publisher_id" data-placeholder="Semua"></select>
+                        <label class="form-label">Pelaksana Serah :</label>
+                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 <thead class="text-bg-light">
                     <tr>
                         <th nowrap>No</th>
-                        <th nowrap>Penerbit</th>
+                        <th nowrap>Pelaksana Serah</th>
                         <th nowrap>Judul</th>
                         <th nowrap>Status</th>
                         <th nowrap>Jumlah Pengunduhan</th>
@@ -65,11 +65,11 @@
         datePickerBasic('#date');
 
         if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-            select2Serverside('#publisher_id', 'publisher', {
+            select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
         } else {
-            select2Serverside('#publisher_id', 'publisher');
+            select2Serverside('#executor_id', 'executor');
         }
 
         loadData();
@@ -91,7 +91,7 @@
                 url: '{{ url("request-file/datatable") }}',
                 dataType: 'JSON',
                 data: {
-                    publisher_id: $('#publisher_id').val(),
+                    executor_id: $('#executor_id').val(),
                     date: $('#date').val(),
                 },
                 beforeSend: function() {

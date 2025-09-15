@@ -6,7 +6,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class PublisherRejectController extends Controller
+class ExecutorAcceptController extends Controller
 {
     public function index(Request $request)
     {
@@ -16,7 +16,7 @@ class PublisherRejectController extends Controller
             from
                 e_settings
             where
-                slug = 'template-email-publisher-rejected'
+                slug = 'template-email-publisher-success'
         ", true);
 
         if ($request->_token == csrf_token()) {
@@ -27,18 +27,18 @@ class PublisherRejectController extends Controller
             } else {
                 QueryAPI::create('e_settings', [
                     'content' => $request->content,
-                    'slug' => 'template-email-publisher-rejected'
+                    'slug' => 'template-email-publisher-success'
                 ]);
             }
 
-            return redirect('template-email/publisher-reject')->with([
+            return redirect('template-email/executor-accept')->with([
                 'success' => 'Data berhasil disimpan'
             ]);
         }
 
         $data = [
             'template' => $template,
-            'content' => 'template-email.publisher-reject'
+            'content' => 'template-email.executor-accept'
         ];
 
         return view('layouts.index', ['data' => $data]);

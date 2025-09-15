@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Template Email - <span class="fw-normal">Penerbit Diterima</span>
+                Template Email - <span class="fw-normal">Pelaksana Serah Pengajuan</span>
             </h4>
         </div>
     </div>

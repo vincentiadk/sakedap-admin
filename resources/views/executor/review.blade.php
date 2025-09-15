@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Penerbit - <span class="fw-normal">Peninjauan</span>
+                Pelaksana Serah - <span class="fw-normal">Peninjauan</span>
             </h4>
         </div>
     </div>
@@ -218,7 +218,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("publisher/review/datatable") }}',
+                url: '{{ url("executor/review/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -252,7 +252,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("publisher/review/show-data") }}',
+            url: '{{ url("executor/review/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -327,7 +327,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("publisher/review/update-data") }}',
+            url: '{{ url("executor/review/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -382,7 +382,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("publisher/review/destroy-data") }}',
+                        url: '{{ url("executor/review/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

@@ -68,13 +68,13 @@
             `);
 
             $('#param-id').html(`
-                <select class="form-select" name="id" id="id" data-placeholder="Pilih Penerbit"></select>
+                <select class="form-select" name="id" id="id" data-placeholder="Pilih Pelaksana Serah"></select>
             `);
 
             if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-                select2Serverside('#id', 'publisher');
+                select2Serverside('#id', 'executor');
             } else {
-                select2Serverside('#id', 'publisher', {
+                select2Serverside('#id', 'executor', {
                     province_id: '{{ session("province_id") }}'
                 });
             }

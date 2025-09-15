@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Penerbit - <span class="fw-normal">Tambah Data</span>
+                Pelaksana Serah - <span class="fw-normal">Tambah Data</span>
             </h4>
         </div>
     </div>
@@ -159,11 +159,11 @@
                 province_id: '{{ session("province_id") }}'
             });
 
-            select2Serverside('#parent_id', 'publisher', {
+            select2Serverside('#parent_id', 'executor', {
                 province_id: '{{ session("province_id") }}'
             });
         } else {
-            select2Serverside('#parent_id', 'publisher');
+            select2Serverside('#parent_id', 'executor');
             select2Serverside('#location_id', 'location');
         }
 
@@ -196,7 +196,7 @@
 
     function submitted() {
         $.ajax({
-            url: '{{ url("publisher/create-data/submitted") }}',
+            url: '{{ url("executor/create-data/submitted") }}',
             type: 'POST',
             dataType: 'JSON',
             data: new FormData($('#form-data')[0]),
@@ -227,7 +227,7 @@
                         if (result.isConfirmed) {
                             onLoading('show', 'body');
 
-                            location.href = '{{ url("publisher/create-data") }}';
+                            location.href = '{{ url("executor/create-data") }}';
                         }
                     });
                 } else if(response.code == 400) {
