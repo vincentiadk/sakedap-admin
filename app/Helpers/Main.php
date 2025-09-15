@@ -251,10 +251,12 @@ class Main
      * @param  mixed $text
      * @return void
      */
-    public static function AESCrypt($text)
+    public static function AESCrypt($text, $key = null, $iv = null)
     {
         $cipher = 'aes-256-cbc';
-        $encrypted = openssl_encrypt($text, $cipher, env('AES_KEY'), OPENSSL_RAW_DATA, env('AES_IV'));
+        $key = $key ?? env('AES_KEY');
+        $iv = $iv ?? env('AES_IV');
+        $encrypted = openssl_encrypt($text, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
         return base64_encode($encrypted);
     }
@@ -265,12 +267,14 @@ class Main
      * @param  mixed $text
      * @return void
      */
-    public static function AESDecrypt($text)
+    public static function AESDecrypt($text, $key = null, $iv = null)
     {
         $cipher = 'aes-256-cbc';
+        $key = $key ?? env('AES_KEY');
+        $iv = $iv ?? env('AES_IV');
         $decoded = base64_decode($text);
 
-        $decrypted = openssl_decrypt($decoded, $cipher, env('AES_KEY'), OPENSSL_RAW_DATA, env('AES_IV'));
+        $decrypted = openssl_decrypt($decoded, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
         return $decrypted;
     }

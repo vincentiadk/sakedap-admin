@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -225,32 +226,7 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('supervision')->group(function () {
-        Route::get('compliance', function () {
-            return view('layouts.index', [
-                'data' => [
-                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataPenerbit.aspx',
-                    'content' => 'supervision'
-                ]
-            ]);
-        });
-
-        Route::get('coaching', function () {
-            return view('layouts.index', [
-                'data' => [
-                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataJadwalPembinaanList.aspx',
-                    'content' => 'supervision'
-                ]
-            ]);
-        });
-
-        Route::get('monitoring', function () {
-            return view('layouts.index', [
-                'data' => [
-                    'framing' => 'http://digitlib.site/inlis-ent-2025/_eksternal.aspx?url=/Sakedap_Monitoring/DataBuktiPemantauanList.aspx',
-                    'content' => 'supervision'
-                ]
-            ]);
-        });
+        Route::get('{segment}', 'SupervisionController@index');
     });
 
     Route::prefix('request-file')->group(function () {
