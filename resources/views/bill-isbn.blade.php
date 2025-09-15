@@ -36,8 +36,9 @@
                     <div class="form-group">
                         <label class="form-label">Tahun Terbit :</label>
                         <select class="form-select" name="year" id="year">
+                            <option value="">Semua</option>
                             @for($i = 2019; $i <= date('Y'); $i++)
-                                <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>{{ $i }}</option>
+                                <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
                         </select>
                     </div>
@@ -66,7 +67,10 @@
                         <select class="form-select" name="media" id="media">
                             <option value="">Semua</option>
                             <option value="cetak">Cetak</option>
-                            <option value="digital">Digital</option>
+                            <option value="digital pdf">Digital PDF</option>
+                            <option value="digital epub">Digital EPUB</option>
+                            <option value="audio book">Audio Book</option>
+                            <option value="audio visual book">Audio Visual Book</option>
                         </select>
                     </div>
                 </div>
@@ -123,6 +127,7 @@
                         <th nowrap>Media</th>
                         <th nowrap>Pustaka</th>
                         <th nowrap>Tgl Terima KCKR</th>
+                        <th nowrap>Tgl Terima Provinsi</th>
                         <th nowrap>Sinopsis</th>
                         <th nowrap>Tgl Terima</th>
                         <th nowrap>Tgl Dibuat</th>
@@ -199,6 +204,7 @@
                 { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle text-wrap' },
+                { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle' },
