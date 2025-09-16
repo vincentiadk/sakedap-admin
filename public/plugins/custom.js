@@ -218,8 +218,8 @@ function select2Serverside(selector, endpoint, payload = {}, additionalConfig = 
     $(selector).select2(configuration);
 }
 
-function select2ServersideTag(selector, endpoint, payload = {}) {
-    $(selector).select2({
+function select2ServersideTag(selector, endpoint, payload = {}, additionalConfig = {}) {
+    var configuration = $.extend({
         placeholder: 'Pilih',
         minimumInputLength: 1,
         cache: true,
@@ -255,7 +255,9 @@ function select2ServersideTag(selector, endpoint, payload = {}) {
                 }
             }
         }
-    });
+    }, additionalConfig);
+
+    $(selector).select2(configuration);
 }
 
 function dragAndDropFile(selector = '.file-input', additionalConfig = {}) {

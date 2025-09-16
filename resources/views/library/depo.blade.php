@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Perpustakaan - <span class="fw-normal">Lokasi</span>
+                Perpustakaan - <span class="fw-normal">Depo</span>
             </h4>
         </div>
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
@@ -160,7 +160,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("library/location/datatable") }}',
+                url: '{{ url("library/depo/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
@@ -191,7 +191,7 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("library/location/create-data") }}',
+            url: '{{ url("library/depo/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -234,7 +234,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("library/location/show-data") }}',
+            url: '{{ url("library/depo/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -266,7 +266,7 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("library/location/update-data") }}',
+            url: '{{ url("library/depo/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),
@@ -321,7 +321,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("library/location/destroy-data") }}',
+                        url: '{{ url("library/depo/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

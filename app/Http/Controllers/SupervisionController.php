@@ -17,11 +17,11 @@ class SupervisionController extends Controller
         );
 
         if ($segment == 'compliance') {
-            $framing = 'http://digitlib.site/Sakedap_Monitoring/DataPenerbit.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataPenerbit.aspx?l=' . $encFrameInlis;
         } else if ($segment == 'coaching') {
-            $framing = 'http://digitlib.site/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $encFrameInlis;
         } else if ($segment == 'monitoring') {
-            $framing = 'http://digitlib.site/Sakedap_Monitoring/DataBuktiPemantauanList.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataBuktiPemantauanList.aspx?l=' . $encFrameInlis;
         } else {
             $framing = '';
         }

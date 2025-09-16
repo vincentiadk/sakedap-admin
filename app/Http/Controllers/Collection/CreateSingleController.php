@@ -79,22 +79,48 @@ class CreateSingleController extends Controller
                     $author = [];
 
                     if ($request->cc_contributor) {
-                        foreach ($request->cc_contributor as $key => $ccc) {
-                            $contributorId = isset($request->cc_contributor_id[$key]) ? $request->cc_contributor_id[$key] : null;
-                            $contributorName = isset($request->cc_contributor_name[$key]) ? $request->cc_contributor_name[$key] : null;
-                            $contributorData = QueryAPI::get("select * from e_contributors where id = $contributorId and deleted_at is null", true);
+                        $contributorIds = array_filter($request->cc_contributor_id ?? []);
 
-                            if ($contributorData && $contributorName) {
-                                $author[] = '(' . $contributorData->NAME . ') ' . $contributorName;
+                        if (!empty($contributorIds)) {
+                            $contributorsData = QueryAPI::get("
+                                select
+                                    id,
+                                    name
+                                from
+                                    e_contributors
+                                where
+                                    id in (" . implode(',', $contributorIds) . ") and
+                                    deleted_at is null
+                            ", true);
+
+                            $contributorsLookup = [];
+
+                            if ($contributorsData) {
+                                foreach ($contributorsData as $contributor) {
+                                    $contributorsLookup[$contributor->ID] = $contributor->NAME;
+                                }
+                            }
+
+                            foreach ($request->cc_contributor as $key => $ccc) {
+                                $contributorId = $request->cc_contributor_id[$key] ?? null;
+                                $contributorName = $request->cc_contributor_name[$key] ?? null;
+
+                                if ($contributorId && $contributorName && isset($contributorsLookup[$contributorId])) {
+                                    $author[] = '(' . $contributorsLookup[$contributorId] . ') ' . $contributorName;
+                                }
                             }
                         }
                     }
 
-                    $createCollection = QueryAPI::create('e_collections', [
+                    $currentTime = date('Y-m-d H:i:s');
+                    $userId = session('id');
+                    $publishTime = strtotime($request->publish_time);
+                    $receivedTime = strtotime($request->received_at);
+
+                    $baseCollectionData = [
                         'id_old' => 0,
                         'publisher_id' => $request->executor_id,
                         'city_id' => $request->city_id,
-                        'parent_id' => 0,
                         'branch_id' => $request->branch_id,
                         'title_ori' => $request->title,
                         'album' => $request->album,
@@ -104,20 +130,20 @@ class CreateSingleController extends Controller
                         'ddc' => $request->ddc,
                         'code' => $request->code,
                         'code_type' => $request->code_type ?? 0,
-                        'publication_month' => date('m', strtotime($request->publish_time)),
-                        'publication_year' => date('Y', strtotime($request->publish_time)),
+                        'publication_month' => date('m', $publishTime),
+                        'publication_year' => date('Y', $publishTime),
                         'preview' => $request->preview,
                         'description' => $request->description,
                         'sync' => 0,
                         'manual' => 1,
                         'akses' => $request->access,
                         'status' => 2,
-                        'received_at' => date('Y-m-d H:i:s', strtotime($request->received_at)),
-                        'received_by' => session('id'),
-                        'created_by' => session('id'),
-                        'updated_by' => session('id'),
-                        'validated_at' => date('Y-m-d H:i:s'),
-                        'validated_by' => session('id'),
+                        'received_at' => date('Y-m-d H:i:s', $receivedTime),
+                        'received_by' => $userId,
+                        'created_by' => $userId,
+                        'updated_by' => $userId,
+                        'validated_at' => $currentTime,
+                        'validated_by' => $userId,
                         'price' => str_replace([',', '.'], '', $request->price),
                         'copyright' => Main::copyright($request->executor_id),
                         'worksheet_id' => $request->worksheet_id,
@@ -125,104 +151,100 @@ class CreateSingleController extends Controller
                         'penerbit_id' => $request->executor_id,
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
-                        'author' => collect($author)->implode(';'),
-                    ]);
+                        'author' => implode(';', $author),
+                        'parent_id' => 0,
+                    ];
 
-                    if ($createCollection) {
-                        if ($request->category) {
-                            foreach ($request->category as $c) {
-                                QueryAPI::create('e_collection_categories', [
-                                    'collection_id' => $createCollection->ID,
-                                    'category_id' => $c
-                                ]);
-                            }
+                    $createCollection = QueryAPI::create('e_collections', $baseCollectionData);
+
+                    if (!$createCollection) {
+                        throw new \Exception('Gagal membuat data koleksi');
+                    }
+
+                    if ($request->category && is_array($request->category)) {
+                        $categoryData = [];
+
+                        foreach ($request->category as $categoryId) {
+                            $categoryData[] = [
+                                'collection_id' => $createCollection->ID,
+                                'category_id' => $categoryId
+                            ];
                         }
 
-                        if ($request->cc_edition && $request->has_edition) {
-                            foreach ($request->cc_edition as $key => $cce) {
-                                $editionTitle = isset($request->cc_edition_title[$key]) ? $request->cc_edition_title[$key] : null;
-                                $editionDate = isset($request->cc_edition_date[$key]) ? $request->cc_edition_date[$key] : null;
-                                $editionCover = $request->hasFile('cc_edition_cover')[$key] ? $request->file('cc_edition_cover')[$key] : null;
-                                $editionContent = $request->hasFile('cc_edition_content')[$key] ? $request->file('cc_edition_content')[$key] : null;
+                        foreach ($categoryData as $data) {
+                            QueryAPI::create('e_collection_categories', $data);
+                        }
+                    }
 
-                                if ($editionTitle && $editionDate && $editionCover && $editionContent) {
-                                    $createEdition = QueryAPI::create('e_collections', [
-                                        'id_old' => 0,
-                                        'publisher_id' => $request->executor_id,
-                                        'city_id' => $request->city_id,
-                                        'branch_id' => $request->branch_id,
-                                        'parent_id' => $createCollection->id,
-                                        'title_ori' => $request->title,
-                                        'album' => $request->album,
-                                        'slug' => Str::slug($request->title, '-'),
-                                        'series' => $request->series,
-                                        'serial' => $request->serial,
-                                        'ddc' => $request->ddc,
-                                        'code' => $request->code,
-                                        'code_type' => $request->code_type ?? 0,
-                                        'publication_month' => date('m', strtotime($editionDate)),
-                                        'publication_year' => date('Y', strtotime($editionDate)),
-                                        'preview' => $request->preview,
-                                        'edition' => $editionTitle,
-                                        'preview' => $request->preview,
-                                        'sync' => 0,
-                                        'manual' => 1,
-                                        'akses' => $request->access,
-                                        'date' => $editionDate,
-                                        'status' => 2,
-                                        'received_at' => date('Y-m-d H:i:s', strtotime($request->received_at)),
-                                        'received_by' => session('id'),
-                                        'created_by' => session('id'),
-                                        'updated_by' => session('id'),
-                                        'validated_at' => date('Y-m-d H:i:s'),
-                                        'validated_by' => session('id'),
-                                        'price' => str_replace([',', '.'], '', $request->price),
-                                        'copyright' => Main::copyright($request->executor_id),
-                                        'worksheet_id' => $request->worksheet_id,
-                                        'collection_media_id' => $request->collection_media_id,
-                                        'penerbit_id' => $request->executor_id,
-                                        'kabupaten_id' => $request->city_id,
-                                        'title' => $request->title,
-                                        'author' => collect($author)->implode(';'),
-                                    ]);
+                    if ($request->cc_edition && $request->has_edition) {
+                        $filesToUpload = [];
 
-                                    if ($createEdition) {
-                                        $fileCover = $editionCover;
-                                        $fileContent = $editionContent;
+                        foreach ($request->cc_edition as $key => $cce) {
+                            $editionTitle = $request->cc_edition_title[$key] ?? null;
+                            $editionDate = $request->cc_edition_date[$key] ?? null;
+                            $editionCover = null;
+                            $editionContent = null;
 
-                                        QueryAPI::uploadFile([
-                                            'type' => 'cover',
-                                            'id' => $createEdition->ID,
-                                            'status' => 1,
-                                            'hash' => md5('FILE-COVER-' . $createEdition->SLUG),
-                                            'mime' => $fileCover->getMimeType(),
-                                            'filesize' => $fileCover->getSize(),
-                                            'method' => 4,
-                                            'iszip' => false,
-                                            'file' => $fileCover,
-                                        ]);
+                            if ($request->hasFile('cc_edition_cover') && isset($request->file('cc_edition_cover')[$key])) {
+                                $editionCover = $request->file('cc_edition_cover')[$key];
+                            }
+                            if ($request->hasFile('cc_edition_content') && isset($request->file('cc_edition_content')[$key])) {
+                                $editionContent = $request->file('cc_edition_content')[$key];
+                            }
 
-                                        QueryAPI::uploadFile([
-                                            'type' => 'konten_digital',
-                                            'id' => $createEdition->ID,
-                                            'status' => 1,
-                                            'hash' => md5('FILE-KONTEN-' . $createEdition->SLUG),
-                                            'mime' => $fileContent->getMimeType(),
-                                            'filesize' => $fileContent->getSize(),
-                                            'method' => 4,
-                                            'iszip' => false,
-                                            'file' => $fileContent,
-                                        ]);
+                            if ($editionTitle && $editionDate && $editionCover && $editionContent) {
+                                $editionData = $baseCollectionData;
+                                $editionData['parent_id'] = $createCollection->ID;
+                                $editionData['edition'] = $editionTitle;
+                                $editionData['date'] = $editionDate;
+                                $editionData['publication_month'] = date('m', strtotime($editionDate));
+                                $editionData['publication_year'] = date('Y', strtotime($editionDate));
+                                $createEdition = QueryAPI::create('e_collections', $editionData);
 
-                                        QueryAPI::verificationCollection($createEdition->ID);
-                                    }
+                                if ($createEdition) {
+                                    $filesToUpload[] = [
+                                        'collection_id' => $createEdition->ID,
+                                        'slug' => $createEdition->SLUG,
+                                        'cover' => $editionCover,
+                                        'content' => $editionContent
+                                    ];
                                 }
                             }
                         }
 
-                        $fileCover = $request->file('file_cover');
-                        $fileContent = $request->file('file_content');
+                        foreach ($filesToUpload as $fileData) {
+                            QueryAPI::uploadFile([
+                                'type' => 'cover',
+                                'id' => $fileData['collection_id'],
+                                'status' => 1,
+                                'hash' => md5('FILE-COVER-' . $fileData['slug']),
+                                'mime' => $fileData['cover']->getMimeType(),
+                                'filesize' => $fileData['cover']->getSize(),
+                                'method' => 4,
+                                'iszip' => false,
+                                'file' => $fileData['cover'],
+                            ]);
 
+                            QueryAPI::uploadFile([
+                                'type' => 'konten_digital',
+                                'id' => $fileData['collection_id'],
+                                'status' => 1,
+                                'hash' => md5('FILE-KONTEN-' . $fileData['slug']),
+                                'mime' => $fileData['content']->getMimeType(),
+                                'filesize' => $fileData['content']->getSize(),
+                                'method' => 4,
+                                'iszip' => false,
+                                'file' => $fileData['content'],
+                            ]);
+
+                            QueryAPI::verificationCollection($fileData['collection_id']);
+                        }
+                    }
+
+                    $fileCover = $request->file('file_cover');
+                    $fileContent = $request->file('file_content');
+
+                    if ($fileCover && $fileContent) {
                         QueryAPI::uploadFile([
                             'type' => 'cover',
                             'id' => $createCollection->ID,

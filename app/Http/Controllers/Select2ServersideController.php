@@ -468,4 +468,35 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function problem(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+
+        $data = QueryAPI::get("
+            select
+                *
+            from
+                e_problems
+            where
+                upper(name) like '%$search%'
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div>' . $d->NAME . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->NAME,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

@@ -21,53 +21,44 @@ class DownloadController extends Controller
         $catalogId = (int) $request->param;
         $token = $request->token;
 
-        if ($catalogId && $token) {
-            $collectionRequest = QueryAPI::get("
-                select
-                    *
-                from
-                    e_collection_requests
-                where
-                    catalog_id = $catalogId and
-                    token_download = '$token' and
-                    approved_by is not null and
-                    status = 2
-                order by
-                    expired_at desc
-            ", true);
+        if (!$catalogId || !$token) {
+            return abort(404);
+        }
 
-            if ($collectionRequest) {
-                $currentTime = strtotime(date('Y-m-d H:i:s'));
-                $scheduleTime = strtotime(date('Y-m-d H:i:s', strtotime($collectionRequest->EXPIRED_AT)));
-                $diff = $scheduleTime - $currentTime;
-                $minute = floor($diff / 60);
+        $requestData = QueryAPI::get("
+            select
+                er.id,
+                er.count_download,
+                er.expired_at,
+                cf.fileurl
+            from
+                e_collection_requests er
+            left join
+                catalogfiles cf ON cf.catalog_id = er.catalog_id
+            where
+                er.catalog_id = $catalogId and
+                er.token_download = '$token' and
+                er.approved_by IS NOT NULL and
+                er.status = 2
+            order by
+                er.expired_at DESC
+        ", true);
 
-                if ($minute < 0) {
-                    echo '
-                        alert("Link download telah kadaluwarsa, silahkan melakukan permintaan kembali!!");
-                        document.location.href = "https://edeposit.perpusnas.go.id";
-                    ';
-                }
+        if ($requestData && time() < strtotime($requestData->EXPIRED_AT)) {
+            QueryAPI::update('e_collection_requests', $requestData->ID, [
+                'count_download' => $requestData->COUNT_DOWNLOAD + 1
+            ]);
 
-                $catalogFile = QueryAPI::get("
-                    select
-                        *
-                    from
-                        catalogfiles
-                    where
-                        catalog_id = $catalogId
-                ", true);
-
-                if ($catalogFile) {
-                    QueryAPI::update('e_collection_requests', [
-                        'count_download' => $collectionRequest->COUNT_DOWNLOAD + 1
-                    ]);
-
-                    return redirect('stream-file?type=konten_digital&id=' . $catalogId . '&filename=' . $catalogFile->FILEURL);
-                }
+            if ($requestData->FILEURL) {
+                return redirect('stream-file?type=konten_digital&id=' . $catalogId . '&filename=' . $requestData->FILEURL);
             }
         }
 
-        abort(404);
+        echo '
+            <script>
+                alert("Link unduhan tidak valid atau telah kadaluwarsa, silakan buat permintaan baru!");
+                document.location.href = "https://edeposit.perpusnas.go.id";
+            </script>
+        ';
     }
 }

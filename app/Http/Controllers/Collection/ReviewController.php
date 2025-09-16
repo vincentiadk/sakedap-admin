@@ -242,20 +242,19 @@ class ReviewController extends Controller
                 ];
             } else {
                 try {
-                    $deposit = Main::generateNumberDeposit(
-                        $request->worksheet_id,
-                        $request->branch_id,
-                        $request->year ?? date('Y'),
-                        $request->city_id
-                    );
+                    $status = $request->status;
+                    $isStatus2 = $status == 2;
+                    $isStatus3 = $status == 3;
+                    $isStatus5 = $status == 5;
+                    $sessionId = session('id');
+                    $currentDateTime = date('Y-m-d H:i:s');
 
-                    $updateCollection = QueryAPI::update('e_collections', $id, [
+                    $updateData = [
                         'city_id' => $request->city_id,
                         'branch_id' => $request->branch_id,
                         'title_ori' => $request->title,
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),
-                        'deposit' => $request->status == 2 ? $deposit : null,
                         'series' => $request->series,
                         'serial' => $request->serial,
                         'ddc' => $request->ddc,
@@ -264,42 +263,62 @@ class ReviewController extends Controller
                         'preview' => $request->preview,
                         'description' => $request->description,
                         'akses' => $request->access,
-                        'status' => $request->status,
-                        'received_at' => $request->status == 2 ? date('Y-m-d H:i:s', strtotime($request->received_at)) : null,
-                        'received_by' => $request->status == 2 ? session('id') : null,
-                        'validated_at' => $request->status == 2 ? date('Y-m-d H:i:s') : null,
-                        'validated_by' => $request->status == 2 ? session('id') : null,
+                        'status' => $status,
                         'price' => str_replace([',', '.'], '', $request->price),
                         'worksheet_id' => $request->worksheet_id,
                         'collection_media_id' => $request->collection_media_id,
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
-                    ]);
+                    ];
+
+                    if ($isStatus2) {
+                        $updateData['deposit'] = Main::generateNumberDeposit(
+                            $request->worksheet_id,
+                            $request->branch_id,
+                            $request->year ?? date('Y'),
+                            $request->city_id
+                        );
+
+                        $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
+                        $updateData['received_by'] = $sessionId;
+                        $updateData['validated_at'] = $currentDateTime;
+                        $updateData['validated_by'] = $sessionId;
+                    } else {
+                        $updateData['deposit'] = null;
+                        $updateData['received_at'] = null;
+                        $updateData['received_by'] = null;
+                        $updateData['validated_at'] = null;
+                        $updateData['validated_by'] = null;
+                    }
+
+                    if ($isStatus3) {
+                        $updateData['problem'] = $request->problem;
+                    }
+
+                    if ($isStatus5) {
+                        $updateData['reject'] = $request->reject;
+                    }
+
+                    $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 
                     if ($updateCollection) {
-                        if ($request->status == 3) {
-                            if ($request->collection_problem) {
-                                foreach ($request->collection_problem as $cp) {
-                                    QueryAPI::create('e_collection_problems', [
-                                        'problem_id' => $cp,
-                                        'collection_id' => $id,
-                                        'solved' => 0
-                                    ]);
-                                }
+                        if ($isStatus3 && $request->collection_problem) {
+                            $problemsToCreate = [];
+
+                            foreach ($request->collection_problem as $cp) {
+                                $problemsToCreate[] = [
+                                    'problem_id' => $cp,
+                                    'collection_id' => $id,
+                                    'solved' => 0
+                                ];
                             }
 
-                            QueryAPI::update('e_collections', $id, [
-                                'problem' => $request->problem
-                            ]);
+                            foreach ($problemsToCreate as $problemData) {
+                                QueryAPI::create('e_collection_problems', $problemData);
+                            }
                         }
 
-                        if ($request->status == 5) {
-                            QueryAPI::update('e_collections', $id, [
-                                'reject' => $request->reject
-                            ]);
-                        }
-
-                        if ($request->status == 2) {
+                        if ($isStatus2) {
                             QueryAPI::verificationCollection($id);
                         }
                     }

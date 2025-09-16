@@ -33,7 +33,7 @@
                             @foreach($collectionProblemHistory as $cph)
                                 <tr>
                                     <td>{{ $cph->NAME_PROBLEM }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($cph->CREATED_AT)->format('d/m/Y') }}</td>
+                                    <td>{{ Carbon::parse($cph->CREATED_AT)->format('d/m/Y') }}</td>
                                     <td>{{ $cph->SOLVED == 1 ? 'Telah Diperbaiki' : 'Belum Diperbaiki' }}</td>
                                 </tr>
                             @endforeach
@@ -177,7 +177,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Tanggal Terima <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ \Carbon\Carbon::parse($collection->RECEIVED_AT)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
+                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ Carbon::parse($collection->RECEIVED_AT)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -291,7 +291,7 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $cc->EDITION }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
+                                        <td>{{ Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
                                         <td>
                                             @if($cover)
                                                 <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">

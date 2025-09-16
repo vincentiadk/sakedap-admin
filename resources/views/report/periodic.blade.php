@@ -29,7 +29,7 @@
                         <tr>
                             <th nowrap>Jenis</th>
                             @for($i = 1; $i <= 12; $i++)
-                                <th class="text-center" nowrap>{{ \Carbon\Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
+                                <th class="text-center" nowrap>{{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
                             @endfor
                         </tr>
                     </thead>

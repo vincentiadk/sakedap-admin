@@ -10,7 +10,7 @@
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Jenis</th>
             @for($i = 1; $i <= 12; $i++)
                 <th style="height:25px; border:1px solid black; text-align:center; color:white; vertical-align:center; background:#245DA9;">
-                    {{ \Carbon\Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}
+                    {{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}
                 </th>
             @endfor
         </tr>

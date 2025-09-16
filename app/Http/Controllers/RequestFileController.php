@@ -189,72 +189,62 @@ class RequestFileController extends Controller
     {
         $id = $request->id;
         $status = $request->status;
+        $currentSessionId = session('id');
 
-        $data = QueryAPI::get("
+        $payload = [
+            'approved_by' => $currentSessionId,
+            'status' => $status,
+        ];
+
+        $requestData = QueryAPI::get("
             select
                 e_collection_requests.*,
-                penerbit.name as name_penerbit,
-                penerbit.email1 as email_penerbit,
-                catalogs.title as title_catalog
+                penerbit.name AS name_penerbit,
+                penerbit.email1 AS email_penerbit,
+                catalogs.title AS title_catalog,
+                catalogfiles.id AS catalogfile_id,
+                catalogfiles.name AS catalogfile_name
             from
                 e_collection_requests
             join
                 catalogs on catalogs.id = e_collection_requests.catalog_id
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
+            left join
+                catalogfiles on catalogfiles.catalog_id = e_collection_requests.catalog_id
             where
                 e_collection_requests.id = $id
         ", true);
 
-        $payload = [
-            'approved_by' => session('id'),
-            'status' => $status,
-        ];
-
-        if ($status == 2) {
+        if ($requestData && $status == 2) {
             $tokenDownload = Str::random(40);
-            $payload = array_merge($payload, [
-                'token_download' => $tokenDownload,
-                'expired_at' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-            ]);
+            $payload['token_download'] = $tokenDownload;
+            $payload['expired_at'] = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-            if ($data) {
-                $catalogId = $data->id ?? 0;
-                $fileOriginal = QueryAPI::get("
+            if ($requestData->CATALOGFILE_ID) {
+                $templateEmail = QueryAPI::get("
                     select
                         *
                     from
-                        catalogfiles
+                        e_settings
                     where
-                        catalog_id = $catalogId
+                        slug = 'template-email-request-file-original'
                 ", true);
 
-                if ($fileOriginal) {
-                    $link = url('download/request-file?param=' . $catalogId . '&token=' . $tokenDownload);
+                if ($templateEmail) {
+                    $link = url("download/request-file?param={$requestData->CATALOG_ID}&token={$tokenDownload}");
+                    $bodyParamEmail = [
+                        'publisher' => $requestData->NAME_PENERBIT,
+                        'title' => $requestData->TITLE_CATALOG,
+                        'url' => $link,
+                    ];
 
-                    $templateEmail = QueryAPI::get("
-                        select
-                            *
-                        from
-                            e_settings
-                        where
-                            slug = 'template-email-request-file-original'
-                    ");
-
-                    if ($templateEmail) {
-                        $bodyParamEmail = [
-                            'publisher' => $data->NAME_PENERBIT,
-                            'title' => $data->TITLE_CATALOG,
-                            'url' => $link,
-                        ];
-
-                        Mail::send([], [], function ($message) use ($data, $bodyParamEmail, $templateEmail) {
-                            $message->to($data->EMAIL_PENERBIT, 'edeposit@perpusnas.go.id')
-                                ->subject('Download File Original')
-                                ->from('edeposit@perpusnas.go.id', 'Info edeposit')
-                                ->setBody(Main::parseTemplateEmail($bodyParamEmail, $templateEmail), 'text/html');
-                        });
-                    }
+                    Mail::send([], [], function ($message) use ($requestData, $bodyParamEmail, $templateEmail) {
+                        $message->to($requestData->EMAIL_PENERBIT, 'edeposit@perpusnas.go.id')
+                            ->subject('Download File Original')
+                            ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                            ->setBody(Main::parseTemplateEmail($bodyParamEmail, $templateEmail), 'text/html');
+                    });
                 }
             }
         }

@@ -279,6 +279,13 @@ class Main
         return $decrypted;
     }
 
+    /**
+     * login
+     *
+     * @param  mixed $username
+     * @param  mixed $password
+     * @return void
+     */
     public static function login($username, $password)
     {
         $response = false;

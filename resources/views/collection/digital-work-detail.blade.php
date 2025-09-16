@@ -153,7 +153,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Tanggal Terima</label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ \Carbon\Carbon::parse($collection->RECEIVED_AT_E_COLLECTION)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly disabled>
+                        <input type="text" class="form-control" name="received_at" id="received_at" value="{{ Carbon::parse($collection->RECEIVED_AT_E_COLLECTION)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly disabled>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -267,7 +267,7 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $cc->EDITION }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
+                                        <td>{{ Carbon::parse($cc->DATE)->format('d/m/Y') }}</td>
                                         <td>
                                             @if($cover)
                                                 <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">

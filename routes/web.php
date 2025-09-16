@@ -36,6 +36,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('executor', 'Select2ServersideController@executor');
         Route::get('location', 'Select2ServersideController@location');
         Route::get('collection-parent', 'Select2ServersideController@collectionParent');
+        Route::get('problem', 'Select2ServersideController@problem');
     });
 
     Route::get('home', function () {
@@ -134,13 +135,13 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'DataController@destroyData');
         });
 
-        Route::prefix('location')->group(function () {
-            Route::get('/', 'LocationController@index');
-            Route::get('datatable', 'LocationController@datatable');
-            Route::post('create-data', 'LocationController@createData');
-            Route::get('show-data', 'LocationController@showData');
-            Route::post('update-data', 'LocationController@updateData');
-            Route::delete('destroy-data', 'LocationController@destroyData');
+        Route::prefix('depo')->group(function () {
+            Route::get('/', 'DepoController@index');
+            Route::get('datatable', 'DepoController@datatable');
+            Route::post('create-data', 'DepoController@createData');
+            Route::get('show-data', 'DepoController@showData');
+            Route::post('update-data', 'DepoController@updateData');
+            Route::delete('destroy-data', 'DepoController@destroyData');
         });
     });
 
@@ -222,6 +223,15 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'LabelController@index');
             Route::get('datatable', 'LabelController@datatable');
             Route::get('print/{type}', 'LabelController@print');
+        });
+    });
+
+    Route::prefix('delivery')->namespace('Delivery')->group(function () {
+        Route::prefix('list')->group(function () {
+            Route::get('/', 'ListController@index');
+            Route::get('datatable', 'ListController@datatable');
+            Route::match(['get', 'post'], 'verification/{id}', 'ListController@verification');
+            Route::get('print/{id}', 'ListController@print');
         });
     });
 

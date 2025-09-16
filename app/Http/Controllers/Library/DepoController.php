@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class LocationController extends Controller
+class DepoController extends Controller
 {
     public function index()
     {
         $data = [
-            'content' => 'library.location'
+            'content' => 'library.depo'
         ];
 
         return view('layouts.index', ['data' => $data]);
