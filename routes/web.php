@@ -239,6 +239,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'SentController@datatable');
             Route::get('detail', 'SentController@detail');
         });
+
+        Route::prefix('accepted')->group(function () {
+            Route::get('/', 'AcceptedController@index');
+            Route::get('datatable', 'AcceptedController@datatable');
+            Route::get('detail', 'AcceptedController@detail');
+        });
     });
 
     Route::prefix('supervision')->group(function () {

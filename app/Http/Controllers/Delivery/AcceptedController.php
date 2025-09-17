@@ -9,13 +9,13 @@ use App\Helpers\RajaOngkir;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class SentController extends Controller
+class AcceptedController extends Controller
 {
     public function index()
     {
         $data = [
             'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.sent'
+            'content' => 'delivery.accepted'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -30,9 +30,9 @@ class SentController extends Controller
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.quantity',
+            'letter_detail.qty_accept',
             'letter.receipt_no',
-            null
+            'letter.status',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -46,7 +46,7 @@ class SentController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "letter.status = 'DALAM PENGIRIMAN'";
+        $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -56,8 +56,8 @@ class SentController extends Controller
             $whereCondition[] = "letter.jasa_pengiriman_id = $request->delivery_service_id";
         }
 
-        if ($request->branch_id) {
-            $whereCondition[] = "letter.branch_id = $request->branch_id";
+        if ($request->status) {
+            $whereCondition[] = "letter.status = '$request->status'";
         }
 
         if ($request->executor_id) {
@@ -69,7 +69,7 @@ class SentController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(letter.letter_date >= date '$startDate' and letter.letter_date <= date '$endDate')";
+            $whereCondition[] = "(letter.accept_date >= date '$startDate' and letter.accept_date <= date '$endDate')";
         }
 
         if ($search) {
@@ -129,10 +129,10 @@ class SentController extends Controller
                             select
                                 letter_detail.*,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
-                                jasa_pengiriman.code as code_jasa_pengiriman,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
-                                letter.receipt_no as receipt_no_letter
+                                letter.receipt_no as receipt_no_letter,
+                                letter.status as status_letter
                             from
                                 letter_detail
                             left join
@@ -153,22 +153,6 @@ class SentController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $receiptNumber = $val->RECEIPT_NO_LETTER;
-                $status = '';
-
-                $awbQueryParam = http_build_query([
-                    'awb' => $receiptNumber,
-                    'courier' => $val->CODE_JASA_PENGIRIMAN
-                ]);
-
-                if ($receiptNumber) {
-                    $awb = RajaOngkir::post('track/waybill?' . $awbQueryParam);
-
-                    if ($awb) {
-                        $status = $awb->delivery_status->status;
-                    }
-                }
-
                 $action = '
                     <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="detail(' . $val->LETTER_DETAIL_ID . ')">
                         <i class="ph-info me-1"></i>
@@ -183,9 +167,9 @@ class SentController extends Controller
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $receiptNumber,
-                    $val->QUANTITY,
-                    $status,
+                    $val->RECEIPT_NO_LETTER,
+                    $val->QTY_ACCEPT,
+                    $val->STATUS_LETTER,
                 ];
 
                 $start++;
