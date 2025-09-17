@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Pengiriman - <span class="fw-normal">Daftar</span>
+                Pengiriman - <span class="fw-normal">Daftar Pengiriman</span>
             </h4>
         </div>
     </div>
@@ -74,13 +74,13 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Resi</th>
-                        <th nowrap>Jasa Kirim</th>
-                        <th nowrap>Jumlah Paket</th>
-                        <th nowrap>Status</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Resi</th>
+                        <th class="text-nowrap">Jasa Kirim</th>
+                        <th class="text-nowrap">Jumlah Paket</th>
+                        <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
             </table>

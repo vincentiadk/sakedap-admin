@@ -310,7 +310,7 @@
             select2Serverside('#branch_id', 'branch');
             select2Serverside('#executor_id', 'executor');
 
-            select2Serverside('#branch_id', 'city', {
+            select2Serverside('#city_id', 'city', {
                 for: 'city'
             });
         }

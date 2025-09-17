@@ -79,15 +79,15 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Masalah</th>
-                        <th nowrap>Keterangan</th>
-                        <th nowrap>Tanggal</th>
-                        <th nowrap>User</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Kode</th>
+                        <th class="text-nowrap">Masalah</th>
+                        <th class="text-nowrap">Keterangan</th>
+                        <th class="text-nowrap">Tanggal</th>
+                        <th class="text-nowrap">User</th>
                     </tr>
                 </thead>
             </table>

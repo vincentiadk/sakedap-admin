@@ -233,6 +233,12 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], 'verification/{id}', 'ListController@verification');
             Route::get('print/{id}', 'ListController@print');
         });
+
+        Route::prefix('sent')->group(function () {
+            Route::get('/', 'SentController@index');
+            Route::get('datatable', 'SentController@datatable');
+            Route::get('detail', 'SentController@detail');
+        });
     });
 
     Route::prefix('supervision')->group(function () {

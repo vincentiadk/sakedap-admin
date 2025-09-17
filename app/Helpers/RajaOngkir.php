@@ -31,7 +31,6 @@ class RajaOngkir
     {
         static::initialize();
 
-        $data = null;
         $query = Http::baseUrl(static::$baseUrl)
             ->acceptJson()
             ->withHeaders([
@@ -39,17 +38,9 @@ class RajaOngkir
             ])
             ->get($endpoint, $payload);
 
-        if ($query->status() == 200) {
-            $response = $query->object();
+        $response = $query->object();
 
-            if ($response->meta->code == 200) {
-                return $response->data;
-            }
-        } else {
-            dd($query->object());
-        }
-
-        return $data;
+        return $response->data;
     }
 
     /**
@@ -63,7 +54,6 @@ class RajaOngkir
     {
         static::initialize();
 
-        $data = null;
         $query = Http::baseUrl(static::$baseUrl)
             ->asForm()
             ->withHeaders([
@@ -71,16 +61,8 @@ class RajaOngkir
             ])
             ->post($endpoint, $payload);
 
-        if ($query->status() == 200) {
-            $response = $query->object();
+        $response = $query->object();
 
-            if ($response->meta->code == 200) {
-                return $response->data;
-            }
-        } else {
-            dd($query->object());
-        }
-
-        return $data;
+        return $response->data;
     }
 }

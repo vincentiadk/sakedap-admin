@@ -46,13 +46,13 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Status</th>
-                        <th nowrap>Jumlah Pengunduhan</th>
-                        <th nowrap>Surat Permintaan</th>
-                        <th nowrap>Tgl Permintaan</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Status</th>
+                        <th class="text-nowrap">Jumlah Pengunduhan</th>
+                        <th class="text-nowrap">Surat Permintaan</th>
+                        <th class="text-nowrap">Tgl Permintaan</th>
                     </tr>
                 </thead>
             </table>

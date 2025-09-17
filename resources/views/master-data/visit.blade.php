@@ -23,9 +23,9 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Nama</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Nama</th>
                     </tr>
                 </thead>
             </table>

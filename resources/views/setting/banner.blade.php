@@ -23,12 +23,12 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Gambar</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Keterangan</th>
-                        <th nowrap>Status</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Gambar</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Keterangan</th>
+                        <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
             </table>

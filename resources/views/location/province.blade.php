@@ -23,12 +23,12 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Nama</th>
-                        <th nowrap>Latitude</th>
-                        <th nowrap>Longitude</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Kode</th>
+                        <th class="text-nowrap">Nama</th>
+                        <th class="text-nowrap">Latitude</th>
+                        <th class="text-nowrap">Longitude</th>
                     </tr>
                 </thead>
             </table>

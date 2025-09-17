@@ -23,13 +23,13 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Urutan</th>
-                        <th nowrap>Publish</th>
-                        <th nowrap>Pertanyaan</th>
-                        <th nowrap>Jawaban</th>
-                        <th nowrap>Kategori</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Urutan</th>
+                        <th class="text-nowrap">Publish</th>
+                        <th class="text-nowrap">Pertanyaan</th>
+                        <th class="text-nowrap">Jawaban</th>
+                        <th class="text-nowrap">Kategori</th>
                     </tr>
                 </thead>
             </table>

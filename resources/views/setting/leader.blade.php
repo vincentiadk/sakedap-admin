@@ -23,16 +23,16 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>TTD</th>
-                        <th nowrap>Provinsi</th>
-                        <th nowrap>Nama</th>
-                        <th nowrap>NIP</th>
-                        <th nowrap>Perpustakaan</th>
-                        <th nowrap>Jabatan</th>
-                        <th nowrap>Tgl Awal Jabatan</th>
-                        <th nowrap>Tgl Akhir Jabatan</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">TTD</th>
+                        <th class="text-nowrap">Provinsi</th>
+                        <th class="text-nowrap">Nama</th>
+                        <th class="text-nowrap">NIP</th>
+                        <th class="text-nowrap">Perpustakaan</th>
+                        <th class="text-nowrap">Jabatan</th>
+                        <th class="text-nowrap">Tgl Awal Jabatan</th>
+                        <th class="text-nowrap">Tgl Akhir Jabatan</th>
                     </tr>
                 </thead>
             </table>

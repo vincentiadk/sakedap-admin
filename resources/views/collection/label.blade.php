@@ -34,11 +34,11 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-print">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Mark Nasional</th>
-                        <th nowrap>Mark Provinsi</th>
-                        <th nowrap>Hapus</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Kode</th>
+                        <th class="text-nowrap">Mark Nasional</th>
+                        <th class="text-nowrap">Mark Provinsi</th>
+                        <th class="text-nowrap">Hapus</th>
                     </tr>
                 </thead>
             </table>
@@ -124,20 +124,20 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>#</th>
-                        <th nowrap>No</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Mark Nasional</th>
-                        <th nowrap>Mark Provinsi</th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>ISBN</th>
-                        <th nowrap>Perpustakaan</th>
-                        <th nowrap>Lokasi</th>
-                        <th nowrap>Update Oleh</th>
-                        <th nowrap>Terima Oleh</th>
-                        <th nowrap>Tgl Terima</th>
+                        <th class="text-nowrap">#</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Kode</th>
+                        <th class="text-nowrap">Mark Nasional</th>
+                        <th class="text-nowrap">Mark Provinsi</th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">ISBN</th>
+                        <th class="text-nowrap">Perpustakaan</th>
+                        <th class="text-nowrap">Lokasi</th>
+                        <th class="text-nowrap">Update Oleh</th>
+                        <th class="text-nowrap">Terima Oleh</th>
+                        <th class="text-nowrap">Tgl Terima</th>
                     </tr>
                 </thead>
             </table>

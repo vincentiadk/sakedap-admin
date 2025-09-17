@@ -13,11 +13,11 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-client">
                 <thead class="text-bg-light">
                     <tr>
-                        <th class="text-center" nowrap>No</th>
-                        <th class="text-center" nowrap>Aksi</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Tanggal</th>
-                        <th nowrap>Jam</th>
+                        <th class="text-center text-nowrap">No</th>
+                        <th class="text-center text-nowrap">Aksi</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Tanggal</th>
+                        <th class="text-nowrap">Jam</th>
                     </tr>
                 </thead>
                 <tbody>

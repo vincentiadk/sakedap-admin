@@ -59,12 +59,12 @@
                         <table class="table table-sm">
                             <thead class="text-bg-light">
                                 <tr>
-                                    <th nowrap>No</th>
-                                    <th nowrap>Provinsi</th>
-                                    <th nowrap>Digital</th>
-                                    <th nowrap>Analog</th>
-                                    <th nowrap>Cetak</th>
-                                    <th nowrap>Total</th>
+                                    <th class="text-nowrap">No</th>
+                                    <th class="text-nowrap">Provinsi</th>
+                                    <th class="text-nowrap">Digital</th>
+                                    <th class="text-nowrap">Analog</th>
+                                    <th class="text-nowrap">Cetak</th>
+                                    <th class="text-nowrap">Total</th>
                                 </tr>
                             </thead>
                             <tbody id="data-province"></tbody>
@@ -83,11 +83,11 @@
                         <table class="table">
                             <thead class="text-bg-light">
                                 <tr>
-                                    <th nowrap>No</th>
-                                    <th nowrap>Aksi</th>
-                                    <th nowrap>User</th>
-                                    <th nowrap>Tanggal</th>
-                                    <th nowrap>Keterangan</th>
+                                    <th class="text-nowrap">No</th>
+                                    <th class="text-nowrap">Aksi</th>
+                                    <th class="text-nowrap">User</th>
+                                    <th class="text-nowrap">Tanggal</th>
+                                    <th class="text-nowrap">Keterangan</th>
                                 </tr>
                             </thead>
                             <tbody id="data-activity"></tbody>
@@ -168,18 +168,18 @@
 
                         $('#data-province').append(`
                             <tr>
-                                <td nowrap>${ nomor }</td>
-                                <td nowrap>${ name }</td>
-                                <td nowrap>
+                                <td class="text-nowrap">${ nomor }</td>
+                                <td class="text-nowrap">${ name }</td>
+                                <td class="text-nowrap">
                                     <span class="badge bg-primary">${ totalDigital }</span>
                                 </td>
-                                <td nowrap>
+                                <td class="text-nowrap">
                                     <span class="badge bg-primary">${ totalAnalog }</span>
                                 </td>
-                                <td nowrap>
+                                <td class="text-nowrap">
                                     <span class="badge bg-primary">${ totalPrinted }</span>
                                 </td>
-                                <td nowrap>
+                                <td class="text-nowrap">
                                     <span class="badge bg-success">${ total }</span>
                                 </td>
                             </tr>
@@ -225,8 +225,8 @@
 
                         $('#data-activity').append(`
                             <tr>
-                                <td class="align-top" nowrap>${ nomor }</td>
-                                <td class="align-top" nowrap>${ action }</td>
+                                <td class="align-top text-nowrap">${ nomor }</td>
+                                <td class="align-top text-nowrap">${ action }</td>
                                 <td class="align-top text-wrap">${ user }</td>
                                 <td class="align-top">${ date }</td>
                                 <td class="align-top text-wrap">${ description }</td>

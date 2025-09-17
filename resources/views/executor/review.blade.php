@@ -13,14 +13,14 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Nama</th>
-                        <th nowrap>Email</th>
-                        <th nowrap>Kategori</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Telp</th>
-                        <th nowrap>Tgl Daftar</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Nama</th>
+                        <th class="text-nowrap">Email</th>
+                        <th class="text-nowrap">Kategori</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Telp</th>
+                        <th class="text-nowrap">Tgl Daftar</th>
                     </tr>
                 </thead>
             </table>

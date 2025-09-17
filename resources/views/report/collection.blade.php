@@ -88,22 +88,22 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap><i class="ph-gear"></i></th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Provinsi</th>
-                        <th nowrap>Kota</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Album</th>
-                        <th nowrap>Seri</th>
-                        <th nowrap>Edisi</th>
-                        <th nowrap>DDC</th>
-                        <th nowrap>Volume</th>
-                        <th nowrap>Kode</th>
-                        <th nowrap>Tahun</th>
-                        <th nowrap>Preview</th>
-                        <th nowrap>Tgl Terima</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Provinsi</th>
+                        <th class="text-nowrap">Kota</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Album</th>
+                        <th class="text-nowrap">Seri</th>
+                        <th class="text-nowrap">Edisi</th>
+                        <th class="text-nowrap">DDC</th>
+                        <th class="text-nowrap">Volume</th>
+                        <th class="text-nowrap">Kode</th>
+                        <th class="text-nowrap">Tahun</th>
+                        <th class="text-nowrap">Preview</th>
+                        <th class="text-nowrap">Tgl Terima</th>
                     </tr>
                 </thead>
             </table>

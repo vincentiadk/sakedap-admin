@@ -75,14 +75,14 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Jenis</th>
-                        <th nowrap>Kategori</th>
-                        <th nowrap>Provinsi</th>
-                        <th nowrap>KRD</th>
-                        <th nowrap>KRA</th>
-                        <th nowrap>KC</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Kategori</th>
+                        <th class="text-nowrap">Provinsi</th>
+                        <th class="text-nowrap">KRD</th>
+                        <th class="text-nowrap">KRA</th>
+                        <th class="text-nowrap">KC</th>
                     </tr>
                 </thead>
             </table>

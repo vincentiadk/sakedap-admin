@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Pengiriman - Daftar - <span class="fw-normal">Verifikasi</span>
+                Pengiriman - Daftar Pengiriman - <span class="fw-normal">Verifikasi</span>
             </h4>
         </div>
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
@@ -25,7 +25,7 @@
                     <tbody>
                         <tr>
                             <th class="table-primary align-top" width="20%">Resi</th>
-                            <td class="align-top" width="30%">{{ $letter->LETTER_NUMBER }}</td>
+                            <td class="align-top" width="30%">{{ $letter->RECEIPT_NO }}</td>
                             <th class="table-primary align-top" width="20%">Jasa Kirim</th>
                             <td class="align-top" width="30%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
                         </tr>

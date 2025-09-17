@@ -116,22 +116,22 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th nowrap>No</th>
-                        <th nowrap>Judul</th>
-                        <th nowrap>Kepeng</th>
-                        <th nowrap>Pelaksana Serah</th>
-                        <th nowrap>Tahun</th>
-                        <th nowrap>Tempat</th>
-                        <th nowrap>Provinsi</th>
-                        <th nowrap>ISBN</th>
-                        <th nowrap>Media</th>
-                        <th nowrap>Pustaka</th>
-                        <th nowrap>Tgl Terima KCKR</th>
-                        <th nowrap>Tgl Terima Provinsi</th>
-                        <th nowrap>Sinopsis</th>
-                        <th nowrap>Tgl Terima</th>
-                        <th nowrap>Tgl Dibuat</th>
-                        <th nowrap>Tgl Update</th>
+                        <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Kepeng</th>
+                        <th class="text-nowrap">Pelaksana Serah</th>
+                        <th class="text-nowrap">Tahun</th>
+                        <th class="text-nowrap">Tempat</th>
+                        <th class="text-nowrap">Provinsi</th>
+                        <th class="text-nowrap">ISBN</th>
+                        <th class="text-nowrap">Media</th>
+                        <th class="text-nowrap">Pustaka</th>
+                        <th class="text-nowrap">Tgl Terima KCKR</th>
+                        <th class="text-nowrap">Tgl Terima Provinsi</th>
+                        <th class="text-nowrap">Sinopsis</th>
+                        <th class="text-nowrap">Tgl Terima</th>
+                        <th class="text-nowrap">Tgl Dibuat</th>
+                        <th class="text-nowrap">Tgl Update</th>
                     </tr>
                 </thead>
             </table>
