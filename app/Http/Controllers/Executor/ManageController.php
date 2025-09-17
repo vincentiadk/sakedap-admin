@@ -154,9 +154,20 @@ class ManageController extends Controller
                     <div>Alternatif : ' . $val->TELP2 . '</div>
                 ';
 
+                $disable = '
+                    <span class="text-success"><i class="ph-check"></i></span>
+                ';
+
+                if (is_null($val->IS_DISABLE) || $val->IS_DISABLE == 0) {
+                    $disable = '
+                        <span class="text-danger"><i class="ph-x"></i></span>
+                    ';
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
+                    $disable,
                     $val->NAME,
                     $email,
                     $val->NAME_PENERBIT_KATEGORI,
@@ -280,6 +291,7 @@ class ManageController extends Controller
                     'rata_terbitan' => $request->publication_average,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'is_disable' => $request->is_disable ?? null
                 ], false);
 
                 $response = [

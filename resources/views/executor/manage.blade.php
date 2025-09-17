@@ -15,6 +15,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Disable</th>
                         <th class="text-nowrap">Nama</th>
                         <th class="text-nowrap">Email</th>
                         <th class="text-nowrap">Kategori</th>
@@ -91,6 +92,10 @@
                                     <input type="text" class="form-control" name="fax_alternative" id="fax_alternative" placeholder="....................">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">Rata - Rata Terbitan :</label>
+                                <input type="number" class="form-control" name="publication_average" id="publication_average" placeholder="....................">
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -122,19 +127,16 @@
                                 <label class="form-label">Alamat :</label>
                                 <input type="text" class="form-control" name="address" id="address" placeholder="...................." disabled>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Website :</label>
-                                        <input type="text" class="form-control" name="website" id="website" placeholder="....................">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Rata - Rata Terbitan :</label>
-                                        <input type="number" class="form-control" name="publication_average" id="publication_average" placeholder="....................">
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label">Website :</label>
+                                <input type="text" class="form-control" name="website" id="website" placeholder="....................">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Disable :</label>
+                                <select class="form-select" name="is_disable" id="is_disable">
+                                    <option value="1">Ya</option>
+                                    <option value="0">Tidak</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -251,6 +253,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -301,6 +304,7 @@
                 $('#fax_alternative').val(response.FAX2);
                 $('#website').val(response.WEBSITE);
                 $('#publication_average').val(response.RATA_TERBITAN);
+                $('#is_disable').val(response.IS_DISABLE == 1 ? 1 : 0);
 
                 if(response.FILE_AKTE_NOTARIS) {
                     var paramFile = {
