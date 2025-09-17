@@ -46,7 +46,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
-                        <select class="form-select" name="province_id" id="province_id">
+                        <select class="form-select" name="province_id" id="province_id" data-placeholder="Semua">
                             @if(Main::isNotCenterBranch())
                                 <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                             @endif
@@ -78,7 +78,7 @@
         <div class="card-header d-flex align-items-center py-0">
             <h5 class="py-3 mb-0">Daftar</h5>
             <div class="ms-auto my-auto">
-                <button type="button" class="btn btn-success" onclick="downloadExcel()">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-download-excel">
                     <i class="ph-microsoft-excel-logo me-1"></i>
                     Download
                 </button>
@@ -111,24 +111,96 @@
     </div>
 </div>
 
+<div id="modal-download-excel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Download Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Tanggal :</label>
+                            <input type="text" class="form-control" name="de_date" id="de_date" placeholder="Semua Tanggal" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Pelaksana Serah :</label>
+                            <select class="form-select" name="de_executor_id" id="de_executor_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Jenis :</label>
+                            <select class="form-select select2-basic" name="de_worksheet_id" id="de_worksheet_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
+                                <option value=""></option>
+                                @foreach($worksheet as $w)
+                                    <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->DEPOSITFORMAT_CODE }}]</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Judul :</label>
+                            <input type="text" class="form-control" name="de_title" id="de_title" placeholder="....................">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Provinsi :</label>
+                            <select class="form-select" name="de_province_id" id="de_province_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
+                                @if(Main::isNotCenterBranch())
+                                    <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Tahun :</label>
+                            <input type="number" class="form-control" name="de_year" id="de_year" placeholder="....................">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="downloadExcel()">
+                    <i class="ph-download me-1"></i>
+                    Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(function() {
         datePickerBasic('#date');
 
+        datePickerBasic('#de_date', {
+            dateLimit: {
+                months: 1
+            }
+        });
+
         if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-            select2Serverside('#province_id', 'location', {
+            select2Serverside('#province_id, #de_province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',
             }, {
                 minimumInputLength: 0
             });
 
-            select2Serverside('#executor_id', 'executor', {
+            select2Serverside('#executor_id, #de_executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
         } else {
-            select2Serverside('#executor_id', 'executor');
-            select2Serverside('#province_id', 'location');
+            select2Serverside('#executor_id, #de_executor_id', 'executor');
+            select2Serverside('#province_id, #de_province_id', 'location');
         }
 
         loadData();
@@ -146,12 +218,12 @@
     function downloadExcel() {
         var queryString = {
             exported: true,
-            title: $('#title').val(),
-            executor_id: $('#executor_id').val(),
-            province_id: $('#province_id').val(),
-            year: $('#year').val(),
-            worksheet_id: $('#worksheet_id').val(),
-            date: $('#date').val(),
+            title: $('#de_title').val(),
+            executor_id: $('#de_executor_id').val(),
+            province_id: $('#de_province_id').val(),
+            year: $('#de_year').val(),
+            worksheet_id: $('#de_worksheet_id').val(),
+            date: $('#de_date').val(),
         }
 
         onLoading('show', 'body');

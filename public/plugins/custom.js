@@ -129,14 +129,6 @@ function datePickerBasic(selector, additionalConfig = {}) {
         autoUpdateInput: false,
         language: 'id',
         showDropdowns: true,
-        ranges: {
-            'Hari Ini': [moment(), moment()],
-            'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            '7 Hari Terakhir': [moment().subtract(6, 'days'), moment()],
-            '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()],
-            '1 Bulan Sebelumnya': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-            'Bulan Ini': [moment().startOf('month'), moment().endOf('month')],
-        },
         locale: {
             applyLabel: 'Terapkan',
             cancelLabel: 'Batal',

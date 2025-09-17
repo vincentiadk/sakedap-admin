@@ -306,8 +306,8 @@ Route::middleware('authentication')->group(function () {
         });
 
         Route::prefix('executor')->group(function () {
-            Route::get('/', 'ManagerController@index');
-            Route::get('datatable', 'ManagerController@datatable');
+            Route::get('/', 'ExecutorController@index');
+            Route::get('datatable', 'ExecutorController@datatable');
         });
 
         Route::prefix('collection')->group(function () {
