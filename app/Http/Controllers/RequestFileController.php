@@ -243,7 +243,7 @@ class RequestFileController extends Controller
                         $message->to($requestData->EMAIL_PENERBIT, 'edeposit@perpusnas.go.id')
                             ->subject('Download File Original')
                             ->from('edeposit@perpusnas.go.id', 'Info edeposit')
-                            ->setBody(Main::parseTemplateEmail($bodyParamEmail, $templateEmail), 'text/html');
+                            ->html(Main::parseTemplateEmail($bodyParamEmail, $templateEmail), 'text/html');
                     });
                 }
             }

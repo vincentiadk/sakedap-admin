@@ -60,7 +60,7 @@
                             <th rowspan="2">Judul</th>
                             <th rowspan="2">Edisi</th>
                             <th rowspan="2">Jenis</th>
-                            <th colspan="3" class="text-center">Jumlah</th>
+                            <th colspan="3" class="text-center">Jumlah Eksemplar</th>
                             <th rowspan="2">Alasan Ditolak</th>
                         </tr>
                         <tr>

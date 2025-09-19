@@ -499,4 +499,92 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function catalogId(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $provinceId = $request->province_id;
+
+        $condition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
+        $condition[] = "isbn is null";
+        $condition[] = "upper(title) like '%$search%'";
+        $condition[] = "rownum <= 20";
+
+        if ($provinceId) {
+            $condition[] = "id = $provinceId";
+        }
+
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                title
+            from
+                catalogs
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . $d->ID . '</small></div>
+                    <div>' . $d->TITLE . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->ID,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function catalog(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $provinceId = $request->province_id;
+
+        $condition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
+        $condition[] = "isbn is null";
+        $condition[] = "upper(title) like '%$search%'";
+        $condition[] = "rownum <= 20";
+
+        if ($provinceId) {
+            $condition[] = "id = $provinceId";
+        }
+
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                title
+            from
+                catalogs
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . $d->ID . '</small></div>
+                    <div>' . $d->TITLE . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->TITLE,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

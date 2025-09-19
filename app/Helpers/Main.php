@@ -223,16 +223,21 @@ class Main
      */
     public static function parseTemplateEmail($payload, $template)
     {
-        $parsed = preg_replace_callback('/{{(.*?)}}/', function ($matches) use ($payload, $template) {
+        $parsed = preg_replace_callback('/{{(.*?)}}/', function ($matches) use ($payload) {
             list($shortCode, $index) = $matches;
+
             if (isset($payload[$index])) {
                 return $payload[$index];
             } else {
-                throw new \Exception("Shortcode {$shortCode} not found in template id {$template->ID}", 1);
+                return $shortCode;
             }
         }, $template->CONTENT);
 
-        return $parsed;
+        if (preg_match('/{{(.*?)}}/', $parsed)) {
+            throw new \Exception("Shortcode not found in template id {$template->ID}", 1);
+        }
+
+        return (string) $parsed;
     }
 
     /**

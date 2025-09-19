@@ -1,6 +1,5 @@
 <?php
 
-use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +36,8 @@ Route::middleware('authentication')->group(function () {
         Route::get('location', 'Select2ServersideController@location');
         Route::get('collection-parent', 'Select2ServersideController@collectionParent');
         Route::get('problem', 'Select2ServersideController@problem');
+        Route::get('catalog-id', 'Select2ServersideController@catalogId');
+        Route::get('catalog', 'Select2ServersideController@catalog');
     });
 
     Route::get('home', function () {
@@ -244,6 +245,13 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'AcceptedController@index');
             Route::get('datatable', 'AcceptedController@datatable');
             Route::get('detail', 'AcceptedController@detail');
+        });
+
+        Route::prefix('receipt')->group(function () {
+            Route::get('/', 'ReceiptController@index');
+            Route::get('search-isbn', 'ReceiptController@searchISBN');
+            Route::get('select-catalog', 'ReceiptController@selectCatalog');
+            Route::post('submitted', 'ReceiptController@submitted');
         });
     });
 
