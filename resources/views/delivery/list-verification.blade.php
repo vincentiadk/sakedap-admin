@@ -89,7 +89,7 @@
                                 <td>
                                     <select class="form-select" name="letter_detail_remark[][]" multiple {{ $disabled }}>
                                         @if($ld->REMARK)
-                                            @php $remark = explode(',', $ld->REMARK ?? ''); @endphp
+                                            @php $remark = explode(';', $ld->REMARK ?? ''); @endphp
 
                                             @foreach($remark as $r)
                                                 <option value="{{ $r }}" selected>{{ $r }}</option>

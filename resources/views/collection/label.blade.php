@@ -358,6 +358,5 @@
                 icon: 'info'
             });
         }
-
     }
 </script>

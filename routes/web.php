@@ -253,6 +253,13 @@ Route::middleware('authentication')->group(function () {
             Route::get('select-catalog', 'ReceiptController@selectCatalog');
             Route::post('submitted', 'ReceiptController@submitted');
         });
+
+        Route::prefix('reject')->group(function () {
+            Route::get('/', 'RejectController@index');
+            Route::get('datatable', 'RejectController@datatable');
+            Route::post('grant', 'RejectController@grant');
+            Route::post('retur', 'RejectController@retur');
+        });
     });
 
     Route::prefix('supervision')->group(function () {

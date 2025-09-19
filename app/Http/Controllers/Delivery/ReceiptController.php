@@ -78,12 +78,12 @@ class ReceiptController extends Controller
                 try {
                     $receiptNumber = $request->receipt;
 
-                    // if (QueryAPI::get("select LETTER_ID from letter where receipt_no = '$receiptNumber'", true)) {
-                    //     return response()->json([
-                    //         'code' => 400,
-                    //         'error' => ['Resi telah terdaftar pada sistem']
-                    //     ]);
-                    // }
+                    if (QueryAPI::get("select LETTER_ID from letter where receipt_no = '$receiptNumber'", true)) {
+                        return response()->json([
+                            'code' => 400,
+                            'error' => ['Resi telah terdaftar pada sistem']
+                        ]);
+                    }
 
                     $deliveryServiceId = $request->delivery_service_id;
                     $deliveryService = QueryAPI::get("select * from jasa_pengiriman where id = $deliveryServiceId", true);
@@ -502,7 +502,7 @@ class ReceiptController extends Controller
                         }
                     }
 
-                    QueryAPI::update('letter', $letter->LETTER_ID ?? 0, [
+                    QueryAPI::update('letter', $letter->LETTER_ID, [
                         'status' => $status,
                         'jumlah_paket' => $totalPackage
                     ], false);

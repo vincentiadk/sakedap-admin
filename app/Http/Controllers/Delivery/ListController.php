@@ -271,7 +271,7 @@ class ListController extends Controller
                         'id' => $ldi,
                         'qty_accept' => $qtyAccept,
                         'qty_reject' => $qtyReject,
-                        'remark' => is_array($remark) ? implode(',', $remark) : $remark
+                        'remark' => is_array($remark) ? implode(';', $remark) : $remark
                     ];
 
                     if ($qtyAccept < $quantity) {
