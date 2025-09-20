@@ -27,9 +27,15 @@
                 <table class="table table-bordered table-hover w-100">
                     <thead class="text-bg-light">
                         <tr>
-                            <th class="text-nowrap">Jenis</th>
+                            <th class="text-nowrap text-center" rowspan="2">Jenis</th>
                             @for($i = 1; $i <= 12; $i++)
-                                <th class="text-center text-nowrap">{{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
+                                <th class="text-center text-nowrap" colspan="2">{{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
+                            @endfor
+                        </tr>
+                        <tr>
+                            @for($i = 1; $i <= 12; $i++)
+                                <th class="text-center text-nowrap">Katalog</th>
+                                <th class="text-center text-nowrap">Collection</th>
                             @endfor
                         </tr>
                     </thead>
@@ -82,17 +88,14 @@
                 $.each(response, function(i, val) {
                     var dataTD = '';
 
-                    $.each(val.data, function(index, value) {
+                    $.each(val, function(index, value) {
                         dataTD += `
                             <td class="text-center text-nowrap">${ value }</td>
                         `;
                     });
 
                     $('#table-data').append(`
-                        <tr>
-                            <td class="text-nowrap">${ val.name }</td>
-                            ${ dataTD }
-                        </tr>
+                        <tr>${ dataTD }</tr>
                     `);
                 });
 

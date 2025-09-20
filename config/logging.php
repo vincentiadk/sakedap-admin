@@ -46,18 +46,15 @@ return [
     | of powerful log handlers and formatters that you're free to use.
     |
     | Available drivers: "single", "daily", "slack", "syslog",
-    |                    "errorlog", "monolog", "custom", "stack", "background"
+    |                    "errorlog", "monolog", "custom", "stack"
     |
     */
 
     'channels' => [
-        'background' => [
-            'driver' => 'background',
-            'channels' => 'single',
-            'ignore_exceptions' => false,
-            'path' => storage_path('logs/background.log'),
+        'report' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/report.log'),
             'level' => 'debug',
-            'replace_placeholders' => true,
         ],
 
         'stack' => [

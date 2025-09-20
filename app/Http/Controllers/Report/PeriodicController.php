@@ -46,33 +46,65 @@ class PeriodicController extends Controller
         $year = $request->year;
         $response = [];
 
-        foreach (($worksheet ?? []) as $w) {
+        if (empty($worksheet)) {
+            return response()->json($response);
+        }
+
+        $worksheetIds = implode(',', array_column($worksheet, 'ID'));
+        $conditions = [
+            "c.worksheet_id in ($worksheetIds)",
+            "c.edeposit_col_id is not null",
+            "to_char(c.validatedate, 'YYYY') = '$year'",
+        ];
+
+        if (Main::isNotCenterBranch()) {
+            $conditions[] = 'p.province_id = ' . session('province_id');
+        }
+
+        $whereClause = "where " . implode(' and ', $conditions);
+
+        $query = "
+            select
+                c.worksheet_id,
+                to_char(c.validatedate, 'MM') as month,
+                count(distinct c.id) as catalog_total,
+                count(coll.id) as collection_total
+            from
+                catalogs c
+            left join
+                collections coll on coll.catalog_id = c.id
+            left join
+                penerbit p on p.id = c.penerbit_id
+            $whereClause
+            group by
+                c.worksheet_id,
+                to_char(c.validatedate, 'MM')
+            order by
+                c.worksheet_id,
+                month
+        ";
+
+        $results = QueryAPI::get($query);
+        $dataByWorksheet = [];
+
+        foreach ($results ?? [] as $result) {
+            $worksheetId = $result->WORKSHEET_ID;
+            $month = (int) $result->MONTH;
+
+            $dataByWorksheet[$worksheetId][$month] = [
+                'catalog_total' => $result->CATALOG_TOTAL,
+                'collection_total' => $result->COLLECTION_TOTAL,
+            ];
+        }
+
+        foreach ($worksheet as $w) {
             $data = [];
 
             for ($i = 1; $i <= 12; $i++) {
-                $month = sprintf('%02s', $i);
-                $condition = [];
-                $condition[] = "catalogs.worksheet_id = $w->ID";
-                $condition[] = "catalogs.edeposit_col_id is not null";
-                $condition[] = "(to_char(catalogs.validatedate, 'YYYY') = '$year' and to_char(catalogs.validatedate, 'MM') = '$month')";
-
-                if (Main::isNotCenterBranch()) {
-                    $condition[] = 'penerbit.province_id = ' . session('province_id');
-                }
-
-                $whereClause = "where " . implode(' and ', $condition);
-
-                $catalog = QueryAPI::get("
-                    select
-                        count(*) as total
-                    from
-                        catalogs
-                    left join
-                        penerbit on penerbit.id = catalogs.penerbit_id
-                    $whereClause
-                ", true);
-
-                $data[] = number_format($catalog->TOTAL ?? 0);
+                $catalogTotal = $dataByWorksheet[$w->ID][$i]['catalog_total'] ?? 0;
+                $collectionTotal = $dataByWorksheet[$w->ID][$i]['collection_total'] ?? 0;
+                $data[] = number_format($catalogTotal);
+                $data[] = number_format($collectionTotal);
             }
 
             $response[] = [
@@ -81,6 +113,17 @@ class PeriodicController extends Controller
             ];
         }
 
-        return response()->json($response);
+        foreach ($response as $item) {
+            $rowData = [$item['name']];
+
+            for ($i = 0; $i < count($item['data']); $i += 2) {
+                $rowData[] = $item['data'][$i];
+                $rowData[] = $item['data'][$i + 1];
+            }
+
+            $tableData[] = $rowData;
+        }
+
+        return response()->json($tableData);
     }
 }

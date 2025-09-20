@@ -87,7 +87,7 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
             Redis::hset('download:' . $this->jobID, 'filename', $filename);
         } catch (\Exception $e) {
             Redis::hset('download:' . $this->jobID, 'status', 'failed');
-            Log::channel('background')->error('Gagal : ' . $e->getMessage());
+            Log::channel('report')->error('Gagal : ' . $e->getMessage());
         }
     }
 
@@ -97,6 +97,6 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Redis::hset('download:' . $this->jobID, 'status', 'failed');
-        Log::channel('background')->error('Gagal : ' . $exception->getMessage());
+        Log::channel('report')->error('Gagal : ' . $exception->getMessage());
     }
 }
