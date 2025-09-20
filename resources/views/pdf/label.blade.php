@@ -42,20 +42,20 @@
             <table class="table">
                 <tr>
                     <th colspan="2" style="text-align:center; text-transform:uppercase; font-size:10px;">
-                        {{ empty($item->NAME_LOCATION_LIBRARY) ? 'Perpustakaan Nasional RI' : $item->NAME_LOCATION_LIBRARY }}
+                        {{ empty($item?->NAME_LOCATION_LIBRARY) ? 'Perpustakaan Nasional RI' : $item->NAME_LOCATION_LIBRARY }}
                     </th>
                 </tr>
                 <tr>
                     <td width="65%">
                         @if($param == 'barcode')
-                            <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG("$item->NOMORBARCODE", 'C39', 2, 180) }}">
+                            <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG("$item->NOMORBARCODE", 'C39', 1, 110) }}" style="width:100%; height:105px;">
                             <div style="text-align:center;">{{ $item->NOMORBARCODE }}</div>
                         @else
                             <span style="transform:rotate(270deg); transform-origin:right; position:fixed; top:40; left:120px;">
                                 {{ $item->NOMORBARCODE }}
                             </span>
                             <center>
-                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG("$item->NOMORBARCODE", 'QRCODE', 5.2, 5.2) }}">
+                                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG("$item->NOMORBARCODE", 'QRCODE', 5.2, 5.2) }}" style="height:105px;">
                             </center>
                         @endif
                     </td>
