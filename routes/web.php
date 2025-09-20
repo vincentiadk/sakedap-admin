@@ -167,6 +167,15 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ManageController@updateData');
             Route::delete('destroy-data', 'ManageController@destroyData');
         });
+
+        Route::prefix('warning')->group(function () {
+            Route::get('/', 'WarningController@index');
+            Route::get('datatable', 'WarningController@datatable');
+            Route::post('create-data', 'WarningController@createData');
+            Route::get('show-data', 'WarningController@showData');
+            Route::post('update-data', 'WarningController@updateData');
+            Route::delete('destroy-data', 'WarningController@destroyData');
+        });
     });
 
     Route::prefix('bill-isbn')->group(function () {

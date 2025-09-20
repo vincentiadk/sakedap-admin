@@ -273,7 +273,7 @@ class BannerController extends Controller
 
                         if ($uploadFile) {
                             QueryAPI::update('e_banners', $id, [
-                                'ttd_file_name' => $uploadFile->FileName
+                                'image' => $uploadFile->FileName
                             ], false);
                         }
                     }
