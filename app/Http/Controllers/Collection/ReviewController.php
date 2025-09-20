@@ -248,6 +248,7 @@ class ReviewController extends Controller
                     $isStatus5 = $status == 5;
                     $sessionId = session('id');
                     $currentDateTime = date('Y-m-d H:i:s');
+                    $revisionCount = $collection->REVISION_COUNT ?? 0;
 
                     $updateData = [
                         'city_id' => $request->city_id,
@@ -292,6 +293,7 @@ class ReviewController extends Controller
                     }
 
                     if ($isStatus3) {
+                        $updateData['revision_count'] = $revisionCount + 1;
                         $updateData['problem'] = $request->problem;
                     }
 

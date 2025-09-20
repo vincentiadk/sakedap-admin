@@ -23,8 +23,11 @@
     </div>
     <form id="form-data">
         <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Histori Masalah</h5>
+            <div class="card-header d-flex align-items-center">
+                <h6 class="mb-0">Histori Masalah</h6>
+                <div class="ms-auto">
+                    <span class="badge bg-danger">{{ $collection->REVISION_COUNT }} Kali Dilakukan Revisi</span>
+                </div>
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-hover">
