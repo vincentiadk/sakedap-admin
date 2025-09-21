@@ -224,6 +224,31 @@ class RejectController extends Controller
                 QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
                     'qty_hibah' => $dld->QTY_REJECT
                 ], false);
+
+                QueryAPI::create('hibah_detail', [
+                    'judul' => $dld->TITLE,
+                    'penerbit' => $dld->PUBLISHER,
+                    'isbn' => $dld->ISBN,
+                    'tahun_terbit' => $dld->PUBLISH_YEAR,
+                    'jumlah_eksemplar' => $dld->QTY_REJECT,
+                    'harga' => $dld->PRICE,
+                    'total_nilai' => (float) ($dld->PRICE ?? 0) * (float) ($dld->QTY_REJECT ?? 0),
+                    'createby' => session('name'),
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                    'deskripsi_fisik' => $dld->DESKRIPSIFISIK,
+                    'jenis_isi' => $dld->JENIS_ISI,
+                    'jenis_wadah' => $dld->JENIS_WADAH,
+                    'jenis_media' => $dld->JENIS_MEDIA,
+                    'source_id' => 6,
+                    'source_sub_id' => 3,
+                    'ketersediaan_id' => 1,
+                    'partner_id' => 9687,
+                    'kala_terbit' => $dld->KALA_TERBIT,
+                ], false);
             }
         }
 
