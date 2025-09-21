@@ -175,12 +175,64 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-form-label col-md-2">Mata Uang</label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="currency" id="currency" disabled>
+                            @if($collection->CURRENCY_E_COLLECTION)
+                                <option value="{{ $collection->CURRENCY_E_COLLECTION }}" selected>{{ $collection->CURRENCY_E_COLLECTION }}</option>
+                            @endif
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-form-label col-md-2">Harga</label>
                     <div class="col-md-10">
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="text" class="form-control" name="price" id="price" value="{{ $collection->PRICE_E_COLLECTION }}" placeholder="...................." disabled>
-                        </div>
+                        <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE_E_COLLECTION }}" placeholder="...................." disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jilid</label>
+                    <div class="col-md-10">
+                        <input type="number" class="form-control" name="binding" id="binding" value="{{ $collection->JILID_E_COLLECTION }}" placeholder="...................." disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Isi</label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="content_type" id="content_type" disabled>
+                            <option value=""></option>
+                            @foreach($contentType as $ct)
+                                <option value="{{ $ct->NAME }}" {{ $collection->JENIS_ISI_E_COLLECTION == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Wadah</label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="container_type" id="container_type" disabled>
+                            <option value=""></option>
+                            @foreach($containerType as $ct)
+                                <option value="{{ $ct->NAME }}" {{ $collection->JENIS_WADAH_E_COLLECTION == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Media</label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="media_type" id="media_type" disabled>
+                            <option value=""></option>
+                            @foreach($mediaType as $mt)
+                                <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA_E_COLLECTION == $ct->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jumlah Eksemplar</label>
+                    <div class="col-md-10">
+                        <input type="number" class="form-control" name="number_copy" id="number_copy" value="{{ $collection->JUMLAH_EKS_E_COLLECTION }}" placeholder="...................." disabled>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -328,9 +380,3 @@
         </div>
     </form>
 </div>
-
-<script>
-    $(function() {
-        $('#price').number(true);
-    });
-</script>

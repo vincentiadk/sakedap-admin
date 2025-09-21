@@ -214,7 +214,13 @@ class PrintedWorkController extends Controller
                 e_collections.code_type as code_type_e_collection,
                 e_collections.serial as serial_e_collection,
                 e_collections.received_at as received_at_e_collection,
-                e_collections.price as price_e_collection
+                e_collections.price as price_e_collection,
+                e_collections.jilid as jilid_e_collection,
+                e_collections.jenis_isi as jenis_isi_e_collection,
+                e_collections.jenis_wadah as jenis_wadah_e_collection,
+                e_collections.jenis_media as jenis_media_e_collection,
+                e_collections.currency as currency_e_collection,
+                e_collections.jumlah_eks as jumlah_eks_e_collection
             from
                 catalogs
             join
@@ -290,6 +296,9 @@ class PrintedWorkController extends Controller
             'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
             'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
             'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
+            'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
+            'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
+            'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
             'collection' => $collection,
             'collectionCategory' => $collectionCategory,
             'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),

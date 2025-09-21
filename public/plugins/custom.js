@@ -374,6 +374,10 @@ function notificationHeader() {
                             </div>
                         </a>
                     `);
+
+                    if (i + 1 == 10) {
+                        return false;
+                    }
                 });
             } else {
                 $('#notification-header-executor-list').html(`<div class="p-3 text-muted text-center">Tidak ada data</div>`);
@@ -394,6 +398,10 @@ function notificationHeader() {
                             </div>
                         </a>
                     `);
+
+                    if (i + 1 == 10) {
+                        return false;
+                    }
                 });
             } else {
                 $('#notification-header-file-list').html(`<div class="p-3 text-muted text-center">Tidak ada data</div>`);

@@ -270,6 +270,12 @@ class ReviewController extends Controller
                         'collection_media_id' => $request->collection_media_id,
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
+                        'jilid' => $request->binding,
+                        'currency' => $request->currency,
+                        'jenis_isi' => $request->content_type,
+                        'jenis_wadah' => $request->container_type,
+                        'jenis_media' => $request->media_type,
+                        'jumlah_eks' => $request->number_copy,
                     ];
 
                     if ($isStatus2) {
@@ -402,6 +408,9 @@ class ReviewController extends Controller
             'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
             'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
             'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
+            'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
+            'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
+            'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
             'collection' => $collection,
             'collectionCategory' => $collectionCategory,
             'collectionContributor' => explode(';', ($collection->DESCRIPTION ?? '')),

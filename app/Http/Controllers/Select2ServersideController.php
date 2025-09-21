@@ -458,4 +458,41 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function currency(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+
+        $data = QueryAPI::get("
+            select
+                currency,
+                description
+            from
+                master_currency
+            where
+                upper(currency) like '%$search%' or
+                upper(description) like '%$search%'
+            group by
+                currency,
+                description
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . $d->DESCRIPTION . '</small></div>
+                    <div>' . $d->CURRENCY . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->CURRENCY,
+                    'text' => $d->CURRENCY,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

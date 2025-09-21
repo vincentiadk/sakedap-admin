@@ -37,6 +37,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('problem', 'Select2ServersideController@problem');
         Route::get('catalog-id', 'Select2ServersideController@catalogId');
         Route::get('catalog', 'Select2ServersideController@catalog');
+        Route::get('currency', 'Select2ServersideController@currency');
     });
 
     Route::get('home', function () {

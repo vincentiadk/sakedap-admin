@@ -202,12 +202,64 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-form-label col-md-2">Mata Uang</label>
+                    <div class="col-md-10">
+                        <select class="form-select" name="currency" id="currency">
+                            @if($collection->CURRENCY)
+                                <option value="{{ $collection->CURRENCY }}" selected>{{ $collection->CURRENCY }}</option>
+                            @endif
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-form-label col-md-2">Harga</label>
                     <div class="col-md-10">
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="text" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="....................">
-                        </div>
+                        <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="....................">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jilid</label>
+                    <div class="col-md-10">
+                        <input type="number" class="form-control" name="binding" id="binding" value="{{ $collection->JILID }}" placeholder="....................">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Isi</label>
+                    <div class="col-md-10">
+                        <select class="form-select select2-basic" name="content_type" id="content_type">
+                            <option value=""></option>
+                            @foreach($contentType as $ct)
+                                <option value="{{ $ct->NAME }}" {{ $collection->JENIS_ISI == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Wadah</label>
+                    <div class="col-md-10">
+                        <select class="form-select select2-basic" name="container_type" id="container_type">
+                            <option value=""></option>
+                            @foreach($containerType as $ct)
+                                <option value="{{ $ct->NAME }}" {{ $collection->JENIS_WADAH == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jenis Media</label>
+                    <div class="col-md-10">
+                        <select class="form-select select2-basic" name="media_type" id="media_type">
+                            <option value=""></option>
+                            @foreach($mediaType as $mt)
+                                <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA == $ct->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Jumlah Eksemplar</label>
+                    <div class="col-md-10">
+                        <input type="number" class="form-control" name="number_copy" id="number_copy" value="{{ $collection->JUMLAH_EKS }}" placeholder="....................">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -411,7 +463,7 @@
             });
         }
 
-        $('#price').number(true);
+        select2Serverside('#currency', 'currency');
     });
 
     function changeStatus() {

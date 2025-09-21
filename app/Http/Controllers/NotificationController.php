@@ -28,8 +28,7 @@ class NotificationController extends Controller
                 propinsi on propinsi.id = penerbit.province_id
             where
                 penerbit.status = '1' and
-                $provinceId and
-                rownum <= 10
+                $provinceId
             order by
                 penerbit.updatedate desc
         ");
@@ -49,8 +48,7 @@ class NotificationController extends Controller
                 kabupaten on kabupaten.id = catalogs.city_id
             where
                 e_collection_requests.status = 1 and
-                $provinceId and
-                rownum <= 10
+                $provinceId
             order by
                 e_collection_requests.created_at desc
         ");
