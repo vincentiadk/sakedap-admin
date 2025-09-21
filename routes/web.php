@@ -338,6 +338,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'PostageController@index');
             Route::get('load-data', 'PostageController@loadData');
         });
+
+        Route::prefix('warning')->group(function () {
+            Route::get('/', 'WarningController@index');
+            Route::get('load-data', 'WarningController@loadData');
+        });
     });
 
     Route::prefix('setting')->namespace('Setting')->group(function () {
