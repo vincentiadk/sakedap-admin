@@ -236,6 +236,15 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('promotion')->group(function () {
+        Route::get('/', 'PromotionController@index');
+        Route::get('datatable', 'PromotionController@datatable');
+        Route::post('create-data', 'PromotionController@createData');
+        Route::get('show-data', 'PromotionController@showData');
+        Route::post('update-data', 'PromotionController@updateData');
+        Route::delete('destroy-data', 'PromotionController@destroyData');
+    });
+
     Route::prefix('delivery')->namespace('Delivery')->group(function () {
         Route::prefix('list')->group(function () {
             Route::get('/', 'ListController@index');

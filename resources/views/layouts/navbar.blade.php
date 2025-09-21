@@ -64,6 +64,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="{{ url('promotion') }}" class="nav-link rounded {{ Request::segment(1) == 'promotion' ? 'active' : '' }}">
+                                                        <i class="ph-ticket me-2"></i>
+                                                        Promosi
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="#menu-delivery" class="nav-link rounded {{ Request::segment(1) == 'delivery' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'delivery' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-truck me-2"></i>
                                                         Pengiriman
