@@ -80,7 +80,9 @@
     $(function() {
         loadData();
 
-        select2Serverside('#city_id', 'city');
+        select2Serverside('#city_id', 'location', {
+            for: 'city'
+        });
     });
 
     function onReloadTable() {

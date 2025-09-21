@@ -95,7 +95,9 @@
     $(function() {
         loadData();
 
-        select2Serverside('#province_id', 'province');
+        select2Serverside('#province_id', 'location', {
+            for: 'province'
+        });
     });
 
     function onReloadTable() {

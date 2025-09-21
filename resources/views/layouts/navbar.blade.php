@@ -250,24 +250,13 @@
                 <li class="nav-item nav-item-dropdown-lg dropdown me-lg-1">
                     <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
 						<i class="ph-users-four"></i>
-						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">0</span>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="notification-header-executor-total"></span>
 					</a>
 					<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
 						<div class="d-flex align-items-center p-3">
 							<h6 class="mb-0">Notifikasi Pendaftaran Pelaksana Serah</h6>
 						</div>
-						<div class="dropdown-menu-scrollable pb-2">
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="me-3">
-                                    <img src="{{ asset('assets/team.png') }}" class="w-40px h-40px" alt="">
-								</div>
-								<div class="flex-1">
-									<span class="fw-semibold">James Alexander</span>
-									<span class="text-muted float-end fs-sm">04:58</span>
-									<div class="text-muted">who knows, maybe that would be the best thing for me...</div>
-								</div>
-							</a>
-						</div>
+						<div class="dropdown-menu-scrollable pb-2" id="notification-header-executor-list"></div>
 						<div class="d-flex border-top py-2 px-3">
 							<a href="{{ url('executor/review') }}" class="text-body mx-auto">
 								Lihat Selengkapnya
@@ -279,24 +268,13 @@
                 <li class="nav-item nav-item-dropdown-lg dropdown me-lg-3">
                     <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
 						<i class="ph-file-plus"></i>
-						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">0</span>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="notification-header-file-total"></span>
 					</a>
 					<div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
 						<div class="d-flex align-items-center p-3">
 							<h6 class="mb-0">Notifikasi Permintaan File</h6>
 						</div>
-						<div class="dropdown-menu-scrollable pb-2">
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="me-3">
-                                    <img src="{{ asset('assets/demand.png') }}" class="w-40px h-40px" alt="">
-								</div>
-								<div class="flex-1">
-									<span class="fw-semibold">James Alexander</span>
-									<span class="text-muted float-end fs-sm">04:58</span>
-									<div class="text-muted">who knows, maybe that would be the best thing for me...</div>
-								</div>
-							</a>
-						</div>
+						<div class="dropdown-menu-scrollable pb-2" id="notification-header-file-list"></div>
 						<div class="d-flex border-top py-2 px-3">
 							<a href="{{ url('request-file') }}" class="text-body mx-auto">
 								Lihat Selengkapnya

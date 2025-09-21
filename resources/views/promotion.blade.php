@@ -25,6 +25,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Provinsi</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Kode</th>
                         <th class="text-nowrap">Tgl Mulai</th>
@@ -101,6 +102,10 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Provinsi :</label>
+                        <select class="form-select" name="province_id[]" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih Beberapa" multiple></select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer justify-content-end">
@@ -125,6 +130,19 @@
     $(function() {
         $('#balance').number(true);
 
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#province_id', 'location', {
+                for: 'province',
+                province_id: '{{ session("province_id") }}',
+            }, {
+                minimumInputLength: 0
+            });
+        } else {
+            select2Serverside('#province_id', 'location', {
+                for: 'province'
+            });
+        }
+
         loadData();
     });
 
@@ -140,6 +158,7 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
+        $('#province_id').val(null).change();
     }
 
     function onCreate() {
@@ -208,6 +227,7 @@
             },
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
@@ -282,14 +302,20 @@
             success: function(response) {
                 onLoading('close', '.modal-content');
 
-                $('#table_id').val(response.ID);
-                $('#title').val(response.JUDUL);
-                $('#code').val(response.KODE_PROMO);
-                $('#start_date').val(moment(response.TANGGAL_MULAI).format('YYYY-MM-DDTHH:mm'));
-                $('#end_date').val(moment(response.TANGGAL_SELESAI).format('YYYY-MM-DDTHH:mm'));
-                $('#balance').val(response.SALDO);
-                $('#discount').val(response.DISKON);
-                $('#package').val(response.JUMLAH_PAKET);
+                $('#table_id').val(response.data.ID);
+                $('#title').val(response.data.JUDUL);
+                $('#code').val(response.data.KODE_PROMO);
+                $('#start_date').val(moment(response.data.TANGGAL_MULAI).format('YYYY-MM-DDTHH:mm'));
+                $('#end_date').val(moment(response.data.TANGGAL_SELESAI).format('YYYY-MM-DDTHH:mm'));
+                $('#balance').val(response.data.SALDO);
+                $('#discount').val(response.data.DISKON);
+                $('#package').val(response.data.JUMLAH_PAKET);
+
+                if(response.province) {
+                    $.each(response.province, function(i, val) {
+                        $('#province_id').append('<option value="' + val.ID + '" selected>' + val.NAMAPROPINSI + '</option>')
+                    });
+                }
             },
             error: function(response) {
                 onLoading('close', '.modal-content');

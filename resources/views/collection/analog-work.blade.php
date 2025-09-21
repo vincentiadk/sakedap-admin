@@ -110,7 +110,10 @@
             });
         } else {
             select2Serverside('#executor_id', 'executor');
-            select2Serverside('#province_id', 'location');
+
+            select2Serverside('#province_id', 'location', {
+                for: 'province'
+            });
         }
 
         loadData();

@@ -291,7 +291,9 @@ class ManageController extends Controller
                     'rata_terbitan' => $request->publication_average,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
-                    'is_disable' => $request->is_disable ?? null
+                    'is_disable' => $request->is_disable ?? null,
+                    'tgl_disable' => $request->is_disable ? date('Y-m-d H:i:s') : null,
+                    'disble_by' => $request->is_disable ? session('name') : null,
                 ], false);
 
                 $response = [

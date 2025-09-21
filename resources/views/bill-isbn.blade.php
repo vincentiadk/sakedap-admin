@@ -151,7 +151,9 @@
                 minimumInputLength: 0
             });
         } else {
-            select2Serverside('#province_id', 'location');
+            select2Serverside('#province_id', 'location', {
+                for: 'province'
+            });
         }
 
         loadData();

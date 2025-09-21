@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -24,6 +25,7 @@ class PromotionController extends Controller
         $column = [
             'id',
             null,
+            'province_id',
             'judul',
             'kode_promo',
             'tanggal_mulai',
@@ -45,6 +47,15 @@ class PromotionController extends Controller
 
         $whereClause = '';
         $whereCondition = [];
+
+        if (Main::isNotCenterBranch()) {
+            $whereCondition[] = "
+                (
+                    ',' || province_id || ',' LIKE '%," . session('province_id') . ",%' or
+                    province_id is null
+                )
+            ";
+        }
 
         if ($search) {
             $terms = [];
@@ -135,9 +146,27 @@ class PromotionController extends Controller
                     ' . Carbon::parse($val->TANGGAL_SELESAI)->format('H:i') . ' WIB
                 ';
 
+                if ($val->PROVINCE_ID) {
+                    $dataProvince = QueryAPI::get("select * from propinsi where id in ($val->PROVINCE_ID)");
+                    $listProvince = '';
+
+                    if ($dataProvince) {
+                        foreach ($dataProvince as $dp) {
+                            $listProvince .= '<div>- ' . $dp->NAMAPROPINSI . '</div>';
+                        }
+                    }
+
+                    $province = '
+                        <button type="button" class="btn btn-light btn-sm" onclick="onPopover(this, ' . "'$listProvince'" . ')">Lihat</button>
+                    ';
+                } else {
+                    $province = '<button type="button" class="btn btn-light btn-sm">Semua</button>';
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
+                    $province,
                     $val->JUDUL,
                     $val->KODE_PROMO,
                     $startDate,
@@ -204,6 +233,7 @@ class PromotionController extends Controller
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
+                    'province_id' => implode(',', $request->province_id ?? []),
                 ], false);
 
                 $response = [
@@ -233,7 +263,17 @@ class PromotionController extends Controller
                 id = $id
         ", true);
 
-        return response()->json($data);
+        $provinceId = $data->PROVINCE_ID ?? '';
+        $province = null;
+
+        if ($provinceId) {
+            $province = QueryAPI::get("select * from propinsi where id in ($provinceId)");
+        }
+
+        return response()->json([
+            'data' => $data,
+            'province' => $province
+        ]);
     }
 
     public function updateData(Request $request)
@@ -279,6 +319,7 @@ class PromotionController extends Controller
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
+                    'province_id' => implode(',', $request->province_id ?? []),
                 ], false);
 
                 $response = [

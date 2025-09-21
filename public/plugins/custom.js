@@ -27,6 +27,7 @@ $(function () {
     disableEnterFormAjax();
     select2Basic();
     iframeable();
+    notificationHeader();
 });
 
 function iframeable() {
@@ -335,4 +336,71 @@ function randomString(length) {
     }
 
     return result;
+}
+
+function notificationHeader() {
+    $.ajax({
+        url: gBaseUrl + 'notification',
+        type: 'GET',
+        dataType: 'JSON',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        beforeSend: function () {
+            onLoading('show', '#notification-header-executor-list');
+            onLoading('show', '#notification-header-file-list');
+
+            $('#notification-header-executor-total').text(0);
+            $('#notification-header-executor-list').html('');
+            $('#notification-header-file-total').text(0);
+            $('#notification-header-file-list').html('');
+        },
+        success: function (response) {
+            onLoading('close', '#notification-header-executor-list');
+            onLoading('close', '#notification-header-file-list');
+
+            if (response.executor.length > 0) {
+                $.each(response.executor, function (i, val) {
+                    $('#notification-header-executor-total').text(response.executor.length);
+                    $('#notification-header-executor-list').append(`
+                        <a href="javascript:void(0);" class="dropdown-item align-items-start text-wrap py-2 no-click">
+                            <div class="me-3">
+                                <img src="${gBaseUrl}assets/team.png" class="w-40px h-40px" alt="">
+                            </div>
+                            <div class="flex-1">
+                                <span class="fw-semibold">${val.NAME}</span>
+                                <span class="text-muted float-end fs-sm">${val.UPDATEDATE}</span>
+                                <div class="text-muted">${val.NAMAPROPINSI}</div>
+                            </div>
+                        </a>
+                    `);
+                });
+            } else {
+                $('#notification-header-executor-list').html(`<div class="p-3 text-muted text-center">Tidak ada data</div>`);
+            }
+
+            if (response.file.length > 0) {
+                $.each(response.file, function (i, val) {
+                    $('#notification-header-file-total').text(response.file.length);
+                    $('#notification-header-file-list').append(`
+                        <a href="javascript:void(0);" class="dropdown-item align-items-start text-wrap py-2 no-click">
+                            <div class="me-3">
+                                <img src="${gBaseUrl}assets/demand.png" class="w-40px h-40px" alt="">
+                            </div>
+                            <div class="flex-1">
+                                <span class="fw-semibold">${val.TITLE}</span>
+                                <span class="text-muted float-end fs-sm">${val.CREATED_AT}</span>
+                                <div class="text-muted">${val.NAME}</div>
+                            </div>
+                        </a>
+                    `);
+                });
+            } else {
+                $('#notification-header-file-list').html(`<div class="p-3 text-muted text-center">Tidak ada data</div>`);
+            }
+        },
+        error: function (response) {
+            notificationHeader();
+        }
+    });
 }

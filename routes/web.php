@@ -22,15 +22,14 @@ Route::prefix('download')->group(function () {
 });
 
 Route::middleware('authentication')->group(function () {
+    Route::get('notification', 'NotificationController@index');
+
     Route::prefix('auth')->group(function () {
         Route::match(['get', 'post'], 'change-password', 'AuthController@changePassword');
         Route::get('logout', 'AuthController@logout');
     });
 
     Route::prefix('select2-serverside')->group(function () {
-        Route::get('province', 'Select2ServersideController@province');
-        Route::get('city', 'Select2ServersideController@city');
-        Route::get('district', 'Select2ServersideController@district');
         Route::get('branch', 'Select2ServersideController@branch');
         Route::get('executor', 'Select2ServersideController@executor');
         Route::get('location', 'Select2ServersideController@location');
