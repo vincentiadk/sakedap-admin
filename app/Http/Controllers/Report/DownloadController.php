@@ -50,6 +50,8 @@ class DownloadController extends Controller
                 $typeText = 'Laporan Performa User';
             } else if ($types == 'report-log') {
                 $typeText = 'Laporan Log';
+            } else if ($types == 'report-promotion') {
+                $typeText = 'Laporan Promosi';
             } else {
                 $typeText = 'N/A';
             }

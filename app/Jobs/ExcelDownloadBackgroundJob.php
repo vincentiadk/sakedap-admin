@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportExecutorExport;
 use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
+use App\Exports\ReportPromotionExport;
 use Illuminate\Queue\SerializesModels;
 use App\Exports\ReportCollectionExport;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,6 +20,13 @@ use App\Exports\ReportPerformanceUserExport;
 class ExcelDownloadBackgroundJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 5;
 
     /**
      * jobID
@@ -78,6 +86,9 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
                     Excel::store(new ReportPerformanceUserExport($this->request), $filename, $disk);
                 case 'report-log':
                     Excel::store(new ReportLogExport($this->request), $filename, $disk);
+                    break;
+                case 'report-promotion':
+                    Excel::store(new ReportPromotionExport($this->request), $filename, $disk);
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');

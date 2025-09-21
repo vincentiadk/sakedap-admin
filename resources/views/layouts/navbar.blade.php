@@ -200,6 +200,7 @@
                                                 <a href="{{ url('report/collection') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'collection' ? 'active' : '' }}">Koleksi</a>
                                                 <a href="{{ url('report/performance-user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'performance-user' ? 'active' : '' }}">Performa User</a>
                                                 <a href="{{ url('report/log') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'log' ? 'active' : '' }}">Log</a>
+                                                <a href="{{ url('report/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
                                             </div>
                                         </div>

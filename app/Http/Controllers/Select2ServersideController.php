@@ -495,4 +495,53 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function promotion(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $provinceId = $request->province_id;
+        $condition[] = "
+            (
+                upper(kode_promo) like '%$search%' or
+                upper(judul) like '%$search%'
+            )
+        ";
+
+        if ($provinceId) {
+            $condition[] = "
+                (
+                    ',' || province_id || ',' LIKE '%," . $provinceId . ",%' or
+                    province_id is null
+                )
+            ";
+        }
+
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                *
+            from
+                e_promo
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div><small class="text-muted">' . $d->KODE_PROMO . '</small></div>
+                    <div>' . $d->JUDUL . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->JUDUL,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

@@ -38,6 +38,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('catalog-id', 'Select2ServersideController@catalogId');
         Route::get('catalog', 'Select2ServersideController@catalog');
         Route::get('currency', 'Select2ServersideController@currency');
+        Route::get('promotion', 'Select2ServersideController@promotion');
     });
 
     Route::get('home', function () {
@@ -322,6 +323,11 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('log')->group(function () {
             Route::get('/', 'LogController@index');
             Route::get('datatable', 'LogController@datatable');
+        });
+
+        Route::prefix('promotion')->group(function () {
+            Route::get('/', 'PromotionController@index');
+            Route::get('datatable', 'PromotionController@datatable');
         });
 
         Route::prefix('download')->group(function () {
