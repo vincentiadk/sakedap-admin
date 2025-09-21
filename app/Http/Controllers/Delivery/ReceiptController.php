@@ -522,7 +522,7 @@ class ReceiptController extends Controller
                             from
                                 e_settings
                             where
-                                slug in ('template-email-delivery-receipt','template-email-header','template-email-footer')
+                                slug in ('ResiPenerimaan','Header','Footer')
                         ");
 
                         $templateEmailContent = null;
@@ -531,9 +531,9 @@ class ReceiptController extends Controller
 
                         if ($settings) {
                             foreach ($settings as $setting) {
-                                if ($setting->SLUG == 'template-email-delivery-receipt') $templateEmailContent = $setting;
-                                elseif ($setting->SLUG == 'template-email-header') $templateEmailHeader = $setting;
-                                elseif ($setting->SLUG == 'template-email-footer') $templateEmailFooter = $setting;
+                                if ($setting->SLUG == 'ResiPenerimaan') $templateEmailContent = $setting;
+                                elseif ($setting->SLUG == 'Header') $templateEmailHeader = $setting;
+                                elseif ($setting->SLUG == 'Footer') $templateEmailFooter = $setting;
                             }
                         }
 
@@ -566,7 +566,7 @@ class ReceiptController extends Controller
                             'publisher_name' => $executor->NAME ?? '',
                             'director' => $signature,
                             'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
-                            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
+                            'Footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . url()->current(),
                         ];
 

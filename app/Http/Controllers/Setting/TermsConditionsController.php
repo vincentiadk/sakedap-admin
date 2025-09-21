@@ -14,21 +14,31 @@ class TermsConditionsController extends Controller
             select
                 *
             from
-                e_settings
+                settingparameters
             where
-                slug = 'terms-conditions'
+                name = 'SyaraKetentuanEdeposit'
         ", true);
 
         if ($request->_token == csrf_token()) {
             if ($template) {
-                QueryAPI::update('e_settings', ($template->ID ?? null), [
-                    'content' => $request->content
-                ]);
+                QueryAPI::update('settingparameters', ($template->ID ?? null), [
+                    'value' => $request->content,
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                ], false);
             } else {
-                QueryAPI::create('e_settings', [
-                    'content' => $request->content,
-                    'slug' => 'terms-conditions'
-                ]);
+                QueryAPI::create('settingparameters', [
+                    'value' => $request->content,
+                    'name' => 'SyaraKetentuanEdeposit',
+                    'createby' => session('name'),
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
+                    'createby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                    'updateby' => session('name'),
+                ], false);
             }
 
             return redirect('setting/terms-conditions')->with([

@@ -88,7 +88,7 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-template-email" class="nav-link rounded {{ Request::segment(1) == 'template-email' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'template-email' ? 'true' : 'false' }}" role="tab">
+                                                    <a href="{{ url('template-email') }}" class="nav-link rounded {{ Request::segment(1) == 'template-email' ? 'active' : '' }}">
                                                         <i class="ph-envelope me-2"></i>
                                                         Template Email
                                                     </a>
@@ -191,24 +191,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'template-email' ? 'show active' : '' }}" id="menu-template-email" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
-                                                <a href="{{ url('template-email/header') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'header' ? 'active' : '' }}">Header</a>
-                                                <a href="{{ url('template-email/footer') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'footer' ? 'active' : '' }}">Footer</a>
-                                                <a href="{{ url('template-email/receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'receipt' ? 'active' : '' }}">Tanda Terima</a>
-                                                <a href="{{ url('template-email/activation') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'activation' ? 'active' : '' }}">Aktivasi</a>
-                                                <a href="{{ url('template-email/change-password') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'change-password' ? 'active' : '' }}">Ganti Password</a>
-                                                <a href="{{ url('template-email/executor-reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'executor-reject' ? 'active' : '' }}">Pelaksana Serah Ditolak</a>
-                                                <a href="{{ url('template-email/executor-submission') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'executor-submission' ? 'active' : '' }}">Pelaksana Serah Pengajuan</a>
-                                                <a href="{{ url('template-email/executor-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'executor-accept' ? 'active' : '' }}">Pelaksana Serah Diterima</a>
-                                                <a href="{{ url('template-email/collection-problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-problem' ? 'active' : '' }}">Koleksi Bermasalah</a>
-                                                <a href="{{ url('template-email/collection-submitted') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-submitted' ? 'active' : '' }}">Koleksi Diserahkan</a>
-                                                <a href="{{ url('template-email/collection-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'template-email' && Request::segment(2) == 'collection-accept' ? 'active' : '' }}">Koleksi Diterima</a>
-                                            </div>
-                                        </div>
-                                    </div>
 									<div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'report' ? 'show active' : '' }}" id="menu-report" role="tabpanel">
                                         <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-lg-4 mb-3 mb-lg-0">
@@ -231,6 +213,8 @@
                                                 <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
                                                 <a href="{{ url('setting/terms-conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'terms-conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>
                                                 <a href="{{ url('setting/about-us') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'about-us' ? 'active' : '' }}">Tentang Kami</a>
+                                                <a href="{{ url('setting/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>
+                                                <a href="{{ url('setting/footer-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'footer-email' ? 'active' : '' }}">Footer Email</a>
                                             </div>
                                         </div>
                                     </div>

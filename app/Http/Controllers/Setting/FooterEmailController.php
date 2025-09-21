@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\TemplateEmail;
+namespace App\Http\Controllers\Setting;
 
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CollectionAcceptController extends Controller
+class FooterEmailController extends Controller
 {
     public function index(Request $request)
     {
@@ -16,7 +16,7 @@ class CollectionAcceptController extends Controller
             from
                 e_settings
             where
-                slug = 'template-email-collection-success'
+                slug = 'Footer'
         ", true);
 
         if ($request->_token == csrf_token()) {
@@ -25,20 +25,33 @@ class CollectionAcceptController extends Controller
                     'content' => $request->content
                 ]);
             } else {
-                QueryAPI::create('e_settings', [
+                $template = QueryAPI::create('e_settings', [
                     'content' => $request->content,
-                    'slug' => 'template-email-collection-success'
+                    'slug' => 'Footer'
                 ]);
             }
 
-            return redirect('template-email/collection-accept')->with([
+            $upload = QueryAPI::uploadFile([
+                'type' => 'gambar_template',
+                'id' => $template->ID ?? null,
+                'iszip' => 0,
+                'file' => $request->file('file'),
+            ]);
+
+            if ($upload) {
+                QueryAPI::update('e_settings', ($template->ID ?? null), [
+                    'content' => $upload->FileName
+                ]);
+            }
+
+            return redirect('setting/footer-email')->with([
                 'success' => 'Data berhasil disimpan'
             ]);
         }
 
         $data = [
             'template' => $template,
-            'content' => 'template-email.collection-accept'
+            'content' => 'setting.footer-email'
         ];
 
         return view('layouts.index', ['data' => $data]);

@@ -14,21 +14,31 @@ class AboutUsController extends Controller
             select
                 *
             from
-                e_settings
+                settingparameters
             where
-                slug = 'about-us'
+                name = 'TentangKamiEdeposit'
         ", true);
 
         if ($request->_token == csrf_token()) {
             if ($template) {
-                QueryAPI::update('e_settings', ($template->ID ?? null), [
-                    'content' => $request->content
-                ]);
+                QueryAPI::update('settingparameters', ($template->ID ?? null), [
+                    'value' => $request->content,
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                ], false);
             } else {
-                QueryAPI::create('e_settings', [
-                    'content' => $request->content,
-                    'slug' => 'about-us'
-                ]);
+                QueryAPI::create('settingparameters', [
+                    'value' => $request->content,
+                    'name' => 'TentangKamiEdeposit',
+                    'createby' => session('name'),
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
+                    'createby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                    'updateby' => session('name'),
+                ], false);
             }
 
             return redirect('setting/about-us')->with([

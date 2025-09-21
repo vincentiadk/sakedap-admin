@@ -289,46 +289,11 @@ Route::middleware('authentication')->group(function () {
         Route::post('set-status', 'RequestFileController@setStatus');
     });
 
-    Route::prefix('template-email')->namespace('TemplateEmail')->group(function () {
-        Route::prefix('header')->group(function () {
-            Route::match(['get', 'post'], '/', 'HeaderController@index');
-        });
-
-        Route::prefix('footer')->group(function () {
-            Route::match(['get', 'post'], '/', 'FooterController@index');
-        });
-
-        Route::prefix('receipt')->group(function () {
-            Route::match(['get', 'post'], '/', 'ReceiptController@index');
-        });
-
-        Route::prefix('activation')->group(function () {
-            Route::match(['get', 'post'], '/', 'ActivationController@index');
-        });
-
-        Route::prefix('executor-reject')->group(function () {
-            Route::match(['get', 'post'], '/', 'ExecutorRejectController@index');
-        });
-
-        Route::prefix('executor-submission')->group(function () {
-            Route::match(['get', 'post'], '/', 'ExecutorSubmissionController@index');
-        });
-
-        Route::prefix('executor-accept')->group(function () {
-            Route::match(['get', 'post'], '/', 'ExecutorAcceptController@index');
-        });
-
-        Route::prefix('collection-problem')->group(function () {
-            Route::match(['get', 'post'], '/', 'CollectionProblemController@index');
-        });
-
-        Route::prefix('collection-submitted')->group(function () {
-            Route::match(['get', 'post'], '/', 'CollectionSubmittedController@index');
-        });
-
-        Route::prefix('collection-accept')->group(function () {
-            Route::match(['get', 'post'], '/', 'CollectionAcceptController@index');
-        });
+    Route::prefix('template-email')->group(function () {
+        Route::get('/', 'TemplateEmailController@index');
+        Route::get('datatable', 'TemplateEmailController@datatable');
+        Route::get('show-data', 'TemplateEmailController@showData');
+        Route::post('update-data', 'TemplateEmailController@updateData');
     });
 
     Route::prefix('report')->namespace('Report')->group(function () {
@@ -397,6 +362,14 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('about-us')->group(function () {
             Route::match(['get', 'post'], '/', 'AboutUsController@index');
+        });
+
+        Route::prefix('header-email')->group(function () {
+            Route::match(['get', 'post'], '/', 'HeaderEmailController@index');
+        });
+
+        Route::prefix('footer-email')->group(function () {
+            Route::match(['get', 'post'], '/', 'FooterEmailController@index');
         });
     });
 });

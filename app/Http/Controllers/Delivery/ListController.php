@@ -412,7 +412,7 @@ class ListController extends Controller
             from
                 e_settings
             where
-                slug in ('template-email-delivery-receipt','template-email-header','template-email-footer')
+                slug in ('ResiPenerimaan','Header','Footer')
         ");
 
         $templateEmailContent = null;
@@ -421,11 +421,11 @@ class ListController extends Controller
 
         if ($settings) {
             foreach ($settings as $setting) {
-                if ($setting->SLUG == 'template-email-delivery-receipt') {
+                if ($setting->SLUG == 'ResiPenerimaan') {
                     $templateEmailContent = $setting;
-                } elseif ($setting->SLUG == 'template-email-header') {
+                } elseif ($setting->SLUG == 'Header') {
                     $templateEmailHeader = $setting;
-                } elseif ($setting->SLUG == 'template-email-footer') {
+                } elseif ($setting->SLUG == 'Footer') {
                     $templateEmailFooter = $setting;
                 }
             }
@@ -463,7 +463,7 @@ class ListController extends Controller
             'publisher_name' => $letter->NAME_PENERBIT,
             'director' => $signature,
             'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
-            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
+            'Footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . url()->current(),
         ];
 

@@ -28,7 +28,7 @@
         <div class="card">
             <div class="card-body">
                 <textarea name="content" class="form-control content" id="content">
-                    {!! $template->CONTENT ?? '' !!}
+                    {!! $template->VALUE ?? '' !!}
                 </textarea>
             </div>
         </div>

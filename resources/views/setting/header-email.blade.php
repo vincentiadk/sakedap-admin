@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Template Email - <span class="fw-normal">Pelaksana Serah Pengajuan</span>
+                Pengaturan - <span class="fw-normal">Header Email</span>
             </h4>
         </div>
     </div>
@@ -23,19 +23,17 @@
             {{ session('error') }}
         </div>
     @endif
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data" onsubmit="onLoading('show', 'body')">
         @csrf
         <div class="card">
             <div class="card-body">
-                <textarea name="content" class="form-control content" id="content">
-                    {!! $template->CONTENT ?? '' !!}
-                </textarea>
+                <input type="file" name="file" id="file" required>
             </div>
         </div>
         <div class="card">
             <div class="card-body">
                 <div class="text-end">
-                    <button type="submit" class="btn btn-warning" onclick="onLoading('show', 'body')">
+                    <button type="submit" class="btn btn-warning">
                         <i class="ph-floppy-disk me-1"></i>
                         Simpan Data
                     </button>
@@ -47,10 +45,31 @@
 
 <script>
     $(function() {
-        CKEDITOR.replace('content',{
-            enterMode : CKEDITOR.ENTER_BR,
-            height: 250,
-            versionCheck: false
+        var hasImage = '{{ $template->CONTENT }}';
+        var templateId = '{{ $template->ID ?? "" }}';
+
+        if(hasImage) {
+            var imageUrl = '{{ url("stream-file") }}?type=gambar_template&id=' + templateId + '&filename={{ $template->CONTENT }}';
+            var previewImage = [imageUrl];
+            var previewConfig = [
+                {
+                    caption: '',
+                    size: '',
+                    key: 1,
+                    url: imageUrl
+                }
+            ]
+        } else {
+            var previewImage = '';
+            var previewConfig = '';
+        }
+
+        dragAndDropFile('#file', {
+            allowedFileExtensions: ['jpg', 'jpeg', 'png'],
+            maxFileCount: 1,
+            initialPreview: previewImage,
+            initialPreviewConfig: previewConfig,
+            overwriteInitial: true
         });
     });
 </script>

@@ -228,7 +228,7 @@ class RequestFileController extends Controller
                     from
                         e_settings
                     where
-                        slug = 'template-email-request-file-original'
+                        slug = 'PermintaanFileOriginal'
                 ", true);
 
                 if ($templateEmail) {
