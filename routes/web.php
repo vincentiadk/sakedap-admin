@@ -286,6 +286,12 @@ Route::middleware('authentication')->group(function () {
             Route::post('create-group', 'GrantController@createGroup');
             Route::post('out-group', 'GrantController@outGroup');
         });
+
+        Route::prefix('retur')->group(function () {
+            Route::get('/', 'ReturController@index');
+            Route::get('datatable', 'ReturController@datatable');
+            Route::post('grant', 'ReturController@grant');
+        });
     });
 
     Route::prefix('supervision')->group(function () {

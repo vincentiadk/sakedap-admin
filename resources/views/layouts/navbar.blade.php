@@ -177,7 +177,7 @@
                                                 <a href="{{ url('delivery/receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'receipt' ? 'active' : '' }}">Bukti Penerimaan</a>
                                                 <a href="{{ url('delivery/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'reject' ? 'active' : '' }}">Koleksi Ditolak</a>
                                                 <a href="{{ url('delivery/grant') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'grant' ? 'active' : '' }}">Koleksi Dihibahkan</a>
-                                                <a href="{{ url('delivery/return') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'return' ? 'active' : '' }}">Koleksi Dikembalikan</a>
+                                                <a href="{{ url('delivery/retur') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'retur' ? 'active' : '' }}">Koleksi Dikembalikan</a>
                                             </div>
                                         </div>
                                     </div>

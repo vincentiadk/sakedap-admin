@@ -8,13 +8,13 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class RejectController extends Controller
+class ReturController extends Controller
 {
     public function index()
     {
         $data = [
             'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.reject'
+            'content' => 'delivery.retur'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -30,7 +30,7 @@ class RejectController extends Controller
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.qty_reject',
+            'letter_detail.qty_retur',
             'letter.receipt_no',
             'letter_detail.remark',
         ];
@@ -47,9 +47,7 @@ class RejectController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
-        $whereCondition[] = "letter_detail.qty_hibah is null";
-        $whereCondition[] = "letter_detail.qty_retur is null";
-        $whereCondition[] = "letter_detail.qty_reject > 0";
+        $whereCondition[] = "letter_detail.qty_retur > 0";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -157,10 +155,6 @@ class RejectController extends Controller
                         <i class="ph-gift me-1"></i>
                         Hibahkan
                     </a>
-                    <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="retur(' . $val->LETTER_DETAIL_ID . ')">
-                        <i class="ph-cube me-1"></i>
-                        Ambil Kembali
-                    </a>
                 ';
 
                 $dataRemark = explode(';', $val->REMARK ?? '');
@@ -177,7 +171,7 @@ class RejectController extends Controller
                 ';
 
                 $inputHidden = '
-                    <input type="hidden" name="data" data-id="' . $val->LETTER_DETAIL_ID . '" data-title="' . $val->TITLE . '" data-executor="' . $val->NAME_PENERBIT . '" data-qty-reject="' . $val->QTY_REJECT . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '">
+                    <input type="hidden" name="data" data-id="' . $val->LETTER_DETAIL_ID . '" data-title="' . $val->TITLE . '" data-executor="' . $val->NAME_PENERBIT . '" data-qty-retur="' . $val->QTY_RETUR . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '">
                 ';
 
                 $data[] = [
@@ -188,7 +182,7 @@ class RejectController extends Controller
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $val->QTY_REJECT,
+                    $val->QTY_RETUR,
                     $val->RECEIPT_NO_LETTER,
                     $remark,
                 ];
@@ -257,35 +251,6 @@ class RejectController extends Controller
         return response()->json([
             'code' => 200,
             'message' => 'Koleksi berhasil dihibahkan'
-        ]);
-    }
-
-    public function retur(Request $request)
-    {
-        $id = $request->id ?? [];
-        $idImplode = implode(',', $id);
-
-        $dataLetterDetail = QueryAPI::get("
-            select
-                *
-            from
-                letter_detail
-            where
-                letter_detail_id in ($idImplode)
-        ");
-
-        if ($dataLetterDetail) {
-            foreach ($dataLetterDetail as $dld) {
-                QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
-                    'qty_retur' => $dld->QTY_REJECT,
-                    'qty_hibah' => null,
-                ], false);
-            }
-        }
-
-        return response()->json([
-            'code' => 200,
-            'message' => 'Koleksi berhasil dikembalikan'
         ]);
     }
 }
