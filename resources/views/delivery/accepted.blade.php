@@ -224,12 +224,12 @@
                                     </div>
                                 </div>
                                 <div class="timeline-time">
-                                    ${ moment(val.ACTION_DATE).format('YYYY-MM-DD') }
-                                    <div class="text-muted">${ moment(val.ACTION_DATE).format('H:mm:ss') }</div>
+                                    ${ moment(val.ACTIONDATE).format('YYYY-MM-DD') }
+                                    <div class="text-muted">${ moment(val.ACTIONDATE).format('H:mm:ss') }</div>
                                 </div>
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6 class="mb-1">${ val.ACTION_BY }</h6>
+                                        <h6 class="mb-1">${ val.ACTIONBY }</h6>
                                         ${ val.NOTE }
                                     </div>
                                 </div>

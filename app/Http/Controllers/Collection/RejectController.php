@@ -11,12 +11,17 @@ class RejectController extends Controller
 {
     public function index()
     {
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'content' => 'collection.reject'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'content' => 'collection.reject',
+                'plugins' => [
+                    'datatable',
+                    'daterangepicker',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

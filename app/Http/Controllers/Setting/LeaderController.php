@@ -13,12 +13,18 @@ class LeaderController extends Controller
 {
     public function index()
     {
-        $data = [
-            'worksheet' => QueryAPI::get("select * from branchs where isdelete = 0 or isdelete is null"),
-            'content' => 'setting.leader'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from branchs where isdelete = 0 or isdelete is null"),
+                'content' => 'setting.leader',
+                'plugins' => [
+                    'ckeditor',
+                    'select2',
+                    'datatable',
+                    'lightbox',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

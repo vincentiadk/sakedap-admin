@@ -12,12 +12,17 @@ class ListController extends Controller
 {
     public function index()
     {
-        $data = [
-            'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.list'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'content' => 'delivery.list',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)
@@ -374,14 +379,18 @@ class ListController extends Controller
             return response()->json($response);
         }
 
-        $data = [
-            'letter' => $letter,
-            'letterDetail' => $letterDetail,
-            'disabled' => in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) ? null : 'disabled',
-            'content' => 'delivery.list-verification'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'letter' => $letter,
+                'letterDetail' => $letterDetail,
+                'disabled' => in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) ? null : 'disabled',
+                'content' => 'delivery.list-verification',
+                'plugins' => [
+                    'select2',
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function print($id)

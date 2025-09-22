@@ -12,11 +12,15 @@ class DataController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'library.data'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'library.data',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

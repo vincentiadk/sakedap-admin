@@ -12,11 +12,15 @@ class CityController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'location.city'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'location.city',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

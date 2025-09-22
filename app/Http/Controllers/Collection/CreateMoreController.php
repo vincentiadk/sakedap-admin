@@ -11,11 +11,15 @@ class CreateMoreController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'collection.create-more'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'collection.create-more',
+                'plugins' => [
+                    'fileinput',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function submitted(Request $request)

@@ -11,12 +11,17 @@ class ProblemController extends Controller
 {
     public function index()
     {
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'content' => 'collection.problem'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'content' => 'collection.problem',
+                'plugins' => [
+                    'datatable',
+                    'daterangepicker',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

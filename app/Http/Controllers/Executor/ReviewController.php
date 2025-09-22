@@ -12,11 +12,14 @@ class ReviewController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'executor.review'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'executor.review',
+                'plugins' => [
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

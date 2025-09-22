@@ -12,11 +12,15 @@ class VillageController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'location.village'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'location.village',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

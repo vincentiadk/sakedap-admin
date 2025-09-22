@@ -15,7 +15,16 @@ class BillISBNController extends Controller
             'content' => 'bill-isbn'
         ];
 
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'bill-isbn',
+                'plugins' => [
+                    'daterangepicker',
+                    'select2',
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

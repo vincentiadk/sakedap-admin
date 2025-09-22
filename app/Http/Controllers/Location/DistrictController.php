@@ -12,11 +12,15 @@ class DistrictController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'location.district'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'location.district',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

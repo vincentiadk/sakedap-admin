@@ -20,12 +20,17 @@ class LabelController extends Controller
 
     public function index()
     {
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category in $this->worksheetCategory"),
-            'content' => 'collection.label'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category in $this->worksheetCategory"),
+                'content' => 'collection.label',
+                'plugins' => [
+                    'daterangepicker',
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

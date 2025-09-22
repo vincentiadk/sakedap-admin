@@ -11,11 +11,15 @@ class FaqController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'setting.faq'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'setting.faq',
+                'plugins' => [
+                    'datatable',
+                    'summernote',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -44,13 +44,18 @@ class ExecutorController extends Controller
             return redirect('report/executor')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'category' => QueryAPI::get("select * from penerbit_kategori"),
-            'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'report.executor'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'category' => QueryAPI::get("select * from penerbit_kategori"),
+                'type' => QueryAPI::get("select * from penerbit_jenis"),
+                'content' => 'report.executor',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -45,13 +45,18 @@ class PerformanceUserController extends Controller
             return redirect('report/performance-user')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where lower(tablename) in ($this->tableName)"),
-            'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where lower(tablename) in ($this->tableName)"),
-            'content' => 'report.performance-user'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where lower(tablename) in ($this->tableName)"),
+                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where lower(tablename) in ($this->tableName)"),
+                'content' => 'report.performance-user',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

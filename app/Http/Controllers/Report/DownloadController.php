@@ -70,11 +70,14 @@ class DownloadController extends Controller
             ];
         }
 
-        $data = [
-            'result' => $result,
-            'content' => 'report.download'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'result' => $result,
+                'content' => 'report.download',
+                'plugins' => [
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 }

@@ -13,12 +13,17 @@ class SentController extends Controller
 {
     public function index()
     {
-        $data = [
-            'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.sent'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'content' => 'delivery.sent',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

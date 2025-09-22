@@ -13,12 +13,17 @@ class WarningController extends Controller
 {
     public function index()
     {
-        $data = [
-            'officer' => QueryAPI::get("select * from petugas_pembina"),
-            'content' => 'executor.warning'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'officer' => QueryAPI::get("select * from petugas_pembina"),
+                'content' => 'executor.warning',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

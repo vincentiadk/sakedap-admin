@@ -19,13 +19,7 @@ class Authentication
         $id = session('id');
 
         if ($id) {
-            $user = QueryAPI::get("select * from users where id = $id", true);
-
-            if ($user) {
-                if ($user->ISACTIVE == 1 && $user->ISDELETE != 1) {
-                    return $next($request);
-                }
-            }
+            return $next($request);
         }
 
         session()->flush();

@@ -11,11 +11,14 @@ class VisitController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'master-data.visit'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'master-data.visit',
+                'plugins' => [
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -49,11 +49,14 @@ class FooterEmailController extends Controller
             ]);
         }
 
-        $data = [
-            'template' => $template,
-            'content' => 'setting.footer-email'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'template' => $template,
+                'content' => 'setting.footer-email',
+                'plugins' => [
+                    'ckeditor',
+                ]
+            ]
+        ]);
     }
 }

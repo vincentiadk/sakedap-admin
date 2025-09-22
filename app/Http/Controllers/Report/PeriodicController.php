@@ -32,12 +32,11 @@ class PeriodicController extends Controller
             return redirect('report/periodic')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'content' => 'report.periodic'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'report.periodic',
+            ]
+        ]);
     }
 
     public function loadData(Request $request)

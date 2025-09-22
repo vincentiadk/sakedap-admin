@@ -14,11 +14,16 @@ class RequestFileController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'request-file'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'request-file',
+                'plugins' => [
+                    'daterangepicker',
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

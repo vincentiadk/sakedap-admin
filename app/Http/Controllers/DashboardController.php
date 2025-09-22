@@ -23,11 +23,15 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $data = [
-            'content' => 'dashboard'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'dashboard',
+                'plugins' => [
+                    'daterangepicker',
+                    'echart',
+                ]
+            ]
+        ]);
     }
 
     public function dataProvince(Request $request)

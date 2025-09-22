@@ -15,7 +15,15 @@ class TemplateEmailController extends Controller
             'content' => 'template-email'
         ];
 
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'template-email',
+                'plugins' => [
+                    'datatable',
+                    'ckeditor',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -13,13 +13,17 @@ class ManageController extends Controller
 {
     public function index()
     {
-        $data = [
-            'category' => QueryAPI::get("select * from penerbit_kategori"),
-            'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'executor.manage'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'category' => QueryAPI::get("select * from penerbit_kategori"),
+                'type' => QueryAPI::get("select * from penerbit_jenis"),
+                'content' => 'executor.manage',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -203,6 +203,8 @@
                                                 <a href="{{ url('report/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
                                                 <a href="{{ url('report/postage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'postage' ? 'active' : '' }}">Ongkir</a>
                                                 <a href="{{ url('report/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
+                                                <a href="{{ url('report/service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'service' ? 'active' : '' }}">Pelayanan</a>
+                                                <a href="{{ url('report/reception') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'reception' ? 'active' : '' }}">Penerimaan</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
                                             </div>
                                         </div>

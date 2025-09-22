@@ -24,28 +24,28 @@
                 <table class="table table-bordered">
                     <tbody>
                         <tr>
-                            <th class="table-primary align-top" width="20%">Resi</th>
-                            <td class="align-top" width="30%">{{ $letter->RECEIPT_NO }}</td>
-                            <th class="table-primary align-top" width="20%">Jasa Kirim</th>
-                            <td class="align-top" width="30%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
+                            <th class="table-success align-top" width="15%">Resi</th>
+                            <td class="align-top" width="35%">{{ $letter->RECEIPT_NO }}</td>
+                            <th class="table-success align-top" width="15%">Jasa Kirim</th>
+                            <td class="align-top" width="35%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
                         </tr>
                         <tr>
-                            <th class="table-primary align-top" width="20%">Tgl Kirim</th>
-                            <td class="align-top" width="30%">{{ $letter->LETTER_DATE ? Carbon::parse($letter->LETTER_DATE)->format('d/m/Y') : '' }}</td>
-                            <th class="table-primary align-top" width="20%">Tgl Sampai</th>
-                            <td class="align-top" width="30%">{{ $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->format('d/m/Y') : '' }}</td>
+                            <th class="table-success align-top" width="15%">Tgl Kirim</th>
+                            <td class="align-top" width="35%">{{ $letter->LETTER_DATE ? Carbon::parse($letter->LETTER_DATE)->format('d/m/Y') : '' }}</td>
+                            <th class="table-success align-top" width="15%">Tgl Sampai</th>
+                            <td class="align-top" width="35%">{{ $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->format('d/m/Y') : '' }}</td>
                         </tr>
                         <tr>
-                            <th class="table-primary align-top" width="20%">Jumlah Paket</th>
-                            <td class="align-top" width="30%">{{ $letter->JUMLAH_PAKET }}</td>
-                            <th class="table-primary align-top" width="20%">Status</th>
-                            <td class="align-top" width="30%">{{ $letter->STATUS }}</td>
+                            <th class="table-success align-top" width="15%">Jumlah Paket</th>
+                            <td class="align-top" width="35%">{{ $letter->JUMLAH_PAKET }}</td>
+                            <th class="table-success align-top" width="15%">Status</th>
+                            <td class="align-top" width="35%">{{ $letter->STATUS }}</td>
                         </tr>
                         <tr>
-                            <th class="table-primary align-top" width="20%">Pelaksana Serah</th>
-                            <td class="align-top" width="30%">{{ $letter->NAME_PENERBIT }}</td>
-                            <th class="table-primary align-top" width="20%">Kode Promo</th>
-                            <td class="align-top" width="30%">{{ $letter->KODE_PROMO }}</td>
+                            <th class="table-success align-top" width="15%">Pelaksana Serah</th>
+                            <td class="align-top" width="35%">{{ $letter->NAME_PENERBIT }}</td>
+                            <th class="table-success align-top" width="15%">Kode Promo</th>
+                            <td class="align-top" width="35%">{{ $letter->KODE_PROMO }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -78,7 +78,7 @@
                                 <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
                                 <td class="text-wrap">{{ $ld->NAME_WORKSHEET }}</td>
                                 <td>
-                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->QUANTITY }}">
+                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->QUANTITY }}" readonly>
                                 </td>
                                 <td>
                                     <input type="number" class="form-control" name="letter_detail_qty_accept[]" oninput="calculateQty(this, 'accept')" value="{{ $ld->QTY_ACCEPT ?: $ld->QUANTITY }}" {{ $disabled }}>

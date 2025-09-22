@@ -36,12 +36,17 @@ class PromotionController extends Controller
             return redirect('report/promotion')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'report.promotion'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'content' => 'report.promotion',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

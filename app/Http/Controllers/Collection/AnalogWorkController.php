@@ -19,12 +19,17 @@ class AnalogWorkController extends Controller
 
     public function index()
     {
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
-            'content' => 'collection.analog-work'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
+                'content' => 'collection.analog-work',
+                'plugins' => [
+                    'datatable',
+                    'daterangepicker',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)
@@ -290,24 +295,27 @@ class AnalogWorkController extends Controller
                 e_col_id = $catalogId
         ", true);
 
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
-            'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
-            'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
-            'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
-            'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
-            'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
-            'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
-            'collection' => $collection,
-            'collectionCategory' => $collectionCategory,
-            'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
-            'collectionCopy' => $collectionCopy,
-            'collectionCover' => $collectionCover,
-            'collectionContent' => $collectionContent,
-            'content' => 'collection.analog-work-detail'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
+                'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
+                'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
+                'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
+                'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
+                'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
+                'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
+                'collection' => $collection,
+                'collectionCategory' => $collectionCategory,
+                'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
+                'collectionCopy' => $collectionCopy,
+                'collectionCover' => $collectionCover,
+                'collectionContent' => $collectionContent,
+                'content' => 'collection.analog-work-detail',
+                'plugins' => [
+                    'select2',
+                ]
+            ]
+        ]);
     }
 }

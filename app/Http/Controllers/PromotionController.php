@@ -13,11 +13,15 @@ class PromotionController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'promotion'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'promotion',
+                'plugins' => [
+                    'select2',
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

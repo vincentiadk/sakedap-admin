@@ -32,11 +32,11 @@ class WarningController extends Controller
             return redirect('report/warning')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'content' => 'report.warning'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'report.warning',
+            ]
+        ]);
     }
 
     public function loadData(Request $request)

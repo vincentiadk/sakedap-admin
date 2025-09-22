@@ -37,12 +37,17 @@ class CollectionController extends Controller
             return redirect('report/collection')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'content' => 'report.collection'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'content' => 'report.collection',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)
@@ -324,21 +329,24 @@ class CollectionController extends Controller
                 e_col_id = $catalogId
         ", true);
 
-        $data = [
-            'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-            'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
-            'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
-            'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
-            'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
-            'collection' => $collection,
-            'collectionCategory' => $collectionCategory,
-            'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
-            'collectionCopy' => $collectionCopy,
-            'collectionCover' => $collectionCover,
-            'collectionContent' => $collectionContent,
-            'content' => 'report.collection-detail'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
+                'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
+                'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),
+                'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
+                'collection' => $collection,
+                'collectionCategory' => $collectionCategory,
+                'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
+                'collectionCopy' => $collectionCopy,
+                'collectionCover' => $collectionCover,
+                'collectionContent' => $collectionContent,
+                'content' => 'report.collection-detail',
+                'plugins' => [
+                    'select2',
+                ]
+            ]
+        ]);
     }
 }

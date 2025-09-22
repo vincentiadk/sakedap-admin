@@ -34,13 +34,18 @@ class LogController extends Controller
             return redirect('report/log')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata"),
-            'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata"),
-            'content' => 'report.log'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata"),
+                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata"),
+                'content' => 'report.log',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

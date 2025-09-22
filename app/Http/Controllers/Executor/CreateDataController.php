@@ -12,13 +12,17 @@ class CreateDataController extends Controller
 {
     public function index()
     {
-        $data = [
-            'category' => QueryAPI::get("select * from penerbit_kategori"),
-            'type' => QueryAPI::get("select * from penerbit_jenis"),
-            'content' => 'executor.create-data'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'category' => QueryAPI::get("select * from penerbit_kategori"),
+                'type' => QueryAPI::get("select * from penerbit_jenis"),
+                'content' => 'executor.create-data',
+                'plugins' => [
+                    'fileinput',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function submitted(Request $request)

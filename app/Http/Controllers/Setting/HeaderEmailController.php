@@ -49,11 +49,14 @@ class HeaderEmailController extends Controller
             ]);
         }
 
-        $data = [
-            'template' => $template,
-            'content' => 'setting.header-email'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'template' => $template,
+                'content' => 'setting.header-email',
+                'plugins' => [
+                    'ckeditor',
+                ]
+            ]
+        ]);
     }
 }

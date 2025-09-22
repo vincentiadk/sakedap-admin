@@ -46,11 +46,14 @@ class AboutUsController extends Controller
             ]);
         }
 
-        $data = [
-            'template' => $template,
-            'content' => 'setting.about-us'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'template' => $template,
+                'content' => 'setting.about-us',
+                'plugins' => [
+                    'ckeditor',
+                ]
+            ]
+        ]);
     }
 }

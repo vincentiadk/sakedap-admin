@@ -33,11 +33,14 @@ class PostageController extends Controller
             return redirect('report/postage')->with(['success' => 'Data laporan sedang diproses']);
         }
 
-        $data = [
-            'content' => 'report.postage'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'report.postage',
+                'plugins' => [
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function loadData(Request $request)

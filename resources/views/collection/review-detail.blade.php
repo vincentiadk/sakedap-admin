@@ -26,7 +26,11 @@
             <div class="card-header d-flex align-items-center">
                 <h6 class="mb-0">Histori Masalah</h6>
                 <div class="ms-auto">
-                    <span class="badge bg-danger">{{ $collection->REVISION_COUNT }} Kali Dilakukan Revisi</span>
+                    @if($collection->REVISION_COUNT)
+                        <span class="badge bg-danger">{{ $collection->REVISION_COUNT }} Kali Dilakukan Revisi</span>
+                    @else
+                        <span class="badge bg-info">Belum Ada Revisi</span>
+                    @endif
                 </div>
             </div>
             <div class="card-body">

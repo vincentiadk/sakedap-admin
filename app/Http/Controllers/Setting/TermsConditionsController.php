@@ -46,11 +46,14 @@ class TermsConditionsController extends Controller
             ]);
         }
 
-        $data = [
-            'template' => $template,
-            'content' => 'setting.terms-conditions'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'template' => $template,
+                'content' => 'setting.terms-conditions',
+                'plugins' => [
+                    'ckeditor',
+                ]
+            ]
+        ]);
     }
 }

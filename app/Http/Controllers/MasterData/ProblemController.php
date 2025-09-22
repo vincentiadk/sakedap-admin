@@ -11,11 +11,14 @@ class ProblemController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'master-data.problem'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'master-data.problem',
+                'plugins' => [
+                    'datatable',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

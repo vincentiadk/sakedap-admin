@@ -12,11 +12,15 @@ class DepoController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'library.depo'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'library.depo',
+                'plugins' => [
+                    'datatable',
+                    'select2',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

@@ -16,12 +16,16 @@ class ReceiptController extends Controller
 {
     public function index()
     {
-        $data = [
-            'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.receipt'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'content' => 'delivery.receipt',
+                'plugins' => [
+                    'select2',
+                    'daterangepicker',
+                ]
+            ]
+        ]);
     }
 
     public function searchISBN(Request $request)

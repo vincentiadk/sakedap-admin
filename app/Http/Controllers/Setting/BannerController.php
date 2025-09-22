@@ -11,11 +11,15 @@ class BannerController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'setting.banner'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'setting.banner',
+                'plugins' => [
+                    'datatable',
+                    'lightbox',
+                ]
+            ]
+        ]);
     }
 
     public function datatable(Request $request)

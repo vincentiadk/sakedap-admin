@@ -26,11 +26,11 @@ class SupervisionController extends Controller
             $framing = '';
         }
 
-        $data = [
-            'framing' => $framing,
-            'content' => 'supervision'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'framing' => $framing,
+                'content' => 'supervision',
+            ]
+        ]);
     }
 }
