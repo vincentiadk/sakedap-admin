@@ -8,13 +8,13 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class RejectController extends Controller
+class GrantController extends Controller
 {
     public function index()
     {
         $data = [
             'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-            'content' => 'delivery.reject'
+            'content' => 'delivery.grant'
         ];
 
         return view('layouts.index', ['data' => $data]);
@@ -24,14 +24,14 @@ class RejectController extends Controller
     {
         $column = [
             null,
-            'letter_detail.letter_detail_id',
-            null,
-            'letter_detail.title',
-            'penerbit.name',
+            'hibah_detail.judul',
+            'hibah_detail.penerbit',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.qty_reject',
             'letter.receipt_no',
+            'letter_detail.qty_hibah',
+            'collectionsources.name',
+            'hibah_group.code',
             'letter_detail.remark',
         ];
 
@@ -46,10 +46,7 @@ class RejectController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
-        $whereCondition[] = "letter_detail.qty_hibah is null";
-        $whereCondition[] = "letter_detail.qty_retur is null";
-        $whereCondition[] = "letter_detail.qty_reject > 0";
+        $whereCondition = [];
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -68,7 +65,7 @@ class RejectController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(letter.accept_date >= date '$startDate' and letter.accept_date <= date '$endDate')";
+            $whereCondition[] = "(hibah_detail.createdate >= date '$startDate' and hibah_detail.createdate <= date '$endDate')";
         }
 
         if ($search) {
@@ -97,14 +94,20 @@ class RejectController extends Controller
             select
                 count(*) as total
             from
-                letter_detail
+                hibah_detail
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                letter_detail
+                hibah_detail
+            left join
+                collectionsources on collectionsources.id = hibah_detail.source_id
+            left join
+                hibah_group on hibah_group.id = hibah_detail.group_id
+            left join
+                letter_detail on letter_detail.letter_detail_id = hibah_detail.letter_detail_id
             left join
                 letter on letter.letter_id = letter_detail.letter_id
             left join
@@ -126,14 +129,24 @@ class RejectController extends Controller
                     from
                         (
                             select
-                                letter_detail.*,
+                                hibah_detail.*,
+                                hibah_group.code as code_hibah_group,
+                                collectionsources.name as name_collectionsource,
+                                letter_detail.qty_hibah as qty_hibah_letter_detail,
+                                letter_detail.remark as remark_letter_detail,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter
                             from
-                                letter_detail
+                                hibah_detail
+                            left join
+                                collectionsources on collectionsources.id = hibah_detail.source_id
+                            left join
+                                hibah_group on hibah_group.id = hibah_detail.group_id
+                            left join
+                                letter_detail on letter_detail.letter_detail_id = hibah_detail.letter_detail_id
                             left join
                                 letter on letter.letter_id = letter_detail.letter_id
                             left join
@@ -152,18 +165,7 @@ class RejectController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $action = '
-                    <a href="javascript:void(0);" class="btn btn-success btn-sm" onclick="grant(' . $val->LETTER_DETAIL_ID . ')">
-                        <i class="ph-gift me-1"></i>
-                        Hibahkan
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="retur(' . $val->LETTER_DETAIL_ID . ')">
-                        <i class="ph-cube me-1"></i>
-                        Ambil Kembali
-                    </a>
-                ';
-
-                $dataRemark = explode(';', $val->REMARK ?? '');
+                $dataRemark = explode(';', $val->REMARK_LETTER_DETAIL ?? '');
                 $listRemark = '';
 
                 if ($dataRemark) {
@@ -177,19 +179,20 @@ class RejectController extends Controller
                 ';
 
                 $inputHidden = '
-                    <input type="hidden" name="data" data-id="' . $val->LETTER_DETAIL_ID . '" data-title="' . $val->TITLE . '" data-executor="' . $val->NAME_PENERBIT . '" data-qty-reject="' . $val->QTY_REJECT . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '">
+                    <input type="hidden" name="data" data-id="' . $val->ID . '" data-title="' . $val->JUDUL . '" data-executor="' . $val->PENERBIT . '" data-qty-grant="' . $val->QTY_HIBAH_LETTER_DETAIL . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '" data-group="' . $val->CODE_HIBAH_GROUP . '">
                 ';
 
                 $data[] = [
                     $inputHidden,
                     $start + 1,
-                    $action,
-                    $val->TITLE,
-                    $val->NAME_PENERBIT,
+                    $val->JUDUL,
+                    $val->PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $val->QTY_REJECT,
                     $val->RECEIPT_NO_LETTER,
+                    $val->QTY_HIBAH_LETTER_DETAIL,
+                    $val->NAME_COLLECTIONSOURCE,
+                    $val->CODE_HIBAH_GROUP,
                     $remark,
                 ];
 
@@ -205,85 +208,91 @@ class RejectController extends Controller
         ]);
     }
 
-    public function grant(Request $request)
+    public function createGroup(Request $request)
     {
         $id = $request->id ?? [];
         $idImplode = implode(',', $id);
 
-        $dataLetterDetail = QueryAPI::get("
+        $dataHibahDetail = QueryAPI::get("
             select
-                *
+                hibah_detail.*,
+                letter_detail.qty_hibah as qty_hibah_letter_detail,
+                letter.sender as sender_letter
             from
-                letter_detail
+                hibah_detail
+            left join
+                letter_detail on letter_detail.letter_detail_id = hibah_detail.letter_detail_id
+            left join
+                letter on letter.letter_id = letter_detail.letter_id
             where
-                letter_detail_id in ($idImplode)
+                hibah_detail.id in ($idImplode)
         ");
 
-        if ($dataLetterDetail) {
-            foreach ($dataLetterDetail as $dld) {
-                QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
-                    'qty_hibah' => $dld->QTY_REJECT
-                ], false);
+        if ($dataHibahDetail) {
+            $code = 'HBH-' . date('Ymd-His');
 
-                QueryAPI::create('hibah_detail', [
-                    'judul' => $dld->TITLE,
-                    'penerbit' => $dld->PUBLISHER,
-                    'isbn' => $dld->ISBN,
-                    'tahun_terbit' => $dld->PUBLISH_YEAR,
-                    'jumlah_eksemplar' => $dld->QTY_REJECT,
-                    'harga' => $dld->PRICE,
-                    'total_nilai' => (float) ($dld->PRICE ?? 0) * (float) ($dld->QTY_REJECT ?? 0),
+            foreach ($dataHibahDetail as $dhd) {
+                $group = QueryAPI::create('hibah_group', [
+                    'code' => $code,
+                    'jumlah_item' => $dhd->QTY_HIBAH_LETTER_DETAIL,
+                    'total_nilai' => $dhd->TOTAL_NILAI,
+                    'pengirim' => $dhd->SENDER_LETTER,
+                    'keterangan' => $dhd->KETERANGAN,
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
-                    'deskripsi_fisik' => $dld->DESKRIPSIFISIK,
-                    'jenis_isi' => $dld->JENIS_ISI,
-                    'jenis_wadah' => $dld->JENIS_WADAH,
-                    'jenis_media' => $dld->JENIS_MEDIA,
-                    'source_id' => 6,
-                    'source_sub_id' => 3,
-                    'ketersediaan_id' => 1,
-                    'partner_id' => 9687,
-                    'kala_terbit' => $dld->KALA_TERBIT,
-                    'letter_detail_id' => $dld->LETTER_DETAIL_ID,
                 ], false);
+
+                if ($group) {
+                    QueryAPI::update('hibah_detail', $dhd->ID, [
+                        'group_id' => $group->ID,
+                        'updateby' => session('name'),
+                        'updatedate' => date('Y-m-d H:i:s'),
+                        'updateterminal' => $request->ip(),
+                    ], false);
+                }
             }
         }
 
         return response()->json([
             'code' => 200,
-            'message' => 'Koleksi berhasil dihibahkan'
+            'message' => 'Koleksi berhasil menjadi grup'
         ]);
     }
 
-    public function retur(Request $request)
+    public function outGroup(Request $request)
     {
         $id = $request->id ?? [];
         $idImplode = implode(',', $id);
 
-        $dataLetterDetail = QueryAPI::get("
+        $dataHibahDetail = QueryAPI::get("
             select
                 *
             from
-                letter_detail
+                hibah_detail
             where
-                letter_detail_id in ($idImplode)
+                id in ($idImplode)
         ");
 
-        if ($dataLetterDetail) {
-            foreach ($dataLetterDetail as $dld) {
-                QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
-                    'qty_retur' => $dld->QTY_REJECT
+        if ($dataHibahDetail) {
+            foreach ($dataHibahDetail as $dhd) {
+                QueryAPI::update('hibah_detail', $dhd->ID, [
+                    'group_id' => null,
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                 ], false);
+
+                QueryAPI::delete('hibah_group', $dhd->GROUP_ID);
             }
         }
 
         return response()->json([
             'code' => 200,
-            'message' => 'Koleksi berhasil dikembalikan'
+            'message' => 'Koleksi berhasil dikeluarkan dari grup tersebut'
         ]);
     }
 }

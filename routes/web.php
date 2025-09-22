@@ -279,6 +279,13 @@ Route::middleware('authentication')->group(function () {
             Route::post('grant', 'RejectController@grant');
             Route::post('retur', 'RejectController@retur');
         });
+
+        Route::prefix('grant')->group(function () {
+            Route::get('/', 'GrantController@index');
+            Route::get('datatable', 'GrantController@datatable');
+            Route::post('create-group', 'GrantController@createGroup');
+            Route::post('out-group', 'GrantController@outGroup');
+        });
     });
 
     Route::prefix('supervision')->group(function () {
