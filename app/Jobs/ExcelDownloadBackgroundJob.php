@@ -11,6 +11,7 @@ use App\Exports\ReportExecutorExport;
 use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
 use App\Exports\ReportPromotionExport;
+use App\Exports\ReportTypeMediaExport;
 use Illuminate\Queue\SerializesModels;
 use App\Exports\ReportCollectionExport;
 use Illuminate\Queue\InteractsWithQueue;
@@ -97,6 +98,9 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
                     break;
                 case 'report-warning':
                     Excel::store(new ReportWarningExport($this->request), $filename, $disk);
+                    break;
+                case 'report-type-media':
+                    Excel::store(new ReportTypeMediaExport($this->request), $filename, $disk);
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');

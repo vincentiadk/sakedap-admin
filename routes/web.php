@@ -356,6 +356,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'WarningController@index');
             Route::get('load-data', 'WarningController@loadData');
         });
+
+        Route::prefix('type-media')->group(function () {
+            Route::get('/', 'TypeMediaController@index');
+            Route::get('load-data', 'TypeMediaController@loadData');
+        });
     });
 
     Route::prefix('setting')->namespace('Setting')->group(function () {

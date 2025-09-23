@@ -19,7 +19,7 @@
 								<div class="d-flex flex-row flex-xl-column bg-light overflow-auto overflow-xl-visible rounded-top rounded-top-xl-0 rounded-start-xl">
 									<div class="flex-1 border-bottom border-bottom-xl-0 p-2 p-xl-3">
                                         <div class="fw-bold border-bottom d-none d-xl-block pb-2 mb-2">Main Menu</div>
-                                        <div style="max-height:50vh; overflow-y:auto; overflow-x:hidden;">
+                                        <div style="max-height:60vh; overflow-y:auto; overflow-x:hidden;">
                                             <ul class="nav nav-pills flex-xl-column flex-nowrap text-nowrap justify-content-center wmin-xl-300" role="tablist">
                                                 <li class="nav-item" role="presentation">
                                                     <a href="{{ url('dashboard') }}" class="nav-link rounded {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}">
@@ -111,9 +111,11 @@
 								</div>
 								<div class="tab-content flex-xl-1 main-menu-sub">
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'master-data' ? 'show active' : '' }}" id="menu-master-data" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('master-data/visit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'visit' ? 'active' : '' }}">Kunjungan</a>
                                                 <a href="{{ url('master-data/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
                                                 <a href="{{ url('master-data/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
@@ -121,9 +123,11 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'location' ? 'show active' : '' }}" id="menu-location" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('location/province') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'province' ? 'active' : '' }}">Provinsi</a>
                                                 <a href="{{ url('location/city') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'city' ? 'active' : '' }}">Kota / Kabupaten</a>
                                                 <a href="{{ url('location/district') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'district' ? 'active' : '' }}">Kecamatan</a>
@@ -132,18 +136,22 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'library' ? 'show active' : '' }}" id="menu-library" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('library/data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'data' ? 'active' : '' }}">Data</a>
                                                 <a href="{{ url('library/depo') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'depo' ? 'active' : '' }}">Depo</a>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'executor' ? 'show active' : '' }}" id="menu-executor" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('executor/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
                                                 <a href="{{ url('executor/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
                                                 <a href="{{ url('executor/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
@@ -152,9 +160,11 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'collection' ? 'show active' : '' }}" id="menu-collection" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('collection/create-single') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'create-single' ? 'active' : '' }}">Tambah Tunggal</a>
                                                 <a href="{{ url('collection/create-more') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'create-more' ? 'active' : '' }}">Tambah Banyak</a>
                                                 <a href="{{ url('collection/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
@@ -168,9 +178,11 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'delivery' ? 'show active' : '' }}" id="menu-delivery" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('delivery/list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'list' ? 'active' : '' }}">Daftar Pengiriman</a>
                                                 <a href="{{ url('delivery/sent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'sent' ? 'active' : '' }}">Dalam Pengiriman</a>
                                                 <a href="{{ url('delivery/accepted') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'accepted' ? 'active' : '' }}">Koleksi Diterima</a>
@@ -182,9 +194,11 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'supervision' ? 'show active' : '' }}" id="menu-supervision" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
                                                 <a href="{{ url('supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
                                                 <a href="{{ url('supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
@@ -192,9 +206,11 @@
                                         </div>
                                     </div>
 									<div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'report' ? 'show active' : '' }}" id="menu-report" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
                                                 <a href="{{ url('report/executor') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'executor' ? 'active' : '' }}">Pelaksana Serah</a>
                                                 <a href="{{ url('report/collection') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'collection' ? 'active' : '' }}">Koleksi</a>
@@ -204,15 +220,17 @@
                                                 <a href="{{ url('report/postage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'postage' ? 'active' : '' }}">Ongkir</a>
                                                 <a href="{{ url('report/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
                                                 <a href="{{ url('report/service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'service' ? 'active' : '' }}">Pelayanan</a>
-                                                <a href="{{ url('report/reception') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'reception' ? 'active' : '' }}">Penerimaan</a>
+                                                <a href="{{ url('report/type-media') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'type-media' ? 'active' : '' }}">Jenis Media</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'setting' ? 'show active' : '' }}" id="menu-setting" role="tabpanel">
-                                        <div class="row" style="max-height:55vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-lg-4 mb-3 mb-lg-0">
-                                                <div class="fw-bold border-bottom pb-2 mb-2">Sub Menu</div>
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <a href="{{ url('setting/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
                                                 <a href="{{ url('setting/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
                                                 <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
