@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Exports\ReportLogExport;
 use Illuminate\Support\Facades\Log;
 use App\Exports\ReportPostageExport;
+use App\Exports\ReportServiceExport;
 use App\Exports\ReportWarningExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReportExecutorExport;
@@ -98,6 +99,9 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
                     break;
                 case 'report-warning':
                     Excel::store(new ReportWarningExport($this->request), $filename, $disk);
+                    break;
+                case 'report-service':
+                    Excel::store(new ReportServiceExport($this->request), $filename, $disk);
                     break;
                 case 'report-type-media':
                     Excel::store(new ReportTypeMediaExport($this->request), $filename, $disk);

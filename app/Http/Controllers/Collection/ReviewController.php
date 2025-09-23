@@ -231,7 +231,7 @@ class ReviewController extends Controller
                 'received_at' => 'required',
                 'access' => 'required',
             ], [
-                'worksheet_id.required' => 'Jenis tidak boleh kosong',
+                'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
                 'city_id.required' => 'Kota tidak boleh kosong',
                 'branch_id.required' => 'Perpustakaan tidak boleh kosong',
                 'title.required' => 'Judul tidak boleh kosong',

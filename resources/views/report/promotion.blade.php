@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label class="form-label">Jenis :</label>
+                        <label class="form-label">Jasa Kirim :</label>
                         <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
                             <option value=""></option>
                             @foreach($deliveryService as $ds)
@@ -118,7 +118,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label">Jenis :</label>
+                            <label class="form-label">Jasa Kirim :</label>
                             <select class="form-select select2-basic" name="de_delivery_service_id" id="de_delivery_service_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
                                 <option value=""></option>
                                 @foreach($deliveryService as $ds)

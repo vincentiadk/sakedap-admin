@@ -26,7 +26,7 @@
             </div>
             <div class="card-body">
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id">
                             <option value=""></option>

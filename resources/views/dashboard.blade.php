@@ -109,7 +109,7 @@
         <div class="col-md-6">
             <div class="card" id="card-type">
                 <div class="card-header">
-                    <h5 class="hstack gap-2 mb-0">Jenis</h5>
+                    <h5 class="hstack gap-2 mb-0">Jenis Bahan</h5>
                 </div>
                 <div class="card-body">
                     <div id="chart-type" style="width:100%; height:500px;"></div>

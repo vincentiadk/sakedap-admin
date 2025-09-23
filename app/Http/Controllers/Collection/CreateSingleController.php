@@ -62,7 +62,7 @@ class CreateSingleController extends Controller
                 'file_content' => 'required|file|mimes:pdf,epub,mp3,mp4,wav',
             ], [
                 'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
-                'worksheet_id.required' => 'Jenis tidak boleh kosong',
+                'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
                 'city_id.required' => 'Kota tidak boleh kosong',
                 'city_id.required' => 'Perpustakaan tidak boleh kosong',
                 'title.required' => 'Judul tidak boleh kosong',

@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Laporan - <span class="fw-normal">Periodik</span>
+                Laporan - <span class="fw-normal">Pelayanan</span>
             </h4>
         </div>
     </div>
@@ -27,16 +27,10 @@
                 <table class="table table-bordered table-hover w-100">
                     <thead class="text-bg-light">
                         <tr>
-                            <th class="text-nowrap" rowspan="2">Jenis Bahan</th>
-                            @for($i = 1; $i <= 12; $i++)
-                                <th class="text-center text-nowrap" colspan="2">{{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
-                            @endfor
-                        </tr>
-                        <tr>
-                            @for($i = 1; $i <= 12; $i++)
-                                <th class="text-center text-nowrap">Katalog</th>
-                                <th class="text-center text-nowrap">Collection</th>
-                            @endfor
+                            <th class="text-nowrap">Bulan</th>
+                            <th class="text-nowrap text-center">Datang Langsung</th>
+                            <th class="text-nowrap text-center">Unggah Mandiri</th>
+                            <th class="text-nowrap text-center">Via Pengiriman</th>
                         </tr>
                     </thead>
                     <tbody id="table-data"></tbody>
@@ -68,12 +62,12 @@
 
         onLoading('show', 'body');
 
-        location.href = '{{ url("report/periodic?") }}' + $.param(queryString);
+        location.href = '{{ url("report/service?") }}' + $.param(queryString);
     }
 
     function loadData() {
         $.ajax({
-            url: '{{ url("report/periodic/load-data") }}',
+            url: '{{ url("report/service/load-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -88,15 +82,17 @@
                 $.each(response, function(i, val) {
                     var dataTD = '';
 
-                    $.each(val, function(index, value) {
-                        var textCenter = (index == 0 ? '' : 'text-center');
+                    $.each(val.data, function(index, value) {
                         dataTD += `
-                            <td class="${ textCenter } text-nowrap">${ value }</td>
+                            <td class="text-center text-nowrap">${ value }</td>
                         `;
                     });
 
                     $('#table-data').append(`
-                        <tr>${ dataTD }</tr>
+                        <tr>
+                            <td class="text-nowrap">${ val.name }</td>
+                            ${ dataTD }
+                        </tr>
                     `);
                 });
 

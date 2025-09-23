@@ -27,7 +27,7 @@
                 <table class="table table-bordered table-hover w-100">
                     <thead class="text-bg-light">
                         <tr>
-                            <th class="text-nowrap text-center" rowspan="2">Media</th>
+                            <th class="text-nowrap" rowspan="2">Jenis Media</th>
                             @for($i = 1; $i <= 12; $i++)
                                 <th class="text-center text-nowrap" colspan="2">{{ Carbon::parse(date('Y') . '-' . sprintf('%02s', $i))->isoFormat('MMMM') }}</th>
                             @endfor
@@ -89,8 +89,9 @@
                     var dataTD = '';
 
                     $.each(val, function(index, value) {
+                        var textCenter = (index == 0 ? '' : 'text-center');
                         dataTD += `
-                            <td class="text-center text-nowrap">${ value }</td>
+                            <td class="${ textCenter } text-nowrap">${ value }</td>
                         `;
                     });
 

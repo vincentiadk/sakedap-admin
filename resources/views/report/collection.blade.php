@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Jenis :</label>
+                        <label class="form-label">Jenis Bahan :</label>
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
                             <option value=""></option>
                             @foreach($worksheet as $w)
@@ -94,7 +94,7 @@
                         <th class="text-nowrap">Provinsi</th>
                         <th class="text-nowrap">Kota</th>
                         <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Jenis Bahan</th>
                         <th class="text-nowrap">Album</th>
                         <th class="text-nowrap">Seri</th>
                         <th class="text-nowrap">Edisi</th>
@@ -134,7 +134,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label class="form-label">Jenis :</label>
+                            <label class="form-label">Jenis Bahan :</label>
                             <select class="form-select select2-basic" name="de_worksheet_id" id="de_worksheet_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
                                 <option value=""></option>
                                 @foreach($worksheet as $w)

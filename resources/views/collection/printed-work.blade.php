@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Jenis :</label>
+                        <label class="form-label">Jenis Bahan :</label>
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
                             <option value=""></option>
                             @foreach($worksheet as $w)
@@ -83,7 +83,7 @@
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Jenis</th>
+                        <th class="text-nowrap">Jenis Bahan</th>
                         <th class="text-nowrap">Kode</th>
                         <th class="text-nowrap">Tgl Validasi</th>
                     </tr>

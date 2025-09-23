@@ -36,7 +36,7 @@
             </div>
             <div class="card-body">
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis</label>
+                    <label class="col-form-label col-md-2">Jenis Bahan</label>
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" disabled>
                             <option value=""></option>
