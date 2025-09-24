@@ -71,6 +71,7 @@
                         <th class="text-nowrap">Jasa Kirim</th>
                         <th class="text-nowrap">Resi</th>
                         <th class="text-nowrap">Jumlah Eks</th>
+                        <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
@@ -154,6 +155,7 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
             ]
         }).on('draw.dt', function() {

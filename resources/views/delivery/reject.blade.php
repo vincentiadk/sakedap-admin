@@ -109,8 +109,9 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Tujuan</th>
                         <th class="text-nowrap">Jasa Kirim</th>
-                        <th class="text-nowrap">Jumlah</th>
                         <th class="text-nowrap">Resi</th>
+                        <th class="text-nowrap">Jumlah</th>
+                        <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Alasan Ditolak</th>
                     </tr>
                 </thead>
@@ -194,6 +195,7 @@
                 { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
+                { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-center' },
             ]
         }).on('draw.dt', function() {

@@ -35,8 +35,9 @@ class RejectController extends Controller
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.qty_reject',
             'letter.receipt_no',
+            'letter_detail.qty_reject',
+            'letter_detail.jenis_media',
             'letter_detail.remark',
         ];
 
@@ -193,8 +194,9 @@ class RejectController extends Controller
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $val->QTY_REJECT,
                     $val->RECEIPT_NO_LETTER,
+                    $val->QTY_REJECT,
+                    $val->JENIS_MEDIA,
                     $remark,
                 ];
 

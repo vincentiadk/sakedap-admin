@@ -35,8 +35,9 @@ class AcceptedController extends Controller
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.qty_accept',
             'letter.receipt_no',
+            'letter_detail.qty_accept',
+            'letter_detail.jenis_media',
             'letter.status',
         ];
 
@@ -174,6 +175,7 @@ class AcceptedController extends Controller
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->RECEIPT_NO_LETTER,
                     $val->QTY_ACCEPT,
+                    $val->JENIS_MEDIA,
                     $val->STATUS_LETTER,
                 ];
 

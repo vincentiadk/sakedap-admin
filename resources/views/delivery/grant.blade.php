@@ -111,6 +111,7 @@
                         <th class="text-nowrap">Jasa Kirim</th>
                         <th class="text-nowrap">Resi</th>
                         <th class="text-nowrap">Jumlah</th>
+                        <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Sumber</th>
                         <th class="text-nowrap">Grup</th>
                         <th class="text-nowrap">Alasan Ditolak</th>
@@ -195,6 +196,7 @@
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
+                { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle text-center' },

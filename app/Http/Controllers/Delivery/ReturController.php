@@ -35,8 +35,9 @@ class ReturController extends Controller
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
-            'letter_detail.qty_retur',
             'letter.receipt_no',
+            'letter_detail.qty_retur',
+            'letter_detail.jenis_media',
             'letter_detail.remark',
         ];
 
@@ -187,8 +188,9 @@ class ReturController extends Controller
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $val->QTY_RETUR,
                     $val->RECEIPT_NO_LETTER,
+                    $val->QTY_RETUR,
+                    $val->JENIS_MEDIA,
                     $remark,
                 ];
 
