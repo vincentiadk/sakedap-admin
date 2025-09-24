@@ -211,7 +211,8 @@
             type: 'GET',
             dataType: 'JSON',
             data: {
-                code: $('#search_isbn').val()
+                code: $('#search_isbn').val(),
+                executor_id: $('#executor_id').val(),
             },
             beforeSend: function() {
                 onLoading('show', 'body');
@@ -261,7 +262,7 @@
 
                             $('#search-isbn').val('');
                         } else {
-                            swalInit.fire('Oops ...', 'ISBN bukan dari penerbit yang sama, pilih penerbit yang sesuai', 'warning');
+                            swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' . response.nama_penerbit, 'warning');
                         }
                     } else {
                         swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web E-Deposit', 'warning');

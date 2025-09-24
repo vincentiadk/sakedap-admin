@@ -31,7 +31,12 @@ class ReceiptController extends Controller
     public function searchISBN(Request $request)
     {
         $code = $request->search_isbn;
-        $data = ISBN::get('search', ['code' => $code], true);
+        $executorId = $request->executor_id;
+
+        $data = ISBN::get('search', [
+            'code' => $code,
+            'penerbit_id' => $executorId
+        ], true);
 
         return response()->json($data);
     }
