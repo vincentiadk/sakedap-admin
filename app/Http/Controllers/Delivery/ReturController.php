@@ -39,6 +39,7 @@ class ReturController extends Controller
             'letter_detail.qty_retur',
             'letter_detail.jenis_media',
             'letter_detail.remark',
+            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -135,7 +136,8 @@ class ReturController extends Controller
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
-                                letter.status as status_letter
+                                letter.status as status_letter,
+                                letter.proses_by as proses_by_letter
                             from
                                 letter_detail
                             left join
@@ -192,6 +194,7 @@ class ReturController extends Controller
                     $val->QTY_RETUR,
                     $val->JENIS_MEDIA,
                     $remark,
+                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;

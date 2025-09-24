@@ -39,6 +39,7 @@ class GrantController extends Controller
             'collectionsources.name',
             'hibah_group.code',
             'letter_detail.remark',
+            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -145,7 +146,8 @@ class GrantController extends Controller
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
-                                letter.status as status_letter
+                                letter.status as status_letter,
+                                letter.proses_by as proses_by_letter
                             from
                                 hibah_detail
                             left join
@@ -202,6 +204,7 @@ class GrantController extends Controller
                     $val->NAME_COLLECTIONSOURCE,
                     $val->CODE_HIBAH_GROUP,
                     $remark,
+                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;

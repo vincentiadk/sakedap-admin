@@ -35,6 +35,7 @@ class ListController extends Controller
             'jasa_pengiriman.name',
             'letter.jumlah_paket',
             'letter.status',
+            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -170,6 +171,7 @@ class ListController extends Controller
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->JUMLAH_PAKET,
                     $val->STATUS,
+                    $val->PROSES_BY,
                 ];
 
                 $start++;
@@ -362,7 +364,8 @@ class ListController extends Controller
 
                 QueryAPI::update('letter', $id, [
                     'status' => ($param === 'save-verification') ? $status : $request->status,
-                    'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null
+                    'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
+                    'proses_by' => ($param === 'save-verification') ? session('name') : null,
                 ], false);
 
                 $response = [

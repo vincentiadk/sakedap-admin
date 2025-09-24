@@ -157,6 +157,7 @@ class ReceiptController extends Controller
                         'branch_id' => $request->branch_id,
                         'receipt_no' => $receiptNumber,
                         'berat' => $weight,
+                        'proses_by' => session('name'),
                     ], $auditData);
 
                     $letter = QueryAPI::create('letter', $letterData, false);

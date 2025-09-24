@@ -39,6 +39,7 @@ class AcceptedController extends Controller
             'letter_detail.qty_accept',
             'letter_detail.jenis_media',
             'letter.status',
+            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -138,7 +139,8 @@ class AcceptedController extends Controller
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
-                                letter.status as status_letter
+                                letter.status as status_letter,
+                                letter.proses_by as proses_by_letter
                             from
                                 letter_detail
                             left join
@@ -177,6 +179,7 @@ class AcceptedController extends Controller
                     $val->QTY_ACCEPT,
                     $val->JENIS_MEDIA,
                     $val->STATUS_LETTER,
+                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;

@@ -88,6 +88,7 @@
                         <th class="text-nowrap">Jasa Kirim</th>
                         <th class="text-nowrap">Jumlah Paket</th>
                         <th class="text-nowrap">Status</th>
+                        <th class="text-nowrap">Proses By</th>
                     </tr>
                 </thead>
             </table>
@@ -149,6 +150,7 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');

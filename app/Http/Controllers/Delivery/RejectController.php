@@ -39,6 +39,7 @@ class RejectController extends Controller
             'letter_detail.qty_reject',
             'letter_detail.jenis_media',
             'letter_detail.remark',
+            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -137,7 +138,8 @@ class RejectController extends Controller
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
-                                letter.status as status_letter
+                                letter.status as status_letter,
+                                letter.proses_by as proses_by_letter
                             from
                                 letter_detail
                             left join
@@ -198,6 +200,7 @@ class RejectController extends Controller
                     $val->QTY_REJECT,
                     $val->JENIS_MEDIA,
                     $remark,
+                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;
