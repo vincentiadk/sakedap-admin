@@ -57,7 +57,7 @@ class ReportLogExport implements FromView, ShouldAutoSize
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(actiondate >= date '$startDate' and actiondate <= date '$endDate')";
+            $whereCondition[] = "(actiondate >= to_date('$startDate', 'YYYY-MM-DD') and actiondate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($whereCondition) {

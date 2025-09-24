@@ -89,7 +89,7 @@ class AnalogWorkController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(catalogs.validatedate >= date '$startDate' and catalogs.validatedate <= date '$endDate')";
+            $whereCondition[] = "(catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {

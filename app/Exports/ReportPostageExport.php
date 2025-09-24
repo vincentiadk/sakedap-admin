@@ -69,10 +69,7 @@ class ReportPostageExport implements FromView, ShouldAutoSize
                 penerbit ON penerbit.province_id = propinsi.id
             left join
                 letter ON letter.penerbit_id = penerbit.id and
-                (
-                    letter.letter_date >= date '$startDate' and
-                    letter.letter_date <= date '$endDate'
-                )
+                (letter.letter_date >= to_date('$startDate', 'YYYY-MM-DD') and letter.letter_date < to_date('$endDate', 'YYYY-MM-DD') + 1)
             $whereClause
             group by
                 propinsi.namapropinsi

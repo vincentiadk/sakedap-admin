@@ -109,7 +109,7 @@ class PerformanceUserController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(historydata.actiondate >= date '$startDate' and historydata.actiondate <= date '$endDate')";
+            $whereCondition[] = "(historydata.actiondate >= to_date('$startDate', 'YYYY-MM-DD') and historydata.actiondate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($whereCondition) {

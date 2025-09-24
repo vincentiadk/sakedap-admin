@@ -90,7 +90,7 @@ class LabelController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(collections.acquireddate >= date '$startDate' and collections.acquireddate <= date '$endDate')";
+            $whereCondition[] = "(collections.acquireddate >= to_date('$startDate', 'YYYY-MM-DD') and collections.acquireddate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {

@@ -34,14 +34,14 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label">Tanggal Kirim : <span class="text-danger fw-bold">*</span></label>
-                            <input type="text" class="form-control date-single" name="delivery_date" id="delivery_date" placeholder="Pilih Tanggal" readonly>
+                            <label class="form-label">Tanggal Terima : <span class="text-danger fw-bold">*</span></label>
+                            <input type="text" class="form-control date-single" name="accept_date" id="accept_date" value="{{ date('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label">Tanggal Sampai : <span class="text-danger fw-bold">*</span></label>
-                            <input type="text" class="form-control date-single" name="sent_date" id="sent_date" placeholder="Pilih Tanggal" readonly>
+                            <label class="form-label">Telepon : <span class="text-danger fw-bold">*</span></label>
+                            <input type="text" class="form-control" name="phone" id="phone" placeholder="....................">
                         </div>
                     </div>
                     <div class="col-md-3">

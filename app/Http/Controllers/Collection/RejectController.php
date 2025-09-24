@@ -75,7 +75,7 @@ class RejectController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(e_collections.updated_at >= date '$startDate' and e_collections.updated_at <= date '$endDate')";
+            $whereCondition[] = "(e_collections.updated_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collections.updated_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {

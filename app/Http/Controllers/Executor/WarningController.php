@@ -81,7 +81,7 @@ class WarningController extends Controller
 
         if ($request->date && $request->date_type) {
             $date = Carbon::parse($request->date)->format('Y-m-d');
-            $whereCondition[] = "e_publisher_warnings.$request->date_type = date '$date'";
+            $whereCondition[] = "e_publisher_warnings.$request->date_type = to_date('$date', 'YYYY-MM-DD')";
         }
 
         if ($request->officer_id) {

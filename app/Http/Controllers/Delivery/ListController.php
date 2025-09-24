@@ -71,7 +71,7 @@ class ListController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(letter.letter_date >= date '$startDate' and letter.letter_date <= date '$endDate')";
+            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
@@ -455,10 +455,7 @@ class ListController extends Controller
                 penanggung_jawab
             where
                 branch_id = $branchId and
-                (
-                    tanggal_awal <= date '$dateNow' and
-                    tanggal_akhir >= date '$dateNow'
-                )
+                (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
         ", true);
 
         if ($leader) {

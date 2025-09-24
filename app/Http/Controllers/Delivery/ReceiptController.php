@@ -64,15 +64,18 @@ class ReceiptController extends Controller
         if ($request->ajax()) {
             $validation = Validator::make($request->all(), [
                 'delivery_service_id' => 'required',
-                'delivery_date' => 'required',
-                'sent_date' => 'required',
+                'accept_date' => 'required',
+                'phone' => 'required|min_digits:8|max_digits:13|numeric',
                 'executor_id' => 'required',
                 'branch_id' => 'required',
                 'sender_name' => 'required',
             ], [
                 'delivery_service_id.required' => 'Jasa kirim tidak boleh kosong',
-                'delivery_date.required' => 'Tanggal kirim tidak boleh kosong',
-                'sent_date.required' => 'Tanggal sampai tidak boleh kosong',
+                'accept_date.required' => 'Tanggal terima tidak boleh kosong',
+                'phone.required' => 'Telepon tidak boleh kosong',
+                'phone.min_digits' => 'Telepon minimal 8 digit',
+                'phone.max_digits' => 'Telepon maksimal 13 digit',
+                'phone.numeric' => 'Telepon harus angka',
                 'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
                 'branch_id.required' => 'Tujuan tidak boleh kosong',
                 'sender_name.required' => 'Nama pengirim tidak boleh kosong',
@@ -143,7 +146,7 @@ class ReceiptController extends Controller
                         'type_of_delivery' => $deliveryService->NAME ?? null,
                         'letter_date' => $letterDate,
                         'letter_number' => $request->cover_letter_number,
-                        'accept_date' => $now,
+                        'accept_date' => $request->accept_date,
                         'sender' => $request->sender_name,
                         'is_printed' => $request->param == 'save-print' ? 1 : 0,
                         'publisher_id' => $request->executor_id,
@@ -556,10 +559,7 @@ class ReceiptController extends Controller
                                 penanggung_jawab
                             where
                                 branch_id = $branchId and
-                                (
-                                    tanggal_awal <= date '$dateNow' and
-                                    tanggal_akhir >= date '$dateNow'
-                                )
+                                (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
                         ", true);
 
                         $signature = '';
@@ -575,7 +575,7 @@ class ReceiptController extends Controller
                             'publisher_name' => $executor->NAME ?? '',
                             'director' => $signature,
                             'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
-                            'Footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
+                            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . url()->current(),
                         ];
 

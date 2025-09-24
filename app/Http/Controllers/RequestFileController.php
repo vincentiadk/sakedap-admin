@@ -64,7 +64,7 @@ class RequestFileController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(e_collection_requests.created_at >= date '$startDate' and e_collection_requests.created_at <= date '$endDate')";
+            $whereCondition[] = "(e_collection_requests.created_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collection_requests.created_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {

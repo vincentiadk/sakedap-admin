@@ -71,7 +71,7 @@ class GrantController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(hibah_detail.createdate >= date '$startDate' and hibah_detail.createdate <= date '$endDate')";
+            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {

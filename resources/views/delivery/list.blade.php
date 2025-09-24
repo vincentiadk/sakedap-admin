@@ -23,7 +23,14 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Tanggal :</label>
-                        <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
+                        <div class="input-group">
+                            <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
+                                <option value="accept_date">Diterima</option>
+                                <option value="letter_date">Pengiriman</option>
+                                <option value="createdate">Dibuat</option>
+                            </select>
+                            <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -118,6 +125,7 @@
                     executor_id: $('#executor_id').val(),
                     delivery_service_id: $('#delivery_service_id').val(),
                     date: $('#date').val(),
+                    date_type: $('#date_type').val(),
                     status: $('#status').val(),
                 },
                 beforeSend: function() {
