@@ -233,10 +233,6 @@ class Main
             }
         }, $template->CONTENT);
 
-        if (preg_match('/{{(.*?)}}/', $parsed)) {
-            throw new \Exception("Shortcode not found in template id {$template->ID}", 1);
-        }
-
         return (string) $parsed;
     }
 
