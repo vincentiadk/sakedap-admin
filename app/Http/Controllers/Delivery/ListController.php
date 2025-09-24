@@ -388,6 +388,7 @@ class ListController extends Controller
                 'letterDetail' => $letterDetail,
                 'disabled' => in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) ? null : 'disabled',
                 'content' => 'delivery.list-verification',
+                'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'datatable',

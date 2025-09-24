@@ -93,12 +93,11 @@
                                 <th class="text-nowrap" rowspan="2">Kode</th>
                                 <th class="text-nowrap" rowspan="2">Judul</th>
                                 <th class="text-nowrap" rowspan="2">Edisi</th>
-                                <th class="text-nowrap text-center" colspan="3">Jumlah Eksemplar</th>
+                                <th class="text-nowrap text-center" colspan="2">Jumlah Eksemplar</th>
                                 <th class="text-nowrap" rowspan="2">Keterangan</th>
                                 <th class="text-nowrap text-center" rowspan="2">Hapus</th>
                             </tr>
                             <tr>
-                                <th class="text-nowrap text-center">Total</th>
                                 <th class="text-nowrap text-center">Diterima</th>
                                 <th class="text-nowrap text-center">Ditolak</th>
                             </tr>
@@ -235,9 +234,6 @@
                                     <td class="text-wrap">${ response.title }</td>
                                     <td class="text-wrap">${ response.edisi }</td>
                                     <td>
-                                        <input type="number" class="form-control" name="ci_quantity[]">
-                                    </td>
-                                    <td>
                                         <input type="number" class="form-control" name="ci_qty_accept[]">
                                     </td>
                                     <td>
@@ -309,6 +305,12 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
+                                    <label class="col-form-label col-lg-3">Pelaksana Serah</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" class="form-control" name="cni_executor[]">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Judul</label>
                                     <div class="col-lg-9">
                                         <input type="text" class="form-control" name="cni_title[]">
@@ -332,24 +334,18 @@
                                         <input type="text" class="form-control" name="cni_year[]">
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Jenis</label>
                                     <div class="col-lg-9">
                                         <input type="text" class="form-control" name="cni_type[]">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="row mb-3">
-                                    <label class="col-form-label col-lg-3">Jumlah Eks</label>
-                                    <div class="col-lg-9">
-                                        <input type="number" class="form-control" name="cni_quantity[]">
-                                    </div>
-                                </div>
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Jumlah Eks Diterima</label>
                                     <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_qty_accept[]">
+                                        <input type="text" class="form-control" name="cni_qty_accept[]" value="{{ $acceptDefault }}">
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -412,6 +408,7 @@
 
                 let selector = $(param).closest('tr');
 
+                selector.find('input[name="cni_executor[]"]').val(response?.NAME_PENERBIT);
                 selector.find('input[name="cni_title[]"]').val(response?.TITLE);
                 selector.find('input[name="cni_author[]"]').val(response?.AUTHOR);
                 selector.find('input[name="cni_physical_description[]"]').val(response?.DESCRIPTION);
@@ -509,10 +506,8 @@
                 <div class="col-md-5">
                     <label class="form-label">Eksemplar :</label>
                     <div class="input-group">
-                        <span class="input-group-text">Total</span>
-                        <input type="number" class="form-control form-control-sm" name="cpe_quantity[][]">
                         <span class="input-group-text">Terima</span>
-                        <input type="number" class="form-control form-control-sm" name="cpe_qty_accept[][]">
+                        <input type="number" class="form-control form-control-sm" name="cpe_qty_accept[][]" value="{{ $acceptDefault }}">
                         <span class="input-group-text">Tolak</span>
                         <input type="number" class="form-control form-control-sm" name="cpe_qty_reject[][]">
                     </div>

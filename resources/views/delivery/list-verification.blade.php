@@ -81,7 +81,7 @@
                                     <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->QUANTITY }}" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control" name="letter_detail_qty_accept[]" oninput="calculateQty(this, 'accept')" value="{{ $ld->QTY_ACCEPT ?: $ld->QUANTITY }}" {{ $disabled }}>
+                                    <input type="number" class="form-control" name="letter_detail_qty_accept[]" oninput="calculateQty(this, 'accept')" value="{{ $ld->QTY_ACCEPT ?: $acceptDefault }}" {{ $disabled }}>
                                 </td>
                                 <td>
                                     <input type="number" class="form-control" name="letter_detail_qty_reject[]" oninput="calculateQty(this, 'reject')" value="{{ $ld->QTY_REJECT ?: 0 }}" {{ $disabled }}>

@@ -20,6 +20,7 @@ class ReceiptController extends Controller
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
                 'content' => 'delivery.receipt',
+                'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'daterangepicker',
@@ -47,11 +48,14 @@ class ReceiptController extends Controller
         $data = QueryAPI::get("
             select
                 catalogs.*,
-                worksheets.name as name_worksheet
+                worksheets.name as name_worksheet,
+                penerbit.name as name_penerbit
             from
                 catalogs
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
+            left join
+                penerbit on penerbit.id = catalogs.penerbit_id
             where
                 catalogs.id = $id
         ", true);
@@ -181,8 +185,8 @@ class ReceiptController extends Controller
 
                             if (!$isbn) continue;
 
-                            $qtyAccept = (int)($request->ci_qty_accept[$key] ?? 0);
-                            $qtyReject = (int)($request->ci_qty_reject[$key] ?? 0);
+                            $qtyAccept = (int) ($request->ci_qty_accept[$key] ?? 0);
+                            $qtyReject = (int) ($request->ci_qty_reject[$key] ?? 0);
 
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
                             $totalPackage++;
@@ -200,7 +204,7 @@ class ReceiptController extends Controller
 
                             $letterDetailData = [
                                 'title' => $isbn->title,
-                                'quantity' => $request->ci_quantity[$key] ?? null,
+                                'quantity' => $qtyAccept + $qtyReject,
                                 'letter_id' => $letter->LETTER_ID ?? null,
                                 'remark' => $request->ci_description[$key] ?? null,
                                 'author' => $isbn->kepeng,
@@ -282,7 +286,7 @@ class ReceiptController extends Controller
 
                     if ($request->cni) {
                         foreach ($request->cni as $key => $cni) {
-                            $qtyReject = (int)($request->cni_qty_reject[$key] ?? 0);
+                            $qtyReject = (int) ($request->cni_qty_reject[$key] ?? 0);
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
                             $totalPackage++;
 
@@ -313,20 +317,21 @@ class ReceiptController extends Controller
                                 });
                             }
 
-                            $qtyAccept = (int)($request->cni_qty_accept[$key] ?? 0);
+                            $qtyAccept = (int) ($request->cni_qty_accept[$key] ?? 0);
                             $title = $request->cni_title[$key] ?? null;
                             $author = $request->cni_author[$key] ?? null;
                             $year = $request->cni_year[$key] ?? null;
                             $physicalDescription = $request->cni_physical_description[$key] ?? null;
+                            $executor = $request->cni_executor[$key] ?? null;
 
                             $letterDetailData = [
                                 'title' => $title,
-                                'quantity' => $request->cni_quantity[$key] ?? null,
+                                'quantity' => $qtyAccept + $qtyReject,
                                 'price' => str_replace(',', '', ($request->cni_price[$key] ?? 0)),
                                 'letter_id' => $letter->LETTER_ID ?? null,
                                 'remark' => $request->cni_description[$key] ?? null,
                                 'author' => $author,
-                                'publisher' => $catalog->NAME_PENERBIT ?? null,
+                                'publisher' => $catalog->NAME_PENERBIT ?? $executor,
                                 'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
                                 'publish_year' => $year,
                                 'publisher_city' => $catalog->NAMAKAB ?? null,
@@ -402,7 +407,7 @@ class ReceiptController extends Controller
                             if (!$catalogId) continue;
 
                             foreach ($request->cpe[$key] as $keys => $cpe) {
-                                $qtyReject = (int)($request->cpe_qty_reject[$key][$keys] ?? 0);
+                                $qtyReject = (int) ($request->cpe_qty_reject[$key][$keys] ?? 0);
                                 if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
                                 $totalPackage++;
 
@@ -436,7 +441,7 @@ class ReceiptController extends Controller
 
                                 $letterDetailData = [
                                     'title' => $catalog->TITLE ?? null,
-                                    'quantity' => $request->cpe_quantity[$key][$keys] ?? null,
+                                    'quantity' => $qtyAccept + $qtyReject,
                                     'price' => $catalog->PRICE ?? null,
                                     'letter_id' => $letter->LETTER_ID ?? null,
                                     'author' => $catalog->AUTHOR ?? null,
