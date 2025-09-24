@@ -105,6 +105,7 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
+                    <div><small class="text-muted">' . ($d->ID ?? '-') . '</small></div>
                     <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
                     <div>' . $d->NAME . '</div>
                 ';
