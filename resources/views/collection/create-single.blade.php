@@ -250,7 +250,7 @@
         </div>
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h5 class="hstack gap-2 mb-0">Terbitan</h5>
+                <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
                 <span class="ms-auto">
                     <label>
                         <input type="checkbox" class="form-check-input mt-0 me-1" name="has_edition" onchange="$(this).is(':checked') ? $('#content-edition-copy').fadeIn(500) : $('#content-edition-copy').hide()">
