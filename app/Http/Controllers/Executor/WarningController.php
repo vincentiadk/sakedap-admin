@@ -119,12 +119,7 @@ class WarningController extends Controller
                     from
                         (
                             select
-                                e_publisher_warnings.id,
-                                e_publisher_warnings.warning_date,
-                                e_publisher_warnings.warning_date_2,
-                                e_publisher_warnings.warning_date_3,
-                                e_publisher_warnings.tagihan_koleksi,
-                                e_publisher_warnings.link_file,
+                                e_publisher_warnings.*,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch
                             from
@@ -338,12 +333,7 @@ class WarningController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                e_publisher_warnings.id,
-                e_publisher_warnings.warning_date,
-                e_publisher_warnings.warning_date_2,
-                e_publisher_warnings.warning_date_3,
-                e_publisher_warnings.tagihan_koleksi,
-                e_publisher_warnings.link_file,
+                e_publisher_warnings.*,
                 penerbit.name as name_penerbit,
                 branchs.name as name_branch
             from
@@ -362,7 +352,7 @@ class WarningController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select id, link_file from e_publisher_warnings where id = $id");
+        $query = QueryAPI::get("select * from e_publisher_warnings where id = $id");
 
         $validation = Validator::make($request->all(), [
             'executor_id' => 'required',
