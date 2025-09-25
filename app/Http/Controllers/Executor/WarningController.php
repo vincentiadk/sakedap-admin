@@ -35,11 +35,6 @@ class WarningController extends Controller
             'penerbit.name',
             'branchs.name',
             'e_publisher_warnings.warning_date',
-            'e_publisher_warnings.tanggal_kunjungan',
-            'petugas_pembina.name',
-            'e_publisher_warnings.komentar',
-            'e_publisher_warnings.status',
-            'e_publisher_warnings.tindak_lanjut',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -79,21 +74,9 @@ class WarningController extends Controller
             $whereCondition[] = "e_publisher_warnings.branch_id = $request->branch_id";
         }
 
-        if ($request->date && $request->date_type) {
+        if ($request->date) {
             $date = Carbon::parse($request->date)->format('Y-m-d');
-            $whereCondition[] = "e_publisher_warnings.$request->date_type = to_date('$date', 'YYYY-MM-DD')";
-        }
-
-        if ($request->officer_id) {
-            $whereCondition[] = "e_publisher_warnings.petugas_id = $request->officer_id";
-        }
-
-        if ($request->status) {
-            $whereCondition[] = "e_publisher_warnings.status = '$request->status'";
-        }
-
-        if ($request->follow_up) {
-            $whereCondition[] = "e_publisher_warnings.tindak_lanjut = '$request->follow_up'";
+            $whereCondition[] = "e_publisher_warnings.warning_date = to_date('$date', 'YYYY-MM-DD')";
         }
 
         if ($whereCondition) {
@@ -122,8 +105,6 @@ class WarningController extends Controller
                 penerbit on penerbit.id = e_publisher_warnings.publisher_id
             left join
                 branchs on branchs.id = e_publisher_warnings.branch_id
-            left join
-                petugas_pembina on petugas_pembina.id = e_publisher_warnings.petugas_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -139,16 +120,13 @@ class WarningController extends Controller
                             select
                                 e_publisher_warnings.*,
                                 penerbit.name as name_penerbit,
-                                branchs.name as name_branch,
-                                petugas_pembina.name as name_petugas_pembina
+                                branchs.name as name_branch
                             from
                                 e_publisher_warnings
                             left join
                                 penerbit on penerbit.id = e_publisher_warnings.publisher_id
                             left join
                                 branchs on branchs.id = e_publisher_warnings.branch_id
-                            left join
-                                petugas_pembina on petugas_pembina.id = e_publisher_warnings.petugas_id
                             $whereClause
                             $orderBy
                         ) data
@@ -195,11 +173,6 @@ class WarningController extends Controller
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     Carbon::parse($val->WARNING_DATE)->format('d/m/Y'),
-                    Carbon::parse($val->TANGGAL_KUNJUNGAN)->format('d/m/Y'),
-                    $val->NAME_PETUGAS_PEMBINA,
-                    $val->KOMENTAR,
-                    $val->STATUS,
-                    $val->TINDAK_LANJUT,
                 ];
 
                 $start++;
@@ -221,16 +194,12 @@ class WarningController extends Controller
             'branch_id' => 'required',
             'warning_date' => 'required',
             'file' => 'required|mimes:jpg,jpeg,png,pdf',
-            'status' => 'required',
-            'follow_up' => 'required',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
             'file.required' => 'File tidak boleh kosong',
             'file.mimes' => 'File hanya boleh jpg, jpeg, png, pdf',
-            'status.required' => 'Status tidak boleh kosong',
-            'follow_up.required' => 'Tindak lanjut tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -244,11 +213,6 @@ class WarningController extends Controller
                     'publisher_id' => $request->executor_id,
                     'branch_id' => $request->branch_id,
                     'warning_date' => $request->warning_date,
-                    'tanggal_kunjungan' => $request->follow_up_date,
-                    'petugas_id' => $request->officer_id,
-                    'komentar' => $request->comment,
-                    'status' => $request->status,
-                    'tindak_lanjut' => $request->follow_up,
                     'createby' => session('name'),
                     'updateby' => session('name'),
                 ]);
@@ -314,15 +278,11 @@ class WarningController extends Controller
             'branch_id' => 'required',
             'warning_date' => 'required',
             'file' => 'nullable|mimes:jpg,jpeg,png,pdf',
-            'status' => 'required',
-            'follow_up' => 'required',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
             'file.mimes' => 'File hanya boleh jpg, jpeg, png, pdf',
-            'status.required' => 'Status tidak boleh kosong',
-            'follow_up.required' => 'Tindak lanjut tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -336,11 +296,6 @@ class WarningController extends Controller
                     'publisher_id' => $request->executor_id,
                     'branch_id' => $request->branch_id,
                     'warning_date' => $request->warning_date,
-                    'tanggal_kunjungan' => $request->follow_up_date,
-                    'petugas_id' => $request->officer_id,
-                    'komentar' => $request->comment,
-                    'status' => $request->status,
-                    'tindak_lanjut' => $request->follow_up,
                     'updateby' => session('name'),
                 ]);
 

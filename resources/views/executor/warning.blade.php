@@ -27,13 +27,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tanggal :</label>
-                        <div class="input-group">
-                            <select class="form-select w-auto flex-grow-0" name="filter_date_type" id="filter_date_type">
-                                <option value="warning_date">Teguran</option>
-                                <option value="tanggal_kunjungan">Kunjungan</option>
-                            </select>
-                            <input type="text" class="form-control" name="filter_date" id="filter_date" placeholder="Semua Tanggal" readonly>
-                        </div>
+                        <input type="text" class="form-control" name="filter_date" id="filter_date" placeholder="Semua Tanggal" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -46,40 +40,6 @@
                     <div class="form-group">
                         <label class="form-label">Dari :</label>
                         <select class="form-select" name="filter_branch_id" id="filter_branch_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Petugas :</label>
-                        <select class="form-select select2-basic" name="filter_officer_id" id="filter_officer_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($officer as $o)
-                                <option value="{{ $o->ID }}">{{ $o->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select select2-basic" name="filter_status" id="filter_status" data-placeholder="Semua">
-                            <option value=""></option>
-                            <option value="SELESAI">SELESAI</option>
-                            <option value="BATAL">BATAL</option>
-                            <option value="TERJADWAL">TERJADWAL</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tindak Lanjut :</label>
-                        <select class="form-select select2-basic" name="filter_follow_up" id="filter_follow_up" data-placeholder="Semua">
-                            <option value=""></option>
-                            <option value="TIDAK ADA">TIDAK ADA</option>
-                            <option value="JADWAL ULANG">JADWAL ULANG</option>
-                            <option value="KIRIM PENGINGAT">KIRIM PENGINGAT</option>
-                            <option value="BELUM TERLAKSANA">BELUM TERLAKSANA</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -108,11 +68,6 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Dari</th>
                         <th class="text-nowrap">Tgl Teguran</th>
-                        <th class="text-nowrap">Tgl Kunjungan</th>
-                        <th class="text-nowrap">Petugas</th>
-                        <th class="text-nowrap">Komentar</th>
-                        <th class="text-nowrap">Status</th>
-                        <th class="text-nowrap">Tindak Lanjut</th>
                     </tr>
                 </thead>
             </table>
@@ -155,42 +110,6 @@
                     <div class="form-group">
                         <label class="form-label">Tanggal Teguran : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Kunjungan :</label>
-                        <input type="text" class="form-control" name="follow_up_date" id="follow_up_date" placeholder="Pilih Tanggal" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Petugas :</label>
-                        <select class="form-select select2-basic" name="officer_id" id="officer_id" data-dropdown-parent="#modal-form">
-                            <option value=""></option>
-                            @foreach($officer as $o)
-                                <option value="{{ $o->ID }}">{{ $o->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Komentar :</label>
-                        <input type="text" class="form-control" name="comment" id="comment" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select" name="status" id="status">
-                            <option value="">Pilih</option>
-                            <option value="SELESAI">SELESAI</option>
-                            <option value="BATAL">BATAL</option>
-                            <option value="TERJADWAL">TERJADWAL</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select" name="follow_up" id="follow_up">
-                            <option value="">Pilih</option>
-                            <option value="TIDAK ADA">TIDAK ADA</option>
-                            <option value="JADWAL ULANG">JADWAL ULANG</option>
-                            <option value="KIRIM PENGINGAT">KIRIM PENGINGAT</option>
-                            <option value="BELUM TERLAKSANA">BELUM TERLAKSANA</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -248,7 +167,6 @@
         $('#btn-cancel').addClass('d-none');
         $('#file-preview').attr('href', 'javascript:void(0);');
         $('#file-preview').hide();
-        $('#officer_id').val('').change();
         $('#executor_id').val('').change();
         $('#branch_id').html(`<option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>`);
     }
@@ -304,6 +222,11 @@
             ajax: {
                 url: '{{ url("executor/warning/datatable") }}',
                 dataType: 'JSON',
+                data: {
+                    branch_id: $('#filter_branch_id').val(),
+                    executor_id: $('#filter_executor_id').val(),
+                    date: $('#filter_date').val(),
+                },
                 beforeSend: function() {
                     onLoading('show', '.dataTables_wrapper');
                 },
@@ -324,11 +247,6 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -402,11 +320,6 @@
                 $('#executor_id').html('<option value="' + response.PUBLISHER_ID + '" selected>' + response.NAME_PENERBIT + '</option>');
                 $('#branch_id').html('<option value="' + response.BRANCH_ID + '" selected>' + response.NAME_BRANCH + '</option>');
                 $('#warning_date').val(response.WARNING_DATE ? moment(response.WARNING_DATE).format('YYYY/MM/DD') : '');
-                $('#follow_up_date').val(response.TANGGAL_KUNJUNGAN ? moment(response.TANGGAL_KUNJUNGAN).format('YYYY/MM/DD') : '');
-                $('#officer_id').val(response.PETUGAS_ID).change();
-                $('#comment').val(response.KOMENTAR);
-                $('#status').val(response.STATUS);
-                $('#follow_up').val(response.TINDAK_LANJUT);
 
                 if(response.LINK_FILE) {
                     var paramFile = {
