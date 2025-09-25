@@ -60,7 +60,7 @@ class DashboardController extends Controller
                 kabupaten on kabupaten.propinsiid = propinsi.id
             left join
                 catalogs on catalogs.city_id = kabupaten.id and
-                (catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)
+                (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
@@ -123,7 +123,7 @@ class DashboardController extends Controller
                 worksheets
             left join
                 catalogs on catalogs.worksheet_id = worksheets.id and
-                (catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)
+                (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 branchs on branchs.id = catalogs.id
             left join
@@ -172,7 +172,7 @@ class DashboardController extends Controller
                 worksheets
             left join
                 catalogs on catalogs.worksheet_id = worksheets.id and
-                (catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)
+                (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 branchs on branchs.id = catalogs.id
             left join
@@ -222,7 +222,7 @@ class DashboardController extends Controller
                 worksheets
             left join
                 catalogs on catalogs.worksheet_id = worksheets.id and
-                (catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)
+                (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 branchs on branchs.id = catalogs.id
             left join
@@ -254,7 +254,7 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
         $response = [];
-        $condition = ["(catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)"];
+        $condition = ["(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)"];
 
         if (Main::isNotCenterBranch()) {
             $condition[] = "propinsi.id = " . session('province_id');
@@ -320,7 +320,7 @@ class DashboardController extends Controller
                 worksheets
             left join
                 catalogs on catalogs.worksheet_id = worksheets.id and
-                (catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)
+                (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 branchs on branchs.id = catalogs.id
             left join

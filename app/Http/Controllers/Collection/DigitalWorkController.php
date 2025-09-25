@@ -41,7 +41,7 @@ class DigitalWorkController extends Controller
             'catalogs.title',
             'worksheets.name',
             'catalogs.isbn',
-            'catalogs.validatedate',
+            'catalogs.createdate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -89,7 +89,7 @@ class DigitalWorkController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
@@ -157,7 +157,7 @@ class DigitalWorkController extends Controller
                                 catalogs.id,
                                 catalogs.title,
                                 catalogs.isbn,
-                                catalogs.validatedate,
+                                catalogs.createdate,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet
                             from
@@ -192,7 +192,7 @@ class DigitalWorkController extends Controller
                     $val->TITLE,
                     $val->NAME_WORKSHEET,
                     $val->ISBN,
-                    Carbon::parse($val->VALIDATEDATE)->format('d/m/Y'),
+                    Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
                 ];
 
                 $start++;

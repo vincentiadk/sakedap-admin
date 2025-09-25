@@ -93,7 +93,7 @@
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->ISBN }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->PUBLISHYEAR }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->PREVIEW }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->VALIDATEDATE }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->CREATEDATE }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAPROPINSI }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAKAB }}</td>

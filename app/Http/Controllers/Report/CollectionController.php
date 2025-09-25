@@ -68,7 +68,7 @@ class CollectionController extends Controller
             'catalogs.isbn',
             'catalogs.publishyear',
             'catalogs.preview',
-            'catalogs.validatedate',
+            'catalogs.createdate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -110,7 +110,7 @@ class CollectionController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
@@ -184,7 +184,7 @@ class CollectionController extends Controller
                                 catalogs.isbn,
                                 catalogs.publishyear,
                                 catalogs.preview,
-                                catalogs.validatedate,
+                                catalogs.createdate,
                                 penerbit.name as name_penerbit,
                                 propinsi.namapropinsi as namapropinsi,
                                 kabupaten.namakab as namakab,
@@ -232,7 +232,7 @@ class CollectionController extends Controller
                     $val->ISBN,
                     $val->PUBLISHYEAR,
                     $val->PREVIEW,
-                    Carbon::parse($val->VALIDATEDATE)->format('d/m/Y'),
+                    Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
                 ];
 
                 $start++;

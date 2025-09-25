@@ -53,7 +53,7 @@ class PeriodicController extends Controller
         $conditions = [
             "c.worksheet_id in ($worksheetIds)",
             "c.edeposit_col_id is not null",
-            "to_char(c.validatedate, 'YYYY') = '$year'",
+            "to_char(c.createdate, 'YYYY') = '$year'",
         ];
 
         if (Main::isNotCenterBranch()) {
@@ -65,7 +65,7 @@ class PeriodicController extends Controller
         $query = "
             select
                 c.worksheet_id,
-                to_char(c.validatedate, 'MM') as month,
+                to_char(c.createdate, 'MM') as month,
                 count(distinct c.id) as catalog_total,
                 count(coll.id) as collection_total
             from
@@ -77,7 +77,7 @@ class PeriodicController extends Controller
             $whereClause
             group by
                 c.worksheet_id,
-                to_char(c.validatedate, 'MM')
+                to_char(c.createdate, 'MM')
             order by
                 c.worksheet_id,
                 month

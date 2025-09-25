@@ -56,7 +56,7 @@ class ReportPeriodicExport implements FromView, ShouldAutoSize
         $conditions = [
             "c.worksheet_id in ($worksheetIds)",
             "c.edeposit_col_id is not null",
-            "to_char(c.validatedate, 'YYYY') = '$year'",
+            "to_char(c.createdate, 'YYYY') = '$year'",
         ];
 
         if ($request->is_not_center_branch) {
@@ -68,7 +68,7 @@ class ReportPeriodicExport implements FromView, ShouldAutoSize
         $query = "
             select
                 c.worksheet_id,
-                to_char(c.validatedate, 'MM') as month,
+                to_char(c.createdate, 'MM') as month,
                 count(distinct c.id) as catalog_total,
                 count(coll.id) as collection_total
             from
@@ -80,7 +80,7 @@ class ReportPeriodicExport implements FromView, ShouldAutoSize
             $whereClause
             group by
                 c.worksheet_id,
-                to_char(c.validatedate, 'MM')
+                to_char(c.createdate, 'MM')
             order by
                 c.worksheet_id,
                 month

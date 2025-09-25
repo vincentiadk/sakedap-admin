@@ -70,7 +70,7 @@ class ReportCollectionExport implements FromView, ShouldAutoSize
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(catalogs.validatedate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.validatedate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($whereCondition) {
@@ -88,7 +88,7 @@ class ReportCollectionExport implements FromView, ShouldAutoSize
                 catalogs.isbn,
                 catalogs.publishyear,
                 catalogs.preview,
-                catalogs.validatedate,
+                catalogs.createdate,
                 penerbit.name as name_penerbit,
                 propinsi.namapropinsi as namapropinsi,
                 kabupaten.namakab as namakab,
