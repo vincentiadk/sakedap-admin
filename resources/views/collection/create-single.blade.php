@@ -160,7 +160,9 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Mata Uang</label>
                     <div class="col-md-10">
-                        <select class="form-select" name="currency" id="currency"></select>
+                        <select class="form-select" name="currency" id="currency">
+                            <option value="IDR" selected>IDR</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group row">
