@@ -68,6 +68,7 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Dari</th>
                         <th class="text-nowrap">Tgl Teguran</th>
+                        <th class="text-nowrap">Tagihan Koleksi</th>
                     </tr>
                 </thead>
             </table>
@@ -75,7 +76,7 @@
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"></h5>
@@ -100,6 +101,17 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Tanggal Teguran : <span class="text-danger fw-bold">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">1</span>
+                            <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
+                            <span class="input-group-text">2</span>
+                            <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih Tanggal" readonly>
+                            <span class="input-group-text">3</span>
+                            <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih Tanggal" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Pelaksana Serah : <span class="text-danger fw-bold">*</span></label>
                         <select class="form-select" name="executor_id" id="executor_id" data-dropdown-parent="#modal-form"></select>
                     </div>
@@ -108,8 +120,8 @@
                         <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tanggal Teguran : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
+                        <label class="form-label">Tagihan Koleksi :</label>
+                        <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="....................">
                     </div>
                 </form>
             </div>
@@ -133,7 +145,7 @@
 
 <script>
     $(function() {
-        datePickerSingle('#warning_date, #follow_up_date, #filter_date');
+        datePickerSingle('.date-single');
 
         if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
             select2Serverside('#branch_id, #filter_branch_id', 'branch', {
@@ -247,6 +259,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -320,6 +333,9 @@
                 $('#executor_id').html('<option value="' + response.PUBLISHER_ID + '" selected>' + response.NAME_PENERBIT + '</option>');
                 $('#branch_id').html('<option value="' + response.BRANCH_ID + '" selected>' + response.NAME_BRANCH + '</option>');
                 $('#warning_date').val(response.WARNING_DATE ? moment(response.WARNING_DATE).format('YYYY/MM/DD') : '');
+                $('#warning_date_2').val(response.WARNING_DATE_2 ? moment(response.WARNING_DATE_2).format('YYYY/MM/DD') : '');
+                $('#warning_date_3').val(response.WARNING_DATE_3 ? moment(response.WARNING_DATE_3).format('YYYY/MM/DD') : '');
+                $('#bill_collection').val(response.TAGIHAN_KOLEKSI);
 
                 if(response.LINK_FILE) {
                     var paramFile = {

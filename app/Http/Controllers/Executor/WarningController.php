@@ -35,6 +35,7 @@ class WarningController extends Controller
             'penerbit.name',
             'branchs.name',
             'e_publisher_warnings.warning_date',
+            'e_publisher_warnings.tagihan_koleksi',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -118,7 +119,12 @@ class WarningController extends Controller
                     from
                         (
                             select
-                                e_publisher_warnings.*,
+                                e_publisher_warnings.id,
+                                e_publisher_warnings.warning_date,
+                                e_publisher_warnings.warning_date_2,
+                                e_publisher_warnings.warning_date_3,
+                                e_publisher_warnings.tagihan_koleksi,
+                                e_publisher_warnings.link_file,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch
                             from
@@ -166,13 +172,90 @@ class WarningController extends Controller
                     ';
                 }
 
+                $warningDate1HTML = '';
+                $warningDate2HTML = '';
+                $warningDate3HTML = '';
+
+                $warningDate1 = $val->WARNING_DATE;
+                $warningDate2 = $val->WARNING_DATE_2;
+                $warningDate3 = $val->WARNING_DATE_3;
+
+                if ($warningDate1) {
+                    $dateStart = Carbon::parse($warningDate1)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warningDate1)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = QueryAPI::get("
+                        select
+                            sum(letter_detail.qty_accept) as total
+                        from
+                            letter_detail
+                        left join
+                            letter on letter.letter_id = letter_detail.letter_id
+                        where
+                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
+                    ", true);
+
+                    $warningDate1HTML = '
+                        <div class="fw-bold"><small>Teguran 1</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                    ';
+                }
+
+                if ($warningDate2) {
+                    $dateStart = Carbon::parse($warningDate2)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warningDate2)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = QueryAPI::get("
+                        select
+                            sum(letter_detail.qty_accept) as total
+                        from
+                            letter_detail
+                        left join
+                            letter on letter.letter_id = letter_detail.letter_id
+                        where
+                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
+                    ", true);
+
+                    $warningDate2HTML = '
+                        <div class="fw-bold"><small>Teguran 2</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                    ';
+                }
+
+                if ($warningDate3) {
+                    $dateStart = Carbon::parse($warningDate3)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warningDate3)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = QueryAPI::get("
+                        select
+                            sum(letter_detail.qty_accept) as total
+                        from
+                            letter_detail
+                        left join
+                            letter on letter.letter_id = letter_detail.letter_id
+                        where
+                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
+                    ", true);
+
+                    $warningDate3HTML = '
+                        <div class="fw-bold"><small>Teguran 3</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                    ';
+                }
+
+                $warningDateHTML = $warningDate1HTML . $warningDate2HTML . $warningDate3HTML;
+
                 $data[] = [
                     $start + 1,
                     $action,
                     $file,
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
-                    Carbon::parse($val->WARNING_DATE)->format('d/m/Y'),
+                    $warningDateHTML,
+                    $val->TAGIHAN_KOLEKSI ?? 0,
                 ];
 
                 $start++;
@@ -213,6 +296,9 @@ class WarningController extends Controller
                     'publisher_id' => $request->executor_id,
                     'branch_id' => $request->branch_id,
                     'warning_date' => $request->warning_date,
+                    'warning_date_2' => $request->warning_date_2,
+                    'warning_date_3' => $request->warning_date_3,
+                    'tagihan_koleksi' => $request->bill_collection,
                     'createby' => session('name'),
                     'updateby' => session('name'),
                 ]);
@@ -252,7 +338,12 @@ class WarningController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                e_publisher_warnings.*,
+                e_publisher_warnings.id,
+                e_publisher_warnings.warning_date,
+                e_publisher_warnings.warning_date_2,
+                e_publisher_warnings.warning_date_3,
+                e_publisher_warnings.tagihan_koleksi,
+                e_publisher_warnings.link_file,
                 penerbit.name as name_penerbit,
                 branchs.name as name_branch
             from
@@ -271,7 +362,7 @@ class WarningController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from e_publisher_warnings where id = $id");
+        $query = QueryAPI::get("select id, link_file from e_publisher_warnings where id = $id");
 
         $validation = Validator::make($request->all(), [
             'executor_id' => 'required',
@@ -296,6 +387,9 @@ class WarningController extends Controller
                     'publisher_id' => $request->executor_id,
                     'branch_id' => $request->branch_id,
                     'warning_date' => $request->warning_date,
+                    'warning_date_2' => $request->warning_date_2,
+                    'warning_date_3' => $request->warning_date_3,
+                    'tagihan_koleksi' => (int) $request->bill_collection ?? 0,
                     'updateby' => session('name'),
                 ]);
 
