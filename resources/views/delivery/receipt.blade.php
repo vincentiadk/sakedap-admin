@@ -389,13 +389,16 @@
             $('input[name="cni_price[]"]').number(true);
 
             if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-                select2Serverside('select[name="cni_catalog_id[]"]', 'catalog-id', {
-                    province_id: '{{ session("province_id") }}'
+                select2Serverside('select[name="cni_catalog_id[]"]', 'catalog', {
+                    province_id: '{{ session("province_id") }}',
+                    placeholder: 'id'
                 }, {
                     minimumInputLength: 3
                 });
             } else {
-                select2Serverside('select[name="cni_catalog_id[]', 'catalog-id');
+                select2Serverside('select[name="cni_catalog_id[]', 'catalog', {
+                    placeholder: 'id'
+                });
             }
         }
     }

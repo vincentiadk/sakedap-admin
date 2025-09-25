@@ -34,7 +34,8 @@ class Select2ServersideController extends Controller
                 *
             from (
                     select
-                        branchs.*,
+                        branchs.id,
+                        branchs.name,
                         propinsi.namapropinsi as namapropinsi
                     from
                         branchs
@@ -51,8 +52,8 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
-                    <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
                     <div>' . $d->NAME . '</div>
+                    <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                 ';
 
                 $response[] = [
@@ -88,7 +89,9 @@ class Select2ServersideController extends Controller
                 *
             from (
                     select
-                        penerbit.*,
+                        penerbit.id,
+                        penerbit.name,
+                        penerbit.email1,
                         propinsi.namapropinsi as namapropinsi
                     from
                         penerbit
@@ -105,9 +108,10 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
-                    <div><small class="text-muted">' . ($d->ID ?? '-') . '</small></div>
-                    <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
                     <div>' . $d->NAME . '</div>
+                    <div class="fw-light fs-12 text-muted">ID : ' . ($d->ID ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Email : ' . ($d->EMAIL1 ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                 ';
 
                 $response[] = [
@@ -145,7 +149,8 @@ class Select2ServersideController extends Controller
                     *
                 from (
                         select
-                            *
+                            id,
+                            name
                         from
                             propinsi
                         $whereClause
@@ -169,7 +174,8 @@ class Select2ServersideController extends Controller
                     *
                 from (
                         select
-                            kabupaten.*,
+                            kabupaten.id,
+                            kabupaten.namakab,
                             propinsi.namapropinsi as namapropinsi
                         from
                             kabupaten
@@ -196,7 +202,8 @@ class Select2ServersideController extends Controller
                     *
                 from (
                         select
-                            kecamatan.*,
+                            kecamatan.id,
+                            kecamatan.namakec,
                             kabupaten.namakab as namakab,
                             propinsi.namapropinsi as namapropinsi
                         from
@@ -226,7 +233,8 @@ class Select2ServersideController extends Controller
                     *
                 from (
                         select
-                            kelurahan.*,
+                            kelurahan.id,
+                            kelurahan.namakel,
                             kecamatan.namakec as namakec,
                             kabupaten.namakab as namakab,
                             propinsi.namapropinsi as namapropinsi
@@ -259,25 +267,25 @@ class Select2ServersideController extends Controller
                     $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB;
 
                     $html = '
-                        <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
                         <div>' . $d->NAMAKAB . '</div>
+                        <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                     ';
                 } else if ($for == 'district') {
                     $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB . ' -> ' . $d->NAMAKEC;
 
                     $html = '
-                        <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
-                        <div><small class="text-muted">' . ($d->NAMAKAB ?? '-') . '</small></div>
                         <div>' . $d->NAMAKEC . '</div>
+                        <div class="fw-light fs-12 text-muted">Kota / Kabupaten : ' . ($d->NAMAKAB ?? '-') . '</div>
+                        <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                     ';
                 } else if ($for == 'village') {
                     $text = $d->NAMAPROPINSI . ' -> ' . $d->NAMAKAB . ' -> ' . $d->NAMAKEC . ' -> ' . $d->NAMAKEL;
 
                     $html = '
-                        <div><small class="text-muted">' . ($d->NAMAPROPINSI ?? '-') . '</small></div>
-                        <div><small class="text-muted">' . ($d->NAMAKAB ?? '-') . '</small></div>
-                        <div><small class="text-muted">' . ($d->NAMAKEC ?? '-') . '</small></div>
                         <div>' . $d->NAMAKEL . '</div>
+                        <div class="fw-light fs-12 text-muted">Kecamatan : ' . ($d->NAMAKEC ?? '-') . '</div>
+                        <div class="fw-light fs-12 text-muted">Kota / Kabupaten : ' . ($d->NAMAKAB ?? '-') . '</div>
+                        <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                     ';
                 }
 
@@ -305,6 +313,9 @@ class Select2ServersideController extends Controller
                         e_collections.id,
                         e_collections.title,
                         e_collections.title_ori,
+                        e_collections.code,
+                        e_collections.author,
+                        e_collections.publication_year,
                         penerbit.name as name_penerbit
                     from
                         e_collections
@@ -328,8 +339,12 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
-                    <div><small class="text-muted">' . ($d->NAME_PENERBIT ?? '-') . '</small></div>
                     <div>' . ($d->TITLE ?? $d->TITLE_ORI) . '</div>
+                    <div class="fw-light fs-12 text-muted">ID : ' . ($d->ID ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Kode : ' . ($d->CODE ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Tahun Terbit : ' . ($d->PUBLICATION_YEAR ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Pelaksana Serah : ' . ($d->NAME_PENERBIT ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Kepeng : ' . str_replace(';', ', ', ($d->AUTHOR ?? '-')) . '</div>
                 ';
 
                 $response[] = [
@@ -350,7 +365,8 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                *
+                id,
+                name
             from
                 e_problems
             where
@@ -374,86 +390,69 @@ class Select2ServersideController extends Controller
         return response()->json($response);
     }
 
-    public function catalogId(Request $request)
-    {
-        $response = [];
-        $search = Str::upper($request->search);
-        $provinceId = $request->province_id;
-
-        $condition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $condition[] = "isbn is null";
-        $condition[] = "upper(title) like '%$search%'";
-        $condition[] = "rownum <= 20";
-
-        if ($provinceId) {
-            $condition[] = "id = $provinceId";
-        }
-
-        $whereClause = "where " . implode(' and ', $condition);
-
-        $data = QueryAPI::get("
-            select
-                id,
-                title
-            from
-                catalogs
-            $whereClause
-        ");
-
-        if ($data) {
-            foreach ($data as $d) {
-                $html = '
-                    <div><small class="text-muted">' . $d->ID . '</small></div>
-                    <div>' . $d->TITLE . '</div>
-                ';
-
-                $response[] = [
-                    'id' => $d->ID,
-                    'text' => $d->ID,
-                    'html' => $html,
-                ];
-            }
-        }
-
-        return response()->json($response);
-    }
-
     public function catalog(Request $request)
     {
         $response = [];
         $search = Str::upper($request->search);
         $provinceId = $request->province_id;
+        $placeholder = $request->placeholder ?? null;
 
         $condition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $condition[] = "isbn is null";
-        $condition[] = "upper(title) like '%$search%'";
+        $condition[] = "catalogs.isbn is null";
+        $condition[] = "upper(catalogs.title) like '%$search%'";
         $condition[] = "rownum <= 20";
 
         if ($provinceId) {
-            $condition[] = "id = $provinceId";
+            $condition[] = "propinsi.id = $provinceId";
         }
 
         $whereClause = "where " . implode(' and ', $condition);
 
         $data = QueryAPI::get("
             select
-                id,
-                title
+                catalogs.id,
+                catalogs.title,
+                catalogs.bibid,
+                catalogs.isbn,
+                catalogs.publishyear,
+                catalogs.callnumber,
+                catalogs.author,
+                penerbit.name as name_penerbit
             from
                 catalogs
+            left join
+                penerbit on penerbit.id = catalogs.penerbit_id
+            left join
+                propinsi on propinsi.id = penerbit.province_id
             $whereClause
         ");
 
         if ($data) {
             foreach ($data as $d) {
+                $totalCollection = QueryAPI::get("
+                    select
+                        count(id)
+                    from
+                        collections
+                    where
+                        catalog_id = $d->ID
+                ", true)->TOTAL ?? 0;
+
                 $html = '
-                    <div><small class="text-muted">' . $d->ID . '</small></div>
-                    <div>' . $d->TITLE . '</div>
+                    <div>' . ($d->TITLE ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">ID : ' . ($d->ID ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">BIBID : ' . ($d->BIBID ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Kode : ' . ($d->ISBN ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Tahun Terbit : ' . ($d->PUBLISHYEAR ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Nomor Panggil : ' . ($d->CALLNUMBER ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Jumlah Koleksi : ' . ($totalCollection) . '</div>
+                    <div class="fw-light fs-12 text-muted">Pelaksana Serah : ' . ($d->NAME_PENERBIT ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Kepeng : ' . str_replace(';', ', ', ($d->AUTHOR ?? '-')) . '</div>
                 ';
 
                 $response[] = [
                     'id' => $d->ID,
-                    'text' => $d->TITLE,
+                    'text' => $placeholder == 'id' ? $d->ID : $d->TITLE,
                     'html' => $html,
                 ];
             }
@@ -484,8 +483,8 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
-                    <div><small class="text-muted">' . $d->DESCRIPTION . '</small></div>
-                    <div>' . $d->CURRENCY . '</div>
+                    <div>' . ($d->CURRENCY ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Keterangan : ' . ($d->DESCRIPTION ?? '-') . '</div>
                 ';
 
                 $response[] = [
@@ -524,7 +523,8 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
-                *
+                judul,
+                kode_promo
             from
                 e_promo
             $whereClause
@@ -533,8 +533,8 @@ class Select2ServersideController extends Controller
         if ($data) {
             foreach ($data as $d) {
                 $html = '
-                    <div><small class="text-muted">' . $d->KODE_PROMO . '</small></div>
-                    <div>' . $d->JUDUL . '</div>
+                    <div>' . ($d->JUDUL ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Kode : ' . ($d->KODE_PROMO ?? '-') . '</div>
                 ';
 
                 $response[] = [
