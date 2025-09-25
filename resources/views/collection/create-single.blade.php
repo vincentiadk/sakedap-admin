@@ -358,13 +358,15 @@
         dragAndDropFile('#file_cover', {
             maxFileCount: 1,
             autoReplace: true,
-            allowedFileExtensions: ['jpg', 'jpeg', 'png']
+            allowedFileExtensions: ['jpg', 'jpeg', 'png'],
+            maxFileSize: 2048,
         });
 
         dragAndDropFile('#file_content', {
             maxFileCount: 1,
             autoReplace: true,
-            allowedFileExtensions: ['pdf',, 'epub', 'mp3', 'mp4', 'wav']
+            allowedFileExtensions: ['pdf',, 'epub', 'mp3', 'mp4', 'wav'],
+            maxFileSize: 204800,
         });
 
         codeType();

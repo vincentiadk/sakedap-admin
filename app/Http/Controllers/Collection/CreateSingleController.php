@@ -64,8 +64,8 @@ class CreateSingleController extends Controller
                 'collection_media_id' => 'required',
                 'received_at' => 'required',
                 'access' => 'required',
-                'file_cover' => 'required|image|mimes:png,jpg,jpeg',
-                'file_content' => 'required|file|mimes:pdf,epub,mp3,mp4,wav',
+                'file_cover' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'file_content' => 'required|file|mimes:pdf,epub,mp3,mp4,wav|max:204800',
             ], [
                 'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
                 'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
@@ -78,9 +78,11 @@ class CreateSingleController extends Controller
                 'file_cover.required' => 'File cover tidak boleh kosong',
                 'file_cover.image' => 'File cover tidak valid',
                 'file_cover.mimes' => 'File cover harus png, jpg, jpeg',
+                'file_cover.max' => 'File cover maksimal 2MB',
                 'file_content.required' => 'File konten tidak boleh kosong',
                 'file_content.file' => 'File konten tidak valid',
                 'file_content.mimes' => 'File konten harus pdf, epub, mp3, mp4, wav',
+                'file_content.max' => 'File cover maksimal 200MB',
             ]);
 
             if ($validation->fails()) {

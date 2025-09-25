@@ -302,20 +302,22 @@ class Select2ServersideController extends Controller
                 *
             from (
                     select
-                        e_collections.*,
+                        e_collections.id,
+                        e_collections.title,
+                        e_collections.title_ori,
                         penerbit.name as name_penerbit
                     from
                         e_collections
                     join
                         penerbit on penerbit.id = e_collections.penerbit_id
                     where
-                        e_collections.deleted_at is null
+                        e_collections.deleted_at is null and
                         (
-                            e_collections.parent_id is null OR
+                            e_collections.parent_id is null or
                             e_collections.parent_id = 0
-                        ) AND
+                        ) and
                         (
-                            upper(e_collections.title_ori) like '%$search%' OR
+                            upper(e_collections.title_ori) like '%$search%' or
                             upper(e_collections.title) like '%$search%'
                         )
                 )
