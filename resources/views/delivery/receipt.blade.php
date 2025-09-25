@@ -240,7 +240,7 @@
                                         <input type="number" class="form-control" name="ci_qty_reject[]">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" name="ci_description[]">
+                                        <select class="form-select" name="ci_description[]" multiple></select>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
@@ -255,6 +255,10 @@
                             } else {
                                 swalInit.fire('Berhasil', 'ISBN ditemukan', 'success');
                             }
+
+                            select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
+                                minimumInputLength: 0
+                            });
 
                             $('#search-isbn').val('');
                         } else {
@@ -355,12 +359,6 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label class="col-form-label col-lg-3">Keterangan</label>
-                                    <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_description[]">
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">No Jilid</label>
                                     <div class="col-lg-9">
                                         <input type="number" class="form-control" name="cni_binding[]">
@@ -372,11 +370,21 @@
                                         <input type="text" class="form-control" name="cni_price[]">
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <label class="col-form-label col-lg-3">Keterangan</label>
+                                    <div class="col-lg-9">
+                                        <select class="form-select" name="cni_description[]" multiple></select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </td>
                 </tr>
             `);
+
+            select2ServersideTag('select[name="cni_description[]"]', 'problem', {}, {
+                minimumInputLength: 0
+            });
 
             $('input[name="cni_price[]"]').number(true);
 
@@ -503,7 +511,7 @@
                     <label class="form-label">TTES Akhir :</label>
                     <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" readonly>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <label class="form-label">Eksemplar :</label>
                     <div class="input-group">
                         <span class="input-group-text">Terima</span>
@@ -512,11 +520,19 @@
                         <input type="number" class="form-control form-control-sm" name="cpe_qty_reject[][]">
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <label class="form-label">Keterangan :</label>
+                    <select class="form-select" name="cpe_description[][]" multiple></select>
+                </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-sm btn-danger col-12 h-100" onclick="removeItemEdition(this)">Hapus</button>
                 </div>
             </div>
         `);
+
+        select2ServersideTag('select[name="cpe_description[][]"]', 'problem', {}, {
+            minimumInputLength: 0
+        });
 
         datePickerSingle('.date-single');
     }
