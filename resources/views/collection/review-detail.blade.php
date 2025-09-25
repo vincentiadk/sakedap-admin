@@ -159,7 +159,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Serial</label>
+                    <label class="col-form-label col-md-2">Kala Terbit</label>
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada">
                             <option value=""></option>
