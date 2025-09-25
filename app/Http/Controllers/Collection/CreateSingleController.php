@@ -12,11 +12,18 @@ use Illuminate\Support\Facades\Validator;
 
 class CreateSingleController extends Controller
 {
+    private $worksheetCategory;
+
+    public function __construct()
+    {
+        $this->worksheetCategory = Main::COLLECTION_DIGITAL;
+    }
+
     public function index()
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
                 'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
                 'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
                 'contributor' => QueryAPI::get("select * from e_contributors where show = 1 and deleted_at is null"),

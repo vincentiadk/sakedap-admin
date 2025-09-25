@@ -37,6 +37,17 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-form-label col-md-2">Media <span class="text-danger fw-bold">*</span></label>
+                    <div class="col-md-10">
+                        <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id">
+                            <option value=""></option>
+                            @foreach($media as $m)
+                                <option value="{{ $m->ID }}">{{ $m->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
                         <input type="text" class="form-control" name="title" id="title" placeholder="....................">
@@ -63,17 +74,6 @@
                     <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
                         <select class="form-select" name="city_id" id="city_id"></select>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-form-label col-md-2">Media <span class="text-danger fw-bold">*</span></label>
-                    <div class="col-md-10">
-                        <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id">
-                            <option value=""></option>
-                            @foreach($media as $m)
-                                <option value="{{ $m->ID }}">{{ $m->NAME }}</option>
-                            @endforeach
-                        </select>
                     </div>
                 </div>
                 <div class="form-group row">
