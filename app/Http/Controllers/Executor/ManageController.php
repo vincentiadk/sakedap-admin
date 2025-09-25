@@ -31,7 +31,7 @@ class ManageController extends Controller
         $column = [
             'penerbit.id',
             null,
-            'penerbit.is_lock',
+            null,
             'penerbit.name',
             'penerbit.email1',
             'penerbit_kategori.name',
@@ -169,10 +169,23 @@ class ManageController extends Controller
                     ';
                 }
 
+                $dataWarning = QueryAPI::get("select * from e_publisher_warnings where publisher_id = $val->ID and status = 'DALAM TEGURAN'") ?? [];
+
+                if (count($dataWarning) > 0) {
+                    $warning = '<span class="text-success"><i class="ph-check"></i></span>';
+                } else {
+                    $warning = '<span class="text-danger"><i class="ph-x"></i></span>';
+                }
+
+                $mark = '
+                    <div>Terkunci : ' . $lock . '</div>
+                    <div>Teguran : ' . $warning . '</div>
+                ';
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    $lock,
+                    $mark,
                     $val->NAME,
                     $email,
                     $val->NAME_PENERBIT_KATEGORI,

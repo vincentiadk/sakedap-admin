@@ -69,6 +69,7 @@
                         <th class="text-nowrap">Dari</th>
                         <th class="text-nowrap">Tgl Teguran</th>
                         <th class="text-nowrap">Tagihan Koleksi</th>
+                        <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -122,6 +123,13 @@
                     <div class="form-group">
                         <label class="form-label">Tagihan Koleksi :</label>
                         <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status :</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="DALAM TEGURAN">DALAM TEGURAN</option>
+                            <option value="SELESAI">SELESAI</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -181,6 +189,7 @@
         $('#file-preview').hide();
         $('#executor_id').val('').change();
         $('#branch_id').html(`<option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>`);
+        $('#executor_id').val('DALAM TEGURAN');
     }
 
     function onCreate() {
@@ -260,6 +269,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
             ]
         }).on('draw.dt', function() {
             onLoading('close', '.dataTables_wrapper');
@@ -336,6 +346,7 @@
                 $('#warning_date_2').val(response.WARNING_DATE_2 ? moment(response.WARNING_DATE_2).format('YYYY/MM/DD') : '');
                 $('#warning_date_3').val(response.WARNING_DATE_3 ? moment(response.WARNING_DATE_3).format('YYYY/MM/DD') : '');
                 $('#bill_collection').val(response.TAGIHAN_KOLEKSI);
+                $('#status').val(response.STATUS);
 
                 if(response.LINK_FILE) {
                     var paramFile = {

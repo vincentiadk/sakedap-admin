@@ -36,6 +36,7 @@ class WarningController extends Controller
             'branchs.name',
             'e_publisher_warnings.warning_date',
             'e_publisher_warnings.tagihan_koleksi',
+            'e_publisher_warnings.status',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -251,6 +252,7 @@ class WarningController extends Controller
                     $val->NAME_BRANCH,
                     $warningDateHTML,
                     $val->TAGIHAN_KOLEKSI ?? 0,
+                    $val->STATUS,
                 ];
 
                 $start++;
@@ -294,6 +296,7 @@ class WarningController extends Controller
                     'warning_date_2' => $request->warning_date_2,
                     'warning_date_3' => $request->warning_date_3,
                     'tagihan_koleksi' => $request->bill_collection,
+                    'status' => $request->status,
                     'createby' => session('name'),
                     'updateby' => session('name'),
                 ]);
@@ -380,6 +383,7 @@ class WarningController extends Controller
                     'warning_date_2' => $request->warning_date_2,
                     'warning_date_3' => $request->warning_date_3,
                     'tagihan_koleksi' => (int) $request->bill_collection ?? 0,
+                    'status' => $request->status,
                     'updateby' => session('name'),
                 ]);
 
