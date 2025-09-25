@@ -171,7 +171,6 @@ class CreateSingleController extends Controller
                         'jenis_isi' => $request->content_type,
                         'jenis_wadah' => $request->container_type,
                         'jenis_media' => $request->media_type,
-                        'jumlah_eks' => $request->number_copy,
                     ];
 
                     $createCollection = QueryAPI::create('e_collections', $baseCollectionData);
@@ -231,7 +230,6 @@ class CreateSingleController extends Controller
                                         'jenis_isi' => $request->content_type,
                                         'jenis_wadah' => $request->container_type,
                                         'jenis_media' => $request->media_type,
-                                        'jumlah_eks' => $request->number_copy,
                                     ];
                                 }
                             }

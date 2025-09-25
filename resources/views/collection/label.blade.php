@@ -133,7 +133,6 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">ISBN</th>
-                        <th class="text-nowrap">Perpustakaan</th>
                         <th class="text-nowrap">Lokasi</th>
                         <th class="text-nowrap">Update Oleh</th>
                         <th class="text-nowrap">Terima Oleh</th>
@@ -230,7 +229,6 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

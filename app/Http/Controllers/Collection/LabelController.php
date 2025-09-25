@@ -46,7 +46,6 @@ class LabelController extends Controller
             'collections.title',
             'collections.isbn',
             'location_library.name',
-            'branchs.name',
             'collections.updateby',
             'collections.createby',
             'collections.acquireddate',
@@ -147,8 +146,6 @@ class LabelController extends Controller
                 worksheets on worksheets.id = collections.worksheet_id
             left join
                 location_library on location_library.id = collections.loc_lib_id
-            left join
-                branchs on branchs.id = location_library.branch_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -173,8 +170,7 @@ class LabelController extends Controller
                                 collections.mark_province,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet,
-                                location_library.name as name_location_library,
-                                branchs.name as name_branch
+                                location_library.name as name_location_library
                             from
                                 collections
                             join
@@ -187,8 +183,6 @@ class LabelController extends Controller
                                 worksheets on worksheets.id = collections.worksheet_id
                             left join
                                 location_library on location_library.id = collections.loc_lib_id
-                            left join
-                                branchs on branchs.id = location_library.branch_id
                             $whereClause
                             $orderBy
                         ) data
@@ -214,7 +208,6 @@ class LabelController extends Controller
                     $val->TITLE,
                     $val->ISBN,
                     $val->NAME_LOCATION_LIBRARY,
-                    $val->NAME_BRANCH,
                     $val->UPDATEBY,
                     $val->CREATEBY,
                     Carbon::parse($val->ACQUIREDDATE)->format('d/m/Y'),

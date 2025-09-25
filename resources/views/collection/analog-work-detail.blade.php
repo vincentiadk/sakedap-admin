@@ -72,16 +72,6 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Perpustakaan</label>
-                    <div class="col-md-10">
-                        <select class="form-select" name="branch_id" id="branch_id" disabled>
-                            @if($collection->BRANCH_ID)
-                                <option value="{{ $collection->BRANCH_ID }}" selected>{{ $collection->NAME_BRANCH }}</option>
-                            @endif
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group row">
                     <label class="col-form-label col-md-2">Kota</label>
                     <div class="col-md-10">
                         <select class="form-select" name="city_id" id="city_id" disabled>
@@ -230,12 +220,6 @@
                                 <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA_E_COLLECTION == $ct->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
                             @endforeach
                         </select>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jumlah Eksemplar</label>
-                    <div class="col-md-10">
-                        <input type="number" class="form-control" name="number_copy" id="number_copy" value="{{ $collection->JUMLAH_EKS_E_COLLECTION }}" placeholder="...................." disabled>
                     </div>
                 </div>
                 <div class="form-group row">

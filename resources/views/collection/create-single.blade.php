@@ -205,12 +205,6 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jumlah Eksemplar</label>
-                    <div class="col-md-10">
-                        <input type="number" class="form-control" name="number_copy" id="number_copy" placeholder="....................">
-                    </div>
-                </div>
-                <div class="form-group row">
                     <label class="col-form-label col-md-2">Keterangan Fisik</label>
                     <div class="col-md-10">
                         <textarea name="description" class="form-control" id="decription" rows="5" placeholder="...................."></textarea>
