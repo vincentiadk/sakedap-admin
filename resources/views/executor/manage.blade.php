@@ -15,7 +15,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Disable</th>
+                        <th class="text-nowrap">Terkunci</th>
                         <th class="text-nowrap">Nama</th>
                         <th class="text-nowrap">Email</th>
                         <th class="text-nowrap">Kategori</th>
@@ -132,8 +132,8 @@
                                 <input type="text" class="form-control" name="website" id="website" placeholder="....................">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Disable :</label>
-                                <select class="form-select" name="is_disable" id="is_disable">
+                                <label class="form-label">Kunci :</label>
+                                <select class="form-select" name="is_lock" id="is_lock">
                                     <option value="1">Ya</option>
                                     <option value="0">Tidak</option>
                                 </select>
@@ -304,7 +304,7 @@
                 $('#fax_alternative').val(response.FAX2);
                 $('#website').val(response.WEBSITE);
                 $('#publication_average').val(response.RATA_TERBITAN);
-                $('#is_disable').val(response.IS_DISABLE == 1 ? 1 : 0);
+                $('#is_lock').val(response.IS_LOCK == 1 ? 1 : 0);
 
                 if(response.FILE_AKTE_NOTARIS) {
                     var paramFile = {

@@ -31,6 +31,7 @@ class ManageController extends Controller
         $column = [
             'penerbit.id',
             null,
+            'penerbit.is_lock',
             'penerbit.name',
             'penerbit.email1',
             'penerbit_kategori.name',
@@ -158,12 +159,12 @@ class ManageController extends Controller
                     <div>Alternatif : ' . $val->TELP2 . '</div>
                 ';
 
-                $disable = '
+                $lock = '
                     <span class="text-success"><i class="ph-check"></i></span>
                 ';
 
-                if (is_null($val->IS_DISABLE) || $val->IS_DISABLE == 0) {
-                    $disable = '
+                if (is_null($val->IS_LOCK) || $val->IS_LOCK == 0) {
+                    $lock = '
                         <span class="text-danger"><i class="ph-x"></i></span>
                     ';
                 }
@@ -171,7 +172,7 @@ class ManageController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $disable,
+                    $lock,
                     $val->NAME,
                     $email,
                     $val->NAME_PENERBIT_KATEGORI,
@@ -295,9 +296,7 @@ class ManageController extends Controller
                     'rata_terbitan' => $request->publication_average,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
-                    'is_disable' => $request->is_disable ?? null,
-                    'tgl_disable' => $request->is_disable ? date('Y-m-d H:i:s') : null,
-                    'disble_by' => $request->is_disable ? session('name') : null,
+                    'is_lock' => $request->is_lock ?? null,
                 ], false);
 
                 $response = [
