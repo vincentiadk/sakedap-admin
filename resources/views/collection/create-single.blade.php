@@ -60,12 +60,6 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Perpustakaan <span class="text-danger fw-bold">*</span></label>
-                    <div class="col-md-10">
-                        <select class="form-select" name="branch_id" id="branch_id"></select>
-                    </div>
-                </div>
-                <div class="form-group row">
                     <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
                         <select class="form-select" name="city_id" id="city_id"></select>
