@@ -250,7 +250,7 @@
         $('#file-preview').hide();
         $('#officer_id').val('').change();
         $('#executor_id').val('').change();
-        $('#branch_id').val('').change();
+        $('#branch_id').html(`<option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>`);
     }
 
     function onCreate() {
