@@ -226,47 +226,7 @@ class ListController extends Controller
                 $remarks = $request->collect('letter_detail_remark');
                 $param = $request->param;
                 $status = 'DITERIMA PENUH';
-
                 $letterDetailsToUpdate = [];
-                $collectionsToCreate = [];
-
-                if ($param === 'save-verification' && $letterDetailIds->isNotEmpty()) {
-                    $idsInClause = $letterDetailIds->implode(',');
-
-                    $dataCopies = QueryAPI::get("
-                        select
-                            ld.*,
-                            l.letter_date as letter_date_letter,
-                            l.branch_id as branch_id_letter,
-                            l.create_by as create_by_letter,
-                            l.update_by as update_by_letter,
-                            l.publisher_id as publisher_id_letter,
-                            c.publishlocation as publishlocation_catalog,
-                            c.category_id as category_id_catalog,
-                            c.worksheet_id as worksheet_id_catalog,
-                            c.edition as edition_catalog,
-                            c.isopac as isopac_catalog,
-                            c.publikasi as publikasi_catalog,
-                            c.city_id as city_id_catalog,
-                            c.album as album_catalog,
-                            c.series as series_catalog,
-                            c.volume as volume_catalog,
-                            c.publish_month as publish_month_catalog,
-                            c.copyright as copyright_catalog,
-                            c.preview as preview_catalog,
-                            c.akses as akses_catalog
-                        from
-                            letter_detail ld
-                        left join
-                            catalogs c on c.id = ld.catalog_id
-                        left join
-                            letter l on l.letter_id = ld.letter_id
-                        where
-                            ld.letter_detail_id in ($idsInClause)
-                    ");
-
-                    $dataCopies = collect($dataCopies);
-                }
 
                 foreach ($letterDetailIds as $key => $ldi) {
                     $qtyAccept = $qtyAccepts->get($key, 0);
@@ -284,62 +244,6 @@ class ListController extends Controller
                     if ($qtyAccept < $quantity) {
                         $status = 'DITERIMA PARSIAL';
                     }
-
-                    if ($param === 'save-verification' && $qtyAccept > 0) {
-                        $dataCopy = $dataCopies->firstWhere('LETTER_DETAIL_ID', $ldi);
-
-                        if ($dataCopy) {
-                            for ($i = 0; $i < $qtyAccept; $i++) {
-                                $collectionsToCreate[] = [
-                                    'title' => $dataCopy->TITLE,
-                                    'author' => $dataCopy->AUTHOR,
-                                    'publishlocation' => $dataCopy->PUBLISHLOCATION_CATALOG,
-                                    'publisher' => $dataCopy->PUBLISHER,
-                                    'publishyear' => $dataCopy->PUBLISH_YEAR,
-                                    'edition' => $dataCopy->EDITION_CATALOG,
-                                    'physicaldescription' => $dataCopy->DESKRIPSIFISIK,
-                                    'isbn' => $dataCopy->ISBN,
-                                    'price' => $dataCopy->PRICE,
-                                    'tanggalkirim' => $dataCopy->LETTER_DATE_LETTER,
-                                    'isdelete' => 0,
-                                    'branch_id' => $dataCopy->BRANCH_ID_LETTER,
-                                    'catalog_id' => $dataCopy->CATALOG_ID,
-                                    'category_id' => $dataCopy->CATEGORY_ID_CATALOG,
-                                    'media_id' => $dataCopy->COLLECTIONMEDIAID,
-                                    'status' => 'Tersedia',
-                                    'createby' => $dataCopy->CREATE_BY_LETTER,
-                                    'createdate' => date('Y-m-d H:i:s'),
-                                    'createterminal' => request()->ip(),
-                                    'updateby' => $dataCopy->UPDATE_BY_LETTER,
-                                    'updatedate' => date('Y-m-d H:i:s'),
-                                    'updateterminal' => request()->ip(),
-                                    'kalaterbit' => $dataCopy->KALA_TERBIT,
-                                    'worksheet_id' => $dataCopy->WORKSHEET_ID_CATALOG,
-                                    'isverified' => 1,
-                                    'cleaning_note' => $dataCopy->CLEANING_NOTE,
-                                    'publisher_id' => $dataCopy->PUBLISHER_ID_LETTER,
-                                    'edisiserial' => $dataCopy->EDISI_SERIAL,
-                                    'isopac' => $dataCopy->ISOPAC_CATALOG,
-                                    'publikasi' => $dataCopy->PUBLIKASI_CATALOG,
-                                    'ttes_awal' => $dataCopy->TTES_AWAL,
-                                    'ttes_akhir' => $dataCopy->TTES_AKHIR,
-                                    'penerbit_id' => $dataCopy->PUBLISHER_ID_LETTER,
-                                    'is_receive_date_marked' => $dataCopy->IS_RECEIVEDATE,
-                                    'city_id' => $dataCopy->CITY_ID_CATALOG,
-                                    'album' => $dataCopy->ALBUM_CATALOG,
-                                    'series' => $dataCopy->SERIES_CATALOG,
-                                    'volume' => $dataCopy->VOLUME_CATALOG,
-                                    'publish_month' => $dataCopy->PUBLISH_MONTH_CATALOG,
-                                    'copyright' => $dataCopy->COPYRIGHT_CATALOG,
-                                    'preview' => $dataCopy->PREVIEW_CATALOG,
-                                    'problem' => $dataCopy->REMARK,
-                                    'letter_id' => $dataCopy->LETTER_ID,
-                                    'letter_detail_id' => $ldi,
-                                    'akses' => $dataCopy->AKSES_CATALOG,
-                                ];
-                            }
-                        }
-                    }
                 }
 
                 foreach ($letterDetailsToUpdate as $updateData) {
@@ -348,18 +252,6 @@ class ListController extends Controller
                     unset($updateData['id']);
 
                     QueryAPI::update('letter_detail', $letterId, $updateData, false);
-                }
-
-                if (!empty($collectionsToCreate)) {
-                    foreach ($collectionsToCreate as $collectionData) {
-                        $createCollection = QueryAPI::create('collections', $collectionData, false);
-
-                        if ($createCollection) {
-                            QueryAPI::update('collections', $createCollection->ID, [
-                                'nomorbarcode' => sprintf('%011d', $createCollection->ID)
-                            ], false);
-                        }
-                    }
                 }
 
                 QueryAPI::update('letter', $id, [

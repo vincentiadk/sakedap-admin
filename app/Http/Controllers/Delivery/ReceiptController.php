@@ -224,63 +224,6 @@ class ReceiptController extends Controller
                                 'cleaning_note' => $isbn->keterangan,
                                 'jenis_media' => $isbn->jenis_media,
                             ];
-
-                            $letterDetail = QueryAPI::create('letter_detail', $letterDetailData, false);
-
-                            if ($letterDetail && $qtyAccept > 0) {
-                                for ($i = 1; $i <= $qtyAccept; $i++) {
-                                    $collectionData = [
-                                        'title' => $isbn->title,
-                                        'author' => $isbn->kepeng,
-                                        'publishlocation' => $catalog->PUBLISHLOCATION ?? null,
-                                        'publisher' => $isbn->nama_penerbit,
-                                        'publishyear' => $isbn->tahun_terbit,
-                                        'edition' => $isbn->edisi,
-                                        'physicaldescription' => $catalog->DESCRIPTION ?? null,
-                                        'isbn' => $code,
-                                        'price' => $catalog->PRICE ?? null,
-                                        'tanggalkirim' => $letter->LETTER_DATE ?? null,
-                                        'isdelete' => 0,
-                                        'branch_id' => $letter->BRANCH_ID ?? null,
-                                        'catalog_id' => $letterDetail->CATALOG_ID,
-                                        'category_id' => $catalog->CATEGORY_ID ?? null,
-                                        'media_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
-                                        'status' => 'Tersedia',
-                                        'createby' => $letter->CREATE_BY ?? null,
-                                        'createdate' => $now,
-                                        'createterminal' => $currentIp,
-                                        'updateby' => $letter->UPDATE_BY ?? null,
-                                        'updatedate' => $now,
-                                        'updateterminal' => $currentIp,
-                                        'kalaterbit' => $letterDetail->KALA_TERBIT,
-                                        'worksheet_id' => $catalog->WORKSHEET_ID ?? null,
-                                        'isverified' => 1,
-                                        'cleaning_note' => $letterDetail->CLEANING_NOTE,
-                                        'publisher_id' => $isbn->penerbit_id,
-                                        'edisiserial' => $letterDetail->EDISI_SERIAL,
-                                        'isopac' => $catalog->ISOPAC ?? null,
-                                        'publikasi' => $catalog->PUBLIKASI ?? null,
-                                        'ttes_awal' => $letterDetail->TTES_AWAL,
-                                        'ttes_akhir' => $letterDetail->TTES_AKHIR,
-                                        'penerbit_id' => $isbn->penerbit_id,
-                                        'is_receive_date_marked' => $letterDetail->IS_RECEIVEDATE,
-                                        'city_id' => $catalog->CITY_ID ?? null,
-                                        'album' => $catalog->ALBUM ?? null,
-                                        'series' => $isbn->seri,
-                                        'volume' => $catalog->VOLUME ?? null,
-                                        'publish_month' => $catalog->PUBLISH_MONTH ?? null,
-                                        'copyright' => $catalog->COPYRIGHT ?? null,
-                                        'preview' => $catalog->PREVIEW ?? null,
-                                        'problem' => $letterDetail->REMARK,
-                                        'letter_id' => $letter->LETTER_ID ?? null,
-                                        'letter_detail_id' => $letterDetail->LETTER_DETAIL_ID,
-                                        'akses' => $catalog->AKSES ?? null,
-                                        'nomorpanggil' => $isbn->call_number,
-                                    ];
-
-                                    QueryAPI::create('collections', $collectionData, false);
-                                }
-                            }
                         }
                     }
 
@@ -345,59 +288,6 @@ class ReceiptController extends Controller
                                 'deskripsifisik' => $physicalDescription,
                                 'jenis_media' => $request->cni_type[$key] ?? null,
                             ];
-
-                            $letterDetail = QueryAPI::create('letter_detail', $letterDetailData, false);
-
-                            if ($letterDetail && $qtyAccept > 0) {
-                                for ($i = 1; $i <= $qtyAccept; $i++) {
-                                    $collectionData = [
-                                        'title' => $title,
-                                        'author' => $author,
-                                        'publishlocation' => $catalog->PUBLISHLOCATION ?? null,
-                                        'publisher' => $catalog->NAME_PENERBIT ?? null,
-                                        'publishyear' => $year,
-                                        'edition' => $catalog->EDITION ?? null,
-                                        'physicaldescription' => $physicalDescription,
-                                        'price' => $letterDetail->PRICE,
-                                        'tanggalkirim' => $letter->LETTER_DATE ?? null,
-                                        'isdelete' => 0,
-                                        'branch_id' => $letter->BRANCH_ID ?? null,
-                                        'catalog_id' => $letterDetail->CATALOG_ID,
-                                        'category_id' => $catalog->CATEGORY_ID ?? null,
-                                        'media_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
-                                        'status' => 'Tersedia',
-                                        'createby' => $letter->CREATE_BY ?? null,
-                                        'createdate' => $now,
-                                        'createterminal' => $currentIp,
-                                        'updateby' => $letter->UPDATE_BY ?? null,
-                                        'updatedate' => $now,
-                                        'updateterminal' => $currentIp,
-                                        'kalaterbit' => $letterDetail->KALA_TERBIT,
-                                        'worksheet_id' => $catalog->WORKSHEET_ID ?? null,
-                                        'isverified' => 1,
-                                        'cleaning_note' => $letterDetail->CLEANING_NOTE,
-                                        'publisher_id' => $catalog->PENERBIT_ID ?? null,
-                                        'isopac' => $catalog->ISOPAC ?? null,
-                                        'publikasi' => $catalog->PUBLIKASI ?? null,
-                                        'penerbit_id' => $catalog->PENERBIT_ID ?? null,
-                                        'is_receive_date_marked' => $letterDetail->IS_RECEIVEDATE,
-                                        'city_id' => $catalog->CITY_ID ?? null,
-                                        'album' => $catalog->ALBUM ?? null,
-                                        'series' => $catalog->SERIES ?? null,
-                                        'volume' => $catalog->VOLUME ?? null,
-                                        'publish_month' => $catalog->PUBLISH_MONTH ?? null,
-                                        'copyright' => $catalog->COPYRIGHT ?? null,
-                                        'preview' => $catalog->PREVIEW ?? null,
-                                        'problem' => $letterDetail->REMARK,
-                                        'letter_id' => $letter->LETTER_ID ?? null,
-                                        'letter_detail_id' => $letterDetail->LETTER_DETAIL_ID,
-                                        'akses' => $catalog->AKSES ?? null,
-                                        'nojilid' => $request->cni_binding[$key] ?? null,
-                                    ];
-
-                                    QueryAPI::create('collections', $collectionData, false);
-                                }
-                            }
                         }
                     }
 
@@ -461,62 +351,6 @@ class ReceiptController extends Controller
                                     'kab_id' => $catalog->CITY_ID ?? null,
                                     'collectionmediaid' => $catalog->COLLECTIONMEDIA_ID ?? null,
                                 ];
-
-                                $letterDetail = QueryAPI::create('letter_detail', $letterDetailData, false);
-
-                                if ($letterDetail && $qtyAccept > 0) {
-                                    for ($i = 1; $i <= $qtyAccept; $i++) {
-                                        $collectionData = [
-                                            'title' => $catalog->TITLE ?? null,
-                                            'author' => $catalog->AUTHOR ?? null,
-                                            'publishlocation' => $catalog->PUBLISHLOCATION ?? null,
-                                            'publisher' => $catalog->name_penerbit ?? null,
-                                            'publishyear' => $catalog->PUBLISHYEAR ?? null,
-                                            'edition' => $catalog->EDITION ?? null,
-                                            'physicaldescription' => $catalog->DESCRIPTION ?? null,
-                                            'isbn' => $catalog->ISBN ?? null,
-                                            'price' => $catalog->PRICE ?? null,
-                                            'tanggalkirim' => $letter->LETTER_DATE ?? null,
-                                            'isdelete' => 0,
-                                            'branch_id' => $letter->BRANCH_ID ?? null,
-                                            'catalog_id' => $catalogId,
-                                            'category_id' => $catalog->CATEGORY_ID ?? null,
-                                            'media_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
-                                            'status' => 'Tersedia',
-                                            'createby' => $letter->CREATE_BY ?? null,
-                                            'createdate' => $now,
-                                            'createterminal' => $currentIp,
-                                            'updateby' => $letter->UPDATE_BY ?? null,
-                                            'updatedate' => $now,
-                                            'updateterminal' => $currentIp,
-                                            'kalaterbit' => $letterDetail->KALA_TERBIT,
-                                            'worksheet_id' => $catalog->WORKSHEET_ID ?? null,
-                                            'isverified' => 1,
-                                            'cleaning_note' => $letterDetail->CLEANING_NOTE,
-                                            'publisher_id' => $catalog->PENERBIT_ID ?? null,
-                                            'edisiserial' => $edition,
-                                            'isopac' => $catalog->ISOPAC ?? null,
-                                            'publikasi' => $catalog->PUBLIKASI ?? null,
-                                            'ttes_awal' => $firstTTES,
-                                            'ttes_akhir' => $endTTES,
-                                            'penerbit_id' => $catalog->PENERBIT_ID ?? null,
-                                            'is_receive_date_marked' => $letterDetail->IS_RECEIVEDATE,
-                                            'city_id' => $catalog->CITY_ID ?? null,
-                                            'album' => $catalog->ALBUM ?? null,
-                                            'series' => $catalog->SERIES ?? null,
-                                            'volume' => $catalog->VOLUME ?? null,
-                                            'publish_month' => $catalog->PUBLISH_MONTH ?? null,
-                                            'copyright' => $catalog->COPYRIGHT ?? null,
-                                            'preview' => $catalog->PREVIEW ?? null,
-                                            'problem' => $letterDetail->REMARK,
-                                            'letter_id' => $letter->LETTER_ID ?? null,
-                                            'letter_detail_id' => $letterDetail->LETTER_DETAIL_ID,
-                                            'akses' => $catalog->AKSES ?? null,
-                                        ];
-
-                                        QueryAPI::create('collections', $collectionData, false);
-                                    }
-                                }
                             }
                         }
                     }
@@ -583,7 +417,7 @@ class ReceiptController extends Controller
                             'director' => $signature,
                             'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
                             'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
-                            'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . url()->current(),
+                            'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
                         ];
 
                         Mail::send([], [], function ($message) use ($bodyParamEmail, $templateEmailContent, $executor) {
