@@ -43,7 +43,7 @@ class ProblemController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
 
         $orderBy = '';
         $order = $request->order;
@@ -52,7 +52,8 @@ class ProblemController extends Controller
         $whereCondition[] = '(e_collections.status = 3 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
 
         if ($request->title) {
-            $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
+            $title = strtoupper($request->title);
+            $whereCondition[] = "(upper(e_collections.title_ori) like '%$title%' or upper(e_collections.title) like '%$title%')";
         }
 
         if ($request->executor_id) {
@@ -84,7 +85,7 @@ class ProblemController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

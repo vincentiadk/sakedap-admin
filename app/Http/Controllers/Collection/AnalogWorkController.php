@@ -49,7 +49,7 @@ class AnalogWorkController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
 
         $orderBy = '';
         $order = $request->order;
@@ -65,7 +65,8 @@ class AnalogWorkController extends Controller
         ";
 
         if ($request->title) {
-            $whereCondition[] = "catalogs.title like '%$search%'";
+            $title = strtoupper($request->title);
+            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
         }
 
         if ($request->executor_id) {
@@ -97,7 +98,7 @@ class AnalogWorkController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

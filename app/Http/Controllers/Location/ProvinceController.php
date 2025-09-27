@@ -51,7 +51,7 @@ class ProvinceController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

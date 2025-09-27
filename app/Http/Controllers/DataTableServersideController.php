@@ -49,7 +49,7 @@ class DataTableServersideController extends Controller
                 $whereConditionFilter[] = "upper($s) like '%$search%'";
             }
 
-            $whereCondition[] = implode(' or ', $whereConditionFilter);
+            $whereCondition[] = '(' . implode(' or ', $whereConditionFilter) . ')';
         } else {
             if ($search) {
                 $terms = [];

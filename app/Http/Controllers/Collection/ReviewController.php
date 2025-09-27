@@ -44,7 +44,7 @@ class ReviewController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
 
         $orderBy = '';
         $order = $request->order;
@@ -53,7 +53,8 @@ class ReviewController extends Controller
         $whereCondition[] = '(e_collections.status = 1 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
 
         if ($request->title) {
-            $whereCondition[] = "(e_collections.title_ori like '%$search%' or e_collections.title like '%$search%')";
+            $title = strtoupper($request->title);
+            $whereCondition[] = "(upper(e_collections.title_ori) like '%$search%' or upper(e_collections.title) like '%$search%')";
         }
 
         if ($request->executor_id) {
@@ -85,7 +86,7 @@ class ReviewController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

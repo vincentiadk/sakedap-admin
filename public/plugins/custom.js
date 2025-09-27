@@ -1,5 +1,6 @@
 window.gBaseUrl = $('meta[name="url"]').attr('content') + '/';
 window.gDataTable = '';
+window.gLookupDialogDataTable = '';
 
 let swalInit;
 
@@ -13,6 +14,21 @@ $(function () {
     iframeable();
     notificationHeader();
 });
+
+function debounce(callback, delay) {
+    let timeout;
+
+    return function () {
+        const context = this;
+        const args = arguments;
+
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+            callback.apply(context, args);
+        }, delay);
+    };
+}
 
 function initSweetAlert() {
     if (typeof Swal !== 'undefined') {
@@ -82,6 +98,7 @@ function configDataTable() {
             lengthMenu: [10, 25, 50, 75, 100],
             pageLength: 10,
             stateDuration: 60 * 60 * 24,
+            searchDelay: 500,
             dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
             language: {
                 search: '<div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
@@ -450,6 +467,104 @@ function notificationHeader() {
     });
 }
 
+function lookup(options) {
+    const { title, dtAjaxUrl, dtColumns, dtAjaxData, onSelect } = options;
+    const $modal = $('#lookup-dialog-modal');
+
+    if ($.fn.DataTable.isDataTable('#lookup-dialog-datatable')) {
+        $('#lookup-dialog-datatable').DataTable().destroy();
+        $('#lookup-dialog-datatable tbody').off('click', '.select-btn');
+    }
+
+    $('#lookup-dialog-title').text(title);
+
+    $modal.modal('show');
+
+    $modal.off('shown.bs.modal').on('shown.bs.modal', function () {
+        window.gLookupDialogDataTable = $('#lookup-dialog-datatable').DataTable({
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            deferRender: true,
+            destroy: true,
+            order: [[0, 'desc']],
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.childRowImmediate,
+                    renderer: function (api, rowIdx, columns) {
+                        let data = columns.map((col, i) => {
+                            if (col.hidden) {
+                                return `
+                                    <div class="col-md-2 fw-semibold">
+                                        ${col.title}
+                                        <span class="float-end pe-2">:</span>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <span class="overflow-hidden text-wrap">${col.data}</span>
+                                    </div>
+                                `
+                            } else {
+                                return '';
+                            }
+                        }).join('');
+
+                        return '<div class="row g-0 py-1">' + data + '</div>';
+                    }
+                }
+            },
+            ajax: {
+                url: dtAjaxUrl,
+                dataType: 'JSON',
+                data: function (d) {
+                    if (typeof options.dtAjaxData === 'function') {
+                        $.extend(d, options.dtAjaxData());
+                    }
+                    return d;
+                },
+                beforeSend: function () {
+                    onLoading('show', '#lookup-dialog-datatable_wrapper');
+                },
+                error: function (response) {
+                    onLoading('close', '#lookup-dialog-datatable_wrapper');
+                    responseError(response);
+                }
+            },
+            columns: dtColumns,
+            initComplete: function (settings, json) {
+                var table = this.api();
+                const searchInput = $('div.dataTables_filter input');
+
+                searchInput.off().unbind();
+
+                searchInput.on('keyup', debounce(function () {
+                    table.search(this.value).draw();
+                }, 500));
+            },
+        }).on('draw.dt', function () {
+            onLoading('close', '#lookup-dialog-datatable_wrapper');
+        });
+
+        window.gLookupDialogDataTable.columns.adjust().draw();
+
+        $('#lookup-dialog-datatable tbody').off('click', '.select-btn').on('click', '.select-btn', function () {
+            const $row = $(this).closest('tr');
+            const $data = $row.find('.data');
+            let data = $data;
+
+            onSelect(data);
+
+            $modal.modal('hide');
+        });
+
+        var $scrollWrapper = $('#lookup-dialog-datatable').closest('.dataTables_wrapper').find('.dataTables_scrollBody');
+        $scrollWrapper.attr('tabindex', '0');
+    }).off('hidden.bs.modal').on('hidden.bs.modal', function () {
+        if ($.fn.DataTable.isDataTable('#lookup-dialog-datatable')) {
+            $('#lookup-dialog-datatable').DataTable().destroy();
+        }
+    });
+}
+
 function lookupCatalog(selectorInput, selectorId, replaceID = false) {
     $(selectorInput).click(function () {
         $('#lookup-dialog-filter').html(`
@@ -484,7 +599,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
             </tr>
         `);
 
-        lookupDialog({
+        lookup({
             title: 'Pilih Data Katalog',
             dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog',
             dtAjaxData: function () {

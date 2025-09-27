@@ -76,7 +76,7 @@ class CollectionController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
 
         $orderBy = '';
         $order = $request->order;
@@ -86,7 +86,8 @@ class CollectionController extends Controller
         $whereCondition[] = "catalogs.edeposit_col_id is not null";
 
         if ($request->title) {
-            $whereCondition[] = "catalogs.title like '%$request->title%'";
+            $title = strtoupper($request->title);
+            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
         }
 
         if ($request->executor_id) {
@@ -118,7 +119,7 @@ class CollectionController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

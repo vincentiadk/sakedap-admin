@@ -202,7 +202,17 @@
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
-            ]
+            ],
+            initComplete: function (settings, json) {
+                var table = this.api();
+                const searchInput = $('div.dataTables_filter input');
+
+                searchInput.off().unbind();
+
+                searchInput.on('keyup', debounce(function () {
+                    table.search(this.value).draw();
+                }, 500));
+            },
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });

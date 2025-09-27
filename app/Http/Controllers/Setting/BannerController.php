@@ -37,7 +37,7 @@ class BannerController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
 
         $orderBy = '';
         $order = $request->order;
@@ -50,7 +50,7 @@ class BannerController extends Controller
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "$c like '%$search%'";
+                    $terms[] = "upper($c) like '%$search%'";
                 }
             }
 

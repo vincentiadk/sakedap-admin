@@ -24,7 +24,6 @@ class ReceiptController extends Controller
                 'plugins' => [
                     'select2',
                     'datatable',
-                    'lookup',
                     'daterangepicker',
                 ]
             ]

@@ -18,7 +18,6 @@ class CreateMoreController extends Controller
                     'fileinput',
                     'select2',
                     'datatable',
-                    'lookup',
                 ]
             ]
         ]);

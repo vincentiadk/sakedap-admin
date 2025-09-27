@@ -46,7 +46,8 @@ class ReportCollectionExport implements FromView, ShouldAutoSize
         $whereCondition[] = "catalogs.edeposit_col_id is not null";
 
         if ($request->title) {
-            $whereCondition[] = "catalogs.title like '%$request->title%'";
+            $title = strtoupper($request->title);
+            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
         }
 
         if ($request->executor_id) {

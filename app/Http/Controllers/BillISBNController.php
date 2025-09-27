@@ -30,7 +30,7 @@ class BillISBNController extends Controller
     public function datatable(Request $request)
     {
         $draw = intval($request->draw ?? 0);
-        $search = $request->search['value'];
+        $search = strtoupper($request->search['value']);
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
 
