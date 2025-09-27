@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Helpers\Main;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class QueryAPI
@@ -82,7 +83,7 @@ class QueryAPI
                     }
                 }
             } else {
-                dd($response, $sql);
+                Log::channel('sakedap-api')->error('Gagal kueri', [$response, $sql]);
             }
         }
 
@@ -141,7 +142,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = $response->Data;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal insert', $query->json());
             }
         }
 
@@ -197,7 +198,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal update', $query->json());
             }
         }
 
@@ -232,7 +233,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal hapus', $query->json());
             }
         }
 
@@ -269,7 +270,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = isset($response->Data) ? $response->Data : true;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal upload file', $query->json());
             }
         }
 
@@ -299,7 +300,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal hapus file', $query->json());
             }
         }
 
@@ -372,7 +373,7 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                dd($response);
+                Log::channel('sakedap-api')->error('Gagal verifikasi koleksi', $query->json());
             }
         }
 

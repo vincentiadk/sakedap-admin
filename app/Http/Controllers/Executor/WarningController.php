@@ -31,7 +31,6 @@ class WarningController extends Controller
         $column = [
             'e_publisher_warnings.id',
             null,
-            'e_publisher_warnings.link_file',
             'penerbit.name',
             'branchs.name',
             'e_publisher_warnings.warning_date',
@@ -158,16 +157,6 @@ class WarningController extends Controller
                     </div>
                 ';
 
-                $file = '
-                    <button type="button" class="btn btn-danger btn-sm" disabled>Tidak Ada</button>
-                ';
-
-                if ($val->LINK_FILE) {
-                    $file = '
-                        <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE . '" class="btn btn-success btn-sm" target="_blank">Lihat File</a>
-                    ';
-                }
-
                 $warningDate1HTML = '';
                 $warningDate2HTML = '';
                 $warningDate3HTML = '';
@@ -191,10 +180,25 @@ class WarningController extends Controller
                             (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
                     ", true);
 
+                    $file = '
+                        <a href="javascript:void(0);" class="text-warning">
+                            Tidak Ada
+                        </a>
+                    ';
+
+                    if ($val->LINK_FILE) {
+                        $file = '
+                            <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE . '" class="text-primary" target="_blank">
+                                Lihat
+                            </a>
+                        ';
+                    }
+
                     $warningDate1HTML = '
                         <div class="fw-bold"><small>Teguran 1</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">File : ' . $file . '</small></div>
                     ';
                 }
 
@@ -213,10 +217,25 @@ class WarningController extends Controller
                             (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
                     ", true);
 
+                    $file = '
+                        <a href="javascript:void(0);" class="text-warning">
+                            Tidak Ada
+                        </a>
+                    ';
+
+                    if ($val->LINK_FILE_2) {
+                        $file = '
+                            <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE_2 . '" class="text-primary" target="_blank">
+                                Lihat
+                            </a>
+                        ';
+                    }
+
                     $warningDate2HTML = '
                         <div class="fw-bold"><small>Teguran 2</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">File : ' . $file . '</small></div>
                     ';
                 }
 
@@ -235,10 +254,25 @@ class WarningController extends Controller
                             (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
                     ", true);
 
+                    $file = '
+                        <a href="javascript:void(0);" class="text-warning">
+                            Tidak Ada
+                        </a>
+                    ';
+
+                    if ($val->LINK_FILE_3) {
+                        $file = '
+                            <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE_3 . '" class="text-primary" target="_blank">
+                                Lihat
+                            </a>
+                        ';
+                    }
+
                     $warningDate3HTML = '
                         <div class="fw-bold"><small>Teguran 3</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">File : ' . $file . '</small></div>
                     ';
                 }
 
@@ -247,7 +281,6 @@ class WarningController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $file,
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $warningDateHTML,
@@ -274,12 +307,16 @@ class WarningController extends Controller
             'branch_id' => 'required',
             'warning_date' => 'required',
             'file' => 'required|mimes:jpg,jpeg,png,pdf',
+            'file_2' => 'nullable|mimes:jpg,jpeg,png,pdf',
+            'file_3' => 'nullable|mimes:jpg,jpeg,png,pdf',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
-            'file.required' => 'File tidak boleh kosong',
-            'file.mimes' => 'File hanya boleh jpg, jpeg, png, pdf',
+            'file.required' => 'File 1 tidak boleh kosong',
+            'file.mimes' => 'File 1 hanya boleh jpg, jpeg, png, pdf',
+            'file_2.mimes' => 'File 2 hanya boleh jpg, jpeg, png, pdf',
+            'file_2.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
         ]);
 
         if ($validation->fails()) {
@@ -313,6 +350,36 @@ class WarningController extends Controller
                         QueryAPI::update('e_publisher_warnings', $createData->ID, [
                             'link_file' => $uploadFile->FileName
                         ], false);
+                    }
+
+                    if ($request->hasFile('file_2')) {
+                        $uploadFile = QueryAPI::uploadFile([
+                            'type' => 'publisher_warning',
+                            'id' => $createData->ID,
+                            'iszip' => 0,
+                            'file' => $request->file('file_2'),
+                        ]);
+
+                        if ($uploadFile) {
+                            QueryAPI::update('e_publisher_warnings', $createData->ID, [
+                                'link_file_2' => $uploadFile->FileName
+                            ], false);
+                        }
+                    }
+
+                    if ($request->hasFile('file_3')) {
+                        $uploadFile = QueryAPI::uploadFile([
+                            'type' => 'publisher_warning',
+                            'id' => $createData->ID,
+                            'iszip' => 0,
+                            'file' => $request->file('file_3'),
+                        ]);
+
+                        if ($uploadFile) {
+                            QueryAPI::update('e_publisher_warnings', $createData->ID, [
+                                'link_file_3' => $uploadFile->FileName
+                            ], false);
+                        }
                     }
                 }
 
@@ -362,11 +429,15 @@ class WarningController extends Controller
             'branch_id' => 'required',
             'warning_date' => 'required',
             'file' => 'nullable|mimes:jpg,jpeg,png,pdf',
+            'file_2' => 'nullable|mimes:jpg,jpeg,png,pdf',
+            'file_3' => 'nullable|mimes:jpg,jpeg,png,pdf',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
-            'file.mimes' => 'File hanya boleh jpg, jpeg, png, pdf',
+            'file.mimes' => 'File 1 hanya boleh jpg, jpeg, png, pdf',
+            'file_2.mimes' => 'File 2 hanya boleh jpg, jpeg, png, pdf',
+            'file_3.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
         ]);
 
         if ($validation->fails()) {
@@ -405,6 +476,48 @@ class WarningController extends Controller
                         if ($uploadFile) {
                             QueryAPI::update('e_publisher_warnings', $id, [
                                 'link_file' => $uploadFile->FileName
+                            ], false);
+                        }
+                    }
+
+                    if ($request->hasFile('file_2')) {
+                        QueryAPI::removeFile([
+                            'type' => 'publisher_warning',
+                            'id' => $id,
+                            'filename' => $query->LINK_FILE_2 ?? ''
+                        ]);
+
+                        $uploadFile = QueryAPI::uploadFile([
+                            'type' => 'publisher_warning',
+                            'id' => $id,
+                            'iszip' => 0,
+                            'file' => $request->file('file_2'),
+                        ]);
+
+                        if ($uploadFile) {
+                            QueryAPI::update('e_publisher_warnings', $id, [
+                                'link_file_2' => $uploadFile->FileName
+                            ], false);
+                        }
+                    }
+
+                    if ($request->hasFile('file_3')) {
+                        QueryAPI::removeFile([
+                            'type' => 'publisher_warning',
+                            'id' => $id,
+                            'filename' => $query->LINK_FILE_2 ?? ''
+                        ]);
+
+                        $uploadFile = QueryAPI::uploadFile([
+                            'type' => 'publisher_warning',
+                            'id' => $id,
+                            'iszip' => 0,
+                            'file' => $request->file('file_3'),
+                        ]);
+
+                        if ($uploadFile) {
+                            QueryAPI::update('e_publisher_warnings', $id, [
+                                'link_file_3' => $uploadFile->FileName
                             ], false);
                         }
                     }

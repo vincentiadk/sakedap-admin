@@ -64,7 +64,6 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">File</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Dari</th>
                         <th class="text-nowrap">Tgl Teguran</th>
@@ -77,7 +76,7 @@
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"></h5>
@@ -92,12 +91,25 @@
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">File : <span class="text-danger fw-bold">*</span></label>
+                        <label class="form-label">File :</label>
                         <div class="input-group">
+                            <span class="input-group-text">1</span>
                             <input type="file" class="form-control" name="file" id="file">
-                            <a href="" data-title="Preview File" class="btn btn-success" id="file-preview" target="_blank">
+                            <a href="" data-title="Preview File 1" class="btn btn-success" id="file-preview" target="_blank">
                                 <i class="ph-file me-1"></i>
-                                Lihat File Saat Ini
+                                Lihat
+                            </a>
+                            <span class="input-group-text">2</span>
+                            <input type="file" class="form-control" name="file_2" id="file_2">
+                            <a href="" data-title="Preview File 2" class="btn btn-success" id="file-preview-2" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat
+                            </a>
+                            <span class="input-group-text">3</span>
+                            <input type="file" class="form-control" name="file_3" id="file_3">
+                            <a href="" data-title="Preview File 3" class="btn btn-success" id="file-preview-3" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat
                             </a>
                         </div>
                     </div>
@@ -112,24 +124,34 @@
                             <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih Tanggal" readonly>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-dropdown-parent="#modal-form"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Dari : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tagihan Koleksi :</label>
-                        <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select" name="status" id="status">
-                            <option value="DALAM TEGURAN">DALAM TEGURAN</option>
-                            <option value="SELESAI">SELESAI</option>
-                        </select>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Pelaksana Serah : <span class="text-danger fw-bold">*</span></label>
+                                <select class="form-select" name="executor_id" id="executor_id" data-dropdown-parent="#modal-form"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Dari : <span class="text-danger fw-bold">*</span></label>
+                                <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Tagihan Koleksi :</label>
+                                <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="....................">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Status :</label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="DALAM TEGURAN">DALAM TEGURAN</option>
+                                    <option value="SELESAI">SELESAI</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -187,6 +209,10 @@
         $('#btn-cancel').addClass('d-none');
         $('#file-preview').attr('href', 'javascript:void(0);');
         $('#file-preview').hide();
+        $('#file-preview-2').attr('href', 'javascript:void(0);');
+        $('#file-preview-2').hide();
+        $('#file-preview-3').attr('href', 'javascript:void(0);');
+        $('#file-preview-3').hide();
         $('#executor_id').val('').change();
         $('#branch_id').html(`<option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>`);
         $('#executor_id').val('DALAM TEGURAN');
@@ -259,7 +285,6 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
@@ -348,6 +373,30 @@
 
                     $('#file-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
                     $('#file-preview').fadeIn(500);
+                }
+
+                if(response.LINK_FILE_2) {
+                    var paramFile = {
+                        id: response.ID,
+                        type: 'publisher_warning',
+                        filename: response.LINK_FILE_2,
+                        v: '{{ Str::random(40) }}'
+                    };
+
+                    $('#file-preview-2').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
+                    $('#file-preview-2').fadeIn(500);
+                }
+
+                if(response.LINK_FILE_3) {
+                    var paramFile = {
+                        id: response.ID,
+                        type: 'publisher_warning',
+                        filename: response.LINK_FILE_3,
+                        v: '{{ Str::random(40) }}'
+                    };
+
+                    $('#file-preview-3').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
+                    $('#file-preview-3').fadeIn(500);
                 }
             },
             error: function(response) {

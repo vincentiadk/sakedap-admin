@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class ISBN
@@ -48,7 +49,7 @@ class ISBN
                 }
             }
         } else {
-            dd($query->object());
+            Log::channel('isbn-api')->error('Gagal get endpoint', $query->json());
         }
 
         return $data;
