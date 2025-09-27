@@ -182,12 +182,7 @@
                 },
                 error: function(response) {
                     onLoading('close', '#datatable-serverside_wrapper');
-
-                    swalInit.fire({
-                        html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                        icon: 'error',
-                        showCloseButton: false
-                    });
+                    responseError(response);
                 }
             },
             columns: [
@@ -366,12 +361,7 @@
                         },
                         error: function(response) {
                             onLoading('close', '.noty_bar');
-
-                            swalInit.fire({
-                                html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                                icon: 'error',
-                                showCloseButton: false
-                            });
+                            responseError(response);
                         }
                     });
                 })

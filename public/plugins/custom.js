@@ -84,8 +84,8 @@ function configDataTable() {
             stateDuration: 60 * 60 * 24,
             dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
             language: {
-                search: '<span class="me-1">Cari</span> <div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
-                searchPlaceholder: 'Kata Kunci ...',
+                search: '<div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
+                searchPlaceholder: 'Cari ...',
                 lengthMenu: '<span class="me-1">Tampilkan</span> _MENU_',
                 paginate: {
                     first: 'Halawan Awal',
@@ -447,5 +447,98 @@ function notificationHeader() {
         error: function (response) {
             notificationHeader();
         }
+    });
+}
+
+function lookupCatalog(selectorInput, selectorId, replaceID = false) {
+    $(selectorInput).click(function () {
+        $('#lookup-dialog-filter').html(`
+            <div class="input-group">
+                <span class="input-group-text">Cari Berdasarkan</span>
+                <select class="form-select select2-basic" id="lookup-dialog-filter-searchable" data-width="1%" data-dropdown-parent="#lookup-dialog-modal" data-placeholder="Global" multiple>
+                    <option value="catalogs.bibid">BIB ID</option>
+                    <option value="catalogs.title">Judul</option>
+                    <option value="catalogs.author">Kepeng</option>
+                    <option value="penerbit.name">Pelaksana Serah</option>
+                    <option value="catalogs.publishyear">Tahun Terbit</option>
+                    <option value="catalogs.subject">Subjek</option>
+                    <option value="catalogs.isbn">ISBN</option>
+                    <option value="catalogs.callnumber">Nomor Panggil</option>
+                    <option value="worksheets.name">Jenis Bahan</option>
+                </select>
+            </div>
+        `);
+
+        $('#lookup-dialog-datatable thead').html(`
+            <tr>
+                <th class="text-nowrap text-center">No</th>
+                <th class="text-nowrap text-center">#</th>
+                <th class="text-nowrap">BIB ID</th>
+                <th class="text-nowrap">ISBN</th>
+                <th class="text-nowrap">Nomor Panggil</th>
+                <th class="text-nowrap">Jumlah Koleksi</th>
+                <th class="text-nowrap">Tahun Terbit</th>
+                <th class="text-nowrap">Judul</th>
+                <th class="text-nowrap">Pelaksana Serah</th>
+                <th class="text-nowrap">Kepengarangan</th>
+            </tr>
+        `);
+
+        lookupDialog({
+            title: 'Pilih Data Katalog',
+            dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog',
+            dtAjaxData: function () {
+                return {
+                    searchable: $('#lookup-dialog-filter-searchable').val()
+                };
+            },
+            dtColumns: [
+                { orderable: true, className: 'align-middle text-nowrap text-center' },
+                { orderable: false, className: 'align-middle text-nowrap text-center' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+            ],
+            onSelect: function (data) {
+                $(selectorId).val(data.data('id'));
+
+                if (replaceID == true) {
+                    $(selectorInput).val(data.data('id'));
+                } else {
+                    $(selectorInput).val(data.data('title'));
+                }
+
+                $(selectorInput).change();
+            }
+        });
+
+        select2Basic();
+
+        $('#lookup-dialog-filter-searchable').change(function (e) {
+            if (window.gLookupDialogDataTable) {
+                window.gLookupDialogDataTable.ajax.reload(null, false);
+            }
+        });
+    });
+}
+
+function responseError(response) {
+    let errorException = 'Error ...';
+    let errorMessage = 'Silakan coba lagi atau hubungi administrator';
+
+    if (response?.responseJSON?.exception || response?.responseJSON?.message) {
+        errorException = response?.responseJSON?.exception ?? 'Error ...';
+        errorMessage = response?.responseJSON?.message ?? 'Silakan coba lagi atau hubungi administrator';
+    }
+
+    swalInit.fire({
+        html: `<b>${errorException}</b><br>${errorMessage}`,
+        icon: 'error',
+        showCloseButton: false
     });
 }

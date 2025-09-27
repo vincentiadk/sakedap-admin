@@ -273,12 +273,7 @@
             },
             error: function(response) {
                 onLoading('close', 'body');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -289,8 +284,10 @@
 
     function addCollectionNonISBN() {
         var total = $('#add-number-collection-non-isbn').val();
-
+        
         for(var i = 1; i <= total; i++) {
+            var randStr = randomString(10);
+
             $('#data-collection-non-isbn').append(`
                 <tr>
                     <input type="hidden" name="cni[]" value="1">
@@ -305,7 +302,7 @@
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">ID Catalog</label>
                                     <div class="col-lg-9">
-                                        <select class="form-select" name="cni_catalog_id[]" data-placeholder="Tidak Ada" onchange="selectCollectionNonISBN(this)"></select>
+                                        <input type="text" class="form-control cni_catalog_id_${ randStr }" name="cni_catalog_id[]" placeholder="Pilih Katalog" onchange="selectCollectionNonISBN(this)" readonly>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -388,18 +385,7 @@
 
             $('input[name="cni_price[]"]').number(true);
 
-            if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-                select2Serverside('select[name="cni_catalog_id[]"]', 'catalog', {
-                    province_id: '{{ session("province_id") }}',
-                    placeholder: 'id'
-                }, {
-                    minimumInputLength: 3
-                });
-            } else {
-                select2Serverside('select[name="cni_catalog_id[]', 'catalog', {
-                    placeholder: 'id'
-                });
-            }
+            lookupCatalog(`.cni_catalog_id_${ randStr }`, `.cni_catalog_id_${ randStr }`, true);
         }
     }
 
@@ -429,21 +415,17 @@
             },
             error: function(response) {
                 onLoading('close', '#data-collection-non-isbn');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
 
     function addPeriodicals() {
         var total = $('#add-number-collection-periodicals').val();
-        var randStr = randomString(10);
 
         for(var i = 1; i <= total; i++) {
+            var randStr = randomString(10);
+
             $('#data-collection-periodicals').append(`
                 <tr class="${ randStr }">
                     <input type="hidden" name="cp[]" value="1">
@@ -453,7 +435,8 @@
                         </button>
                     </td>
                     <td width="95%">
-                        <select class="form-select" name="cp_catalog_id[]" data-placeholder="Pilih Katalog"></select>
+                        <input type="hidden" class="cp_catalog_id_${ randStr }" name="cp_catalog_id[]">
+                        <input type="text" class="form-control cp_catalog_text_${ randStr }" placeholder="Pilih Katalog" readonly>
                     </td>
                 </tr>
                 <tr class="${ randStr }">
@@ -464,33 +447,7 @@
                 </tr>
             `);
 
-            var newSelect = $('#data-collection-periodicals').find('select[name="cp_catalog_id[]"]').last();
-
-            if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-                select2Serverside(newSelect, 'catalog', {
-                    province_id: '{{ session("province_id") }}'
-                }, {
-                    minimumInputLength: 3,
-                    dropdownParent: $('body')
-                });
-            } else {
-                select2Serverside(newSelect, 'catalog', {}, {
-                    dropdownParent: $('body')
-                });
-            }
-
-            var select2Container = newSelect.next('.select2-container');
-
-            select2Container.find('.select2-selection--single').css({
-                'height': 'auto',
-                'min-height': '38px'
-            });
-
-            select2Container.find('.select2-selection__rendered').css({
-                'white-space': 'normal',
-                'overflow': 'visible',
-                'text-overflow': 'clip'
-            });
+            lookupCatalog(`.cp_catalog_text_${ randStr }`, `.cp_catalog_id_${ randStr }`);
         }
     }
 
@@ -610,12 +567,7 @@
             },
             error: function(response) {
                 onLoading('close', 'body');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: true
-                });
+                responseError(response);
             }
         });
     }

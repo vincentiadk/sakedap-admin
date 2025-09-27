@@ -44,3 +44,25 @@
 .fs-12 {
     font-size: 12px !important;
 }
+
+.datatable-header {
+    padding: 0 !important;
+    margin-top: 15px !important;
+    margin-bottom: 10px !important;
+    border-bottom: 0 !important;
+}
+
+.datatable-footer {
+    padding: 0 !important;
+    margin-bottom: 15px !important;
+    margin-top: 10px !important;
+    border-top: 0 !important;
+}
+
+.dataTables_filter {
+    margin-bottom: 0 !important;
+}
+
+.dataTables_length {
+    margin-bottom: 0 !important;
+}

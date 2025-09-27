@@ -405,12 +405,7 @@
             },
             error: function(response) {
                 onLoading('close', 'body');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -556,12 +551,7 @@
             },
             error: function(response) {
                 onLoading('close', 'body');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: true
-                });
+                responseError(response);
             }
         });
     }

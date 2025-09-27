@@ -163,16 +163,11 @@
                 url: '{{ url("library/depo/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
-                    onLoading('show', '.dataTables_wrapper');
+                    onLoading('show', '#datatable-serverside_wrapper');
                 },
                 error: function(response) {
-                    onLoading('close', '.dataTables_wrapper');
-
-                    swalInit.fire({
-                        html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                        icon: 'error',
-                        showCloseButton: false
-                    });
+                    onLoading('close', '#datatable-serverside_wrapper');
+                    responseError(response);
                 }
             },
             columns: [
@@ -183,7 +178,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
             ]
         }).on('draw.dt', function() {
-            onLoading('close', '.dataTables_wrapper');
+            onLoading('close', '#datatable-serverside_wrapper');
         });
 
         window.gDataTable.columns.adjust().draw();
@@ -222,12 +217,7 @@
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -254,12 +244,7 @@
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -297,12 +282,7 @@
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -351,12 +331,7 @@
                         },
                         error: function(response) {
                             onLoading('close', '.noty_bar');
-
-                            swalInit.fire({
-                                html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                                icon: 'error',
-                                showCloseButton: false
-                            });
+                            responseError(response);
                         }
                     });
                 })

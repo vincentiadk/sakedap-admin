@@ -87,10 +87,11 @@
             `);
 
             $('#param-id').html(`
-                <select class="form-select" name="id" id="id" data-placeholder="Pilih Koleksi"></select>
+                <input type="hidden" name="id" id="id">
+                <input type="text" class="form-control" name="text" id="text" placeholder="Pilih Katalog" readonly>
             `);
 
-            select2Serverside('#id', 'collection-parent');
+            lookupCatalog('#text', '#id');
         }
     }
 
@@ -159,12 +160,7 @@
             },
             error: function(response) {
                 onLoading('close', 'body');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: true
-                });
+                responseError(response);
             }
         });
     }

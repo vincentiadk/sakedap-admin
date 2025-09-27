@@ -33,5 +33,6 @@
     @stack('ckeditor-js')
 	<script src="{{ asset('plugins/number/jquery.number.min.js') }}?v={{ uniqid() }}"></script>
     @stack('summernote-js')
+    @stack('lookup-js')
 	<script src="{{ asset('plugins/custom.js') }}?v={{ uniqid() }}"></script>
 </head>

@@ -107,12 +107,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-data');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }

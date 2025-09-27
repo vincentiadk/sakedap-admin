@@ -29,6 +29,10 @@ Route::middleware('authentication')->group(function () {
         Route::get('logout', 'AuthController@logout');
     });
 
+    Route::prefix('datatable-serverside')->group(function () {
+        Route::get('catalog', 'DataTableServersideController@catalog');
+    });
+
     Route::prefix('select2-serverside')->group(function () {
         Route::get('branch', 'Select2ServersideController@branch');
         Route::get('executor', 'Select2ServersideController@executor');

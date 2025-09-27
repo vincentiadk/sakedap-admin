@@ -23,6 +23,8 @@ class ReceiptController extends Controller
                 'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
                 'plugins' => [
                     'select2',
+                    'datatable',
+                    'lookup',
                     'daterangepicker',
                 ]
             ]

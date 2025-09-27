@@ -193,12 +193,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-province');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -241,12 +236,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-activity');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -312,12 +302,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-digital-work');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -383,12 +368,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-analog-work');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -454,12 +434,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-printed-work');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -561,12 +536,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-collection');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
@@ -632,12 +602,7 @@
             },
             error: function(response) {
                 onLoading('close', '#card-type');
-
-                swalInit.fire({
-                    html: '<b>' + response.responseJSON.exception + '</b><br>' + response.responseJSON.message,
-                    icon: 'error',
-                    showCloseButton: false
-                });
+                responseError(response);
             }
         });
     }
