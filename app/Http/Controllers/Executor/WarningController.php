@@ -225,7 +225,7 @@ class WarningController extends Controller
 
                     if ($val->LINK_FILE_2) {
                         $file = '
-                            <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE_2 . '" class="text-primary" target="_blank">
+                            <a href="' . url('stream-file') . '?type=publisher_warning_2&id=' . $val->ID . '&filename=' . $val->LINK_FILE_2 . '" class="text-primary" target="_blank">
                                 Lihat
                             </a>
                         ';
@@ -262,7 +262,7 @@ class WarningController extends Controller
 
                     if ($val->LINK_FILE_3) {
                         $file = '
-                            <a href="' . url('stream-file') . '?type=publisher_warning&id=' . $val->ID . '&filename=' . $val->LINK_FILE_3 . '" class="text-primary" target="_blank">
+                            <a href="' . url('stream-file') . '?type=publisher_warning_3&id=' . $val->ID . '&filename=' . $val->LINK_FILE_3 . '" class="text-primary" target="_blank">
                                 Lihat
                             </a>
                         ';
@@ -316,7 +316,7 @@ class WarningController extends Controller
             'file.required' => 'File 1 tidak boleh kosong',
             'file.mimes' => 'File 1 hanya boleh jpg, jpeg, png, pdf',
             'file_2.mimes' => 'File 2 hanya boleh jpg, jpeg, png, pdf',
-            'file_2.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
+            'file_3.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
         ]);
 
         if ($validation->fails()) {
@@ -354,7 +354,7 @@ class WarningController extends Controller
 
                     if ($request->hasFile('file_2')) {
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_2',
                             'id' => $createData->ID,
                             'iszip' => 0,
                             'file' => $request->file('file_2'),
@@ -369,7 +369,7 @@ class WarningController extends Controller
 
                     if ($request->hasFile('file_3')) {
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_3',
                             'id' => $createData->ID,
                             'iszip' => 0,
                             'file' => $request->file('file_3'),
@@ -482,13 +482,13 @@ class WarningController extends Controller
 
                     if ($request->hasFile('file_2')) {
                         QueryAPI::removeFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_2',
                             'id' => $id,
                             'filename' => $query->LINK_FILE_2 ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_2',
                             'id' => $id,
                             'iszip' => 0,
                             'file' => $request->file('file_2'),
@@ -503,13 +503,13 @@ class WarningController extends Controller
 
                     if ($request->hasFile('file_3')) {
                         QueryAPI::removeFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_3',
                             'id' => $id,
-                            'filename' => $query->LINK_FILE_2 ?? ''
+                            'filename' => $query->LINK_FILE_3 ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'publisher_warning',
+                            'type' => 'publisher_warning_3',
                             'id' => $id,
                             'iszip' => 0,
                             'file' => $request->file('file_3'),

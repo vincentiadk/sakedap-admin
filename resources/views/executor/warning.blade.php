@@ -378,7 +378,7 @@
                 if(response.LINK_FILE_2) {
                     var paramFile = {
                         id: response.ID,
-                        type: 'publisher_warning',
+                        type: 'publisher_warning_2',
                         filename: response.LINK_FILE_2,
                         v: '{{ Str::random(40) }}'
                     };
@@ -390,7 +390,7 @@
                 if(response.LINK_FILE_3) {
                     var paramFile = {
                         id: response.ID,
-                        type: 'publisher_warning',
+                        type: 'publisher_warning_3',
                         filename: response.LINK_FILE_3,
                         v: '{{ Str::random(40) }}'
                     };
