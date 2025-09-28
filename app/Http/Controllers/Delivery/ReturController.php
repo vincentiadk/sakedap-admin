@@ -165,6 +165,22 @@ class ReturController extends Controller
                     </a>
                 ';
 
+                if ($val->DIAMBIL == 1) {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 0)">
+                            <i class="ph-x me-1"></i>
+                            Tandai Belum Diambil
+                        </a>
+                    ';
+                } else {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-teal btn-sm" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 1)">
+                            <i class="ph-handshake me-1"></i>
+                            Tandai Sudah Diambil
+                        </a>
+                    ';
+                }
+
                 $dataRemark = explode(';', $val->REMARK ?? '');
                 $listRemark = '';
 
@@ -261,6 +277,35 @@ class ReturController extends Controller
         return response()->json([
             'code' => 200,
             'message' => 'Koleksi berhasil dihibahkan'
+        ]);
+    }
+
+    public function taken(Request $request)
+    {
+        $id = $request->id ?? [];
+        $value = $request->value ?? 0;
+        $idImplode = implode(',', $id);
+
+        $dataLetterDetail = QueryAPI::get("
+            select
+                *
+            from
+                letter_detail
+            where
+                letter_detail_id in ($idImplode)
+        ");
+
+        if ($dataLetterDetail) {
+            foreach ($dataLetterDetail as $dld) {
+                QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
+                    'diambil' => $value,
+                ], false);
+            }
+        }
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Koleksi berhasil diubah'
         ]);
     }
 }

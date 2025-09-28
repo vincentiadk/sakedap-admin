@@ -294,6 +294,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'ReturController@index');
             Route::get('datatable', 'ReturController@datatable');
             Route::post('grant', 'ReturController@grant');
+            Route::post('taken', 'ReturController@taken');
         });
     });
 

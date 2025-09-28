@@ -22,6 +22,14 @@
                             <i class="ph-gift me-1"></i>
                             Hibahkan
                         </a>
+                        <a href="javascript:void(0);" class="dropdown-item" onclick="taken(null, 1)">
+                            <i class="ph-handshake me-1"></i>
+                            Tandai Sudah Diambil
+                        </a>
+                        <a href="javascript:void(0);" class="dropdown-item" onclick="taken(null, 0)">
+                            <i class="ph-x me-1"></i>
+                            Tandai Belum Diambil
+                        </a>
                     </div>
                 </div>
             </div>
@@ -343,6 +351,74 @@
                         dataType: 'JSON',
                         data: {
                             id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+                                onReloadTable();
+                                localStorage.removeItem('datatable-action-retur');
+                                notification('success', response.message);
+
+                                $('#datatable-action').DataTable().clear().draw();
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
+    function taken(param = null, value = 0) {
+        if(param) {
+            var id = [param];
+        } else {
+            var id = [];
+            var dataStorage = localStorage.getItem('datatable-action-retur');
+            var responseDataStorage = dataStorage ? JSON.parse(dataStorage) : [];
+
+            $.each(responseDataStorage, function(i, val) {
+                id.push(val[0]);
+            });
+        }
+
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Pengambilan Koleksi?</h5><span class="text-muted">Anda yakin ingin menandai pengambilan koleksi dalam daftar ini?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Ya', 'btn btn-teal ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("delivery/retur/taken") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id,
+                            value: value
                         },
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
