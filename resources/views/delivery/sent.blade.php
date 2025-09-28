@@ -73,6 +73,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">ISBN / ISSN</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Tujuan</th>
                         <th class="text-nowrap">Jasa Kirim</th>
@@ -153,6 +154,7 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
