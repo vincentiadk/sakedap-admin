@@ -22,6 +22,7 @@ class DataTableServersideController extends Controller
             'catalogs.isbn',
             'catalogs.callnumber',
             null,
+            null,
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -35,7 +36,7 @@ class DataTableServersideController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
+        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null) and (catalogs.title is not null)";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'kabupaten.propinsiid = ' . session('province_id');
@@ -91,11 +92,11 @@ class DataTableServersideController extends Controller
                 count(*) as total
             from
                 catalogs
-            left join
+            join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            left join
+            join
                 kabupaten on kabupaten.id = catalogs.city_id
-            left join
+            join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -120,11 +121,11 @@ class DataTableServersideController extends Controller
                                 penerbit.name as name_penerbit
                             from
                                 catalogs
-                            left join
+                            join
                                 penerbit on penerbit.id = catalogs.penerbit_id
-                            left join
+                            join
                                 kabupaten on kabupaten.id = catalogs.city_id
-                            left join
+                            join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
                             $orderBy
@@ -151,6 +152,13 @@ class DataTableServersideController extends Controller
                         catalog_id = $val->ID
                 ", true)->TOTAL ?? 0;
 
+                $credentialInlis = Main::credentialInlisIFrame();
+                $detailUrl = "https://digitlib.site/inlis-ent-2025/KatalogDetailView.aspx?id=$val->ID&l=$credentialInlis";
+
+                $detailPositionCenter = "var w = 900; var h = 550; var left = (screen.width / 2) - (w / 2); var top = (screen.height / 2) - (h / 2); window.open(this.href, 'DetailWindow', 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',scrollbars=yes,resizable=yes'); return false;";
+
+                $detail = '<a href="' . $detailUrl . '" class="text-primary detail-link" target="_blank" rel="noopener noreferrer" data-url="' . $detailUrl . '" onclick="' . $detailPositionCenter . '">Lihat</a>';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -162,6 +170,7 @@ class DataTableServersideController extends Controller
                     $val->TITLE,
                     $val->NAME_PENERBIT,
                     $val->AUTHOR,
+                    $detail,
                 ];
 
                 $start++;

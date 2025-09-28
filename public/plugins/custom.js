@@ -596,6 +596,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
                 <th class="text-nowrap">Judul</th>
                 <th class="text-nowrap">Pelaksana Serah</th>
                 <th class="text-nowrap">Kepengarangan</th>
+                <th class="text-nowrap">Detail</th>
             </tr>
         `);
 
@@ -615,6 +616,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
                 { orderable: true, className: 'align-middle text-nowrap' },
                 { orderable: true, className: 'align-middle text-nowrap' },
                 { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

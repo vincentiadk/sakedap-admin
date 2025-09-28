@@ -334,4 +334,21 @@ class Main
 
         return $response;
     }
+
+    /**
+     * credentialInlisIFrame
+     *
+     * @return void
+     */
+    public static function credentialInlisIFrame()
+    {
+        $userId = session('id');
+        $encFrameInlis = static::AESCrypt(
+            "userid=$userId;auth=1",
+            base64_decode(env('AES_KEY_INLIS')),
+            base64_decode(env('AES_IV_INLIS'))
+        );
+
+        return $encFrameInlis;
+    }
 }

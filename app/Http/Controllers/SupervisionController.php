@@ -9,19 +9,14 @@ class SupervisionController extends Controller
 {
     public function index($segment)
     {
-        $userId = session('id');
-        $encFrameInlis = Main::AESCrypt(
-            "userid=$userId;auth=1",
-            base64_decode(env('AES_KEY_INLIS')),
-            base64_decode(env('AES_IV_INLIS'))
-        );
+        $credentialInlis = Main::credentialInlisIFrame();
 
         if ($segment == 'compliance') {
-            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataPenerbit.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataPenerbit.aspx?l=' . $credentialInlis;
         } else if ($segment == 'coaching') {
-            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $credentialInlis;
         } else if ($segment == 'monitoring') {
-            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataBuktiPemantauanList.aspx?l=' . $encFrameInlis;
+            $framing = 'https://digitlib.site/Sakedap_Monitoring/DataBuktiPemantauanList.aspx?l=' . $credentialInlis;
         } else {
             $framing = '';
         }
