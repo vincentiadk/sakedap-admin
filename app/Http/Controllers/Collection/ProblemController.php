@@ -127,9 +127,9 @@ class ProblemController extends Controller
                 penerbit on penerbit.id = e_collections.penerbit_id
             join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-            left join
+            join
                 worksheets on worksheets.id = e_collections.worksheet_id
-            left join
+            join
                 users on users.id = e_collections.rejected_by
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -154,9 +154,9 @@ class ProblemController extends Controller
                                 penerbit on penerbit.id = e_collections.penerbit_id
                             join
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            left join
+                            join
                                 worksheets on worksheets.id = e_collections.worksheet_id
-                            left join
+                            join
                                 users on users.id = e_collections.rejected_by
                             $whereClause
                             $orderBy

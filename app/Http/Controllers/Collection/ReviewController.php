@@ -128,7 +128,7 @@ class ReviewController extends Controller
                 penerbit on penerbit.id = e_collections.penerbit_id
             join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-            left join
+            join
                 worksheets on worksheets.id = e_collections.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -152,7 +152,7 @@ class ReviewController extends Controller
                                 penerbit on penerbit.id = e_collections.penerbit_id
                             join
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            left join
+                            join
                                 worksheets on worksheets.id = e_collections.worksheet_id
                             $whereClause
                             $orderBy
@@ -200,8 +200,7 @@ class ReviewController extends Controller
                 e_collections.*,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
-                propinsi.namapropinsi as namapropinsi,
-                branchs.name as name_branch
+                propinsi.namapropinsi as namapropinsi
             from
                 e_collections
             join
@@ -210,8 +209,6 @@ class ReviewController extends Controller
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             join
                 propinsi on propinsi.id = kabupaten.propinsiid
-            left join
-                branchs on branchs.id = e_collections.branch_id
             where
                 (
                     e_collections.parent_id = 0 or

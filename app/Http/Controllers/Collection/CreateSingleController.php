@@ -107,7 +107,7 @@ class CreateSingleController extends Controller
                                 where
                                     id in (" . implode(',', $contributorIds) . ") and
                                     deleted_at is null
-                            ", true);
+                            ");
 
                             $contributorsLookup = [];
 

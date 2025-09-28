@@ -334,12 +334,6 @@
         datePickerSingle('#received_at');
 
         if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
-            select2Serverside('#branch_id', 'branch', {
-                province_id: '{{ session("province_id") }}'
-            }, {
-                minimumInputLength: 0
-            });
-
             select2Serverside('#city_id', 'location', {
                 for: 'city',
                 province_id: '{{ session("province_id") }}',
@@ -351,10 +345,9 @@
                 province_id: '{{ session("province_id") }}',
             });
         } else {
-            select2Serverside('#branch_id', 'branch');
             select2Serverside('#executor_id', 'executor');
 
-            select2Serverside('#city_id', 'city', {
+            select2Serverside('#city_id', 'location', {
                 for: 'city'
             });
         }

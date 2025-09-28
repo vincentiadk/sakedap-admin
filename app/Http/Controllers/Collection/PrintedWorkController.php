@@ -120,7 +120,7 @@ class PrintedWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            left join
+            join
                 worksheets on worksheets.id = catalogs.worksheet_id
             where
                 (
@@ -136,11 +136,11 @@ class PrintedWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            left join
+            join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            left join
+            join
                 kabupaten on kabupaten.id = catalogs.city_id
-            left join
+            join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -163,11 +163,11 @@ class PrintedWorkController extends Controller
                                 worksheets.name as name_worksheet
                             from
                                 catalogs
-                            left join
+                            join
                                 penerbit on penerbit.id = catalogs.penerbit_id
-                            left join
+                            join
                                 kabupaten on kabupaten.id = catalogs.city_id
-                            left join
+                            join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
                             $orderBy
@@ -213,7 +213,6 @@ class PrintedWorkController extends Controller
         $collection = QueryAPI::get("
             select
                 catalogs.*,
-                branchs.name as name_branch,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
                 propinsi.namapropinsi as namapropinsi,
@@ -232,16 +231,14 @@ class PrintedWorkController extends Controller
                 catalogs
             join
                 e_collections on e_collections.id = catalogs.edeposit_col_id
-            left join
+            join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            left join
+            join
                 kabupaten on kabupaten.id = catalogs.city_id
-            left join
+            join
                 propinsi on propinsi.id = kabupaten.propinsiid
-            left join
+            join
                 worksheets on worksheets.id = catalogs.worksheet_id
-            left join
-                branchs on branchs.id = e_collections.branch_id
             where
                 (
                     catalogs.isdelete = 0 or

@@ -96,13 +96,13 @@ class ReportCollectionExport implements FromView, ShouldAutoSize
                 worksheets.name as name_worksheet
             from
                 catalogs
-            left join
+            join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            left join
+            join
                 kabupaten on kabupaten.id = catalogs.city_id
-            left join
+            join
                 propinsi on propinsi.id = kabupaten.propinsiid
-            left join
+            join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ");

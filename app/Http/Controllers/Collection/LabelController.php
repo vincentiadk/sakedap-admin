@@ -122,7 +122,7 @@ class LabelController extends Controller
                 collections
             join
                 e_collection_copies on e_collection_copies.id = collections.edeposit_cc_id
-            left join
+            join
                 worksheets on worksheets.id = collections.worksheet_id
             where
                 (
@@ -139,13 +139,13 @@ class LabelController extends Controller
                 collections
             join
                 e_collection_copies on e_collection_copies.id = collections.edeposit_cc_id
-            left join
+            join
                 penerbit on penerbit.id = collections.penerbit_id
-            left join
+            join
                 kabupaten on kabupaten.id = collections.city_id
-            left join
+            join
                 worksheets on worksheets.id = collections.worksheet_id
-            left join
+            join
                 location_library on location_library.id = collections.loc_lib_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -176,13 +176,13 @@ class LabelController extends Controller
                                 collections
                             join
                                 e_collection_copies on e_collection_copies.id = collections.edeposit_cc_id
-                            left join
+                            join
                                 penerbit on penerbit.id = collections.penerbit_id
-                            left join
+                            join
                                 kabupaten on kabupaten.id = collections.city_id
-                            left join
+                            join
                                 worksheets on worksheets.id = collections.worksheet_id
-                            left join
+                            join
                                 location_library on location_library.id = collections.loc_lib_id
                             $whereClause
                             $orderBy
@@ -239,7 +239,7 @@ class LabelController extends Controller
                 location_library.name as name_location_library
             from
                 collections
-            left join
+            join
                 location_library on location_library.id = collections.loc_lib_id
             where
                 collections.id in ($dataId)
