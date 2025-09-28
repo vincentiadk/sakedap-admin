@@ -53,7 +53,9 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Tujuan : <span class="text-danger fw-bold">*</span></label>
-                            <select class="form-select" name="branch_id" id="branch_id"></select>
+                            <select class="form-select" name="branch_id" id="branch_id">
+                                <option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-3">
