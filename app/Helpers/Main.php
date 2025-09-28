@@ -133,8 +133,9 @@ class Main
      * @param  mixed $param
      * @return void
      */
-    public static function generateNumberDeposit($worksheetId, $branchId, $year, $cityId)
+    public static function generateNumberDeposit($worksheetId, $year, $cityId)
     {
+        $branchId = session('branch_id');
         $worksheet = QueryAPI::get("select depositformat_code as code from worksheet where id = $worksheetId", true);
         $city = QueryAPI::get("select code_kab as code from kabupaten where id = $cityId", true);
         $seq = 1;

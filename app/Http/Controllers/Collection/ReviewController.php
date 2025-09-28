@@ -223,23 +223,29 @@ class ReviewController extends Controller
         ", true);
 
         if ($request->ajax()) {
-            $validation = Validator::make($request->all(), [
-                'worksheet_id' => 'required',
-                'city_id' => 'required',
-                'branch_id' => 'required',
-                'title' => 'required',
-                'collection_media_id' => 'required',
-                'received_at' => 'required',
-                'access' => 'required',
-            ], [
-                'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
-                'city_id.required' => 'Kota tidak boleh kosong',
-                'branch_id.required' => 'Perpustakaan tidak boleh kosong',
-                'title.required' => 'Judul tidak boleh kosong',
-                'collection_media_id.required' => 'Media tidak boleh kosong',
-                'received_at.required' => 'Tanggal terima tidak boleh kosong',
-                'access.required' => 'Akses tidak boleh kosong',
-            ]);
+            if (in_array($request->status, [3, 5])) {
+                $validation = Validator::make($request->all(), [
+                    'status' => 'required',
+                ], [
+                    'status.required' => 'Status tidak boleh kosong',
+                ]);
+            } else {
+                $validation = Validator::make($request->all(), [
+                    'worksheet_id' => 'required',
+                    'city_id' => 'required',
+                    'title' => 'required',
+                    'collection_media_id' => 'required',
+                    'received_at' => 'required',
+                    'access' => 'required',
+                ], [
+                    'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
+                    'city_id.required' => 'Kota tidak boleh kosong',
+                    'title.required' => 'Judul tidak boleh kosong',
+                    'collection_media_id.required' => 'Media tidak boleh kosong',
+                    'received_at.required' => 'Tanggal terima tidak boleh kosong',
+                    'access.required' => 'Akses tidak boleh kosong',
+                ]);
+            }
 
             if ($validation->fails()) {
                 $response = [
@@ -258,7 +264,6 @@ class ReviewController extends Controller
 
                     $updateData = [
                         'city_id' => $request->city_id,
-                        'branch_id' => $request->branch_id,
                         'title_ori' => $request->title,
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),
@@ -287,7 +292,6 @@ class ReviewController extends Controller
                     if ($isStatus2) {
                         $updateData['deposit'] = Main::generateNumberDeposit(
                             $request->worksheet_id,
-                            $request->branch_id,
                             $request->year ?? date('Y'),
                             $request->city_id
                         );
@@ -305,7 +309,7 @@ class ReviewController extends Controller
                     }
 
                     if ($isStatus3) {
-                        $updateData['revision_count'] = $revisionCount + 1;
+                        $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
                         $updateData['problem'] = $request->problem;
                     }
 
@@ -314,6 +318,7 @@ class ReviewController extends Controller
                     }
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
+
 
                     if ($updateCollection) {
                         if ($isStatus3 && $request->collection_problem) {
