@@ -14,13 +14,30 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label class="form-label">Pelaksana Serah :</label>
                         <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Jasa Kirim :</label>
+                        <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
+                            <option value=""></option>
+                            @foreach($deliveryService as $ds)
+                                <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">No Resi :</label>
+                        <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Semua">
+                    </div>
+                </div>
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tanggal :</label>
                         <div class="input-group">
@@ -33,18 +50,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Jasa Kirim :</label>
-                        <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($deliveryService as $ds)
-                                <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Status :</label>
                         <select class="form-select" name="status" id="status">
@@ -127,6 +133,7 @@
                     date: $('#date').val(),
                     date_type: $('#date_type').val(),
                     status: $('#status').val(),
+                    receipt_no: $('#receipt_no').val(),
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');

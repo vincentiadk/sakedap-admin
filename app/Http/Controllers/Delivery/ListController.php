@@ -55,6 +55,11 @@ class ListController extends Controller
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 
+        if ($request->receipt_no) {
+            $receiptNo = strtoupper($request->receipt_no);
+            $whereCondition[] = "upper(letter.receipt_no) like '%$receiptNo%'";
+        }
+
         if ($request->delivery_service_id) {
             $whereCondition[] = "letter.jasa_pengiriman_id = $request->delivery_service_id";
         }

@@ -40,7 +40,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Judul :</label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
+                        <input type="text" class="form-control" name="title" id="title" placeholder="Semua">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -56,7 +56,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tahun :</label>
-                        <input type="number" class="form-control" name="year" id="year" placeholder="....................">
+                        <input type="number" class="form-control" name="year" id="year" placeholder="Semua">
                     </div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Judul :</label>
-                            <input type="text" class="form-control" name="de_title" id="de_title" placeholder="....................">
+                            <input type="text" class="form-control" name="de_title" id="de_title" placeholder="Semua">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -162,7 +162,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Tahun :</label>
-                            <input type="number" class="form-control" name="de_year" id="de_year" placeholder="....................">
+                            <input type="number" class="form-control" name="de_year" id="de_year" placeholder="Semua">
                         </div>
                     </div>
                 </div>
