@@ -26,6 +26,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Gambar</th>
+                        <th class="text-nowrap">Promosi</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Keterangan</th>
                         <th class="text-nowrap">Status</th>
@@ -59,6 +60,10 @@
                                 Lihat Gambar Saat Ini
                             </a>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Promosi :</label>
+                        <select class="form-select" name="promotion_id" id="promotion_id" data-dropdown-parent="#modal-form"></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
@@ -98,6 +103,14 @@
 <script>
     $(function() {
         loadData();
+
+        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+            select2Serverside('#promotion_id', 'promotion', {
+                province_id: '{{ session("province_id") }}',
+            });
+        } else {
+            select2Serverside('#promotion_id', 'promotion');
+        }
     });
 
     function onReloadTable() {
@@ -115,6 +128,7 @@
         $('#image-preview').attr('href', 'javascript:void(0);');
         $('#image-preview').hide();
         $('#status').val(1);
+        $('#promotion_id').val('').change();
     }
 
     function onCreate() {
@@ -180,6 +194,7 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
@@ -261,6 +276,7 @@
                 $('#title').val(response.TITLE);
                 $('#description').val(response.DESCRIPTION);
                 $('#status').val(response.STATUS);
+                $('#promotion_id').html('<option value="' + response.PROMO_ID + '" selected>' + response.JUDUL_E_PROMO + '</option>');
 
                 if(response.IMAGE) {
                     var paramFile = {

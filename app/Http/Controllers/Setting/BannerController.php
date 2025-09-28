@@ -17,6 +17,7 @@ class BannerController extends Controller
                 'plugins' => [
                     'datatable',
                     'lightbox',
+                    'select2',
                 ]
             ]
         ]);
@@ -25,11 +26,13 @@ class BannerController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'id',
+            'e_banners.id',
             null,
-            'title',
-            'description',
-            'status',
+            'e_banners.image',
+            'e_promo.judul',
+            'e_banners.title',
+            'e_banners.description',
+            'e_banners.status',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -79,6 +82,8 @@ class BannerController extends Controller
                 count(*) as total
             from
                 e_banners
+            left join
+                e_promo on e_promo.id = e_banners.promo_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -92,9 +97,12 @@ class BannerController extends Controller
                     from
                         (
                             select
-                                *
+                                e_banners.*,
+                                e_promo.judul as judul_e_promo
                             from
                                 e_banners
+                            left join
+                                e_promo on e_promo.id = e_banners.promo_id
                             $whereClause
                             $orderBy
                         ) data
@@ -144,6 +152,7 @@ class BannerController extends Controller
                     $start + 1,
                     $action,
                     $image,
+                    $val->JUDUL_E_PROMO,
                     $val->TITLE,
                     $val->DESCRIPTION,
                     $val->STATUS == 1 ? 'Aktif' : 'Tidak Aktif',
@@ -185,6 +194,7 @@ class BannerController extends Controller
                     'title' => $request->title,
                     'description' => $request->description,
                     'status' => $request->status,
+                    'promo_id' => $request->promotion_id,
                 ]);
 
                 if ($createData) {
@@ -222,11 +232,14 @@ class BannerController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                e_banners.*,
+                e_promo.judul as judul_e_promo
             from
                 e_banners
+            left join
+                e_promo on e_promo.id = e_banners.promo_id
             where
-                id = $id
+                e_banners.id = $id
         ", true);
 
         return response()->json($data);
@@ -258,6 +271,7 @@ class BannerController extends Controller
                     'title' => $request->title,
                     'description' => $request->description,
                     'status' => $request->status,
+                    'promo_id' => $request->promotion_id,
                 ]);
 
                 if ($updateData) {

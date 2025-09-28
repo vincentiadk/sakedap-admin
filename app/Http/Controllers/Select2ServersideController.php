@@ -523,6 +523,7 @@ class Select2ServersideController extends Controller
 
         $data = QueryAPI::get("
             select
+                id,
                 judul,
                 kode_promo
             from
