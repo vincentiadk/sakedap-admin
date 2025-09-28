@@ -222,6 +222,7 @@ class AnalogWorkController extends Controller
                 e_collections.received_at as received_at_e_collection,
                 e_collections.price as price_e_collection,
                 e_collections.jilid as jilid_e_collection,
+                e_collections.description as description_e_collection,
                 e_collections.jenis_isi as jenis_isi_e_collection,
                 e_collections.jenis_wadah as jenis_wadah_e_collection,
                 e_collections.jenis_media as jenis_media_e_collection,

@@ -225,7 +225,13 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Keterangan Fisik</label>
                     <div class="col-md-10">
-                        <textarea name="description" class="form-control" id="decription" rows="5" placeholder="...................." disabled>{{ $collection->DESCRIPTION }}</textarea>
+                        <textarea name="physical_description" class="form-control" id="physical_description" rows="5" placeholder="...................." disabled>{{ $collection->DESCRIPTION }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Sinopsis</label>
+                    <div class="col-md-10">
+                        <textarea name="sinopsis" class="form-control" id="sinopsis" rows="5" placeholder="...................." disabled>{{ $collection->DESCRIPTION_E_COLLECTION }}</textarea>
                     </div>
                 </div>
             </div>

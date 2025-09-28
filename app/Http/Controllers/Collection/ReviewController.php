@@ -54,7 +54,7 @@ class ReviewController extends Controller
 
         if ($request->title) {
             $title = strtoupper($request->title);
-            $whereCondition[] = "(upper(e_collections.title_ori) like '%$search%' or upper(e_collections.title) like '%$search%')";
+            $whereCondition[] = "(upper(e_collections.title_ori) like '%$title%' or upper(e_collections.title) like '%$title%')";
         }
 
         if ($request->executor_id) {
@@ -222,6 +222,10 @@ class ReviewController extends Controller
                 e_collections.status = 1
         ", true);
 
+        if (!$collection) {
+            abort(404);
+        }
+
         if ($request->ajax()) {
             if (in_array($request->status, [3, 5])) {
                 $validation = Validator::make($request->all(), [
@@ -273,7 +277,7 @@ class ReviewController extends Controller
                         'publication_month' => date('m', strtotime($request->publish_time)),
                         'publication_year' => date('Y', strtotime($request->publish_time)),
                         'preview' => $request->preview,
-                        'description' => $request->description,
+                        'ketfis' => $request->physical_description,
                         'akses' => $request->access,
                         'status' => $status,
                         'price' => str_replace([',', '.'], '', $request->price),
@@ -425,7 +429,7 @@ class ReviewController extends Controller
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
                 'collection' => $collection,
                 'collectionCategory' => $collectionCategory,
-                'collectionContributor' => explode(';', ($collection->DESCRIPTION ?? '')),
+                'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,
                 'collectionCover' => $collectionCover,
                 'collectionContent' => $collectionContent,
