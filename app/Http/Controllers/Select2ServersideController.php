@@ -150,7 +150,7 @@ class Select2ServersideController extends Controller
                 from (
                         select
                             id,
-                            name
+                            namapropinsi
                         from
                             propinsi
                         $whereClause
