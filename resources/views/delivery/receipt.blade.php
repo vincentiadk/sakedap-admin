@@ -239,13 +239,13 @@
                                         <input type="number" class="form-control ci-total-${ randStr }" disabled>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control ci-accept-${ randStr }" name="ci_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }')">
+                                        <input type="number" class="form-control ci-accept-${ randStr }" name="ci_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="0" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }')">
+                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="0" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
                                     </td>
                                     <td>
-                                        <select class="form-select" name="ci_description[]" multiple></select>
+                                        <select class="form-select ci-description-${ randStr }" name="ci_description[]" multiple></select>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
@@ -255,9 +255,9 @@
                                 </tr>
                             `);
 
-                            calculateQtyTotal(`.ci-total-${ randStr }`, `.ci-accept-${ randStr }`, `.ci-reject-${ randStr }`);
+                            calculateQtyTotal(`.ci-total-${ randStr }`, `.ci-accept-${ randStr }`, `.ci-reject-${ randStr }`, `.ci-description-${ randStr }`);
 
-                            $('#search-isbn').val('');
+                            $('#search_isbn').val('');
 
                             if(response.is_kdt_valid == 1) {
                                 swalInit.fire('Berhasil', 'ISBN telah tervalidasi dengan KDT. koleksi otomatis di kaitkan dengan Katalog ID : ' + response.catalog_id, 'info');
@@ -357,9 +357,9 @@
                                             <span class="input-group-text">Total</span>
                                             <input type="number" class="form-control cni-total-${ randStr }" disabled>
                                             <span class="input-group-text">Terima</span>
-                                            <input type="number" class="form-control cni-accept-${ randStr }" name="cni_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }')">
+                                            <input type="number" class="form-control cni-accept-${ randStr }" name="cni_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                             <span class="input-group-text">Tolak</span>
-                                            <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }')">
+                                            <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                         </span>
                                     </div>
                                 </div>
@@ -378,7 +378,7 @@
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Keterangan</label>
                                     <div class="col-lg-9">
-                                        <select class="form-select" name="cni_description[]" multiple></select>
+                                        <select class="form-select cni-description-${ randStr }" name="cni_description[]" multiple></select>
                                     </div>
                                 </div>
                             </div>
@@ -387,7 +387,7 @@
                 </tr>
             `);
 
-            calculateQtyTotal(`.cni-total-${ randStr }`, `.cni-accept-${ randStr }`, `.cni-reject-${ randStr }`);
+            calculateQtyTotal(`.cni-total-${ randStr }`, `.cni-accept-${ randStr }`, `.cni-reject-${ randStr }`, `.cni-description-${ randStr }`);
 
             select2ServersideTag('select[name="cni_description[]"]', 'problem', {}, {
                 minimumInputLength: 0
@@ -489,14 +489,14 @@
                         <span class="input-group-text">Total</span>
                         <input type="number" class="form-control form-control-sm cpe-total-${ randStr }" disabled>
                         <span class="input-group-text">Terima</span>
-                        <input type="number" class="form-control form-control-sm cpe-accept-${ randStr }" name="cpe_qty_accept[][]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }')">
+                        <input type="number" class="form-control form-control-sm cpe-accept-${ randStr }" name="cpe_qty_accept[][]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                         <span class="input-group-text">Tolak</span>
-                        <input type="number" class="form-control form-control-sm cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }')">
+                        <input type="number" class="form-control form-control-sm cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Keterangan :</label>
-                    <select class="form-select" name="cpe_description[][]" multiple></select>
+                    <select class="form-select cpe-description-${ randStr }" name="cpe_description[][]" multiple></select>
                 </div>
                 <div class="col-md-12 text-end mt-1">
                     <button type="button" class="btn btn-sm btn-danger" onclick="removeItemEdition(this)">Hapus Edisi</button>
@@ -504,7 +504,7 @@
             </div>
         `);
 
-        calculateQtyTotal(`.cpe-total-${ randStr }`, `.cpe-accept-${ randStr }`, `.cpe-reject-${ randStr }`);
+        calculateQtyTotal(`.cpe-total-${ randStr }`, `.cpe-accept-${ randStr }`, `.cpe-reject-${ randStr }`, `.cpe-description-${ randStr }`);
 
         select2ServersideTag('select[name="cpe_description[][]"]', 'problem', {}, {
             minimumInputLength: 0
@@ -517,11 +517,19 @@
         $(param).closest('.row').remove();
     }
 
-    function calculateQtyTotal(selectorTotal, selectorAccept, selectorReject) {
+    function calculateQtyTotal(selectorTotal, selectorAccept, selectorReject, selectorDescription) {
         var accept = parseInt($(selectorAccept).val() ?? 0);
         var reject = parseInt($(selectorReject).val() ?? 0);
+        var total = parseInt(accept + reject);
 
-        $(selectorTotal).val(accept + reject);
+        if(reject > 0) {
+            $(selectorDescription).prop('disabled', false);
+        } else {
+            $(selectorDescription).val('').change();
+            $(selectorDescription).prop('disabled', true);
+        }
+
+        $(selectorTotal).val(total);
     }
 
     function clearValidation() {
