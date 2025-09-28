@@ -10,7 +10,7 @@
 <div class="content pt-0">
     <div class="card">
         <div class="card-header d-flex align-items-center py-0">
-            <h5 class="py-3 mb-0">Daftar Koleksi Yang Akan Masuk / Keluar Grup</h5>
+            <h5 class="py-3 mb-0">Daftar Koleksi Yang Akan Masuk Grup</h5>
             <div class="ms-auto my-auto">
                 <div class="btn-group">
                     <button type="button" class="btn btn-teal dropdown-toggle" data-bs-toggle="dropdown">
@@ -22,10 +22,10 @@
                             <i class="ph-arrows-in-line-horizontal me-1"></i>
                             Buat Grup
                         </a>
-                        <a href="javascript:void(0);" class="dropdown-item" onclick="outGroup()">
+                        {{-- <a href="javascript:void(0);" class="dropdown-item" onclick="outGroup()">
                             <i class="ph-arrows-out-line-horizontal me-1"></i>
                             Keluar Group
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
             </div>

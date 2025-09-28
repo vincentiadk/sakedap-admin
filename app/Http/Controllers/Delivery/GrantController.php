@@ -53,7 +53,7 @@ class GrantController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = "group_id is null";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
