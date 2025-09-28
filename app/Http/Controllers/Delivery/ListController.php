@@ -49,7 +49,7 @@ class ListController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = "letter.status != 'DRAFT'";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');

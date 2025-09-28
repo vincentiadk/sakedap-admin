@@ -49,7 +49,6 @@
                         <label class="form-label">Status :</label>
                         <select class="form-select" name="status" id="status">
                             <option value="">Semua</option>
-                            <option value="DRAFT">DRAFT</option>
                             <option value="DIAJUKAN">DIAJUKAN</option>
                             <option value="DIKIRIM">DIKIRIM</option>
                             <option value="DALAM PENGIRIMAN">DALAM PENGIRIMAN</option>
