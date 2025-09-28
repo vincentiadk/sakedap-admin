@@ -79,7 +79,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">Saldo : <span class="text-danger fw-bold">*</span></label>
+                                <label class="form-label">Saldo :</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
                                     <input type="text" class="form-control" name="balance" id="balance" placeholder="....................">
@@ -88,7 +88,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">Diskon : <span class="text-danger fw-bold">*</span></label>
+                                <label class="form-label">Diskon :</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" name="discount" id="discount" placeholder="....................">
                                     <span class="input-group-text">%</span>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">Jumlah Paket : <span class="text-danger fw-bold">*</span></label>
+                                <label class="form-label">Jumlah Paket :</label>
                                 <input type="number" class="form-control" name="package" id="package" placeholder="....................">
                             </div>
                         </div>
