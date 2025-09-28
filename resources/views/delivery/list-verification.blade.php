@@ -70,7 +70,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($letterDetail as $key => $ld)
+                        @foreach($letterDetail ?? [] as $key => $ld)
                             <tr>
                                 <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
                                 <td class="text-center">{{ $key + 1 }}</td>
@@ -91,7 +91,7 @@
                                         @if($ld->REMARK)
                                             @php $remark = explode(';', $ld->REMARK ?? ''); @endphp
 
-                                            @foreach($remark as $r)
+                                            @foreach($remark ?? [] as $r)
                                                 <option value="{{ $r }}" selected>{{ $r }}</option>
                                             @endforeach
                                         @endif
