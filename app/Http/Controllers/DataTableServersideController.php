@@ -36,7 +36,6 @@ class DataTableServersideController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $whereCondition[] = "catalogs.edeposit_col_id is not null";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'kabupaten.propinsiid = ' . session('province_id');
@@ -84,8 +83,7 @@ class DataTableServersideController extends Controller
                 (
                     isdelete = 0 or
                     isdelete is null
-                ) and
-                edeposit_col_id is not null
+                )
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
