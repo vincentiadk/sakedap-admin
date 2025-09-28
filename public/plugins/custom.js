@@ -646,11 +646,11 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
 
 function responseError(response) {
     let errorException = 'Error ...';
-    let errorMessage = 'Silakan coba lagi atau hubungi administrator';
+    let errorMessage = 'Refresh ulang browser';
 
     if (response?.responseJSON?.exception || response?.responseJSON?.message) {
         errorException = response?.responseJSON?.exception ?? 'Error ...';
-        errorMessage = response?.responseJSON?.message ?? 'Silakan coba lagi atau hubungi administrator';
+        errorMessage = response?.responseJSON?.message ?? 'Refresh ulang browser';
     }
 
     swalInit.fire({
