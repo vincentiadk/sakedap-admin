@@ -352,7 +352,12 @@
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Jenis</label>
                                     <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_type[]">
+                                        <select class="form-select select2-basic" name="cni_type[]">
+                                            <option value=""></option>
+                                            @foreach($media as $m)
+                                                <option value="{{ $m->NAME }}">{{ $m->NAME }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -401,6 +406,8 @@
             $('input[name="cni_price[]"]').number(true);
 
             lookupCatalog(`.cni_catalog_id_${ randStr }`, `.cni_catalog_id_${ randStr }`, true);
+
+            select2Basic();
         }
     }
 
