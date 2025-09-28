@@ -93,11 +93,12 @@
                                 <th class="text-nowrap" rowspan="2">Kode</th>
                                 <th class="text-nowrap" rowspan="2">Judul</th>
                                 <th class="text-nowrap" rowspan="2">Edisi</th>
-                                <th class="text-nowrap text-center" colspan="2">Jumlah Eksemplar</th>
+                                <th class="text-nowrap text-center" colspan="3">Jumlah Eksemplar</th>
                                 <th class="text-nowrap" rowspan="2">Keterangan</th>
                                 <th class="text-nowrap text-center" rowspan="2">Hapus</th>
                             </tr>
                             <tr>
+                                <th class="text-nowrap text-center">Total</th>
                                 <th class="text-nowrap text-center">Diterima</th>
                                 <th class="text-nowrap text-center">Ditolak</th>
                             </tr>
@@ -220,6 +221,7 @@
                 onLoading('close', 'body');
 
                 var executorId = $('#executor_id').val();
+                var randStr = randomString(10);
 
                 if (response && typeof response === 'object') {
                     if(response.jenis_media == 'cetak') {
@@ -234,10 +236,13 @@
                                     <td class="text-wrap">${ response.title }</td>
                                     <td class="text-wrap">${ response.edisi }</td>
                                     <td>
-                                        <input type="number" class="form-control" name="ci_qty_accept[]">
+                                        <input type="number" class="form-control ci-total-${ randStr }" disabled>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" name="ci_qty_reject[]">
+                                        <input type="number" class="form-control ci-accept-${ randStr }" name="ci_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }')">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="0" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }')">
                                     </td>
                                     <td>
                                         <select class="form-select" name="ci_description[]" multiple></select>
@@ -250,6 +255,10 @@
                                 </tr>
                             `);
 
+                            calculateQtyTotal(`.ci-total-${ randStr }`, `.ci-accept-${ randStr }`, `.ci-reject-${ randStr }`);
+
+                            $('#search-isbn').val('');
+
                             if(response.is_kdt_valid == 1) {
                                 swalInit.fire('Berhasil', 'ISBN telah tervalidasi dengan KDT. koleksi otomatis di kaitkan dengan Katalog ID : ' + response.catalog_id, 'info');
                             } else {
@@ -259,8 +268,6 @@
                             select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
                                 minimumInputLength: 0
                             });
-
-                            $('#search-isbn').val('');
                         } else {
                             swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.nama_penerbit, 'warning');
                         }
@@ -344,15 +351,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label class="col-form-label col-lg-3">Jumlah Eks Diterima</label>
+                                    <label class="col-form-label col-lg-3">Jumlah Eks</label>
                                     <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_qty_accept[]" value="{{ $acceptDefault }}">
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label class="col-form-label col-lg-3">Jumlah Eks Ditolak</label>
-                                    <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_qty_reject[]">
+                                        <span class="input-group">
+                                            <span class="input-group-text">Total</span>
+                                            <input type="number" class="form-control cni-total-${ randStr }" disabled>
+                                            <span class="input-group-text">Terima</span>
+                                            <input type="number" class="form-control cni-accept-${ randStr }" name="cni_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }')">
+                                            <span class="input-group-text">Tolak</span>
+                                            <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }')">
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -378,6 +386,8 @@
                     </td>
                 </tr>
             `);
+
+            calculateQtyTotal(`.cni-total-${ randStr }`, `.cni-accept-${ randStr }`, `.cni-reject-${ randStr }`);
 
             select2ServersideTag('select[name="cni_description[]"]', 'problem', {}, {
                 minimumInputLength: 0
@@ -456,6 +466,8 @@
     }
 
     function addCollectionPeriodicalsEdition(param) {
+        var randStr = randomString(10);
+
         $('#data-collection-periodicals-edition-' + param).append(`
             <div class="row mb-2">
                 <input type="hidden" name="cpe[][]">
@@ -471,24 +483,28 @@
                     <label class="form-label">TTES Akhir :</label>
                     <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" readonly>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Eksemplar :</label>
                     <div class="input-group">
+                        <span class="input-group-text">Total</span>
+                        <input type="number" class="form-control form-control-sm cpe-total-${ randStr }" disabled>
                         <span class="input-group-text">Terima</span>
-                        <input type="number" class="form-control form-control-sm" name="cpe_qty_accept[][]" value="{{ $acceptDefault }}">
+                        <input type="number" class="form-control form-control-sm cpe-accept-${ randStr }" name="cpe_qty_accept[][]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }')">
                         <span class="input-group-text">Tolak</span>
-                        <input type="number" class="form-control form-control-sm" name="cpe_qty_reject[][]">
+                        <input type="number" class="form-control form-control-sm cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }')">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Keterangan :</label>
                     <select class="form-select" name="cpe_description[][]" multiple></select>
                 </div>
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-sm btn-danger col-12 h-100" onclick="removeItemEdition(this)">Hapus</button>
+                <div class="col-md-12 text-end mt-1">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeItemEdition(this)">Hapus Edisi</button>
                 </div>
             </div>
         `);
+
+        calculateQtyTotal(`.cpe-total-${ randStr }`, `.cpe-accept-${ randStr }`, `.cpe-reject-${ randStr }`);
 
         select2ServersideTag('select[name="cpe_description[][]"]', 'problem', {}, {
             minimumInputLength: 0
@@ -499,6 +515,13 @@
 
     function removeItemEdition(param) {
         $(param).closest('.row').remove();
+    }
+
+    function calculateQtyTotal(selectorTotal, selectorAccept, selectorReject) {
+        var accept = parseInt($(selectorAccept).val() ?? 0);
+        var reject = parseInt($(selectorReject).val() ?? 0);
+
+        $(selectorTotal).val(accept + reject);
     }
 
     function clearValidation() {
