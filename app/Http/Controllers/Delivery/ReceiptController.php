@@ -166,6 +166,7 @@ class ReceiptController extends Controller
                     ], $auditData);
 
                     $letter = QueryAPI::create('letter', $letterData, false);
+                    $letterExecutor = QueryAPI::get("select * from penerbit where id = $request->executor_id", true);
 
                     if (!$letter) {
                         return response()->json([
@@ -225,6 +226,8 @@ class ReceiptController extends Controller
                                 'cleaning_note' => $isbn->keterangan,
                                 'jenis_media' => $isbn->jenis_media,
                             ];
+
+                            QueryAPI::create('letter_detail', $letterDetailData, false);
                         }
                     }
 
@@ -266,7 +269,7 @@ class ReceiptController extends Controller
                             $author = $request->cni_author[$key] ?? null;
                             $year = $request->cni_year[$key] ?? null;
                             $physicalDescription = $request->cni_physical_description[$key] ?? null;
-                            $executor = $request->cni_executor[$key] ?? null;
+                            $executor = $request->cni_executor[$key] ?? ($letterExecutor->NAME ?? null);
 
                             $letterDetailData = [
                                 'title' => $title,
@@ -289,6 +292,8 @@ class ReceiptController extends Controller
                                 'deskripsifisik' => $physicalDescription,
                                 'jenis_media' => $request->cni_type[$key] ?? null,
                             ];
+
+                            QueryAPI::create('letter_detail', $letterDetailData, false);
                         }
                     }
 
@@ -337,10 +342,10 @@ class ReceiptController extends Controller
                                     'price' => $catalog->PRICE ?? null,
                                     'letter_id' => $letter->LETTER_ID ?? null,
                                     'author' => $catalog->AUTHOR ?? null,
-                                    'publisher' => $catalog->name_penerbit ?? null,
-                                    'publisher_address' => $catalog->alamat_penerbit ?? null,
+                                    'publisher' => $catalog->NAME_PENERBIT ?? ($letterExecutor->NAME ?? null),
+                                    'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
                                     'publish_year' => $catalog->PUBLISHYEAR ?? null,
-                                    'publisher_city' => $catalog->namakab ?? null,
+                                    'publisher_city' => $catalog->NAMAKAB ?? null,
                                     'is_receivedate' => 1,
                                     'edisi_serial' => $edition,
                                     'ttes_awal' => $firstTTES,
@@ -348,10 +353,12 @@ class ReceiptController extends Controller
                                     'catalog_id' => $catalogId,
                                     'qty_accept' => $qtyAccept,
                                     'qty_reject' => $qtyReject,
-                                    'province_id' => $catalog->propinsiid ?? null,
+                                    'province_id' => $catalog->PROPINSIID ?? null,
                                     'kab_id' => $catalog->CITY_ID ?? null,
                                     'collectionmediaid' => $catalog->COLLECTIONMEDIA_ID ?? null,
                                 ];
+
+                                QueryAPI::create('letter_detail', $letterDetailData, false);
                             }
                         }
                     }

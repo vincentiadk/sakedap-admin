@@ -13,6 +13,9 @@
     </div>
     <form id="form-data">
         <div class="card">
+            <div class="card-header">
+                <h5 class="hstack gap-2 mb-0">Form</h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
@@ -317,7 +320,7 @@
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">Pelaksana Serah</label>
                                     <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_executor[]">
+                                        <input type="text" class="form-control" name="cni_executor[]" placeholder="Kosongi jika pelaksana serah sama dengan form">
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -417,7 +420,6 @@
 
                 let selector = $(param).closest('tr');
 
-                selector.find('input[name="cni_executor[]"]').val(response?.NAME_PENERBIT);
                 selector.find('input[name="cni_title[]"]').val(response?.TITLE);
                 selector.find('input[name="cni_author[]"]').val(response?.AUTHOR);
                 selector.find('input[name="cni_physical_description[]"]').val(response?.DESCRIPTION);

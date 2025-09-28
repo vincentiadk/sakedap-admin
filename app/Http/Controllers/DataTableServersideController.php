@@ -9,6 +9,13 @@ use App\Http\Controllers\Controller;
 
 class DataTableServersideController extends Controller
 {
+    private $credentialInlisIFrame;
+
+    public function __construct()
+    {
+        $this->credentialInlisIFrame = Main::credentialInlisIFrame();
+    }
+
     public function catalog(Request $request)
     {
         $column = [
@@ -152,8 +159,7 @@ class DataTableServersideController extends Controller
                         catalog_id = $val->ID
                 ", true)->TOTAL ?? 0;
 
-                $credentialInlis = Main::credentialInlisIFrame();
-                $detailUrl = "https://digitlib.site/inlis-ent-2025/KatalogDetailView.aspx?id=$val->ID&l=$credentialInlis";
+                $detailUrl = "https://digitlib.site/inlis-ent-2025/KatalogDetailView.aspx?id=$val->ID&l=$this->credentialInlisIFrame";
 
                 $detailPositionCenter = "var w = 900; var h = 550; var left = (screen.width / 2) - (w / 2); var top = (screen.height / 2) - (h / 2); window.open(this.href, 'DetailWindow', 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',scrollbars=yes,resizable=yes'); return false;";
 

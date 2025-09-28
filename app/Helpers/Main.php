@@ -258,7 +258,7 @@ class Main
         $cipher = 'aes-256-cbc';
         $key = $key ?? env('AES_KEY');
         $iv = $iv ?? env('AES_IV');
-        $encrypted = openssl_encrypt($text, $cipher, $key, OPENSSL_RAW_DATA, $iv);
+        $encrypted = @openssl_encrypt($text, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
         return base64_encode($encrypted);
     }
@@ -276,7 +276,7 @@ class Main
         $iv = $iv ?? env('AES_IV');
         $decoded = base64_decode($text);
 
-        $decrypted = openssl_decrypt($decoded, $cipher, $key, OPENSSL_RAW_DATA, $iv);
+        $decrypted = @openssl_decrypt($decoded, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
         return $decrypted;
     }
