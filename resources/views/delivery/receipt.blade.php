@@ -262,7 +262,7 @@
 
                             $('#search-isbn').val('');
                         } else {
-                            swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' . response.nama_penerbit, 'warning');
+                            swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.nama_penerbit, 'warning');
                         }
                     } else {
                         swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web E-Deposit', 'warning');
@@ -284,7 +284,7 @@
 
     function addCollectionNonISBN() {
         var total = $('#add-number-collection-non-isbn').val();
-        
+
         for(var i = 1; i <= total; i++) {
             var randStr = randomString(10);
 
