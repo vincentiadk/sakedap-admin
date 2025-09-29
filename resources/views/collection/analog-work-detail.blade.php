@@ -30,7 +30,7 @@
                 <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
             </div>
             <div class="card-body">
-                {{ $collection->NAME_PENERBIT }}
+                {{ $collection->PENERBIT_ID }} | {{ $collection->NAME_PENERBIT }}
             </div>
         </div>
         <div class="card">

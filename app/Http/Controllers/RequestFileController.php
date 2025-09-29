@@ -119,6 +119,7 @@ class RequestFileController extends Controller
                         (
                             select
                                 e_collection_requests.*,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 catalogs.title as title_catalog
                             from
@@ -170,7 +171,7 @@ class RequestFileController extends Controller
 
                 $data[] = [
                     $start + 1,
-                    $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->TITLE_CATALOG,
                     $status,
                     $val->COUNT_DOWNLOAD,

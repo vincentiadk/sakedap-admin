@@ -283,7 +283,7 @@
                         <tbody>
                             <tr>
                                 <th class="table-success" width="20%">Pelaksana Serah</th>
-                                <td width="80%">${ response.data?.NAME_PENERBIT }</td>
+                                <td width="80%">${ response.data?.ID_PENERBIT } | ${ response.data?.NAME_PENERBIT }</td>
                             </tr>
                             <tr>
                                 <th class="table-success" width="20%">Judul</th>

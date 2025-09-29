@@ -204,7 +204,7 @@ class ExecutorController extends Controller
             foreach ($queryData as $val) {
                 $data[] = [
                     $start + 1,
-                    $val->NAME,
+                    $val->ID . ' | ' . $val->NAME,
                     $val->NAME_PENERBIT_JENIS,
                     $val->NAME_PENERBIT_KATEGORI,
                     $val->NAMAPROPINSI,

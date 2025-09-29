@@ -194,7 +194,7 @@ class ProblemController extends Controller
 
                 $data[] = [
                     $start + 1,
-                    $val->NAME_PENERBIT,
+                    $val->PUBLISHER_ID . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
                     $val->CODE,

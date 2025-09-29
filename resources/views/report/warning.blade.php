@@ -83,7 +83,7 @@
                     $.each(response, function(i, val) {
                         $('#table-data').append(`
                             <tr>
-                                <td class="text-wrap">${val.NAME}</td>
+                                <td class="text-wrap">${val.ID} | ${val.NAME}</td>
                                 <td class="text-center">${val.MONTH_1}</td>
                                 <td class="text-center">${val.MONTH_2}</td>
                                 <td class="text-center">${val.MONTH_3}</td>

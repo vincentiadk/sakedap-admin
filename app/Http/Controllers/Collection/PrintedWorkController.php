@@ -159,6 +159,7 @@ class PrintedWorkController extends Controller
                                 catalogs.title,
                                 catalogs.isbn,
                                 catalogs.createdate,
+                                catalogs.penerbit_id,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet
                             from
@@ -191,7 +192,7 @@ class PrintedWorkController extends Controller
                     $action,
                     $val->NAME_PENERBIT,
                     $val->TITLE,
-                    $val->NAME_WORKSHEET,
+                    $val->PENERBIT_ID . ' | ' . $val->NAME_WORKSHEET,
                     $val->ISBN,
                     Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
                 ];

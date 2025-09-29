@@ -136,6 +136,7 @@ class SentController extends Controller
                                 letter_detail.*,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
                                 jasa_pengiriman.code as code_jasa_pengiriman,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter
@@ -187,7 +188,7 @@ class SentController extends Controller
                     $action,
                     $val->TITLE,
                     $val->ISBN,
-                    $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
                     $receiptNumber,
@@ -228,6 +229,7 @@ class SentController extends Controller
                 letter_detail.*,
                 jasa_pengiriman.name as name_jasa_pengiriman,
                 jasa_pengiriman.code as code_jasa_pengiriman,
+                penerbit.id as id_penerbit,
                 penerbit.name as name_penerbit,
                 branchs.name as name_branch,
                 letter.receipt_no as receipt_no_letter

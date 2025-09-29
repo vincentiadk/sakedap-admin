@@ -135,6 +135,7 @@ class RejectController extends Controller
                             select
                                 letter_detail.*,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
@@ -193,7 +194,7 @@ class RejectController extends Controller
                     $start + 1,
                     $action,
                     $val->TITLE,
-                    $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->RECEIPT_NO_LETTER,

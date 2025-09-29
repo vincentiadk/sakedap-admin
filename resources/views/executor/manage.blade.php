@@ -16,6 +16,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Tanda</th>
+                        <th class="text-nowrap">ID</th>
                         <th class="text-nowrap">Nama</th>
                         <th class="text-nowrap">Email</th>
                         <th class="text-nowrap">Kategori</th>
@@ -248,6 +249,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },

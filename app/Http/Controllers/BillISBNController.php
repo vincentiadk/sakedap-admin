@@ -123,11 +123,13 @@ class BillISBNController extends Controller
                     ';
                 }
 
+                $executorId = isset($val->penerbit_id) ? $val->penerbit_id . ' | ' : '';
+
                 $data[] = [
                     $start +  1,
                     isset($val->title) ? $val->title : '',
                     $author,
-                    isset($val->nama_penerbit) ? $val->nama_penerbit : '',
+                    isset($val->nama_penerbit) ? $executorId . $val->nama_penerbit : '',
                     isset($val->tahun_terbit) ? $val->tahun_terbit : '',
                     isset($val->tempat_terbit) ? $val->tempat_terbit : '',
                     isset($val->provinsi) ? $val->provinsi : '',

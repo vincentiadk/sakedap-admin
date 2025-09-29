@@ -186,6 +186,7 @@ class CollectionController extends Controller
                                 catalogs.publishyear,
                                 catalogs.preview,
                                 catalogs.createdate,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 propinsi.namapropinsi as namapropinsi,
                                 kabupaten.namakab as namakab,
@@ -220,7 +221,7 @@ class CollectionController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAMAPROPINSI,
                     $val->NAMAKAB,
                     $val->TITLE,

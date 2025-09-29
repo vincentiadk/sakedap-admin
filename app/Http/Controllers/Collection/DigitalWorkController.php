@@ -159,6 +159,7 @@ class DigitalWorkController extends Controller
                                 catalogs.title,
                                 catalogs.isbn,
                                 catalogs.createdate,
+                                catalogs.penerbit_id,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet
                             from
@@ -189,7 +190,7 @@ class DigitalWorkController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME_PENERBIT,
+                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->TITLE,
                     $val->NAME_WORKSHEET,
                     $val->ISBN,

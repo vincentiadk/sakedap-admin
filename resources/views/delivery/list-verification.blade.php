@@ -43,7 +43,7 @@
                         </tr>
                         <tr>
                             <th class="table-success align-top" width="15%">Pelaksana Serah</th>
-                            <td class="align-top" width="35%">{{ $letter->NAME_PENERBIT }}</td>
+                            <td class="align-top" width="35%">{{ $letter->PENERBIT_ID . ' | ' . $letter->NAME_PENERBIT }}</td>
                             <th class="table-success align-top" width="15%">Kode Promo</th>
                             <td class="align-top" width="35%">{{ $letter->KODE_PROMO }}</td>
                         </tr>

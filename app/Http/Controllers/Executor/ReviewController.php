@@ -27,6 +27,7 @@ class ReviewController extends Controller
         $column = [
             'penerbit.id',
             null,
+            'penerbit.id',
             'penerbit.name',
             'penerbit.email1',
             'penerbit_kategori.name',
@@ -156,6 +157,7 @@ class ReviewController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->ID,
                     $val->NAME,
                     $email,
                     $val->NAME_PENERBIT_KATEGORI,

@@ -140,6 +140,7 @@ class AcceptedController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
+                                letter.penerbit_id as penerbit_id_letter,
                                 letter.proses_by as proses_by_letter
                             from
                                 letter_detail
@@ -172,7 +173,7 @@ class AcceptedController extends Controller
                     $start + 1,
                     $action,
                     $val->TITLE,
-                    $val->NAME_PENERBIT,
+                    $val->PENERBIT_ID_LETTER . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->RECEIPT_NO_LETTER,
@@ -214,6 +215,7 @@ class AcceptedController extends Controller
                 letter_detail.*,
                 jasa_pengiriman.name as name_jasa_pengiriman,
                 jasa_pengiriman.code as code_jasa_pengiriman,
+                penerbit.id as id_penerbit,
                 penerbit.name as name_penerbit,
                 branchs.name as name_branch,
                 letter.receipt_no as receipt_no_letter

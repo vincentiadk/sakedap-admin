@@ -169,6 +169,7 @@ class LabelController extends Controller
                                 collections.nomorbarcode,
                                 collections.mark_national,
                                 collections.mark_province,
+                                collections.penerbit_id,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet,
                                 location_library.name as name_location_library
@@ -205,7 +206,7 @@ class LabelController extends Controller
                     $val->NOMORBARCODE,
                     $val->MARK_NATIONAL,
                     $val->MARK_PROVINCE,
-                    $val->NAME_PENERBIT,
+                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->TITLE,
                     $val->ISBN,
                     $val->NAME_LOCATION_LIBRARY,

@@ -55,6 +55,7 @@ class WarningController extends Controller
                 *
             from (
                 select
+                    penerbit.id,
                     penerbit.name,
                     extract(month from e_publisher_warnings.warning_date) as month
                 from

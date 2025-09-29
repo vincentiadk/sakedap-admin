@@ -116,7 +116,7 @@ class Select2ServersideController extends Controller
 
                 $response[] = [
                     'id' => $d->ID,
-                    'text' => $d->NAME,
+                    'text' => $d->ID . ' | ' . $d->NAME,
                     'html' => $html,
                 ];
             }

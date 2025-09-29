@@ -175,6 +175,7 @@ class PromotionController extends Controller
                                 letter.biaya_kirim as biaya_kirim_letter,
                                 letter.berat as berat_letter,
                                 letter.jumlah_paket as jumlah_paket_letter,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 jasa_pengiriman.name as name_jasa_pengiriman
                             from
@@ -208,7 +209,7 @@ class PromotionController extends Controller
                     Carbon::parse($val->LETTER_DATE_LETTER)->format('d/m/Y'),
                     $val->LETTER_NUMBER_LETTER,
                     $val->SENDER_LETTER,
-                    $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->RECEIPT_NO_LETTER,
                     'Rp ' . number_format($val->BIAYA_KIRIM_LETTER),

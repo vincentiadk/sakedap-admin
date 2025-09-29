@@ -136,6 +136,7 @@ class ListController extends Controller
                                 letter.status,
                                 letter.receipt_no,
                                 letter.proses_by,
+                                letter.penerbit_id,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
                                 penerbit.name as name_penerbit,
                                 coalesce(sum(letter_detail.copy), 0) as total_eks,
@@ -154,6 +155,7 @@ class ListController extends Controller
                                 letter.status,
                                 letter.receipt_no,
                                 letter.proses_by,
+                                letter.penerbit_id,
                                 jasa_pengiriman.name,
                                 penerbit.name
                             $orderBy
@@ -186,7 +188,7 @@ class ListController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME_PENERBIT,
+                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->TOTAL_EKS,
