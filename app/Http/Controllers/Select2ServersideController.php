@@ -74,7 +74,7 @@ class Select2ServersideController extends Controller
         $search = Str::upper($request->search);
 
         $response = [];
-        $condition = ["upper(penerbit.name) like '%$search%'"];
+        $condition = ["(upper(penerbit.name) like '%$search%' or penerbit.id like '%$search%')"];
 
         if ($provinceId) {
             $condition[] = "propinsi.id = $provinceId";

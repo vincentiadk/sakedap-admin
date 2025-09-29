@@ -64,6 +64,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">ID</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Dari</th>
                         <th class="text-nowrap">Tgl Teguran</th>
@@ -76,7 +77,7 @@
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"></h5>
@@ -90,40 +91,6 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="form-group">
-                        <label class="form-label">File :</label>
-                        <div class="input-group">
-                            <span class="input-group-text">1</span>
-                            <input type="file" class="form-control" name="file" id="file">
-                            <a href="" data-title="Preview File 1" class="btn btn-success" id="file-preview" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                            <span class="input-group-text">2</span>
-                            <input type="file" class="form-control" name="file_2" id="file_2">
-                            <a href="" data-title="Preview File 2" class="btn btn-success" id="file-preview-2" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                            <span class="input-group-text">3</span>
-                            <input type="file" class="form-control" name="file_3" id="file_3">
-                            <a href="" data-title="Preview File 3" class="btn btn-success" id="file-preview-3" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Teguran : <span class="text-danger fw-bold">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text">1</span>
-                            <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
-                            <span class="input-group-text">2</span>
-                            <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih Tanggal" readonly>
-                            <span class="input-group-text">3</span>
-                            <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih Tanggal" readonly>
-                        </div>
-                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -151,6 +118,45 @@
                                     <option value="SELESAI">SELESAI</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teguran 1 :</label>
+                        <div class="input-group">
+                            <span class="input-group-text">File</span>
+                            <input type="file" class="form-control" name="file" id="file">
+                            <a href="" data-title="Preview File 1" class="btn btn-success" id="file-preview" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat
+                            </a>
+                            <span class="input-group-text">Tanggal</span>
+                            <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teguran 2 :</label>
+                        <div class="input-group">
+                            <span class="input-group-text">File</span>
+                            <input type="file" class="form-control" name="file_2" id="file_2">
+                            <a href="" data-title="Preview File 2" class="btn btn-success" id="file-preview-2" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat
+                            </a>
+                            <span class="input-group-text">Tanggal</span>
+                            <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih Tanggal" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teguran 3 :</label>
+                        <div class="input-group">
+                            <span class="input-group-text">File</span>
+                            <input type="file" class="form-control" name="file_3" id="file_3">
+                            <a href="" data-title="Preview File 3" class="btn btn-success" id="file-preview-3" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat
+                            </a>
+                            <span class="input-group-text">Tanggal</span>
+                            <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih Tanggal" readonly>
                         </div>
                     </div>
                 </form>
@@ -283,13 +289,14 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-top text-center' },
+                { orderable: false, className: 'align-top text-center' },
+                { orderable: true, className: 'align-top' },
+                { orderable: true, className: 'align-top text-wrap' },
+                { orderable: true, className: 'align-top text-wrap' },
+                { orderable: true, className: 'align-top' },
+                { orderable: true, className: 'align-top' },
+                { orderable: true, className: 'align-top text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -455,6 +462,65 @@
                 responseError(response);
             }
         });
+    }
+
+    function lockable(id, value) {
+        if(value == 2) {
+            var statusText = 'melakukan usulan blokir';
+        } else {
+            var statusText = 'buka blokir';
+        }
+
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Pemblokiran Pelaksana Serah?</h5><span class="text-muted">Anda yakin ingin ' + statusText + '?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Ya', 'btn btn-danger ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("executor/warning/lockable") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id,
+                            is_lock: value
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+                                onReloadTable();
+                                notification('success', response.message);
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
     }
 
     function destroyData(id) {

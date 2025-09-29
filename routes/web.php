@@ -178,6 +178,7 @@ Route::middleware('authentication')->group(function () {
             Route::post('create-data', 'WarningController@createData');
             Route::get('show-data', 'WarningController@showData');
             Route::post('update-data', 'WarningController@updateData');
+            Route::post('lockable', 'WarningController@lockable');
             Route::delete('destroy-data', 'WarningController@destroyData');
         });
     });

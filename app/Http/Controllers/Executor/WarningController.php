@@ -31,6 +31,7 @@ class WarningController extends Controller
         $column = [
             'e_publisher_warnings.id',
             null,
+            'penerbit.id',
             'penerbit.name',
             'branchs.name',
             'e_publisher_warnings.warning_date',
@@ -120,7 +121,9 @@ class WarningController extends Controller
                         (
                             select
                                 e_publisher_warnings.*,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
+                                penerbit.is_lock as is_lock_penerbit,
                                 branchs.name as name_branch
                             from
                                 e_publisher_warnings
@@ -138,6 +141,22 @@ class WarningController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
+                if ($val->IS_LOCK_PENERBIT == 2) {
+                    $btnLock = '
+                        <a href="javascript:void(0);" class="dropdown-item" onclick="lockable(' . $val->ID_PENERBIT . ', 0)">
+                            <i class="ph-lock-simple-open me-1"></i>
+                            Buka Blokir
+                        </a>
+                    ';
+                } else {
+                    $btnLock = '
+                        <a href="javascript:void(0);" class="dropdown-item" onclick="lockable(' . $val->ID_PENERBIT . ', 2)">
+                            <i class="ph-lock-simple me-1"></i>
+                            Usulan Blokir
+                        </a>
+                    ';
+                }
+
                 $action = '
                     <div class="btn-group">
                         <button type="button" class="btn btn-flat-primary w-100 btn-sm fw-semibold dropdown-toggle" data-bs-toggle="dropdown">
@@ -153,6 +172,7 @@ class WarningController extends Controller
                                 <i class="ph-trash-simple me-1"></i>
                                 Hapus Data
                             </a>
+                            ' . $btnLock . '
                         </div>
                     </div>
                 ';
@@ -167,7 +187,16 @@ class WarningController extends Controller
 
                 if ($warningDate1) {
                     $dateStart = Carbon::parse($warningDate1)->format('Y-m-d');
+                    $dateLimitEnd = Carbon::parse($warningDate2 ?? now())->format('Y-m-d');
+                    $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate1)->addDays(40)->format('Y-m-d');
+                    $dateNext = Carbon::parse($warningDate1)->addDays(33)->format('d/m/Y');
+
+                    if ($dateLimit >= 33) {
+                        $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
+                    } else {
+                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                    }
 
                     $totalCollection = QueryAPI::get("
                         select
@@ -195,16 +224,26 @@ class WarningController extends Controller
                     }
 
                     $warningDate1HTML = '
-                        <div class="fw-bold"><small>Teguran 1</small></div>
+                        <div class="fw-bold"><small>Teguran 1 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
+                        <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
                     ';
                 }
 
                 if ($warningDate2) {
                     $dateStart = Carbon::parse($warningDate2)->format('Y-m-d');
+                    $dateLimitEnd = Carbon::parse($warningDate3 ?? now())->format('Y-m-d');
+                    $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate2)->addDays(40)->format('Y-m-d');
+                    $dateNext = Carbon::parse($warningDate2)->addDays(33)->format('d/m/Y');
+
+                    if ($dateLimit >= 33) {
+                        $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
+                    } else {
+                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                    }
 
                     $totalCollection = QueryAPI::get("
                         select
@@ -232,16 +271,24 @@ class WarningController extends Controller
                     }
 
                     $warningDate2HTML = '
-                        <div class="fw-bold"><small>Teguran 2</small></div>
+                        <div class="fw-bold"><small>Teguran 2 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
+                        <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
                     ';
                 }
 
                 if ($warningDate3) {
                     $dateStart = Carbon::parse($warningDate3)->format('Y-m-d');
+                    $dateLimit = Carbon::parse($dateStart)->diffInDays(now()->format('Y-m-d'));
                     $dateEnd = Carbon::parse($warningDate3)->addDays(40)->format('Y-m-d');
+
+                    if ($dateLimit >= 33) {
+                        $mark = '<span class="text-danger">(>= ' . $dateLimit . ' Hari)</span>';
+                    } else {
+                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                    }
 
                     $totalCollection = QueryAPI::get("
                         select
@@ -269,7 +316,7 @@ class WarningController extends Controller
                     }
 
                     $warningDate3HTML = '
-                        <div class="fw-bold"><small>Teguran 3</small></div>
+                        <div class="fw-bold"><small>Teguran 3 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->format('d/m/Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
@@ -281,6 +328,7 @@ class WarningController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->ID_PENERBIT,
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $warningDateHTML,
@@ -306,17 +354,20 @@ class WarningController extends Controller
             'executor_id' => 'required',
             'branch_id' => 'required',
             'warning_date' => 'required',
-            'file' => 'required|mimes:jpg,jpeg,png,pdf',
-            'file_2' => 'nullable|mimes:jpg,jpeg,png,pdf',
-            'file_3' => 'nullable|mimes:jpg,jpeg,png,pdf',
+            'file' => 'required|mimes:pdf|max:5120',
+            'file_2' => 'nullable|mimes:pdf|max:5120',
+            'file_3' => 'nullable|mimes:pdf|max:5120',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
             'file.required' => 'File 1 tidak boleh kosong',
-            'file.mimes' => 'File 1 hanya boleh jpg, jpeg, png, pdf',
-            'file_2.mimes' => 'File 2 hanya boleh jpg, jpeg, png, pdf',
-            'file_3.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
+            'file.mimes' => 'File 1 hanya boleh pdf',
+            'file.max' => 'File 2 maksimal 5MB',
+            'file_2.mimes' => 'File 2 hanya boleh pdf',
+            'file_2.max' => 'File 2 maksimal 5MB',
+            'file_3.mimes' => 'File 3 hanya boleh pdf',
+            'file_3.max' => 'File 2 maksimal 5MB',
         ]);
 
         if ($validation->fails()) {
@@ -428,16 +479,19 @@ class WarningController extends Controller
             'executor_id' => 'required',
             'branch_id' => 'required',
             'warning_date' => 'required',
-            'file' => 'nullable|mimes:jpg,jpeg,png,pdf',
-            'file_2' => 'nullable|mimes:jpg,jpeg,png,pdf',
-            'file_3' => 'nullable|mimes:jpg,jpeg,png,pdf',
+            'file' => 'nullable|mimes:pdf|max:5120',
+            'file_2' => 'nullable|mimes:pdf|max:5120',
+            'file_3' => 'nullable|mimes:pdf|max:5120',
         ], [
             'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
             'branch_id.required' => 'Dari tidak boleh kosong',
             'warning_date.required' => 'Tanggal teguran tidak boleh kosong',
-            'file.mimes' => 'File 1 hanya boleh jpg, jpeg, png, pdf',
-            'file_2.mimes' => 'File 2 hanya boleh jpg, jpeg, png, pdf',
-            'file_3.mimes' => 'File 3 hanya boleh jpg, jpeg, png, pdf',
+            'file.mimes' => 'File 1 hanya boleh pdf',
+            'file.max' => 'File 2 maksimal 5MB',
+            'file_2.mimes' => 'File 2 hanya boleh pdf',
+            'file_2.max' => 'File 2 maksimal 5MB',
+            'file_3.mimes' => 'File 3 hanya boleh pdf',
+            'file_3.max' => 'File 2 maksimal 5MB',
         ]);
 
         if ($validation->fails()) {
@@ -534,6 +588,20 @@ class WarningController extends Controller
                 ];
             }
         }
+
+        return response()->json($response);
+    }
+
+    public function lockable(Request $request)
+    {
+        QueryAPI::update('penerbit', $request->id, [
+            'is_lock' => $request->is_lock
+        ], false);
+
+        $response = [
+            'code' => 200,
+            'message' => 'Pemblokiran pelaksana serah telah disesuaikan'
+        ];
 
         return response()->json($response);
     }
