@@ -194,7 +194,7 @@ class AnalogWorkController extends Controller
                     $val->TITLE,
                     $val->NAME_WORKSHEET,
                     $val->ISBN,
-                    Carbon::parse($val->CREATEDATE)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

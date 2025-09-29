@@ -206,7 +206,7 @@ class PromotionController extends Controller
                     $val->DISKON_PROMO . ' %',
                     $val->JUMLAH_PAKET_PROMO,
                     'Rp ' . number_format($val->JUMLAH_POTONGAN),
-                    Carbon::parse($val->LETTER_DATE_LETTER)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->LETTER_DATE_LETTER)->isoFormat('dddd, D MMMM Y'),
                     $val->LETTER_NUMBER_LETTER,
                     $val->SENDER_LETTER,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,

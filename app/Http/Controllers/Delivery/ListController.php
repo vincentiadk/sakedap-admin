@@ -309,11 +309,17 @@ class ListController extends Controller
             return response()->json($response);
         }
 
+        if (in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) && ($letter->BRANCH_ID ?? '') == session('branch_id')) {
+            $disable = null;
+        } else {
+            $disable = 'disabled';
+        }
+
         return view('layouts.index', [
             'data' => [
                 'letter' => $letter,
                 'letterDetail' => $letterDetail,
-                'disabled' => in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) ? null : 'disabled',
+                'disabled' => $disable,
                 'content' => 'delivery.list-verification',
                 'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
                 'plugins' => [

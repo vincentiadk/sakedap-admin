@@ -176,7 +176,7 @@ class RequestFileController extends Controller
                     $status,
                     $val->COUNT_DOWNLOAD,
                     $letterRequest,
-                    Carbon::parse($val->CREATED_AT)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

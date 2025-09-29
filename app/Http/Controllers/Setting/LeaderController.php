@@ -173,8 +173,8 @@ class LeaderController extends Controller
                     $val->NIP,
                     $val->NAME_BRANCH,
                     $val->JABATAN,
-                    Carbon::parse($val->TANGGAL_AWAL)->format('dddd, D MMMM Y'),
-                    Carbon::parse($val->TANGGAL_AKHIR)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->TANGGAL_AWAL)->isoFormat('dddd, D MMMM Y'),
+                    Carbon::parse($val->TANGGAL_AKHIR)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

@@ -163,7 +163,7 @@ class ReviewController extends Controller
                     $val->NAME_PENERBIT_KATEGORI,
                     $val->NAME_PENERBIT_JENIS,
                     $phone,
-                    Carbon::parse($val->CREATEDATE)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

@@ -178,7 +178,7 @@ class ReviewController extends Controller
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
                     $val->CODE,
-                    Carbon::parse($val->UPDATED_AT)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

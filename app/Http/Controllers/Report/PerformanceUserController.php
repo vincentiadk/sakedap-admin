@@ -178,7 +178,7 @@ class PerformanceUserController extends Controller
                     ucwords($val->ACTION),
                     $val->TITLE,
                     $val->ACTIONBY,
-                    Carbon::parse($val->ACTIONDATE)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->ACTIONDATE)->isoFormat('dddd, D MMMM Y'),
                     $val->ACTIONTERMINAL,
                     $val->NOTE,
                 ];

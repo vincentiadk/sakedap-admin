@@ -212,7 +212,7 @@ class LabelController extends Controller
                     $val->NAME_LOCATION_LIBRARY,
                     $val->UPDATEBY,
                     $val->CREATEBY,
-                    Carbon::parse($val->ACQUIREDDATE)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->ACQUIREDDATE)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

@@ -77,7 +77,7 @@
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->DISKON_PROMO . ' %' }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->JUMLAH_PAKET_PROMO }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->JUMLAH_POTONGAN) }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ Carbon::parse($val->LETTER_DATE_LETTER)->format('dddd, D MMMM Y') }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->LETTER_DATE_LETTER ? Carbon::parse($val->LETTER_DATE_LETTER)->isoFormat('dddd, D MMMM Y') : '' }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->LETTER_NUMBER_LETTER }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->SENDER_LETTER }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT }}</td>

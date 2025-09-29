@@ -200,7 +200,7 @@ class ProblemController extends Controller
                     $val->CODE,
                     $listProblem,
                     $val->PROBLEM,
-                    Carbon::parse($val->REJECTED_AT)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->REJECTED_AT)->isoFormat('dddd, D MMMM Y'),
                     $val->NAME_USER,
                 ];
 

@@ -122,8 +122,8 @@ class TemplateEmailController extends Controller
                     $start + 1,
                     $action,
                     $val->SLUG,
-                    Carbon::parse($val->CREATED_AT)->format('dddd, D MMMM Y'),
-                    Carbon::parse($val->UPDATED_AT)->format('dddd, D MMMM Y'),
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;

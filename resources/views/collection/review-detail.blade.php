@@ -40,7 +40,7 @@
                             @foreach($collectionProblemHistory as $cph)
                                 <tr>
                                     <td>{{ $cph->NAME_PROBLEM }}</td>
-                                    <td>{{ Carbon::parse($cph->CREATED_AT)->format('dddd, D MMMM Y') }}</td>
+                                    <td>{{ $cph->CREATED_AT ? Carbon::parse($cph->CREATED_AT)->isoFormat('dddd, D MMMM Y') : null }}</td>
                                     <td>{{ $cph->SOLVED == 1 ? 'Telah Diperbaiki' : 'Belum Diperbaiki' }}</td>
                                 </tr>
                             @endforeach
@@ -340,7 +340,7 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $cc->EDITION }}</td>
-                                        <td>{{ Carbon::parse($cc->DATE)->format('dddd, D MMMM Y') }}</td>
+                                        <td>{{ $cc->DATE ? Carbon::parse($cc->DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
                                         <td>
                                             @if($cover)
                                                 <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
