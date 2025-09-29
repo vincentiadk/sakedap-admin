@@ -154,7 +154,7 @@ class LogController extends Controller
                     ucwords($val->ACTION),
                     $val->TABLENAME,
                     $val->ACTIONBY,
-                    Carbon::parse($val->ACTIONDATE)->format('d/m/Y'),
+                    Carbon::parse($val->ACTIONDATE)->format('dddd, D MMMM Y'),
                     $val->ACTIONTERMINAL,
                     $val->NOTE,
                 ];

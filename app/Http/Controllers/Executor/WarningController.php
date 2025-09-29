@@ -190,7 +190,7 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate2 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate1)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate1)->addDays(40)->format('d/m/Y');
+                    $dateNext = Carbon::parse($warningDate1)->addDays(40)->format('dddd, D MMMM Y');
 
                     if ($dateLimit >= 40) {
                         $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
@@ -225,7 +225,7 @@ class WarningController extends Controller
 
                     $warningDate1HTML = '
                         <div class="fw-bold"><small>Teguran 1 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->format('dddd, D MMMM Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                         <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
@@ -237,7 +237,7 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate3 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate2)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate2)->addDays(40)->format('d/m/Y');
+                    $dateNext = Carbon::parse($warningDate2)->addDays(40)->format('dddd, D MMMM Y');
 
                     if ($dateLimit >= 40) {
                         $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
@@ -272,7 +272,7 @@ class WarningController extends Controller
 
                     $warningDate2HTML = '
                         <div class="fw-bold"><small>Teguran 2 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->format('dddd, D MMMM Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                         <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
@@ -317,7 +317,7 @@ class WarningController extends Controller
 
                     $warningDate3HTML = '
                         <div class="fw-bold"><small>Teguran 3 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->format('d/m/Y') . '</small></div>
+                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->format('dddd, D MMMM Y') . '</small></div>
                         <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                     ';

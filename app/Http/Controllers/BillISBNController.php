@@ -136,12 +136,12 @@ class BillISBNController extends Controller
                     isset($val->isbn) ? $val->isbn : '',
                     isset($val->jenis_media) ? ucwords($val->jenis_media) : '',
                     isset($val->jenis_pustaka) ? ucwords($val->jenis_pustaka) : '',
-                    isset($val->received_date_kckr) ? Carbon::parse($val->received_date_kckr)->format('d/m/Y') : '',
-                    isset($val->received_date_prov) ? Carbon::parse($val->received_date_prov)->format('d/m/Y') : '',
+                    isset($val->received_date_kckr) ? Carbon::parse($val->received_date_kckr)->format('dddd, D MMMM Y') : '',
+                    isset($val->received_date_prov) ? Carbon::parse($val->received_date_prov)->format('dddd, D MMMM Y') : '',
                     $sinopsis,
-                    isset($val->acceptdate) ? Carbon::parse($val->acceptdate)->format('d/m/Y') : '',
-                    isset($val->createdate) ? Carbon::parse($val->createdate)->format('d/m/Y') : '',
-                    isset($val->updatedate) ? Carbon::parse($val->updatedate)->format('d/m/Y') : '',
+                    isset($val->acceptdate) ? Carbon::parse($val->acceptdate)->format('dddd, D MMMM Y') : '',
+                    isset($val->createdate) ? Carbon::parse($val->createdate)->format('dddd, D MMMM Y') : '',
+                    isset($val->updatedate) ? Carbon::parse($val->updatedate)->format('dddd, D MMMM Y') : '',
                 ];
 
                 $start++;

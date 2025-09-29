@@ -31,9 +31,9 @@
                         </tr>
                         <tr>
                             <th class="table-success align-top" width="15%">Tgl Kirim</th>
-                            <td class="align-top" width="35%">{{ $letter->LETTER_DATE ? Carbon::parse($letter->LETTER_DATE)->format('d/m/Y') : '' }}</td>
+                            <td class="align-top" width="35%">{{ $letter->LETTER_DATE ? Carbon::parse($letter->LETTER_DATE)->format('dddd, D MMMM Y') : '' }}</td>
                             <th class="table-success align-top" width="15%">Tgl Sampai</th>
-                            <td class="align-top" width="35%">{{ $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->format('d/m/Y') : '' }}</td>
+                            <td class="align-top" width="35%">{{ $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->format('dddd, D MMMM Y') : '' }}</td>
                         </tr>
                         <tr>
                             <th class="table-success align-top" width="15%">Jumlah Paket</th>

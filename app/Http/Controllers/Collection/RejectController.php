@@ -174,7 +174,7 @@ class RejectController extends Controller
                     $val->NAME_WORKSHEET,
                     $val->CODE,
                     $val->REJECT,
-                    Carbon::parse($val->REJECTED_AT)->format('d/m/Y'),
+                    Carbon::parse($val->REJECTED_AT)->format('dddd, D MMMM Y'),
                     $val->NAME_USER,
                 ];
 

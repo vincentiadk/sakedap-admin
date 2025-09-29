@@ -234,7 +234,7 @@ class CollectionController extends Controller
                     $val->ISBN,
                     $val->PUBLISHYEAR,
                     $val->PREVIEW,
-                    Carbon::parse($val->CREATEDATE)->format('d/m/Y'),
+                    Carbon::parse($val->CREATEDATE)->format('dddd, D MMMM Y'),
                 ];
 
                 $start++;
