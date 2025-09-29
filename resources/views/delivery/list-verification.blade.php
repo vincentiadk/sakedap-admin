@@ -78,7 +78,7 @@
                                 <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
                                 <td class="text-wrap">{{ $ld->NAME_WORKSHEET }}</td>
                                 <td>
-                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->QUANTITY }}" readonly>
+                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->COPY }}" readonly>
                                 </td>
                                 <td>
                                     <input type="number" class="form-control" name="letter_detail_qty_accept[]" oninput="calculateQty(this, 'accept')" value="{{ $ld->QTY_ACCEPT ?: $acceptDefault }}" {{ $disabled }}>

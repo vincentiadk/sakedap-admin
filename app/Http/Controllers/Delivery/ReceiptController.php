@@ -205,7 +205,8 @@ class ReceiptController extends Controller
 
                             $letterDetailData = [
                                 'title' => $isbn->title,
-                                'quantity' => $qtyAccept + $qtyReject,
+                                'copy' => $qtyAccept + $qtyReject,
+                                'quantity' => 1,
                                 'letter_id' => $letter->LETTER_ID ?? null,
                                 'remark' => implode(';', $request->ci_description[$key] ?? []),
                                 'author' => $isbn->kepeng,
@@ -272,7 +273,8 @@ class ReceiptController extends Controller
 
                             $letterDetailData = [
                                 'title' => $title,
-                                'quantity' => $qtyAccept + $qtyReject,
+                                'copy' => $qtyAccept + $qtyReject,
+                                'quantity' => 1,
                                 'price' => str_replace(',', '', ($request->cni_price[$key] ?? 0)),
                                 'letter_id' => $letter->LETTER_ID ?? null,
                                 'remark' => implode(';', $request->cni_description[$key] ?? []),
@@ -337,7 +339,8 @@ class ReceiptController extends Controller
                                 $letterDetailData = [
                                     'title' => $catalog->TITLE ?? null,
                                     'remark' => implode(';', $request->cpe_description[$key][$keys] ?? []),
-                                    'quantity' => $qtyAccept + $qtyReject,
+                                    'copy' => $qtyAccept + $qtyReject,
+                                    'quantity' => 1,
                                     'price' => $catalog->PRICE ?? null,
                                     'letter_id' => $letter->LETTER_ID ?? null,
                                     'author' => $catalog->AUTHOR ?? null,

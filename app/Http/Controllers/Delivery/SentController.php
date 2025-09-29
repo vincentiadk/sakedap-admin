@@ -37,7 +37,7 @@ class SentController extends Controller
             'branchs.name',
             'jasa_pengiriman.name',
             'letter.receipt_no',
-            'letter_detail.quantity',
+            'letter_detail.copy',
             null
         ];
 
@@ -191,7 +191,7 @@ class SentController extends Controller
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
                     $receiptNumber,
-                    $val->QUANTITY,
+                    $val->COPY,
                     $val->JENIS_MEDIA,
                     $status,
                 ];
