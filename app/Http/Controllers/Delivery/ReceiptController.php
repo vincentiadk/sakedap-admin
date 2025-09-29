@@ -37,7 +37,7 @@ class ReceiptController extends Controller
 
         $data = ISBN::get('search', [
             'code' => $code
-        ]);
+        ], true);
 
         return response()->json($data);
     }
