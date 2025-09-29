@@ -228,9 +228,9 @@
                 var executorId = $('#executor_id').val();
                 var randStr = randomString(10);
 
-                if (response && typeof response === 'object') {
-                    if((response.jenis_media).toLowerCase() == 'cetak') {
-                        if(response.penerbit_id == executorId) {
+                if (response && typeof response === 'object' && Object.keys(response).length > 0 ) {
+                    if((response?.jenis_media ?? '').toLowerCase() == 'cetak') {
+                        if(response?.penerbit_id == executorId) {
                             $('#data-collection-isbn').append(`
                                 <tr>
                                     <input type="hidden" name="ci[]" value="1">
