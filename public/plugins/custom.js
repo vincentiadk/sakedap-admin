@@ -468,7 +468,7 @@ function notificationHeader() {
 }
 
 function lookup(options) {
-    const { title, dtAjaxUrl, dtColumns, dtAjaxData, onSelect } = options;
+    const { title, dtAjaxUrl, dtColumns, dtAjaxData, dtOrder, onSelect } = options;
     const $modal = $('#lookup-dialog-modal');
 
     if ($.fn.DataTable.isDataTable('#lookup-dialog-datatable')) {
@@ -487,7 +487,7 @@ function lookup(options) {
             serverSide: true,
             deferRender: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: dtOrder,
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.childRowImmediate,
@@ -608,6 +608,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
                     searchable: $('#lookup-dialog-filter-searchable').val()
                 };
             },
+            dtOrder: [],
             dtColumns: [
                 { orderable: true, className: 'align-middle text-nowrap text-center' },
                 { orderable: false, className: 'align-middle text-nowrap text-center' },
