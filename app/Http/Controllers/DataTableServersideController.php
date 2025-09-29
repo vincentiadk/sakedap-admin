@@ -125,7 +125,8 @@ class DataTableServersideController extends Controller
                                 catalogs.publishyear,
                                 catalogs.isbn,
                                 catalogs.callnumber,
-                                penerbit.name as name_penerbit
+                                penerbit.name as name_penerbit,
+                                coalesce(count(collections.id), 0) as total_collection
                             from
                                 catalogs
                             join
@@ -134,7 +135,18 @@ class DataTableServersideController extends Controller
                                 kabupaten on kabupaten.id = catalogs.city_id
                             join
                                 worksheets on worksheets.id = catalogs.worksheet_id
+                            join
+                                collections on collections.catalog_id = catalogs.id
                             $whereClause
+                            group by
+                                catalogs.id,
+                                catalogs.bibid,
+                                catalogs.title,
+                                catalogs.author,
+                                catalogs.publishyear,
+                                catalogs.isbn,
+                                catalogs.callnumber,
+                                penerbit.name
                             $orderBy
                         ) data
                 )
@@ -150,15 +162,6 @@ class DataTableServersideController extends Controller
                     </a>
                 ';
 
-                $totalCollection = QueryAPI::get("
-                    select
-                        count(id)
-                    from
-                        collections
-                    where
-                        catalog_id = $val->ID
-                ", true)->TOTAL ?? 0;
-
                 $detailUrl = "https://digitlib.site/inlis-ent-2025/KatalogDetailView.aspx?id=$val->ID&l=$this->credentialInlisIFrame";
 
                 $detailPositionCenter = "var w = 900; var h = 550; var left = (screen.width / 2) - (w / 2); var top = (screen.height / 2) - (h / 2); window.open(this.href, 'DetailWindow', 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',scrollbars=yes,resizable=yes'); return false;";
@@ -171,7 +174,7 @@ class DataTableServersideController extends Controller
                     $val->BIBID,
                     $val->ISBN,
                     $val->CALLNUMBER,
-                    $totalCollection,
+                    $val->TOTAL_COLLECTION,
                     $val->PUBLISHYEAR,
                     $val->TITLE,
                     $val->NAME_PENERBIT,
