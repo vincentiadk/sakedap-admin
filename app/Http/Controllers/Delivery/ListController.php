@@ -33,7 +33,8 @@ class ListController extends Controller
             'penerbit.name',
             'letter.receipt_no',
             'jasa_pengiriman.name',
-            'letter.jumlah_paket',
+            null,
+            null,
             'letter.status',
             'letter.proses_by',
         ];
@@ -131,16 +132,30 @@ class ListController extends Controller
                     from
                         (
                             select
-                                letter.*,
+                                letter.letter_id,
+                                letter.status,
+                                letter.receipt_no,
+                                letter.proses_by,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
-                                penerbit.name as name_penerbit
+                                penerbit.name as name_penerbit,
+                                coalesce(sum(letter_detail.copy), 0) as total_eks,
+                                coalesce(sum(letter_detail.quantity), 0) as total_title
                             from
                                 letter
                             left join
                                 penerbit on penerbit.id = letter.penerbit_id
                             left join
                                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+                            left join
+                                letter_detail on letter_detail.letter_id = letter.letter_id
                             $whereClause
+                            group by
+                                letter.letter_id,
+                                letter.status,
+                                letter.receipt_no,
+                                letter.proses_by,
+                                jasa_pengiriman.name,
+                                penerbit.name
                             $orderBy
                         ) data
                 )
@@ -174,7 +189,8 @@ class ListController extends Controller
                     $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
-                    $val->JUMLAH_PAKET,
+                    $val->TOTAL_EKS,
+                    $val->TOTAL_TITLE,
                     $val->STATUS,
                     $val->PROSES_BY,
                 ];

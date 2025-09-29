@@ -91,7 +91,8 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Resi</th>
                         <th class="text-nowrap">Jasa Kirim</th>
-                        <th class="text-nowrap">Jumlah Paket</th>
+                        <th class="text-nowrap">Jumlah Eks</th>
+                        <th class="text-nowrap">Jumlah Judul</th>
                         <th class="text-nowrap">Status</th>
                         <th class="text-nowrap">Proses By</th>
                     </tr>
@@ -149,7 +150,8 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: false, className: 'align-middle' },
+                { orderable: false, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
             ],
