@@ -58,7 +58,7 @@
                 <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
             </div>
             <div class="card-body">
-                {{ $collection->PUBLISHER_ID . ' | ' . $collection->NAME_PENERBIT }}
+                {{ $collection->ID_PENERBIT . ' | ' . $collection->NAME_PENERBIT }}
             </div>
         </div>
         <div class="card">
@@ -253,7 +253,14 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Keterangan Fisik</label>
                     <div class="col-md-10">
-                        <textarea name="physical_description" class="form-control" id="physical_description" rows="5" placeholder="....................">{{ $collection->KETFIS }}</textarea>
+                        <div class="input-group">
+                            <span class="input-group-text">Total Halaman / Durasi</span>
+                            <input type="text" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($physicalDescription->paging) ? $physicalDescription->paging : '' }}" placeholder="....................">
+                            <span class="input-group-text">Ilustrasi</span>
+                            <input type="text" class="form-control" name="physical_description[ill]" id="physical_description[ill]" value="{{ isset($physicalDescription->ill) ? $physicalDescription->ill : '' }}" placeholder="....................">
+                            <span class="input-group-text">Ukuran / Dimensi</span>
+                            <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" value="{{ isset($physicalDescription->sizes) ? $physicalDescription->sizes : '' }}" placeholder="....................">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">

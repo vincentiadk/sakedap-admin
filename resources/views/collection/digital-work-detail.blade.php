@@ -222,7 +222,14 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Keterangan Fisik</label>
                     <div class="col-md-10">
-                        <textarea name="physical_description" class="form-control" id="physical_description" rows="5" placeholder="...................." disabled>{{ $collection->DESCRIPTION }}</textarea>
+                        <div class="input-group">
+                            <span class="input-group-text">Total Halaman / Durasi</span>
+                            <input type="text" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($collection->PAGING) ? $collection->PAGING : '' }}" placeholder="...................." disabled>
+                            <span class="input-group-text">Ilustrasi</span>
+                            <input type="text" class="form-control" name="physical_description[ill]" id="physical_description[ill]" value="{{ isset($collection->ILL) ? $collection->ILL : '' }}" placeholder="...................." disabled>
+                            <span class="input-group-text">Ukuran / Dimensi</span>
+                            <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" value="{{ isset($collection->SIZES) ? $collection->SIZES : '' }}" placeholder="...................." disabled>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">

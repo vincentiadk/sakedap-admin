@@ -144,6 +144,7 @@ class ReviewController extends Controller
                         (
                             select
                                 e_collections.*,
+                                penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 worksheets.name as name_worksheet
                             from
@@ -174,7 +175,7 @@ class ReviewController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->PUBLISHER_ID . ' | ' . $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
                     $val->CODE,
@@ -198,6 +199,7 @@ class ReviewController extends Controller
         $collection = QueryAPI::get("
             select
                 e_collections.*,
+                penerbit.id as id_penerbit,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
                 propinsi.namapropinsi as namapropinsi
@@ -274,7 +276,7 @@ class ReviewController extends Controller
                         'publication_month' => date('m', strtotime($request->publish_time)),
                         'publication_year' => date('Y', strtotime($request->publish_time)),
                         'preview' => $request->preview,
-                        'ketfis' => $request->physical_description,
+                        'physical_description' => json_encode($request->physical_description),
                         'akses' => $request->access,
                         'status' => $status,
                         'price' => str_replace([',', '.'], '', $request->price),
@@ -431,6 +433,7 @@ class ReviewController extends Controller
                 'collectionCover' => $collectionCover,
                 'collectionContent' => $collectionContent,
                 'collectionProblemHistory' => $collectionProblemHistory,
+                'physicalDescription' => json_decode($collection->physical_description ?? ''),
                 'content' => 'collection.review-detail',
                 'plugins' => [
                     'select2',

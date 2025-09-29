@@ -148,7 +148,7 @@ class CreateSingleController extends Controller
                         'publication_month' => date('m', $publishTime),
                         'publication_year' => date('Y', $publishTime),
                         'preview' => $request->preview,
-                        'ketfis' => $request->physical_description,
+                        'physical_description' => json_encode($request->physical_description),
                         'sync' => 0,
                         'manual' => 1,
                         'akses' => $request->access,

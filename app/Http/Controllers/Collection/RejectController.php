@@ -169,7 +169,7 @@ class RejectController extends Controller
             foreach ($queryData as $val) {
                 $data[] = [
                     $start + 1,
-                    $val->PUBLISHER_ID . ' | ' . $val->NAME_PENERBIT,
+                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
                     $val->CODE,
