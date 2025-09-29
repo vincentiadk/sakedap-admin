@@ -190,9 +190,9 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate2 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate1)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate1)->addDays(33)->format('d/m/Y');
+                    $dateNext = Carbon::parse($warningDate1)->addDays(40)->format('d/m/Y');
 
-                    if ($dateLimit >= 33) {
+                    if ($dateLimit >= 40) {
                         $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
                     } else {
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
@@ -237,9 +237,9 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate3 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate2)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate2)->addDays(33)->format('d/m/Y');
+                    $dateNext = Carbon::parse($warningDate2)->addDays(40)->format('d/m/Y');
 
-                    if ($dateLimit >= 33) {
+                    if ($dateLimit >= 40) {
                         $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
                     } else {
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
@@ -284,7 +284,7 @@ class WarningController extends Controller
                     $dateLimit = Carbon::parse($dateStart)->diffInDays(now()->format('Y-m-d'));
                     $dateEnd = Carbon::parse($warningDate3)->addDays(40)->format('Y-m-d');
 
-                    if ($dateLimit >= 33) {
+                    if ($dateLimit >= 40) {
                         $mark = '<span class="text-danger">(>= ' . $dateLimit . ' Hari)</span>';
                     } else {
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
