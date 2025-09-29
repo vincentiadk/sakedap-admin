@@ -58,6 +58,7 @@
                         <tr>
                             <th class="text-center" rowspan="2">No</th>
                             <th rowspan="2">Judul</th>
+                            <th rowspan="2">ISBN</th>
                             <th rowspan="2">Edisi</th>
                             <th rowspan="2">Jenis Bahan</th>
                             <th colspan="3" class="text-center">Jumlah Eksemplar</th>
@@ -75,6 +76,7 @@
                                 <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
+                                <td class="text-wrap">{{ $ld->ISBN }}</td>
                                 <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
                                 <td class="text-wrap">{{ $ld->NAME_WORKSHEET }}</td>
                                 <td>
