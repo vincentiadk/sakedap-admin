@@ -111,6 +111,7 @@ class CreateDataController extends Controller
                         'updatedate' => date('Y-m-d H:i:s'),
                         'validateby' => session('name'),
                         'validatedate' => date('Y-m-d H:i:s'),
+                        'registerdate' => date('Y-m-d H:i:s'),
                         'source_db' => 'EDEPOSIT',
                         'is_validasi' => 1,
                         'is_disable' => 0,

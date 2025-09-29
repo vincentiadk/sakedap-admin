@@ -225,10 +225,8 @@ class ReviewController extends Controller
             if ($status == 3) {
                 $payload = [
                     'status' => 3,
-                    'validateby' => session('name'),
-                    'validatedate' => date('Y-m-d H:i:s'),
-                    'is_validasi' => 1,
-                    'is_lock' => 1,
+                    'createby' => session('name'),
+                    'createdate' => date('Y-m-d H:i:s'),
                 ];
             } else {
                 $payload = [
