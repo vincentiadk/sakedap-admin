@@ -14,13 +14,13 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Pelaksana Serah :</label>
                         <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Jasa Kirim :</label>
                         <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
@@ -29,6 +29,12 @@
                                 <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
                             @endforeach
                         </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Tujuan :</label>
+                        <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -91,6 +97,7 @@
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Resi</th>
                         <th class="text-nowrap">Jasa Kirim</th>
+                        <th class="text-nowrap">Tujuan</th>
                         <th class="text-nowrap">Jumlah Eks</th>
                         <th class="text-nowrap">Jumlah Judul</th>
                         <th class="text-nowrap">Status</th>
@@ -110,8 +117,13 @@
             select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
+
+            select2Serverside('#branch_id', 'branch', {
+                province_id: '{{ session("province_id") }}',
+            });
         } else {
             select2Serverside('#executor_id', 'executor');
+            select2Serverside('#branch_id', 'branch');
         }
 
         loadData();
@@ -135,6 +147,7 @@
                     date_type: $('#date_type').val(),
                     status: $('#status').val(),
                     receipt_no: $('#receipt_no').val(),
+                    branch_id: $('#branch_id').val(),
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -150,6 +163,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

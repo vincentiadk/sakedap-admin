@@ -33,6 +33,7 @@ class ListController extends Controller
             'penerbit.name',
             'letter.receipt_no',
             'jasa_pengiriman.name',
+            'branchs.name',
             null,
             null,
             'letter.status',
@@ -71,6 +72,10 @@ class ListController extends Controller
 
         if ($request->executor_id) {
             $whereCondition[] = "letter.penerbit_id = $request->executor_id";
+        }
+
+        if ($request->branch_id) {
+            $whereCondition[] = "letter.branch_id = $request->branch_id";
         }
 
         if ($request->date) {
@@ -119,6 +124,8 @@ class ListController extends Controller
                 penerbit on penerbit.id = letter.penerbit_id
             left join
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+            left join
+                branchs on branchs.id = letter.branch_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -137,6 +144,7 @@ class ListController extends Controller
                                 letter.receipt_no,
                                 letter.proses_by,
                                 letter.penerbit_id,
+                                branchs.name as name_branch,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
                                 penerbit.name as name_penerbit,
                                 coalesce(sum(letter_detail.copy), 0) as total_eks,
@@ -149,6 +157,8 @@ class ListController extends Controller
                                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
                             left join
                                 letter_detail on letter_detail.letter_id = letter.letter_id
+                            left join
+                                branchs on branchs.id = letter.branch_id
                             $whereClause
                             group by
                                 letter.letter_id,
@@ -156,6 +166,7 @@ class ListController extends Controller
                                 letter.receipt_no,
                                 letter.proses_by,
                                 letter.penerbit_id,
+                                branchs.name,
                                 jasa_pengiriman.name,
                                 penerbit.name
                             $orderBy
@@ -191,6 +202,7 @@ class ListController extends Controller
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
+                    $val->NAME_BRANCH,
                     $val->TOTAL_EKS,
                     $val->TOTAL_TITLE,
                     $val->STATUS,
