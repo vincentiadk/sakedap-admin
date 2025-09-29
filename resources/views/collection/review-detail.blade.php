@@ -353,7 +353,7 @@
                                         </td>
                                         <td>
                                             @if($content)
-                                                <a href="{{ url('stream-file') }}?type=file_preview&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
+                                                <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
                                                     <i class="ph-file me-1"></i>
                                                     Lihat
                                                 </a>
@@ -393,7 +393,7 @@
                     </div>
                     <div class="card-body">
                         <div class="ratio ratio-16x9">
-                            <iframe src="{{ url('stream-file') }}?type=file_preview&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
+                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
                         </div>
                     </div>
                 </div>

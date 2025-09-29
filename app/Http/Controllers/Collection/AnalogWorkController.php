@@ -283,7 +283,7 @@ class AnalogWorkController extends Controller
             from
                 catalogcovers
             where
-                e_col_id = $catalogId
+                catalog_id = $catalogId
         ", true);
 
         $collectionContent = QueryAPI::get("
@@ -292,7 +292,7 @@ class AnalogWorkController extends Controller
             from
                 catalogfiles
             where
-                e_col_id = $catalogId
+                catalog_id = $catalogId
         ", true);
 
         return view('layouts.index', [
