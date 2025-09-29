@@ -229,7 +229,7 @@
                 var randStr = randomString(10);
 
                 if (response && typeof response === 'object') {
-                    if(response.jenis_media == 'cetak') {
+                    if((response.jenis_media).toLowerCase() == 'cetak') {
                         if(response.penerbit_id == executorId) {
                             $('#data-collection-isbn').append(`
                                 <tr>
