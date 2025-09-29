@@ -9,6 +9,20 @@
 </div>
 <div class="content pt-0">
     <div class="card">
+        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
+            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
+            <div class="ms-sm-auto my-sm-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Status</span>
+                    <select class="form-select wmin-200" name="filter_status" id="filter_status" onchange="loadData()">
+                        <option value="">Semua</option>
+                        <option value="1">Aktif</option>
+                        <option value="2">Blokir</option>
+                        <option value="3">Usulan Blokir</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
@@ -238,6 +252,9 @@
             ajax: {
                 url: '{{ url("executor/manage/datatable") }}',
                 dataType: 'JSON',
+                data: {
+                    status: $('#filter_status').val()
+                },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
                 },

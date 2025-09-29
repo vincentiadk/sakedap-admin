@@ -59,6 +59,16 @@ class ManageController extends Controller
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 
+        if ($request->status) {
+            if ($request->status == 1) {
+                $whereCondition[] = '(penerbit.is_lock = 0 or penerbit.is_lock is null)';
+            } else if ($request->status == 2) {
+                $whereCondition[] = '(penerbit.is_lock = 1)';
+            } else if ($request->status == 3) {
+                $whereCondition[] = '(penerbit.is_lock = 2)';
+            }
+        }
+
         if ($search) {
             $terms = [];
 
@@ -160,26 +170,26 @@ class ManageController extends Controller
                     <div>Alternatif : ' . $val->TELP2 . '</div>
                 ';
 
-                $lock = '
-                    <span class="text-success"><i class="ph-check"></i></span>
-                ';
+                $lock = '';
 
                 if (is_null($val->IS_LOCK) || $val->IS_LOCK == 0) {
-                    $lock = '
-                        <span class="text-danger"><i class="ph-x"></i></span>
-                    ';
+                    $lock = 'Aktif';
+                } else if ($val->IS_LOCK == 1) {
+                    $lock = 'Blokir';
+                } else if ($val->IS_LOCK == 2) {
+                    $lock = 'Usulan Blokir';
                 }
 
                 $dataWarning = QueryAPI::get("select * from e_publisher_warnings where publisher_id = $val->ID and status = 'DALAM TEGURAN'") ?? [];
 
                 if (count($dataWarning) > 0) {
-                    $warning = '<span class="text-success"><i class="ph-check"></i></span>';
+                    $warning = 'Dalam Teguran';
                 } else {
-                    $warning = '<span class="text-danger"><i class="ph-x"></i></span>';
+                    $warning = 'Tidak Ada';
                 }
 
                 $mark = '
-                    <div>Terkunci : ' . $lock . '</div>
+                    <div>Status : ' . $lock . '</div>
                     <div>Teguran : ' . $warning . '</div>
                 ';
 
