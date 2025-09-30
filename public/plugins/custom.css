@@ -70,3 +70,14 @@
 .dt-buttons {
     margin-bottom: 0 !important;
 }
+
+.dt-top-scroll-wrapper {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 18px;
+    margin-bottom: -1px;
+}
+
+.dt-top-scroll-wrapper>div {
+    height: 1px;
+}

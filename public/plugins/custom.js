@@ -13,6 +13,45 @@ $(function () {
     select2Basic();
     iframeable();
     notificationHeader();
+
+    $(document).on('init.dt', function (e, settings) {
+        if (!settings.oInit.scrollX) {
+            return;
+        }
+
+        var $wrapper = $(settings.nTableWrapper);
+        var $topWrapper = $wrapper.find('.dt-top-scroll-wrapper');
+        var $scrollBody = $wrapper.find('.dataTables_scrollBody');
+
+        if ($topWrapper.children().length === 0) {
+            $topWrapper.append('<div class="top-scroll-content"></div>');
+        }
+
+        var $topContent = $topWrapper.find('.top-scroll-content');
+
+        function adjustWidthAndSync() {
+            var tableWidth = $scrollBody.find('table').width();
+
+            $topContent.width(tableWidth);
+            $topWrapper.scrollLeft($scrollBody.scrollLeft());
+        }
+
+        setTimeout(adjustWidthAndSync, 100);
+
+        $topWrapper.off('scroll.topscroll').on('scroll.topscroll', function () {
+            $scrollBody.scrollLeft($topWrapper.scrollLeft());
+        });
+
+        $scrollBody.off('scroll.topscroll').on('scroll.topscroll', function () {
+            $topWrapper.scrollLeft($scrollBody.scrollLeft());
+        });
+
+        $wrapper.on('draw.dt column-sizing.dt', function () {
+            setTimeout(adjustWidthAndSync, 50);
+        });
+
+        $(window).on('resize', adjustWidthAndSync);
+    });
 });
 
 function debounce(callback, delay) {
@@ -99,7 +138,8 @@ function configDataTable() {
             pageLength: 10,
             stateDuration: 60 * 60 * 24,
             searchDelay: 500,
-            dom: '<"datatable-header justify-content-start"f<"ms-sm-auto"l><"ms-sm-3"B>><"datatable-scroll-wrap"t><"datatable-footer"ip>',
+            scrollX: true,
+            dom: '<"datatable-header justify-content-start"f<"ms-sm-auto"l><"ms-sm-3"B>><"dt-top-scroll-wrapper"><"datatable-scroll-wrap"t><"datatable-footer"ip>',
             language: {
                 search: '<div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
                 searchPlaceholder: 'Cari ...',
@@ -127,7 +167,7 @@ function configDataTable() {
                 buttons: [
                     {
                         extend: 'collection',
-                        text: '<i class="ph-ph-microsoft-excel-logo me-1"></i> Download Excel',
+                        text: '<i class="ph-microsoft-excel-logo me-1"></i> Download Excel',
                         buttons: [
                             {
                                 extend: 'excelHtml5',
