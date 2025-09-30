@@ -230,6 +230,8 @@ class ReceiptController extends Controller
                                 'sinopsis' => $isbn->sinopsis,
                                 'cleaning_note' => $isbn->keterangan,
                                 'jenis_media' => $isbn->jenis_media,
+                                'collection_type_id' => 2,
+                                'penerbit_terbitan_id' => $isbn->ptid,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -275,6 +277,12 @@ class ReceiptController extends Controller
                             $year = $request->cni_year[$key] ?? null;
                             $physicalDescription = $request->cni_physical_description[$key] ?? null;
                             $executor = $request->cni_executor[$key] ?? ($letterExecutor->NAME ?? null);
+                            $media = strtoupper($request->cni_type[$key] ?? '');
+                            $getCollectionMedia = null;
+
+                            if ($media) {
+                                $getCollectionMedia = QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true);
+                            }
 
                             $letterDetailData = [
                                 'title' => $title,
@@ -294,9 +302,9 @@ class ReceiptController extends Controller
                                 'qty_reject' => $qtyReject,
                                 'province_id' => $catalog->PROPINSIID ?? null,
                                 'kab_id' => $catalog->CITY_ID ?? null,
-                                'collectionmediaid' => $catalog->COLLECTIONMEDIA_ID ?? null,
+                                'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($getCollectionMedia->ID ?? null),
                                 'deskripsifisik' => $physicalDescription,
-                                'jenis_media' => $request->cni_type[$key] ?? null,
+                                'jenis_media' => $getCollectionMedia->NAME ?? null,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -362,7 +370,7 @@ class ReceiptController extends Controller
                                     'qty_reject' => $qtyReject,
                                     'province_id' => $catalog->PROPINSIID ?? null,
                                     'kab_id' => $catalog->CITY_ID ?? null,
-                                    'collectionmediaid' => $catalog->COLLECTIONMEDIA_ID ?? null,
+                                    'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
                                 ];
 
                                 QueryAPI::create('letter_detail', $letterDetailData, false);
