@@ -419,35 +419,19 @@ class ListController extends Controller
 
         $collections = QueryAPI::get("
             select
-                collections.letter_id,
-                collections.title,
-                collections.isbn,
-                collections.mark_province,
-                collections.mark_national,
-                collections.branch_id,
-                letter_detail.qty_accept as qty_accept_letter_detail,
+                letter_detail.letter_id,
                 letter.accept_date as accept_date_letter,
-                worksheets.name as name_worksheet
+                letter_detail.title,
+                letter_detail.jenis_media,
+                letter_detail.isbn,
+                letter_detail.qty_accept
             from
-                collections
+                letter_detail
             left join
-                worksheets on worksheets.id = collections.worksheet_id
-            left join
-                letter on letter.letter_id = collections.letter_id
-            left join
-                letter_detail on letter_detail.letter_detail_id = collections.letter_detail_id
+                letter on letter.letter_id = letter_detail.letter_id
             where
-                collections.letter_id = $letter->LETTER_ID
-            group by
-                collections.letter_id,
-                collections.title,
-                collections.isbn,
-                collections.mark_province,
-                collections.mark_national,
-                collections.branch_id,
-                letter_detail.qty_accept,
-                letter.accept_date,
-                worksheets.name
+                letter.letter_id = $letter->LETTER_ID and
+                letter_detail.qty_accept > 0
         ");
 
         $htmlCollections = '<table border="1" style="font-size:8px">';
@@ -455,23 +439,20 @@ class ListController extends Controller
         $htmlCollections .= '<th style="padding:12px;text-align: center;">No</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">Tanggal Terima</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">Judul</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">Jenis Koleksi</th>';
+        $htmlCollections .= '<th style="padding:12px;text-align: center;">Jenis Media</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">ISBN/ISSN</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">Jumlah (Eksemplar)</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">TRK</th>';
         $htmlCollections .= '</tr>';
 
         if ($collections) {
             foreach ($collections as $key => $c) {
-                $TRKNo = ($c->BRANCH_ID == Main::IS_CENTER_BRANCH) ? $c->MARK_NATIONAL : $c->MARK_PROVINCE;
                 $htmlCollections .= '<tr>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($key + 1) . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->TITLE ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->NAME_WORKSHEET ?? '-') . '</td>';
+                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->ISBN ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->QTY_ACCEPT_LETTER_DETAIL ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($TRKNo ?? '-') . '</td>';
+                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
                 $htmlCollections .= '</tr>';
             }
         }
