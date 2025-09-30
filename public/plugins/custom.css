@@ -66,3 +66,7 @@
 .dataTables_length {
     margin-bottom: 0 !important;
 }
+
+.dt-buttons {
+    margin-bottom: 0 !important;
+}

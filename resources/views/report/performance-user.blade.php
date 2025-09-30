@@ -67,12 +67,12 @@
     <div class="card">
         <div class="card-header d-flex align-items-center py-0">
             <h5 class="py-3 mb-0">Daftar</h5>
-            <div class="ms-auto my-auto">
+            {{-- <div class="ms-auto my-auto">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-download-excel">
                     <i class="ph-microsoft-excel-logo me-1"></i>
                     Download
                 </button>
-            </div>
+            </div> --}}
         </div>
         <div class="card-body">
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">

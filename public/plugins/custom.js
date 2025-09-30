@@ -99,7 +99,7 @@ function configDataTable() {
             pageLength: 10,
             stateDuration: 60 * 60 * 24,
             searchDelay: 500,
-            dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
+            dom: '<"datatable-header justify-content-start"f<"ms-sm-auto"l><"ms-sm-3"B>><"datatable-scroll-wrap"t><"datatable-footer"ip>',
             language: {
                 search: '<div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
                 searchPlaceholder: 'Cari ...',
@@ -117,6 +117,50 @@ function configDataTable() {
                 loadingRecords: 'Memuat ...',
                 zeroRecords: 'Tidak ada data',
                 pageButton: 'btn btn-primary',
+            },
+            buttons: {
+                dom: {
+                    button: {
+                        className: 'btn btn-secondary'
+                    },
+                },
+                buttons: [
+                    {
+                        extend: 'collection',
+                        text: '<i class="ph-ph-microsoft-excel-logo me-1"></i> Download Excel',
+                        buttons: [
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Semua Data Keseluruhan',
+                                exportOptions: {
+                                    modifier: {
+                                        page: 'all',
+                                        search: 'none',
+                                    }
+                                }
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Semua Data Dengan Pencarian',
+                                exportOptions: {
+                                    modifier: {
+                                        page: 'all',
+                                        search: 'applied',
+                                    }
+                                }
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Halaman Ini Saja',
+                                exportOptions: {
+                                    modifier: {
+                                        page: 'current',
+                                    }
+                                }
+                            },
+                        ]
+                    }
+                ]
             },
         });
     }
