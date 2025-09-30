@@ -28,20 +28,20 @@ class ListController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'letter.letter_id',
+            'l.letter_id',
             null,
-            'penerbit.name',
-            'letter.receipt_no',
-            'jasa_pengiriman.name',
-            'branchs.name',
-            null,
-            null,
+            'p.name',
+            'l.receipt_no',
+            'jp.name',
+            'b.name',
             null,
             null,
             null,
             null,
-            'letter.status',
-            'letter.proses_by',
+            null,
+            null,
+            'l.status',
+            'l.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -55,31 +55,31 @@ class ListController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "letter.status != 'DRAFT'";
+        $whereCondition[] = "l.status != 'DRAFT'";
 
         if (Main::isNotCenterBranch()) {
-            $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
+            $whereCondition[] = 'p.province_id = ' . session('province_id');
         }
 
         if ($request->receipt_no) {
             $receiptNo = strtoupper($request->receipt_no);
-            $whereCondition[] = "upper(letter.receipt_no) like '%$receiptNo%'";
+            $whereCondition[] = "upper(l.receipt_no) like '%$receiptNo%'";
         }
 
         if ($request->delivery_service_id) {
-            $whereCondition[] = "letter.jasa_pengiriman_id = $request->delivery_service_id";
+            $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
         }
 
         if ($request->status) {
-            $whereCondition[] = "letter.status = '$request->status'";
+            $whereCondition[] = "l.status = '$request->status'";
         }
 
         if ($request->executor_id) {
-            $whereCondition[] = "letter.penerbit_id = $request->executor_id";
+            $whereCondition[] = "l.penerbit_id = $request->executor_id";
         }
 
         if ($request->branch_id) {
-            $whereCondition[] = "letter.branch_id = $request->branch_id";
+            $whereCondition[] = "l.branch_id = $request->branch_id";
         }
 
         if ($request->date) {
@@ -87,7 +87,7 @@ class ListController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(l.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and l.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
@@ -123,60 +123,81 @@ class ListController extends Controller
             select
                 count(*) as total
             from
-                letter
+                letter l
             left join
-                penerbit on penerbit.id = letter.penerbit_id
+                penerbit p on p.id = l.penerbit_id
             left join
-                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+                jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
             left join
-                branchs on branchs.id = letter.branch_id
+                branchs b on b.id = l.branch_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
         $queryData = QueryAPI::get("
             select
                 *
-            from (
+            from
+                (
                     select
                         rownum as rnum,
                         data.*
                     from
                         (
                             select
-                                letter.letter_id,
-                                letter.status,
-                                letter.receipt_no,
-                                letter.proses_by,
-                                letter.penerbit_id,
-                                branchs.name as name_branch,
-                                jasa_pengiriman.name as name_jasa_pengiriman,
-                                penerbit.name as name_penerbit,
-                                coalesce(sum(letter_detail.copy), 0) as total_eks_delivery,
-                                coalesce(sum(letter_detail.quantity), 0) as total_title_delivery,
-                                coalesce(sum(case when letter_detail.qty_accept > 0 then letter_detail.qty_accept else 0 end), 0) as total_eks_receipt,
-                                coalesce(sum(case when letter_detail.qty_accept > 0 then letter_detail.quantity else 0 end), 0) as total_title_receipt,
-                                coalesce(sum(case when letter_detail.qty_hibah > 0 then letter_detail.qty_hibah else 0 end), 0) as total_eks_grant,
-                                coalesce(sum(case when letter_detail.qty_hibah > 0 then letter_detail.quantity else 0 end), 0) as total_title_grant
+                                l.letter_id,
+                                l.status,
+                                l.receipt_no,
+                                l.proses_by,
+                                l.penerbit_id,
+                                b.name as name_branch,
+                                jp.name as name_jasa_pengiriman,
+                                p.name as name_penerbit,
+                                coalesce(td.total_eks_receipt, 0) as total_eks_receipt,
+                                coalesce(td.total_title_receipt, 0) as total_title_receipt,
+                                case
+                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
+                                    then coalesce(td.total_eks_delivery, 0)
+                                    else 0
+                                end as total_eks_delivery,
+                                case
+                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
+                                    then coalesce(td.total_title_delivery, 0)
+                                    else 0
+                                end as total_title_delivery,
+                                case
+                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
+                                    then coalesce(td.total_eks_grant, 0)
+                                    else 0
+                                end as total_eks_grant,
+                                case
+                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
+                                    then coalesce(td.total_title_grant, 0)
+                                    else 0
+                                end as total_title_grant
                             from
-                                letter
+                                letter l
                             left join
-                                penerbit on penerbit.id = letter.penerbit_id
+                                penerbit p on p.id = l.penerbit_id
                             left join
-                                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+                                jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
                             left join
-                                letter_detail on letter_detail.letter_id = letter.letter_id
+                                branchs b on b.id = l.branch_id
                             left join
-                                branchs on branchs.id = letter.branch_id
+                                (
+                                    select
+                                        letter_id,
+                                        sum(copy) as total_eks_delivery,
+                                        sum(quantity) as total_title_delivery,
+                                        sum(case when qty_accept > 0 then qty_accept else 0 end) as total_eks_receipt,
+                                        sum(case when qty_accept > 0 then quantity else 0 end) as total_title_receipt,
+                                        sum(case when qty_hibah > 0 then qty_hibah else 0 end) as total_eks_grant,
+                                        sum(case when qty_hibah > 0 then quantity else 0 end) as total_title_grant
+                                    from
+                                        letter_detail
+                                    group by
+                                        letter_id
+                                ) td on td.letter_id = l.letter_id
                             $whereClause
-                            group by
-                                letter.letter_id,
-                                letter.status,
-                                letter.receipt_no,
-                                letter.proses_by,
-                                letter.penerbit_id,
-                                branchs.name,
-                                jasa_pengiriman.name,
-                                penerbit.name
                             $orderBy
                         ) data
                 )
