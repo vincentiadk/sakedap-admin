@@ -33,13 +33,18 @@ class ReceiptController extends Controller
 
     public function searchISBN(Request $request)
     {
-        $code = $request->code;
+        $code = str_replace('-', '', $request->code);
+        $executorId = $request->code;
 
         $data = ISBN::get('search', [
-            'code' => $code
+            'code' => $code,
+            'penerbit_id' => $executorId
         ], true);
 
-        return response()->json($data);
+        return response()->json([
+            'exists' => count(QueryAPI::get("select letter_detail_id from letter_detail where replace(isbn, '-', '') = '$code'") ?? []),
+            'data' => $data
+        ]);
     }
 
     public function selectCatalog(Request $request)

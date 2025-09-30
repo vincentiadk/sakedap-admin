@@ -228,59 +228,63 @@
                 var executorId = $('#executor_id').val();
                 var randStr = randomString(10);
 
-                if (response && typeof response === 'object' && Object.keys(response).length > 0 ) {
-                    if((response?.jenis_media ?? '').toLowerCase() == 'cetak') {
-                        if(response?.penerbit_id == executorId) {
-                            $('#data-collection-isbn').append(`
-                                <tr>
-                                    <input type="hidden" name="ci[]" value="1">
-                                    <input type="hidden" name="ci_code[]" value="${ response.isbn }">
+                if(response.exists < 1) {
+                    if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0 ) {
+                        if((response.data?.jenis_media ?? '').toLowerCase() == 'cetak') {
+                            if(response.data?.penerbit_id == executorId) {
+                                $('#data-collection-isbn').append(`
+                                    <tr>
+                                        <input type="hidden" name="ci[]" value="1">
+                                        <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
 
-                                    <td class="text-wrap">${ response.jenis_pustaka }</td>
-                                    <td class="text-nowrap">${ response.isbn }</td>
-                                    <td class="text-wrap">${ response.title }</td>
-                                    <td class="text-wrap">${ response.edisi }</td>
-                                    <td>
-                                        <input type="number" class="form-control ci-total-${ randStr }" disabled>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control ci-accept-${ randStr }" name="ci_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="0" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
-                                    </td>
-                                    <td>
-                                        <select class="form-select ci-description-${ randStr }" name="ci_description[]" multiple></select>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
-                                            <i class="ph-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
+                                        <td class="text-wrap">${ response.data.jenis_pustaka }</td>
+                                        <td class="text-nowrap">${ response.data.isbn }</td>
+                                        <td class="text-wrap">${ response.data.title }</td>
+                                        <td class="text-wrap">${ response.data.edisi }</td>
+                                        <td>
+                                            <input type="number" class="form-control ci-total-${ randStr }" disabled>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control ci-accept-${ randStr }" name="ci_qty_accept[]" value="{{ $acceptDefault ?? 0 }}" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="0" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
+                                        </td>
+                                        <td>
+                                            <select class="form-select ci-description-${ randStr }" name="ci_description[]" multiple></select>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
+                                                <i class="ph-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `);
 
-                            calculateQtyTotal(`.ci-total-${ randStr }`, `.ci-accept-${ randStr }`, `.ci-reject-${ randStr }`, `.ci-description-${ randStr }`);
+                                calculateQtyTotal(`.ci-total-${ randStr }`, `.ci-accept-${ randStr }`, `.ci-reject-${ randStr }`, `.ci-description-${ randStr }`);
 
-                            $('#search_isbn').val('');
+                                $('#search_isbn').val('');
 
-                            if(response.is_kdt_valid == 1) {
-                                swalInit.fire('Berhasil', 'ISBN telah tervalidasi dengan KDT. koleksi otomatis di kaitkan dengan Katalog ID : ' + response.catalog_id, 'info');
+                                if(response.data.is_kdt_valid == 1) {
+                                    swalInit.fire('Berhasil', 'ISBN telah tervalidasi dengan KDT. koleksi otomatis di kaitkan dengan Katalog ID : ' + response.data.catalog_id, 'info');
+                                } else {
+                                    swalInit.fire('Berhasil', 'ISBN ditemukan', 'success');
+                                }
+
+                                select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
+                                    minimumInputLength: 0
+                                });
                             } else {
-                                swalInit.fire('Berhasil', 'ISBN ditemukan', 'success');
+                                swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.data?.nama_penerbit, 'warning');
                             }
-
-                            select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
-                                minimumInputLength: 0
-                            });
                         } else {
-                            swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.nama_penerbit, 'warning');
+                            swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web E-Deposit', 'warning');
                         }
                     } else {
-                        swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web E-Deposit', 'warning');
+                        swalInit.fire('Oops ...', 'Data isbn tidak ditemukan', 'info');
                     }
                 } else {
-                    swalInit.fire('Oops ...', 'Data tidak ditemukan', 'error');
+                    swalInit.fire('Oops ...', 'Data isbn telah ada di sistem', 'info');
                 }
             },
             error: function(response) {
