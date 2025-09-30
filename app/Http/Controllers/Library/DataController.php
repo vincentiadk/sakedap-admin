@@ -184,8 +184,10 @@ class DataController extends Controller
                     'isdelete' => 0,
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
                     'province_id' => $request->province_id,
                 ], false);
@@ -248,6 +250,7 @@ class DataController extends Controller
                     'name' => $request->name,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
                     'province_id' => $request->province_id,
                 ], false);
@@ -273,7 +276,10 @@ class DataController extends Controller
 
         try {
             QueryAPI::update('branchs', $id, [
-                'isdelete' => 1
+                'isdelete' => 1,
+                'updateby' => session('name'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'updateterminal' => $request->ip(),
             ], false);
 
             $response = [

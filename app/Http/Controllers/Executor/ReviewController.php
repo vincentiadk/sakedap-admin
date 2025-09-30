@@ -227,11 +227,18 @@ class ReviewController extends Controller
                     'status' => 3,
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                 ];
             } else {
                 $payload = [
-                    'status' => 3,
+                    'status' => $status,
                     'keterangan' => $request->description,
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                 ];
             }
 

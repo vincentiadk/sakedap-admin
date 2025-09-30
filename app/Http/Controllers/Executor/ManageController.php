@@ -321,6 +321,7 @@ class ManageController extends Controller
                     'rata_terbitan' => $request->publication_average,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                     'is_lock' => $request->is_lock ?? null,
                 ], false);
 

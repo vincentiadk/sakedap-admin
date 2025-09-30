@@ -170,8 +170,10 @@ class DistrictController extends Controller
                     'kabupatenid' => $request->city_id,
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                 ], false);
 
                 $response = [
@@ -230,6 +232,7 @@ class DistrictController extends Controller
                     'kabupatenid' => $request->city_id,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
                 ], false);
 
                 $response = [
