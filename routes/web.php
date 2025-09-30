@@ -181,6 +181,10 @@ Route::middleware('authentication')->group(function () {
             Route::post('lockable', 'WarningController@lockable');
             Route::delete('destroy-data', 'WarningController@destroyData');
         });
+
+        Route::prefix('supervision')->group(function () {
+            Route::get('{segment}', 'SupervisionController@index');
+        });
     });
 
     Route::prefix('bill-isbn')->group(function () {
@@ -297,10 +301,6 @@ Route::middleware('authentication')->group(function () {
             Route::post('grant', 'ReturController@grant');
             Route::post('taken', 'ReturController@taken');
         });
-    });
-
-    Route::prefix('supervision')->group(function () {
-        Route::get('{segment}', 'SupervisionController@index');
     });
 
     Route::prefix('request-file')->group(function () {

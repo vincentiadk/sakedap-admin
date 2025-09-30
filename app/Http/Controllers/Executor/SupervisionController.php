@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Executor;
 
 use App\Helpers\Main;
 use App\Http\Controllers\Controller;
@@ -24,7 +24,7 @@ class SupervisionController extends Controller
         return view('layouts.index', [
             'data' => [
                 'framing' => $framing,
-                'content' => 'supervision',
+                'content' => 'executor.supervision',
             ]
         ]);
     }

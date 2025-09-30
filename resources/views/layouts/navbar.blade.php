@@ -76,12 +76,6 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-supervision" class="nav-link rounded {{ Request::segment(1) == 'supervision' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'supervision' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-eye me-2"></i>
-                                                        Pengawasan
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('request-file') }}" class="nav-link rounded {{ Request::segment(1) == 'request-file' ? 'active' : '' }}">
                                                         <i class="ph-file-plus me-2"></i>
                                                         Permintaan File
@@ -156,6 +150,9 @@
                                                 <a href="{{ url('executor/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
                                                 <a href="{{ url('executor/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
                                                 <a href="{{ url('executor/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
+                                                <a href="{{ url('executor/supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
+                                                <a href="{{ url('executor/supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
+                                                <a href="{{ url('executor/supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
                                             </div>
                                         </div>
                                     </div>
@@ -190,18 +187,6 @@
                                                 <a href="{{ url('delivery/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'reject' ? 'active' : '' }}">Koleksi Ditolak</a>
                                                 <a href="{{ url('delivery/grant') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'grant' ? 'active' : '' }}">Koleksi Dihibahkan</a>
                                                 <a href="{{ url('delivery/retur') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'retur' ? 'active' : '' }}">Koleksi Dikembalikan</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'supervision' ? 'show active' : '' }}" id="menu-supervision" role="tabpanel">
-                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
-                                                <a href="{{ url('supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
-                                                <a href="{{ url('supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'supervision' && Request::segment(2) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
                                             </div>
                                         </div>
                                     </div>
