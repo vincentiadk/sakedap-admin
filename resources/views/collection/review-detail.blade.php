@@ -214,7 +214,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Jilid</label>
                     <div class="col-md-10">
-                        <input type="number" class="form-control" name="binding" id="binding" value="{{ $collection->JILID }}" placeholder="....................">
+                        <input type="text" class="form-control" name="binding" id="binding" value="{{ $collection->JILID }}" placeholder="....................">
                     </div>
                 </div>
                 <div class="form-group row">

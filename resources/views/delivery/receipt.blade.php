@@ -380,7 +380,7 @@
                                 <div class="row mb-3">
                                     <label class="col-form-label col-lg-3">No Jilid</label>
                                     <div class="col-lg-9">
-                                        <input type="number" class="form-control" name="cni_binding[]">
+                                        <input type="text" class="form-control" name="cni_binding[]">
                                     </div>
                                 </div>
                                 <div class="row mb-3">

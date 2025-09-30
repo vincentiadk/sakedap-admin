@@ -232,6 +232,8 @@ class ReceiptController extends Controller
                                 'jenis_media' => $isbn->jenis_media,
                                 'collection_type_id' => 2,
                                 'penerbit_terbitan_id' => $isbn->ptid,
+                                'penerbit_id' => $isbn->PENERBIT_ID ?? null,
+                                'nomorpanggiljilid' => $isbn->keterangan,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -252,19 +254,20 @@ class ReceiptController extends Controller
 
                                 $catalog = Cache::remember($catalogCacheKey, $cacheDuration, function () use ($catalogId) {
                                     $catalogQuery = "
-                                        select catalogs.*,
-                                        penerbit.name as name_penerbit,
-                                        penerbit.alamat as alamat_penerbit,
-                                        kabupaten.namakab as namakab,
-                                        kabupaten.propinsiid as propinsiid
-                                    from
-                                        catalogs
-                                    left join
-                                        penerbit on penerbit.id = catalogs.penerbit_id
-                                    left join
-                                        kabupaten on kabupaten.id = penerbit.city_id
-                                    where
-                                        catalogs.id = $catalogId
+                                        select
+                                            catalogs.*,
+                                            penerbit.name as name_penerbit,
+                                            penerbit.alamat as alamat_penerbit,
+                                            kabupaten.namakab as namakab,
+                                            kabupaten.propinsiid as propinsiid
+                                        from
+                                            catalogs
+                                        left join
+                                            penerbit on penerbit.id = catalogs.penerbit_id
+                                        left join
+                                            kabupaten on kabupaten.id = penerbit.city_id
+                                        where
+                                            catalogs.id = $catalogId
                                     ";
 
                                     return QueryAPI::get($catalogQuery, true);
@@ -277,6 +280,7 @@ class ReceiptController extends Controller
                             $year = $request->cni_year[$key] ?? null;
                             $physicalDescription = $request->cni_physical_description[$key] ?? null;
                             $executor = $request->cni_executor[$key] ?? ($letterExecutor->NAME ?? null);
+                            $binding = $request->cni_binding[$key] ?? null;
                             $media = strtoupper($request->cni_type[$key] ?? '');
                             $getCollectionMedia = null;
 
@@ -305,6 +309,8 @@ class ReceiptController extends Controller
                                 'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($getCollectionMedia->ID ?? null),
                                 'deskripsifisik' => $physicalDescription,
                                 'jenis_media' => $getCollectionMedia->NAME ?? null,
+                                'penerbit_id' => $catalog->PENERBIT_ID ?? null,
+                                'nomorpanggiljilid' => $binding,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -371,6 +377,7 @@ class ReceiptController extends Controller
                                     'province_id' => $catalog->PROPINSIID ?? null,
                                     'kab_id' => $catalog->CITY_ID ?? null,
                                     'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
+                                    'penerbit_id' => $catalog->PENERBIT_ID ?? null,
                                 ];
 
                                 QueryAPI::create('letter_detail', $letterDetailData, false);
