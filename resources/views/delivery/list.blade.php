@@ -92,16 +92,25 @@
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
                     <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Resi</th>
-                        <th class="text-nowrap">Jasa Kirim</th>
-                        <th class="text-nowrap">Tujuan</th>
-                        <th class="text-nowrap">Jumlah Eks</th>
-                        <th class="text-nowrap">Jumlah Judul</th>
-                        <th class="text-nowrap">Status</th>
-                        <th class="text-nowrap">Proses By</th>
+                        <th class="text-nowrap" rowspan="2">No</th>
+                        <th class="text-nowrap" rowspan="2"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
+                        <th class="text-nowrap" rowspan="2">Resi</th>
+                        <th class="text-nowrap" rowspan="2">Jasa Kirim</th>
+                        <th class="text-nowrap" rowspan="2">Tujuan</th>
+                        <th class="text-nowrap text-center" colspan="2">Pengiriman</th>
+                        <th class="text-nowrap text-center" colspan="2">Penerimaan</th>
+                        <th class="text-nowrap text-center" colspan="2">Ditolak (Hibah)</th>
+                        <th class="text-nowrap" rowspan="2">Status</th>
+                        <th class="text-nowrap" rowspan="2">Proses By</th>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap text-center">Judul</th>
+                        <th class="text-nowrap text-center">Eksemplar</th>
+                        <th class="text-nowrap text-center">Judul</th>
+                        <th class="text-nowrap text-center">Eksemplar</th>
+                        <th class="text-nowrap text-center">Judul</th>
+                        <th class="text-nowrap text-center">Eksemplar</th>
                     </tr>
                 </thead>
             </table>
@@ -164,8 +173,12 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: false, className: 'align-middle text-wrap' },
-                { orderable: false, className: 'align-middle' },
-                { orderable: false, className: 'align-middle' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
             ],

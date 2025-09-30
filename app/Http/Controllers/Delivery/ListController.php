@@ -36,6 +36,10 @@ class ListController extends Controller
             'branchs.name',
             null,
             null,
+            null,
+            null,
+            null,
+            null,
             'letter.status',
             'letter.proses_by',
         ];
@@ -147,8 +151,12 @@ class ListController extends Controller
                                 branchs.name as name_branch,
                                 jasa_pengiriman.name as name_jasa_pengiriman,
                                 penerbit.name as name_penerbit,
-                                coalesce(sum(letter_detail.copy), 0) as total_eks,
-                                coalesce(sum(letter_detail.quantity), 0) as total_title
+                                coalesce(sum(letter_detail.copy), 0) as total_eks_delivery,
+                                coalesce(sum(letter_detail.quantity), 0) as total_title_delivery,
+                                coalesce(sum(case when letter_detail.qty_accept > 0 then letter_detail.qty_accept else 0 end), 0) as total_eks_receipt,
+                                coalesce(sum(case when letter_detail.qty_accept > 0 then letter_detail.quantity else 0 end), 0) as total_title_receipt,
+                                coalesce(sum(case when letter_detail.qty_hibah > 0 then letter_detail.qty_hibah else 0 end), 0) as total_eks_grant,
+                                coalesce(sum(case when letter_detail.qty_hibah > 0 then letter_detail.quantity else 0 end), 0) as total_title_grant
                             from
                                 letter
                             left join
@@ -203,8 +211,12 @@ class ListController extends Controller
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->NAME_BRANCH,
-                    $val->TOTAL_EKS,
-                    $val->TOTAL_TITLE,
+                    $val->TOTAL_TITLE_DELIVERY,
+                    $val->TOTAL_EKS_DELIVERY,
+                    $val->TOTAL_TITLE_RECEIPT,
+                    $val->TOTAL_EKS_RECEIPT,
+                    $val->TOTAL_TITLE_GRANT,
+                    $val->TOTAL_EKS_GRANT,
                     $val->STATUS,
                     $val->PROSES_BY,
                 ];

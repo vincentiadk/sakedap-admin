@@ -238,7 +238,10 @@
                                         <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
 
                                         <td class="text-wrap">${ response.data.jenis_pustaka }</td>
-                                        <td class="text-nowrap">${ response.data.isbn }</td>
+                                        <td class="text-nowrap">
+                                            <div>${ response.data.isbn }</div>
+                                            <small>Ket : ${ response.data.keterangan }</small>
+                                        </td>
                                         <td class="text-wrap">${ response.data.title }</td>
                                         <td class="text-wrap">${ response.data.edisi }</td>
                                         <td>
