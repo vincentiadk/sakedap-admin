@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Executor;
 
 use Carbon\Carbon;
+use App\Helpers\ISBN;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
@@ -198,16 +199,10 @@ class WarningController extends Controller
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
                     }
 
-                    $totalCollection = QueryAPI::get("
-                        select
-                            sum(letter_detail.qty_accept) as total
-                        from
-                            letter_detail
-                        left join
-                            letter on letter.letter_id = letter_detail.letter_id
-                        where
-                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
-                    ", true);
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
 
                     $file = '
                         <a href="javascript:void(0);" class="text-warning">
@@ -224,9 +219,9 @@ class WarningController extends Controller
                     }
 
                     $warningDate1HTML = '
-                        <div class="fw-bold"><small>Teguran 1 ' . $mark . '</small></div>
+                        <div class="fw-bold"><small>TEGURAN 1 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                         <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
                     ';
@@ -245,16 +240,10 @@ class WarningController extends Controller
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
                     }
 
-                    $totalCollection = QueryAPI::get("
-                        select
-                            sum(letter_detail.qty_accept) as total
-                        from
-                            letter_detail
-                        left join
-                            letter on letter.letter_id = letter_detail.letter_id
-                        where
-                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
-                    ", true);
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
 
                     $file = '
                         <a href="javascript:void(0);" class="text-warning">
@@ -271,9 +260,9 @@ class WarningController extends Controller
                     }
 
                     $warningDate2HTML = '
-                        <div class="fw-bold"><small>Teguran 2 ' . $mark . '</small></div>
+                        <div class="fw-bold"><small>TEGURAN 2 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                         <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
                     ';
@@ -290,16 +279,10 @@ class WarningController extends Controller
                         $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
                     }
 
-                    $totalCollection = QueryAPI::get("
-                        select
-                            sum(letter_detail.qty_accept) as total
-                        from
-                            letter_detail
-                        left join
-                            letter on letter.letter_id = letter_detail.letter_id
-                        where
-                            (letter.accept_date >= to_date('$dateStart', 'YYYY-MM-DD') and letter.accept_date < to_date('$dateEnd', 'YYYY-MM-DD') + 1)
-                    ", true);
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
 
                     $file = '
                         <a href="javascript:void(0);" class="text-warning">
@@ -316,9 +299,9 @@ class WarningController extends Controller
                     }
 
                     $warningDate3HTML = '
-                        <div class="fw-bold"><small>Teguran 3 ' . $mark . '</small></div>
+                        <div class="fw-bold"><small>TEGURAN 3 ' . $mark . '</small></div>
                         <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . ($totalCollection->TOTAL ?? 0) . '</small></div>
+                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
                     ';
                 }
