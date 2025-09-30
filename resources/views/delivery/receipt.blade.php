@@ -533,9 +533,18 @@
     }
 
     function calculateQtyTotal(selectorTotal, selectorAccept, selectorReject, selectorDescription) {
-        var accept = parseInt($(selectorAccept).val() ?? 0);
-        var reject = parseInt($(selectorReject).val() ?? 0);
-        var total = parseInt(accept + reject);
+        let accept = parseInt($(selectorAccept).val() ?? 0);
+        let reject = parseInt($(selectorReject).val() ?? 0);
+
+        if(reject < 0) {
+           reject = 0;
+           $(selectorReject).val(0);
+        } else if(accept < 0) {
+            accept = 0;
+            $(selectorAccept).val(0);
+        }
+
+        let total = parseInt(accept + reject);
 
         if(reject > 0) {
             $(selectorDescription).prop('disabled', false);
