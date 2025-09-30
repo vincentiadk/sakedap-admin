@@ -273,16 +273,11 @@ class ListController extends Controller
 
         $letterDetail = QueryAPI::get("
             select
-                letter_detail.*,
-                worksheets.name as name_worksheet
+                letter_detail.*
             from
                 letter_detail
-            left join
-                catalogs on catalogs.id = letter_detail.catalog_id
-            left join
-                worksheets on worksheets.id = catalogs.worksheet_id
             where
-                letter_detail.letter_id = $id
+                letter_id = $id
         ");
 
         if ($request->ajax()) {

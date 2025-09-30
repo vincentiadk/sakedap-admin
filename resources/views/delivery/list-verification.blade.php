@@ -59,34 +59,89 @@
                             <th class="text-center" rowspan="2">No</th>
                             <th rowspan="2">Judul</th>
                             <th rowspan="2">ISBN</th>
+                            <th rowspan="2">Jilid</th>
                             <th rowspan="2">Edisi</th>
-                            <th rowspan="2">Jenis Bahan</th>
-                            <th colspan="3" class="text-center">Jumlah Eksemplar</th>
+                            <th colspan="2" class="text-center">Total</th>
+                            <th colspan="2" class="text-center">Jumlah Eks</th>
                             <th rowspan="2">Alasan Ditolak</th>
                         </tr>
                         <tr>
-                            <th class="text-center">Total</th>
+                            <th class="text-center">Tercatat</th>
+                            <th class="text-center">Dikirim</th>
                             <th class="text-center">Diterima</th>
                             <th class="text-center">Ditolak</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($letterDetail ?? [] as $key => $ld)
+                            @php
+                                $code = str_replace('-', '', $ld->ISBN);
+                                $total = $ld->COPY ?? 0;
+
+                                if ($code) {
+                                    $sqlLetterDetail = "select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where isbn = '$code'";
+                                    $letterDetail = QueryAPI::get($sqlLetterDetail, true);
+
+                                    $sqlCollection = "select count(id) AS total from collections where isbn = '$code' and source_id = 6";
+                                    $collection = QueryAPI::get($sqlCollection, true);
+
+                                    $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
+                                    $totalCollection = $collection->TOTAL ?? 0;
+
+                                    if ($totalLetterDetail > 0) {
+                                        $total += $totalLetterDetail;
+                                    } else if ($totalCollection > 0) {
+                                        $total += $totalCollection;
+                                    }
+                                }
+
+                                $totalSystem = $total;
+                                $accept = $ld->QTY_ACCEPT ?? $acceptDefault;
+                                $reject = abs($total - $accept);
+
+                                $acceptStart = 0;
+                                $acceptEnd = $acceptDefault;
+
+                                if ($total >= 2 && $total < 3) {
+                                    if ($acceptDefault == 1) {
+                                        $acceptEnd = 1;
+                                    }
+                                }
+
+                                $rejectStart = $reject;
+                                $rejectEnd = $total;
+                            @endphp
                             <tr>
                                 <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
+                                <input type="hidden" name="letter_detail_total" value="{{ $total }}">
+
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
                                 <td class="text-wrap">{{ $ld->ISBN }}</td>
+                                <td class="text-wrap">{{ $ld->NOMORPANGGILJILID }}</td>
                                 <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
-                                <td class="text-wrap">{{ $ld->NAME_WORKSHEET }}</td>
+                                <td>
+                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_system[]" value="{{ $totalSystem }}" readonly>
+                                </td>
                                 <td>
                                     <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->COPY }}" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control" name="letter_detail_qty_accept[]" oninput="calculateQty(this, 'accept')" value="{{ $ld->QTY_ACCEPT ?: $acceptDefault }}" {{ $disabled }}>
+                                    <select class="form-select" name="letter_detail_qty_accept[]" onchange="calculateQty(this, 'accept')">
+                                        @for($i = $acceptStart; $i <= $acceptEnd; $i++)
+                                            <option value="{{ $i }}" {{ ($accept) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @endfor
+                                    </select>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control" name="letter_detail_qty_reject[]" oninput="calculateQty(this, 'reject')" value="{{ $ld->QTY_REJECT ?: 0 }}" {{ $disabled }}>
+                                    <select class="form-select" name="letter_detail_qty_reject[]" onchange="calculateQty(this, 'reject')">
+                                        @if($total < 3)
+                                            <option value="0">0</option>
+                                        @endif
+                                        @for($i = $rejectStart; $i <= $rejectEnd; $i++)
+                                            <option value="{{ $i }}" {{ ($reject) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @endfor
+                                    </select>
                                 </td>
                                 <td>
                                     <select class="form-select" name="letter_detail_remark[][]" multiple {{ $disabled }}>
@@ -145,17 +200,17 @@
 
     function calculateQty(param, from) {
         var selector = $(param).closest('tr');
-        var total = selector.find('input[name="letter_detail_quantity[]"]').val();
-        var accept = selector.find('input[name="letter_detail_qty_accept[]"]').val();
-        var reject = selector.find('input[name="letter_detail_qty_reject[]"]').val();
+        var total = selector.find('input[name="letter_detail_total"]').val();
+        var accept = selector.find('select[name="letter_detail_qty_accept[]"]').val();
+        var reject = selector.find('select[name="letter_detail_qty_reject[]"]').val();
 
         var accpetValue = parseInt(total) - parseInt(reject);
         var rejectValue = parseInt(total) - parseInt(accept);
 
         if(from == 'accept') {
-            selector.find('input[name="letter_detail_qty_reject[]"]').val(rejectValue);
+            selector.find('select[name="letter_detail_qty_reject[]"]').val(rejectValue);
         } else if(from == 'reject') {
-            selector.find('input[name="letter_detail_qty_accept[]"]').val(accpetValue);
+            selector.find('select[name="letter_detail_qty_accept[]"]').val(accpetValue);
         }
     }
 

@@ -35,14 +35,35 @@ class ReceiptController extends Controller
     {
         $code = str_replace('-', '', $request->code);
         $executorId = $request->code;
+        $acceptDefault = $request->accept_default;
 
         $data = ISBN::get('search', [
             'code' => $code,
             'penerbit_id' => $executorId
         ], true);
 
+        $letterDetail = QueryAPI::get("select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
+        $collection = QueryAPI::get("select count(collections.id) as total from collections where replace(isbn, '-', '') = '$code' and source_id = 6", true);
+
+        $total = 0;
+        $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
+        $totalCollection = $collection->TOTAL ?? 0;
+        $acceptOption = [];
+
+        if ($totalLetterDetail > 0) {
+            $total = $totalLetterDetail;
+        } else if ($totalCollection > 0) {
+            $total = $totalCollection;
+        }
+
+        for ($i = 0; $i <= $acceptDefault; $i++) {
+            $selected = $i == $acceptDefault ? 'selected' : '';
+            $acceptOption[] = '<option value="' . $i . '" ' . $selected . '>' . $i . '</option>';
+        }
+
         return response()->json([
-            'exists' => count(QueryAPI::get("select letter_detail_id from letter_detail where replace(isbn, '-', '') = '$code'") ?? []),
+            'total' => $total,
+            'acceptOption' => implode('', $acceptOption),
             'data' => $data
         ]);
     }
