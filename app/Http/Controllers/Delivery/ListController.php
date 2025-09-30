@@ -180,18 +180,18 @@ class ListController extends Controller
             foreach ($queryData as $val) {
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
 
+                $action = '
+                    <a href="' . url('delivery/list/verification/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm">
+                        <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
+                        ' . (in_array($val->STATUS, $statusAccept) ? 'Detail' : 'Verifikasi') . '
+                    </a>
+                ';
+
                 if (in_array($val->STATUS, $statusAccept)) {
-                    $action = '
+                    $action .= '
                         <a href="' . url('delivery/list/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm" target="_blank">
                             <i class="ph-printer me-1"></i>
                             Resi Penerimaan
-                        </a>
-                    ';
-                } else {
-                    $action = '
-                        <a href="' . url('delivery/list/verification/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm">
-                            <i class="ph-check me-1"></i>
-                            Verifikasi
                         </a>
                     ';
                 }
