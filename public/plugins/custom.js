@@ -29,11 +29,22 @@ $(function () {
 
         var $topContent = $topWrapper.find('.top-scroll-content');
 
-        function adjustWidthAndSync() {
-            var tableWidth = $scrollBody.find('table').width();
+        $topWrapper.hide();
 
-            $topContent.width(tableWidth);
-            $topWrapper.scrollLeft($scrollBody.scrollLeft());
+        function adjustWidthAndSync() {
+            var scrollBodyEl = $scrollBody.get(0);
+            var isScrollNeeded = scrollBodyEl.scrollWidth > scrollBodyEl.clientWidth;
+
+            if (isScrollNeeded) {
+                $topWrapper.show();
+
+                var tableWidth = $scrollBody.find('table').width();
+
+                $topContent.width(tableWidth);
+                $topWrapper.scrollLeft($scrollBody.scrollLeft());
+            } else {
+                $topWrapper.hide();
+            }
         }
 
         setTimeout(adjustWidthAndSync, 100);

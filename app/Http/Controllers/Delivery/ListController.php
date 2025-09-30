@@ -273,7 +273,7 @@ class ListController extends Controller
 
         $letterDetail = QueryAPI::get("
             select
-                letter_detail.*
+                *
             from
                 letter_detail
             where
@@ -452,13 +452,18 @@ class ListController extends Controller
                 letter_detail.title,
                 letter_detail.jenis_media,
                 letter_detail.isbn,
-                letter_detail.qty_accept
+                letter_detail.qty_accept,
+                collections.noinduk as noinduk_collection,
+                collections.mark_province as mark_province_collection
             from
                 letter_detail
             left join
                 letter on letter.letter_id = letter_detail.letter_id
+            left join
+                collections on collections.id = letter_detail.collection_id
             where
                 letter.letter_id = $letter->LETTER_ID and
+                letter_detail.qty_accept is not null and
                 letter_detail.qty_accept > 0
         ");
 
@@ -470,10 +475,13 @@ class ListController extends Controller
         $htmlCollections .= '<th style="padding:12px;text-align: center;">Jenis Media</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">ISBN/ISSN</th>';
         $htmlCollections .= '<th style="padding:12px;text-align: center;">Jumlah (Eksemplar)</th>';
+        $htmlCollections .= '<th style="padding:12px;text-align: center;">TRK</th>';
         $htmlCollections .= '</tr>';
 
         if ($collections) {
             foreach ($collections as $key => $c) {
+                $trk = Main::isNotCenterBranch() ? $c->MARK_PROVINCE_COLLECTION : $c->NOINDUK_COLLECTION;
+
                 $htmlCollections .= '<tr>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($key + 1) . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
@@ -481,6 +489,7 @@ class ListController extends Controller
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->ISBN ?? '-') . '</td>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
+                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($trk ?? '-') . '</td>';
                 $htmlCollections .= '</tr>';
             }
         }
