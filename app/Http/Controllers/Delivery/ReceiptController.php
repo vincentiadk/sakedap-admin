@@ -466,8 +466,8 @@ class ReceiptController extends Controller
                             'letter_no' => $letter->LETTER_NUMBER_UT ?? '',
                             'publisher_name' => $executor->NAME ?? '',
                             'director' => $signature,
-                            'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
-                            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
+                            'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . Main::base64File(($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
+                            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . Main::base64File(($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
                         ];
 

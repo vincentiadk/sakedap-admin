@@ -351,4 +351,21 @@ class Main
 
         return $encFrameInlis;
     }
+
+    /**
+     * base64File
+     *
+     * @param  mixed $url
+     * @return void
+     */
+    public static function base64File($url)
+    {
+        $getContent = file_get_contents($url);
+        $base64 = base64_encode($getContent);
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_buffer($finfo, $getContent);
+        $link = "data:$mimeType;base64," . $base64;
+
+        return $link;
+    }
 }

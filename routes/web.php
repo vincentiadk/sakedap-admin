@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::match(['get', 'post'], '/', 'AuthController@login');
+Route::match(['get', 'post'], 'reset-password-request', 'AuthController@resetPasswordRequest');
+Route::match(['get', 'post'], 'reset-password-action', 'AuthController@resetPasswordAction');
 
 Route::get('stream-file', function (Request $request) {
     if ($request->type && $request->id && $request->filename) {

@@ -13,7 +13,6 @@
 	<link href="{{ asset('themes/css/ltr/all.min.css') }}?v={{ uniqid() }}" id="stylesheet" rel="stylesheet">
 	<script src="{{ asset('themes/js/bootstrap/bootstrap.bundle.min.js') }}?v={{ uniqid() }}"></script>
 	<script src="{{ asset('themes/js/app.js') }}?v={{ uniqid() }}"></script>
-    {!! NoCaptcha::renderJs() !!}
 
     <style>
         .page-content {
@@ -40,8 +39,8 @@
 									<div class="d-inline-flex align-items-center justify-content-center mb-3 mt-2">
 										<img src="{{ asset('assets/icon.png') }}" style="max-width:125px" alt="">
 									</div>
-									<h5 class="mb-0">Masuk ke Akun Anda</h5>
-									<span class="d-block text-muted">Masukan Kredensial</span>
+									<h5 class="mb-0">Reset Password</h5>
+									<span class="d-block text-muted">Silahkan melakukan pergantian password</span>
 								</div>
                                 @if($errors->any())
                                     <div class="alert alert-danger">
@@ -67,31 +66,25 @@
                                     </div>
                                 @endif
 								<div class="mb-3">
-									<label class="form-label">Username :</label>
+									<label class="form-label">Password Baru :</label>
 									<div class="form-control-feedback form-control-feedback-start">
-										<input type="text" class="form-control" name="username" id="username" placeholder="...................." required>
+										<input type="password" class="form-control" name="new_password" id="new_password" placeholder="...................." required>
 										<div class="form-control-feedback-icon">
-											<i class="ph-user-circle text-muted"></i>
+											<i class="ph-key text-muted"></i>
+										</div>
+									</div>
+								</div>
+                                <div class="mb-3">
+									<label class="form-label">Konfirmasi Password :</label>
+									<div class="form-control-feedback form-control-feedback-start">
+										<input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="...................." required>
+										<div class="form-control-feedback-icon">
+											<i class="ph-key text-muted"></i>
 										</div>
 									</div>
 								</div>
 								<div class="mb-3">
-									<label class="form-label">Password :</label>
-									<div class="form-control-feedback form-control-feedback-start">
-										<input type="password" class="form-control" name="password" id="password" placeholder="...................." required>
-										<div class="form-control-feedback-icon">
-											<i class="ph-lock text-muted"></i>
-										</div>
-									</div>
-								</div>
-                                <div class="d-flex align-items-center mb-3">
-									<a href="{{ url('reset-password-request') }}" class="ms-auto">Reset Password?</a>
-								</div>
-                                <div class="mb-3 d-flex justify-content-center w-100">
-                                    {!! NoCaptcha::display() !!}
-                                </div>
-								<div class="mb-3">
-									<button type="submit" class="btn btn-primary w-100">Masuk</button>
+									<button type="submit" class="btn btn-primary w-100">Reset Password</button>
 								</div>
 							</div>
 						</div>
