@@ -129,48 +129,63 @@ class AuthController extends Controller
                     return redirect()->back()->withErrors($validation);
                 } else {
                     try {
-                        $settings = QueryAPI::get("
-                            select
-                                *
-                            from
-                                e_settings
-                            where
-                                slug in ('GantiPassword','Header','Footer')
-                        ");
+                        $hash = QueryAPI::hashPassword($request->new_password);
 
-                        $templateEmailContent = null;
-                        $templateEmailHeader = null;
-                        $templateEmailFooter = null;
+                        if ($hash) {
+                            QueryAPI::update('users', $user->ID, [
+                                'password' => $hash->Output,
+                                'updateby' => $user->FULLNAME,
+                                'updatedate' => date('Y-m-d H:i:s'),
+                                'updateterminal' => $request->ip(),
+                            ], false);
 
-                        if ($settings) {
-                            foreach ($settings as $setting) {
-                                if ($setting->SLUG == 'GantiPassword') {
-                                    $templateEmailContent = $setting;
-                                } elseif ($setting->SLUG == 'Header') {
-                                    $templateEmailHeader = $setting;
-                                } elseif ($setting->SLUG == 'Footer') {
-                                    $templateEmailFooter = $setting;
+                            $settings = QueryAPI::get("
+                                select
+                                    *
+                                from
+                                    e_settings
+                                where
+                                    slug in ('GantiPassword','Header','Footer')
+                            ");
+
+                            $templateEmailContent = null;
+                            $templateEmailHeader = null;
+                            $templateEmailFooter = null;
+
+                            if ($settings) {
+                                foreach ($settings as $setting) {
+                                    if ($setting->SLUG == 'GantiPassword') {
+                                        $templateEmailContent = $setting;
+                                    } elseif ($setting->SLUG == 'Header') {
+                                        $templateEmailHeader = $setting;
+                                    } elseif ($setting->SLUG == 'Footer') {
+                                        $templateEmailFooter = $setting;
+                                    }
                                 }
                             }
+
+                            $bodyEmail = [
+                                'name' => $user->FULLNAME,
+                                'email' => $user->EMAILADDRESS,
+                                'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
+                                'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
+                            ];
+
+                            Mail::send([], [], function ($message) use ($bodyEmail, $templateEmailContent) {
+                                $message->to($bodyEmail['email'], 'edeposit@perpusnas.go.id')
+                                    ->subject('Berhasil Reset Password')
+                                    ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                                    ->html(Main::parseTemplateEmail($bodyEmail, $templateEmailContent), 'text/html');
+                            });
+
+                            return redirect('/')->with([
+                                'success' => 'Password berhasil direset'
+                            ]);
+                        } else {
+                            return redirect()->back()->with([
+                                'failed' => 'Gagal mengelola password'
+                            ]);
                         }
-
-                        $bodyEmail = [
-                            'name' => $user->FULLNAME,
-                            'email' => $user->EMAILADDRESS,
-                            'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
-                            'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
-                        ];
-
-                        Mail::send([], [], function ($message) use ($bodyEmail, $templateEmailContent) {
-                            $message->to($bodyEmail['email'], 'edeposit@perpusnas.go.id')
-                                ->subject('Berhasil Reset Password')
-                                ->from('edeposit@perpusnas.go.id', 'Info edeposit')
-                                ->html(Main::parseTemplateEmail($bodyEmail, $templateEmailContent), 'text/html');
-                        });
-
-                        return redirect('/')->with([
-                            'success' => 'Password berhasil direset'
-                        ]);
                     } catch (\Exception $e) {
                         return redirect()->back()->with([
                             'failed' => $e->getMessage()

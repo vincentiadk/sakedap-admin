@@ -379,4 +379,37 @@ class QueryAPI
 
         return $data;
     }
+
+    /**
+     * hashPassword
+     *
+     * @param  mixed $string
+     * @return void
+     */
+    public static function hashPassword($string)
+    {
+        static::initialize();
+
+        $data = false;
+        $query = Http::connectTimeout(60)
+            ->timeout(120)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'hashpassword',
+                'Input' => $string,
+            ])
+            ->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            $response = $query->object();
+
+            if ($response->Status == 'Success') {
+                $data = $response->Data;
+            } else {
+                Log::channel('sakedap-api')->error('Gagal hash password', $query->json());
+            }
+        }
+
+        return $data;
+    }
 }

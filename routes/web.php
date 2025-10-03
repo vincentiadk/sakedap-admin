@@ -422,5 +422,10 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('user')->group(function () {
             Route::get('/', 'UserController@index');
         });
+
+        Route::prefix('configuration')->group(function () {
+            Route::get('/', 'ConfigurationController@index');
+            Route::get('submit', 'ConfigurationController@submit');
+        });
     });
 });
