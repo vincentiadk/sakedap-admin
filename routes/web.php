@@ -418,5 +418,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('footer-email')->group(function () {
             Route::match(['get', 'post'], '/', 'FooterEmailController@index');
         });
+
+        Route::prefix('user')->group(function () {
+            Route::get('/', 'UserController@index');
+        });
     });
 });

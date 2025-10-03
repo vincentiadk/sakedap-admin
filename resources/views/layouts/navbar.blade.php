@@ -223,6 +223,7 @@
                                                 <a href="{{ url('setting/about-us') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'about-us' ? 'active' : '' }}">Tentang Kami</a>
                                                 <a href="{{ url('setting/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>
                                                 <a href="{{ url('setting/footer-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'footer-email' ? 'active' : '' }}">Footer Email</a>
+                                                <a href="{{ url('setting/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'user' ? 'active' : '' }}">Pengguna</a>
                                             </div>
                                         </div>
                                     </div>
