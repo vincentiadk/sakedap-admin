@@ -10,6 +10,32 @@ class Main
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
     const IS_CENTER_BRANCH = 37;
+    const CONFIG_PARAM = [
+        'EPercobaanLogin',
+        'EAesKey',
+        'EAesIV',
+        'EAesInlisKey',
+        'EAesInlisIV',
+        'EIFrameDomain',
+        'ERedisClient',
+        'ERedisHost',
+        'ERedisUsername',
+        'ERedisPassword',
+        'ERedisPort',
+        'ESessionDriver',
+        'ESessionLifeTime',
+        'ESessionEncrypt',
+        'EKatalogCoverMaxUpload',
+        'EKatalogContentMaxUpload',
+        'EBatasSerahKCKR',
+        'EBatasHibah',
+        'ECaptchaSecret',
+        'ECaptchaSite',
+        'EAPIISBNToken',
+        'EAPIISBNBaseUrl',
+        'EAPIRajaOngkirToken',
+        'EAPIRajaOngkirBaseUrl',
+    ];
 
     /**
      * locationById
@@ -256,8 +282,8 @@ class Main
     public static function AESCrypt($text, $key = null, $iv = null)
     {
         $cipher = 'aes-256-cbc';
-        $key = $key ?? env('AES_KEY');
-        $iv = $iv ?? env('AES_IV');
+        $key = $key ?? config('system.aes_key');
+        $iv = $iv ?? config('system.aes_iv');
         $encrypted = @openssl_encrypt($text, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
         return base64_encode($encrypted);
@@ -272,8 +298,8 @@ class Main
     public static function AESDecrypt($text, $key = null, $iv = null)
     {
         $cipher = 'aes-256-cbc';
-        $key = $key ?? env('AES_KEY');
-        $iv = $iv ?? env('AES_IV');
+        $key = $key ?? config('system.aes_key');
+        $iv = $iv ?? config('system.aes_iv');
         $decoded = base64_decode($text);
 
         $decrypted = @openssl_decrypt($decoded, $cipher, $key, OPENSSL_RAW_DATA, $iv);
@@ -345,8 +371,8 @@ class Main
         $userId = session('id');
         $encFrameInlis = static::AESCrypt(
             "userid=$userId;auth=1",
-            base64_decode(env('AES_KEY_INLIS')),
-            base64_decode(env('AES_IV_INLIS'))
+            base64_decode(config('inlis.aes_key')),
+            base64_decode(config('inlis.aes_iv'))
         );
 
         return $encFrameInlis;

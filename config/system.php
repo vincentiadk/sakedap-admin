@@ -1,0 +1,12 @@
+<?php
+
+return [
+    'retry_login' => 3,
+    'aes_key' => null,
+    'aes_iv' => null,
+    'iframe_domain' => null,
+    'catalog_cover_max_upload' => 2048,
+    'catalog_content_max_upload' => 204800,
+    'limit_submission_kckr' => 3,
+    'limit_grant' => 3,
+];

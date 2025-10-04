@@ -425,7 +425,8 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('configuration')->group(function () {
             Route::get('/', 'ConfigurationController@index');
-            Route::get('submit', 'ConfigurationController@submit');
+            Route::post('submitted', 'ConfigurationController@submitted');
+            Route::post('test-send-email', 'ConfigurationController@testSendEmail');
         });
     });
 });

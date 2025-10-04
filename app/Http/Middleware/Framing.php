@@ -19,7 +19,7 @@ class Framing
     {
         $framing = str_replace(' ', '+', $request->framing);
         $response = $next($request);
-        $allowedDomain = env('ALLOW_IFRAME_DOMAIN');
+        $allowedDomain = config('system.iframe_domain');
         $cspHeader = "frame-ancestors 'self' {$allowedDomain}";
 
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
