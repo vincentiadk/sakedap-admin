@@ -10,6 +10,7 @@ class Main
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
     const IS_CENTER_BRANCH = 37;
+    const CACHE_NAME_CONFIG_APP = 'app_configuration';
     const CONFIG_PARAM = [
         'EPercobaanLogin',
         'EAesKey',

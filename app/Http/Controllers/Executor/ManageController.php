@@ -19,6 +19,7 @@ class ManageController extends Controller
                 'type' => QueryAPI::get("select * from penerbit_jenis"),
                 'content' => 'executor.manage',
                 'plugins' => [
+                    'daterangepicker',
                     'datatable',
                     'select2',
                 ]
@@ -322,7 +323,10 @@ class ManageController extends Controller
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
-                    'is_lock' => $request->is_lock ?? null,
+                    'jwt' => $request->jwt ?? null,
+                    'x_api_key' => $request->x_api_key ?? null,
+                    'jwt_expired' => $request->jwt_expired ?? null,
+                    'is_api_enable' => $request->is_api_enable ? 1 : 0,
                 ], false);
 
                 $response = [

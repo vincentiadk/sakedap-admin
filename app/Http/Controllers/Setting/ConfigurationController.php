@@ -7,6 +7,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 
 class ConfigurationController extends Controller
 {
@@ -48,103 +49,30 @@ class ConfigurationController extends Controller
             $updateTerminal = $ip;
 
             $payloadSettingParameter = [
-                [
-                    'name' => 'EPercobaanLogin',
-                    'value' => $request->system_rate_limiter,
-                ],
-                [
-                    'name' => 'EAesKey',
-                    'value' => $request->system_aes_key,
-                ],
-                [
-                    'name' => 'EAesIV',
-                    'value' => $request->system_aes_iv,
-                ],
-                [
-                    'name' => 'EAesInlisKey',
-                    'value' => $request->system_aes_key_inlis,
-                ],
-                [
-                    'name' => 'EAesInlisIV',
-                    'value' => $request->system_aes_iv_inlis,
-                ],
-                [
-                    'name' => 'EIFrameDomain',
-                    'value' => $request->system_allow_iframe_domain,
-                ],
-                [
-                    'name' => 'ERedisClient',
-                    'value' => $request->system_redis_client,
-                ],
-                [
-                    'name' => 'ERedisHost',
-                    'value' => $request->system_redis_host,
-                ],
-                [
-                    'name' => 'ERedisUsername',
-                    'value' => $request->system_redis_username,
-                ],
-
-                [
-                    'name' => 'ERedisPassword',
-                    'value' => $request->system_redis_password,
-                ],
-                [
-                    'name' => 'ERedisPort',
-                    'value' => $request->system_redis_port,
-                ],
-                [
-                    'name' => 'ESessionDriver',
-                    'value' => $request->system_session_driver,
-                ],
-                [
-                    'name' => 'ESessionLifeTime',
-                    'value' => $request->system_session_lifetime,
-                ],
-                [
-                    'name' => 'ESessionEncrypt',
-                    'value' => $request->system_encryption,
-                ],
-                [
-                    'name' => 'EKatalogCoverMaxUpload',
-                    'value' => $request->catalog_cover,
-                ],
-                [
-                    'name' => 'EKatalogContentMaxUpload',
-                    'value' => $request->catalog_obedient,
-                ],
-                [
-                    'name' => 'EBatasSerahKCKR',
-                    'value' => $request->catalog_submission_kckr,
-                ],
-                [
-                    'name' => 'EBatasHibah',
-                    'value' => $request->catalog_submission_grant,
-                ],
-                [
-                    'name' => 'ECaptchaSecret',
-                    'value' => $request->captcha_secret_key,
-                ],
-                [
-                    'name' => 'ECaptchaSite',
-                    'value' => $request->captcha_site_key,
-                ],
-                [
-                    'name' => 'EAPIISBNToken',
-                    'value' => $request->isbn_token,
-                ],
-                [
-                    'name' => 'EAPIISBNBaseUrl',
-                    'value' => $request->isbn_base_url,
-                ],
-                [
-                    'name' => 'EAPIRajaOngkirToken',
-                    'value' => $request->ro_token,
-                ],
-                [
-                    'name' => 'EAPIRajaOngkirBaseUrl',
-                    'value' => $request->ro_base_url,
-                ],
+                ['name' => 'EPercobaanLogin', 'value' => $request->system_rate_limiter],
+                ['name' => 'EAesKey', 'value' => $request->system_aes_key],
+                ['name' => 'EAesIV', 'value' => $request->system_aes_iv],
+                ['name' => 'EAesInlisKey', 'value' => $request->system_aes_key_inlis],
+                ['name' => 'EAesInlisIV', 'value' => $request->system_aes_iv_inlis],
+                ['name' => 'EIFrameDomain', 'value' => $request->system_allow_iframe_domain],
+                ['name' => 'ERedisClient', 'value' => $request->system_redis_client],
+                ['name' => 'ERedisHost', 'value' => $request->system_redis_host],
+                ['name' => 'ERedisUsername', 'value' => $request->system_redis_username],
+                ['name' => 'ERedisPassword', 'value' => $request->system_redis_password],
+                ['name' => 'ERedisPort', 'value' => $request->system_redis_port],
+                ['name' => 'ESessionDriver', 'value' => $request->system_session_driver],
+                ['name' => 'ESessionLifeTime', 'value' => $request->system_session_lifetime],
+                ['name' => 'ESessionEncrypt', 'value' => $request->system_encryption],
+                ['name' => 'EKatalogCoverMaxUpload', 'value' => $request->catalog_cover],
+                ['name' => 'EKatalogContentMaxUpload', 'value' => $request->catalog_obedient],
+                ['name' => 'EBatasSerahKCKR', 'value' => $request->catalog_submission_kckr],
+                ['name' => 'EBatasHibah', 'value' => $request->catalog_submission_grant],
+                ['name' => 'ECaptchaSecret', 'value' => $request->captcha_secret_key],
+                ['name' => 'ECaptchaSite', 'value' => $request->captcha_site_key],
+                ['name' => 'EAPIISBNToken', 'value' => $request->isbn_token],
+                ['name' => 'EAPIISBNBaseUrl', 'value' => $request->isbn_base_url],
+                ['name' => 'EAPIRajaOngkirToken', 'value' => $request->ro_token],
+                ['name' => 'EAPIRajaOngkirBaseUrl', 'value' => $request->ro_base_url],
             ];
 
             $payloadMail = [
@@ -166,18 +94,9 @@ class ConfigurationController extends Controller
             ];
 
             $payloadObedient = [
-                [
-                    'name' => 'Patuh',
-                    'persen' => $request->catalog_obedient,
-                ],
-                [
-                    'name' => 'Sebagian Patuh',
-                    'persen' => $request->catalog_some_obey,
-                ],
-                [
-                    'name' => 'Tidak Patuh',
-                    'persen' => $request->catalog_not_obey,
-                ],
+                ['name' => 'Patuh', 'persen' => $request->catalog_obedient],
+                ['name' => 'Sebagian Patuh', 'persen' => $request->catalog_some_obey],
+                ['name' => 'Tidak Patuh', 'persen' => $request->catalog_not_obey],
             ];
 
             foreach ($payloadSettingParameter as $psp) {
@@ -194,10 +113,7 @@ class ConfigurationController extends Controller
                 $check = QueryAPI::get("select * from settingparameters where name = '$name'", true);
 
                 if ($check) {
-                    unset($payload['createby']);
-                    unset($payload['createdate']);
-                    unset($payload['createterminal']);
-
+                    unset($payload['createby'], $payload['createdate'], $payload['createterminal']);
                     QueryAPI::update('settingparameters', $check->ID, $payload, false);
                 } else {
                     QueryAPI::create('settingparameters', $payload, false);
@@ -207,9 +123,7 @@ class ConfigurationController extends Controller
             $checkExistsConfigEmail = QueryAPI::get("select * from mailserver where modul = 'EDEPOSIT'", true);
 
             if ($checkExistsConfigEmail) {
-                unset($payloadMail['createby']);
-                unset($payloadMail['createdate']);
-                unset($payloadMail['createterminal']);
+                unset($payloadMail['createby'], $payloadMail['createdate'], $payloadMail['createterminal']);
                 QueryAPI::update('mailserver', $checkExistsConfigEmail->ID, $payloadMail, false);
             } else {
                 QueryAPI::create('mailserver', $payloadMail, false);
@@ -229,15 +143,14 @@ class ConfigurationController extends Controller
                 $check = QueryAPI::get("select * from e_kepatuhan_kckr where name = '$name'", true);
 
                 if ($check) {
-                    unset($payload['createby']);
-                    unset($payload['createdate']);
-                    unset($payload['createterminal']);
-
+                    unset($payload['createby'], $payload['createdate'], $payload['createterminal']);
                     QueryAPI::update('e_kepatuhan_kckr', $check->ID, $payload, false);
                 } else {
                     QueryAPI::create('e_kepatuhan_kckr', $payload, false);
                 }
             }
+
+            Cache::forget(Main::CACHE_NAME_CONFIG_APP);
 
             return redirect($redirectUrl)->with('success', 'Konfigurasi telah disimpan');
         } catch (\Exception $e) {
