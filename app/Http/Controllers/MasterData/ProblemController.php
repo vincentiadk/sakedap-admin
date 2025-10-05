@@ -231,7 +231,7 @@ class ProblemController extends Controller
 
         try {
             QueryAPI::update('e_problems', $id, [
-                'deleted_at' => date('Y-m-d')
+                'deleted_at' => date('Y-m-d H:i:s')
             ]);
 
             $response = [

@@ -595,7 +595,7 @@ class WarningController extends Controller
 
         try {
             QueryAPI::update('e_publisher_warnings', $id, [
-                'deleted_at' => date('Y-m-d')
+                'deleted_at' => date('Y-m-d H:i:s')
             ]);
 
             $response = [

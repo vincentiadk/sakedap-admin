@@ -8,17 +8,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class RoleController extends Controller
 {
     public function index()
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-                'content' => 'master-data.category',
+                'content' => 'master-data.role',
                 'plugins' => [
                     'datatable',
-                    'select2',
                 ]
             ]
         ]);
@@ -27,10 +25,9 @@ class CategoryController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_categories.id',
+            'e_contributors.id',
             null,
-            'e_categories.name',
-            'worksheets.name',
+            'e_contributors.name',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -44,7 +41,7 @@ class CategoryController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'e_categories.deleted_at is null';
+        $whereCondition[] = 'e_contributors.deleted_at is null';
 
         if ($search) {
             $terms = [];
@@ -72,7 +69,7 @@ class CategoryController extends Controller
             select
                 count(*) as total
             from
-                e_categories
+                e_contributors
             where
                 deleted_at is null
         ", true)->TOTAL ?? 0;
@@ -81,9 +78,7 @@ class CategoryController extends Controller
             select
                 count(*) as total
             from
-                e_categories
-            left join
-                worksheets on worksheets.id = e_categories.type
+                e_contributors
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -97,12 +92,9 @@ class CategoryController extends Controller
                     from
                         (
                             select
-                                e_categories.*,
-                                worksheets.name as name_worksheet
+                                *
                             from
-                                e_categories
-                            left join
-                                worksheets on worksheets.id = e_categories.type
+                                e_contributors
                             $whereClause
                             $orderBy
                         ) data
@@ -136,7 +128,6 @@ class CategoryController extends Controller
                     $start + 1,
                     $action,
                     $val->NAME,
-                    $val->NAME_WORKSHEET,
                 ];
 
                 $start++;
@@ -155,10 +146,8 @@ class CategoryController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'name' => 'required',
-            'type' => 'required',
         ], [
             'name.required' => 'Nama tidak boleh kosong',
-            'type.required' => 'Jenis tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -168,10 +157,9 @@ class CategoryController extends Controller
             ];
         } else {
             try {
-                QueryAPI::create('e_categories', [
+                QueryAPI::create('e_contributors', [
                     'name' => $request->name,
                     'slug' => Str::slug($request->name, '-'),
-                    'type' => $request->type,
                 ]);
 
                 $response = [
@@ -194,14 +182,11 @@ class CategoryController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                e_categories.*,
-                worksheets.name as name_worksheet
+                *
             from
-                e_categories
-            left join
-                worksheets on worksheets.id = e_categories.type
+                e_contributors
             where
-                e_categories.id = $id
+                id = $id
         ", true);
 
         return response()->json($data);
@@ -212,10 +197,8 @@ class CategoryController extends Controller
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
             'name' => 'required',
-            'type' => 'required',
         ], [
             'name.required' => 'Nama tidak boleh kosong',
-            'type.required' => 'Jenis tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -225,10 +208,9 @@ class CategoryController extends Controller
             ];
         } else {
             try {
-                QueryAPI::update('e_categories', $id, [
+                QueryAPI::update('e_contributors', $id, [
                     'name' => $request->name,
                     'slug' => Str::slug($request->name, '-'),
-                    'type' => $request->type,
                 ]);
 
                 $response = [
@@ -251,7 +233,7 @@ class CategoryController extends Controller
         $id = $request->id;
 
         try {
-            QueryAPI::update('e_categories', $id, [
+            QueryAPI::update('e_contributors', $id, [
                 'deleted_at' => date('Y-m-d H:i:s')
             ]);
 

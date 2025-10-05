@@ -101,6 +101,15 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'MediaController@updateData');
             Route::delete('destroy-data', 'MediaController@destroyData');
         });
+
+        Route::prefix('role')->group(function () {
+            Route::get('/', 'RoleController@index');
+            Route::get('datatable', 'RoleController@datatable');
+            Route::post('create-data', 'RoleController@createData');
+            Route::get('show-data', 'RoleController@showData');
+            Route::post('update-data', 'RoleController@updateData');
+            Route::delete('destroy-data', 'RoleController@destroyData');
+        });
     });
 
     Route::prefix('location')->namespace('Location')->group(function () {

@@ -114,6 +114,7 @@
                                                 <a href="{{ url('master-data/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
                                                 <a href="{{ url('master-data/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
                                                 <a href="{{ url('master-data/media') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'media' ? 'active' : '' }}">Media</a>
+                                                <a href="{{ url('master-data/role') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'role' ? 'active' : '' }}">Peranan</a>
                                             </div>
                                         </div>
                                     </div>
