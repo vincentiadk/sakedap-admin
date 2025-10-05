@@ -171,6 +171,15 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('executor')->namespace('Executor')->group(function () {
+        Route::prefix('category')->group(function () {
+            Route::get('/', 'CategoryController@index');
+            Route::get('datatable', 'CategoryController@datatable');
+            Route::post('create-data', 'CategoryController@createData');
+            Route::get('show-data', 'CategoryController@showData');
+            Route::post('update-data', 'CategoryController@updateData');
+            Route::delete('destroy-data', 'CategoryController@destroyData');
+        });
+
         Route::prefix('create-data')->group(function () {
             Route::get('/', 'CreateDataController@index');
             Route::post('submitted', 'CreateDataController@submitted');
