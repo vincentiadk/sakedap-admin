@@ -55,7 +55,7 @@
                         <label class="form-label">Gambar : <span class="text-danger fw-bold">*</span></label>
                         <div class="input-group">
                             <input type="file" class="form-control" name="image" id="image">
-                            <a href="" data-lightbox="ttd-form" data-title="Preview TTD" class="btn btn-success" id="image-preview">
+                            <a href="" data-lightbox="banner-form" data-title="Preview Banner" class="btn btn-success" id="image-preview">
                                 <i class="ph-image me-1"></i>
                                 Lihat Gambar Saat Ini
                             </a>

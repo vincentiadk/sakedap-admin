@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Pengaturan - <span class="fw-normal">FAQ</span>
+                Berita - <span class="fw-normal">Konten</span>
             </h4>
         </div>
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
@@ -25,11 +25,11 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Urutan</th>
-                        <th class="text-nowrap">Publish</th>
-                        <th class="text-nowrap">Pertanyaan</th>
-                        <th class="text-nowrap">Jawaban</th>
+                        <th class="text-nowrap">Gambar</th>
                         <th class="text-nowrap">Kategori</th>
+                        <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Lampiran Link</th>
+                        <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
             </table>
@@ -37,7 +37,7 @@
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"></h5>
@@ -51,40 +51,43 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Urutan :</label>
-                                <input type="number" class="form-control" name="sequence" id="sequence" min="0" placeholder="....................">
-                            </div>
+                    <div class="form-group">
+                        <label class="form-label">Gambar :</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" name="image" id="image">
+                            <a href="" data-lightbox="news-form" data-title="Preview Gambar" class="btn btn-success" id="image-preview">
+                                <i class="ph-image me-1"></i>
+                                Lihat Gambar Saat Ini
+                            </a>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Publish :</label>
-                                <select class="form-select" name="publish" id="publish">
-                                    <option value="1">Ya</option>
-                                    <option value="2">Tidak</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Kategori :</label>
-                                <input type="text" class="form-control" name="category" id="category" placeholder="....................">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Pertanyaan : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control text-editor" name="question" id="question" rows="5" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Jawaban : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control" name="answer" id="answer" rows="5" placeholder="...................."></textarea>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
+                            <option value=""></option>
+                            @foreach($category as $c)
+                                <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
+                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status :</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="PUBLISH">PUBLISH</option>
+                            <option value="HIDE">HIDE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lampiran Link :</label>
+                        <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Konten :</label>
+                        <textarea class="form-control" name="content" id="content" placeholder="...................."></textarea>
                     </div>
                 </form>
             </div>
@@ -108,15 +111,11 @@
 
 <script>
     $(function() {
-        $('#question').summernote({
-            height: 300
-        });
-
-        $('#answer').summernote({
-            height: 300
-        });
-
         loadData();
+
+        $('#content').summernote({
+            height: 300
+        });
     });
 
     function onReloadTable() {
@@ -131,10 +130,11 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#sequence').val(0);
-        $('#publish').val(1);
-        $('#question').summernote('code', '');
-        $('#answer').summernote('code', '');
+        $('#image-preview').attr('href', 'javascript:void(0);');
+        $('#image-preview').hide();
+        $('#status').val('PUBLISH');
+        $('#category_id').val('').change();
+        $('#content').summernote('code', '');
     }
 
     function onCreate() {
@@ -186,7 +186,7 @@
             destroy: true,
             order: [[0, 'desc']],
             ajax: {
-                url: '{{ url("setting/faq/datatable") }}',
+                url: '{{ url("news/content/datatable") }}',
                 dataType: 'JSON',
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -200,10 +200,10 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -224,10 +224,13 @@
 
     function createData() {
         $.ajax({
-            url: '{{ url("setting/faq/create-data") }}',
+            url: '{{ url("news/content/create-data") }}',
             type: 'POST',
             dataType: 'JSON',
-            data: $('#form-data').serialize(),
+            data: new FormData($('#form-data')[0]),
+            contentType: false,
+            processData: false,
+            cache: false,
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
@@ -262,7 +265,7 @@
 
     function showDataUpdate(id) {
         $.ajax({
-            url: '{{ url("setting/faq/show-data") }}',
+            url: '{{ url("news/content/show-data") }}',
             type: 'GET',
             dataType: 'JSON',
             data: {
@@ -276,11 +279,23 @@
                 onLoading('close', '.modal-content');
 
                 $('#table_id').val(response.ID);
-                $('#sequence').val(response.SEQUENCE);
-                $('#publish').val(response.PUBLISH);
-                $('#question').summernote('code', response.QUESTION);
-                $('#answer').summernote('code', response.ANSWER);
-                $('#category').val(response.CATEGORY);
+                $('#title').val(response.TITLE);
+                $('#content').summernote('code', response.CONTENT);
+                $('#status').val(response.STATUS);
+                $('#category_id').val(response.KATEGORI_ID).change();
+                $('#attachment_link').val(response.LAMPIRAN_LINK);
+
+                if(response.IMAGE) {
+                    var paramFile = {
+                        id: response.ID,
+                        type: 'gambar_artikel',
+                        filename: response.IMAGE,
+                        v: '{{ Str::random(40) }}'
+                    };
+
+                    $('#image-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
+                    $('#image-preview').fadeIn(500);
+                }
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -291,10 +306,13 @@
 
     function updateData() {
         $.ajax({
-            url: '{{ url("setting/faq/update-data") }}',
+            url: '{{ url("news/content/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
-            data: $('#form-data').serialize(),
+            data: new FormData($('#form-data')[0]),
+            contentType: false,
+            processData: false,
+            cache: false,
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
@@ -341,7 +359,7 @@
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {
                     $.ajax({
-                        url: '{{ url("setting/faq/destroy-data") }}',
+                        url: '{{ url("news/content/destroy-data") }}',
                         type: 'DELETE',
                         dataType: 'JSON',
                         data: {

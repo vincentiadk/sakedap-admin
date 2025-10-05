@@ -1,23 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\Setting;
+namespace App\Http\Controllers\News;
 
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class BannerController extends Controller
+class ContentController extends Controller
 {
     public function index()
     {
         return view('layouts.index', [
             'data' => [
-                'content' => 'setting.banner',
+                'category' => QueryAPI::get("select * from e_news_kategori"),
+                'content' => 'news.content',
                 'plugins' => [
                     'datatable',
-                    'lightbox',
                     'select2',
+                    'summernote',
+                    'lightbox',
                 ]
             ]
         ]);
@@ -26,13 +29,13 @@ class BannerController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e_banners.id',
+            'e_news.id',
             null,
-            'e_banners.image',
-            'e_promo.judul',
-            'e_banners.title',
-            'e_banners.description',
-            'e_banners.status',
+            'e_news.image',
+            'e_news_kategori.name',
+            'e_news.title',
+            'e_news.lampiran_link',
+            'e_news.status',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -46,7 +49,7 @@ class BannerController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = 'e_news.deleted_at is null';
 
         if ($search) {
             $terms = [];
@@ -74,16 +77,18 @@ class BannerController extends Controller
             select
                 count(*) as total
             from
-                e_banners
+                e_news
+            where
+                deleted_at is null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_banners
+                e_news
             left join
-                e_promo on e_promo.id = e_banners.promo_id
+                e_news_kategori on e_news_kategori.id = e_news.kategori_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -97,12 +102,12 @@ class BannerController extends Controller
                     from
                         (
                             select
-                                e_banners.*,
-                                e_promo.judul as judul_e_promo
+                                e_news.*,
+                                e_news_kategori.name as name_e_news_kategori
                             from
-                                e_banners
+                                e_news
                             left join
-                                e_promo on e_promo.id = e_banners.promo_id
+                                e_news_kategori on e_news_kategori.id = e_news.kategori_id
                             $whereClause
                             $orderBy
                         ) data
@@ -141,10 +146,18 @@ class BannerController extends Controller
 
                 if ($val->IMAGE) {
                     $image = '
-                        <a href="' . url('stream-file') . '?type=gambar_banner&id=' . $val->ID . '&filename=' . $val->IMAGE . '" data-lightbox="banner-' . $val->ID . '" data-title="' . $val->IMAGE . '" class="btn btn-success btn-sm">
+                        <a href="' . url('stream-file') . '?type=gambar_artikel&id=' . $val->ID . '&filename=' . $val->IMAGE . '" data-lightbox="news-' . $val->ID . '" data-title="' . $val->IMAGE . '" class="btn btn-success btn-sm">
                             <i class="ph-image me-1"></i>
                             Lihat Gambar
                         </a>
+                    ';
+                }
+
+                $attachmentLink = '';
+
+                if ($val->LAMPIRAN_LINK) {
+                    $attachmentLink = '
+                        <a href="' . $val->LAMPIRAN_LINK . '" class="text-primary" target="_blank">' . $val->LAMPIRAN_LINK . '</a>
                     ';
                 }
 
@@ -152,10 +165,10 @@ class BannerController extends Controller
                     $start + 1,
                     $action,
                     $image,
-                    $val->JUDUL_E_PROMO,
+                    $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
-                    $val->DESCRIPTION,
-                    $val->STATUS == 1 ? 'Aktif' : 'Tidak Aktif',
+                    $attachmentLink,
+                    $val->STATUS,
                 ];
 
                 $start++;
@@ -173,14 +186,18 @@ class BannerController extends Controller
     public function createData(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'title' => 'required',
             'image' => 'required|image|mimes:png,jpg,jpeg|max:500',
+            'title' => 'required',
+            'content' => 'required',
+            'category_id' => 'required',
         ], [
-            'title.required' => 'Judul tidak boleh kosong',
             'image.required' => 'Gambar tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
             'image.mimes' => 'Gambar maksimal 500 KB',
+            'title.required' => 'Judul tidak boleh kosong',
+            'content.required' => 'Konten tidak boleh kosong',
+            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -190,23 +207,25 @@ class BannerController extends Controller
             ];
         } else {
             try {
-                $createData = QueryAPI::create('e_banners', [
+                $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
-                    'description' => $request->description,
+                    'slug' => Str::slug($request->title, '-'),
+                    'content' => $request->content,
                     'status' => $request->status,
-                    'promo_id' => $request->promotion_id,
+                    'lampiran_link' => $request->attachment_link,
+                    'kategori_id' => $request->category_id,
                 ]);
 
                 if ($createData) {
                     $uploadFile = QueryAPI::uploadFile([
-                        'type' => 'gambar_banner',
+                        'type' => 'gambar_artikel',
                         'id' => $createData->ID,
                         'iszip' => 0,
                         'file' => $request->file('image'),
                     ]);
 
                     if ($uploadFile) {
-                        QueryAPI::update('e_banners', $createData->ID, [
+                        QueryAPI::update('e_news', $createData->ID, [
                             'image' => $uploadFile->FileName
                         ], false);
                     }
@@ -232,14 +251,11 @@ class BannerController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                e_banners.*,
-                e_promo.judul as judul_e_promo
+                *
             from
-                e_banners
-            left join
-                e_promo on e_promo.id = e_banners.promo_id
+                e_news
             where
-                e_banners.id = $id
+                id = $id
         ", true);
 
         return response()->json($data);
@@ -248,16 +264,18 @@ class BannerController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from e_banners where id = $id");
-
         $validation = Validator::make($request->all(), [
-            'title' => 'required',
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:500',
+            'title' => 'required',
+            'content' => 'required',
+            'category_id' => 'required',
         ], [
-            'title.required' => 'Judul tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
             'image.mimes' => 'Gambar maksimal 500 KB',
+            'title.required' => 'Judul tidak boleh kosong',
+            'content.required' => 'Konten tidak boleh kosong',
+            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -267,30 +285,32 @@ class BannerController extends Controller
             ];
         } else {
             try {
-                $updateData = QueryAPI::update('e_banners', $id, [
+                $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
-                    'description' => $request->description,
+                    'slug' => Str::slug($request->title, '-'),
+                    'content' => $request->content,
                     'status' => $request->status,
-                    'promo_id' => $request->promotion_id,
+                    'lampiran_link' => $request->attachment_link,
+                    'kategori_id' => $request->category_id,
                 ]);
 
                 if ($updateData) {
                     if ($request->hasFile('image')) {
                         QueryAPI::removeFile([
-                            'type' => 'gambar_banner',
+                            'type' => 'gambar_artikel',
                             'id' => $id,
                             'filename' => $query->TTD_FILE_NAME ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'gambar_banner',
+                            'type' => 'gambar_artikel',
                             'id' => $id,
                             'iszip' => 0,
                             'file' => $request->file('image'),
                         ]);
 
                         if ($uploadFile) {
-                            QueryAPI::update('e_banners', $id, [
+                            QueryAPI::update('e_news', $id, [
                                 'image' => $uploadFile->FileName
                             ], false);
                         }
@@ -317,7 +337,9 @@ class BannerController extends Controller
         $id = $request->id;
 
         try {
-            QueryAPI::delete('e_banners', $id);
+            QueryAPI::update('e_news', $id, [
+                'deleted_at' => date('Y-m-d H:i:s')
+            ]);
 
             $response = [
                 'code' => 200,
