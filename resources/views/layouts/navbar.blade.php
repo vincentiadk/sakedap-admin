@@ -88,6 +88,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="{{ url('award') }}" class="nav-link rounded {{ Request::segment(1) == 'award' ? 'active' : '' }}">
+                                                        <i class="ph-trophy me-2"></i>
+                                                        Pekan Penghargaan
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('template-email') }}" class="nav-link rounded {{ Request::segment(1) == 'template-email' ? 'active' : '' }}">
                                                         <i class="ph-envelope me-2"></i>
                                                         Template Email
