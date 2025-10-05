@@ -46,6 +46,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="#menu-news" class="nav-link rounded {{ Request::segment(1) == 'news' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'news' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-newspaper me-2"></i>
+                                                        Berita
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="#menu-executor" class="nav-link rounded {{ Request::segment(1) == 'executor' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'executor' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-users-four me-2"></i>
                                                         Pelaksana Serah
@@ -139,6 +145,17 @@
                                             <div class="col-md-2">
                                                 <a href="{{ url('library/data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'data' ? 'active' : '' }}">Data</a>
                                                 <a href="{{ url('library/depo') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'depo' ? 'active' : '' }}">Depo</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'news' ? 'show active' : '' }}" id="menu-news" role="tabpanel">
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <a href="{{ url('news/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'news' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
+                                                <a href="{{ url('news/content') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'news' && Request::segment(2) == 'content' ? 'active' : '' }}">Konten</a>
                                             </div>
                                         </div>
                                     </div>

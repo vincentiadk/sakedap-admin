@@ -170,6 +170,26 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('news')->namespace('News')->group(function () {
+        Route::prefix('category')->group(function () {
+            Route::get('/', 'CategoryController@index');
+            Route::get('datatable', 'CategoryController@datatable');
+            Route::post('create-data', 'CategoryController@createData');
+            Route::get('show-data', 'CategoryController@showData');
+            Route::post('update-data', 'CategoryController@updateData');
+            Route::delete('destroy-data', 'CategoryController@destroyData');
+        });
+
+        Route::prefix('content')->group(function () {
+            Route::get('/', 'ContentController@index');
+            Route::get('datatable', 'ContentController@datatable');
+            Route::post('create-data', 'ContentController@createData');
+            Route::get('show-data', 'ContentController@showData');
+            Route::post('update-data', 'ContentController@updateData');
+            Route::delete('destroy-data', 'ContentController@destroyData');
+        });
+    });
+
     Route::prefix('executor')->namespace('Executor')->group(function () {
         Route::prefix('category')->group(function () {
             Route::get('/', 'CategoryController@index');
