@@ -309,6 +309,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'ListController@datatable');
             Route::match(['get', 'post'], 'verification/{id}', 'ListController@verification');
             Route::get('print/{id}', 'ListController@print');
+            Route::post('send-email', 'ListController@sendEmail');
         });
 
         Route::prefix('sent')->group(function () {

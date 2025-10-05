@@ -466,15 +466,15 @@ class ReceiptController extends Controller
                             'letter_no' => $letter->LETTER_NUMBER_UT ?? '',
                             'publisher_name' => $executor->NAME ?? '',
                             'director' => $signature,
-                            'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . Main::base64File(($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
-                            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . Main::base64File(($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
+                            'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
+                            'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
                         ];
 
                         Mail::send([], [], function ($message) use ($bodyParamEmail, $templateEmailContent, $executor) {
-                            $message->to($executor->EMAIL1 ?? '', 'edeposit@perpusnas.go.id')
+                            $message->to($executor->EMAIL1 ?? '', $bodyParamEmail['publisher_name'])
                                 ->subject('Resi Penerimaan')
-                                ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                                ->from(config('mail.from.address'), config('mail.from.name'))
                                 ->html(Main::parseTemplateEmail($bodyParamEmail, $templateEmailContent), 'text/html');
                         });
                     }

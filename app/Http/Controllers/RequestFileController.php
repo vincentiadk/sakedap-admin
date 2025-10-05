@@ -246,9 +246,9 @@ class RequestFileController extends Controller
                     ];
 
                     Mail::send([], [], function ($message) use ($requestData, $bodyParamEmail, $templateEmail) {
-                        $message->to($requestData->EMAIL_PENERBIT, 'edeposit@perpusnas.go.id')
+                        $message->to($requestData->EMAIL_PENERBIT, $bodyParamEmail['publisher'])
                             ->subject('Download File Original')
-                            ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                            ->from(config('mail.from.address'), config('mail.from.name'))
                             ->html(Main::parseTemplateEmail($bodyParamEmail, $templateEmail), 'text/html');
                     });
                 }

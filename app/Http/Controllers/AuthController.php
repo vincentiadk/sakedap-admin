@@ -78,9 +78,9 @@ class AuthController extends Controller
 
                         if ($templateEmail) {
                             Mail::send([], [], function ($message) use ($payloadEmail, $templateEmail) {
-                                $message->to($payloadEmail['email'], 'edeposit@perpusnas.go.id')
+                                $message->to($payloadEmail['email'], $payloadEmail['name'])
                                     ->subject('Permintaan Reset Password')
-                                    ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                                    ->from(config('mail.from.address'), config('mail.from.name'))
                                     ->html(Main::parseTemplateEmail($payloadEmail, $templateEmail), 'text/html');
                             });
                         }
@@ -172,9 +172,9 @@ class AuthController extends Controller
                             ];
 
                             Mail::send([], [], function ($message) use ($bodyEmail, $templateEmailContent) {
-                                $message->to($bodyEmail['email'], 'edeposit@perpusnas.go.id')
+                                $message->to($bodyEmail['email'], $bodyEmail['name'])
                                     ->subject('Berhasil Reset Password')
-                                    ->from('edeposit@perpusnas.go.id', 'Info edeposit')
+                                    ->from(config('mail.from.address'), config('mail.from.name'))
                                     ->html(Main::parseTemplateEmail($bodyEmail, $templateEmailContent), 'text/html');
                             });
 

@@ -166,7 +166,7 @@ class ConfigurationController extends Controller
             $name = config('mail.from.name');
 
             Mail::send([], [], function ($message) use ($email, $from, $name) {
-                $message->to($email, $from)
+                $message->to($email, $name)
                     ->subject('Tes Kirim Email')
                     ->from($from, $name)
                     ->html('Email berhasil terkirim', 'text/html');

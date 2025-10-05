@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 
 class ListController extends Controller
 {
@@ -210,7 +211,7 @@ class ListController extends Controller
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
 
                 $action = '
-                    <a href="' . url('delivery/list/verification/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm">
+                    <a href="' . url('delivery/list/verification/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
                         <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
                         ' . (in_array($val->STATUS, $statusAccept) ? 'Detail' : 'Verifikasi') . '
                     </a>
@@ -218,9 +219,15 @@ class ListController extends Controller
 
                 if (in_array($val->STATUS, $statusAccept)) {
                     $action .= '
-                        <a href="' . url('delivery/list/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm" target="_blank">
+                        <a href="' . url('delivery/list/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm mt-1 text-nowrap" target="_blank">
                             <i class="ph-printer me-1"></i>
                             Resi Penerimaan
+                        </a>
+                    ';
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="sendEmail(' . $val->LETTER_ID . ')">
+                            <i class="ph-envelope-open me-1"></i>
+                            Kirim Email
                         </a>
                     ';
                 }
@@ -503,5 +510,102 @@ class ListController extends Controller
         $filename = storage_path("app/public/delivery/list/receipt/$letterNumberUT.pdf");
 
         return $pdf->output($filename, 'I');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $letterId = $request->id;
+
+        $letter = QueryAPI::get("
+            select
+                letter.*,
+                penerbit.name as name_penerbit,
+                penerbit.email1 as email_penerbit
+            from
+                letter
+            join
+                penerbit on penerbit.id = letter.penerbit_id
+            where
+                letter.letter_id = $letterId
+        ", true);
+
+        if ($letter) {
+            if ($letter->EMAIL_PENERBIT) {
+                $settings = QueryAPI::get("
+                    select
+                        *
+                    from
+                        e_settings
+                    where
+                        slug in ('ResiPenerimaan','Header','Footer')
+                ");
+
+                $templateEmailContent = null;
+                $templateEmailHeader = null;
+                $templateEmailFooter = null;
+
+                if ($settings) {
+                    foreach ($settings as $setting) {
+                        if ($setting->SLUG == 'ResiPenerimaan') $templateEmailContent = $setting;
+                        elseif ($setting->SLUG == 'Header') $templateEmailHeader = $setting;
+                        elseif ($setting->SLUG == 'Footer') $templateEmailFooter = $setting;
+                    }
+                }
+
+                $dateNow = date('Y-m-d');
+                $branchId = $letter->BRANCH_ID ?? 0;
+
+                $leader = QueryAPI::get("
+                    select
+                        *
+                    from
+                        penanggung_jawab
+                    where
+                        branch_id = $branchId and
+                        (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
+                ", true);
+
+                $signature = '';
+
+                if ($leader) {
+                    $signatureUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? 0) . '&filename=' . ($leader->TTD_FILE_NAME ?? 0);
+                    $signature = $leader->JABATAN . '<br><br>' . '<img src="' . $signatureUrl . '" style="max-width:40px !important;"><br><br>' . $leader->NAMA . '<br>' . '<span style="font-weight:bold;">' . $leader->NIP . '</span>';
+                }
+
+                $bodyParamEmail = [
+                    'accepted_date' => date('d/m/Y', strtotime($letter->ACCEPT_DATE ?? '')),
+                    'letter_no' => $letter->LETTER_NUMBER_UT ?? '',
+                    'publisher_name' => $letter->NAME_PENERBIT ?? '',
+                    'director' => $signature,
+                    'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? 0) . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
+                    'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? 0) . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
+                    'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
+                ];
+
+                Mail::send([], [], function ($message) use ($bodyParamEmail, $templateEmailContent, $letter) {
+                    $message->to($letter->EMAIL_PENERBIT ?? '', $bodyParamEmail['publisher_name'])
+                        ->subject('Resi Penerimaan')
+                        ->from(config('mail.from.address'), config('mail.from.name'))
+                        ->html(Main::parseTemplateEmail($bodyParamEmail, $templateEmailContent), 'text/html');
+                });
+
+                $response = [
+                    'code' => 200,
+                    'message' => 'Email berhasil dikirim'
+                ];
+            } else {
+                $response = [
+                    'code' => 401,
+                    'message' => 'Email pelaksana serah kosong'
+                ];
+            }
+        } else {
+            $response = [
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ];
+        }
+
+        return response()->json($response);
     }
 }
