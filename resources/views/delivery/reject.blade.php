@@ -112,6 +112,7 @@
                         <th class="text-nowrap">#</th>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Auto Hibah</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Tujuan</th>
@@ -193,6 +194,7 @@
                 { orderable: false, className: 'align-middle text-center allow-select' },
                 { orderable: true, className: 'align-middle text-center allow-select' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },

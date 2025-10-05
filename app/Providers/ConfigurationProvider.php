@@ -23,12 +23,7 @@ class ConfigurationProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if ($this->app->runningInConsole() && !$this->app->runningUnitTests()) {
-            return;
-        }
-
         $ttl = now()->addMinutes(60);
-
         $settings = Cache::remember(Main::CACHE_NAME_CONFIG_APP, $ttl, function () {
             $configParam = array_map(function ($name) {
                 return "'" . $name . "'";

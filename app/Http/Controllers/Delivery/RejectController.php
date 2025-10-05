@@ -31,6 +31,7 @@ class RejectController extends Controller
             null,
             'letter_detail.letter_detail_id',
             null,
+            'letter.accept_date',
             'letter_detail.title',
             'penerbit.name',
             'branchs.name',
@@ -140,7 +141,8 @@ class RejectController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
-                                letter.proses_by as proses_by_letter
+                                letter.proses_by as proses_by_letter,
+                                letter.accept_date as accept_date_letter
                             from
                                 letter_detail
                             left join
@@ -189,10 +191,19 @@ class RejectController extends Controller
                     <input type="hidden" name="data" data-id="' . $val->LETTER_DETAIL_ID . '" data-title="' . $val->TITLE . '" data-executor="' . $val->NAME_PENERBIT . '" data-qty-reject="' . $val->QTY_REJECT . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '">
                 ';
 
+                $timeAutoGrant = '';
+                $acceptDate = $val->ACCEPT_DATE_LETTER;
+
+                if ($acceptDate) {
+                    $future = Carbon::parse($acceptDate)->addDays(config('system.limit_grant'));
+                    $timeAutoGrant = $future->diffForHumans();
+                }
+
                 $data[] = [
                     $inputHidden,
                     $start + 1,
                     $action,
+                    $timeAutoGrant,
                     $val->TITLE,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
