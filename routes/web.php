@@ -92,6 +92,15 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ProblemController@updateData');
             Route::delete('destroy-data', 'ProblemController@destroyData');
         });
+
+        Route::prefix('media')->group(function () {
+            Route::get('/', 'MediaController@index');
+            Route::get('datatable', 'MediaController@datatable');
+            Route::post('create-data', 'MediaController@createData');
+            Route::get('show-data', 'MediaController@showData');
+            Route::post('update-data', 'MediaController@updateData');
+            Route::delete('destroy-data', 'MediaController@destroyData');
+        });
     });
 
     Route::prefix('location')->namespace('Location')->group(function () {
