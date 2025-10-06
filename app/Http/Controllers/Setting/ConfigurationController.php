@@ -50,6 +50,7 @@ class ConfigurationController extends Controller
 
             $payloadSettingParameter = [
                 ['name' => 'EPercobaanLogin', 'value' => $request->system_rate_limiter],
+                ['name' => 'EPercobaanLoginInterval', 'value' => $request->system_rate_limiter_interval],
                 ['name' => 'EAesKey', 'value' => $request->system_aes_key],
                 ['name' => 'EAesIV', 'value' => $request->system_aes_iv],
                 ['name' => 'EAesInlisKey', 'value' => $request->system_aes_key_inlis],

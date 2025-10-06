@@ -13,6 +13,7 @@ class Main
     const CACHE_NAME_CONFIG_APP = 'app_configuration';
     const CONFIG_PARAM = [
         'EPercobaanLogin',
+        'EPercobaanLoginInterval',
         'EAesKey',
         'EAesIV',
         'EAesInlisKey',

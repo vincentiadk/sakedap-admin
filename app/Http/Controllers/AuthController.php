@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -19,6 +21,20 @@ class AuthController extends Controller
         }
 
         if ($request->_token == csrf_token()) {
+            $rateLimitMaxAttempt = config('system.retry_login');
+            $rateLimitInterval = config('system.retry_login_interval');
+            $rateLimitIntervalSecond = $rateLimitInterval * 60 * 60;
+            $rateLimitKey = $request->ip();
+            $retriesLeft = RateLimiter::retriesLeft($rateLimitKey, $rateLimitMaxAttempt);
+
+            if (RateLimiter::tooManyAttempts($rateLimitKey, $rateLimitMaxAttempt)) {
+                $seconds = RateLimiter::availableIn($rateLimitKey);
+                $retryAt = Carbon::now()->addSeconds($seconds);
+                $retryTime = $retryAt->diffForHumans();
+
+                return redirect('/')->with('failed', "Terlalu banyak upaya login ($rateLimitMaxAttempt kali). Anda dapat mencoba kembali pada $retryTime");
+            }
+
             $validation = Validator::make($request->all(), [
                 'username' => 'required',
                 'password' => 'required',
@@ -31,6 +47,8 @@ class AuthController extends Controller
             ]);
 
             if ($validation->fails()) {
+                RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
+
                 return redirect('/')->withErrors($validation);
             } else {
                 $username = $request->username;
@@ -38,10 +56,14 @@ class AuthController extends Controller
                 $login = Main::login($username, $password);
 
                 if ($login) {
+                    RateLimiter::clear($rateLimitKey);
+
                     return redirect()->intended('home');
                 }
 
-                return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan']);
+                RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
+
+                return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan, sisa percobaan login ' . $retriesLeft . 'x lagi']);
             }
         }
 

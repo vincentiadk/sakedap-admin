@@ -53,6 +53,7 @@ class ConfigurationProvider extends ServiceProvider
                 $collectedSettings['captcha.sitekey'] = $sp->firstWhere('NAME', 'ECaptchaSite')->VALUE ?? null;
 
                 $collectedSettings['system.retry_login'] = (int) ($sp->firstWhere('NAME', 'EPercobaanLogin')->VALUE ?? 3);
+                $collectedSettings['system.retry_login_interval'] = (int) ($sp->firstWhere('NAME', 'EPercobaanLoginInterval')->VALUE ?? 3);
                 $collectedSettings['system.aes_key'] = $sp->firstWhere('NAME', 'EAesKey')->VALUE ?? null;
                 $collectedSettings['system.aes_iv'] = $sp->firstWhere('NAME', 'EAesIV')->VALUE ?? null;
                 $collectedSettings['system.iframe_domain'] = $sp->firstWhere('NAME', 'EIFrameDomain')->VALUE ?? null;

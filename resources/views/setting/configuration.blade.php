@@ -17,17 +17,11 @@
             </ul>
         </div>
     @elseif(session('success'))
-        <div class="alert bg-success text-white alert-icon-start fade show border-0">
-            <span class="alert-icon bg-black bg-opacity-20">
-                <i class="ph-check-circle"></i>
-            </span>
+        <div class="alert bg-success text-white fade show border-0">
             {{ session('success') }}
         </div>
     @elseif(session('failed'))
-        <div class="alert bg-danger text-white alert-icon-start fade show border-0">
-            <span class="alert-icon bg-black bg-opacity-20">
-                <i class="ph-x-circle"></i>
-            </span>
+        <div class="alert bg-danger text-white fade show border-0">
             {{ session('failed') }}
         </div>
     @endif
@@ -65,8 +59,10 @@
                             <label class="col-form-label col-md-2">Percobaan Login</label>
                             <div class="col-md-10">
                                 <div class="input-group">
+                                    <span class="input-group-text">Attempt</span>
                                     <input type="number" class="form-control" name="system_rate_limiter" id="system_rate_limiter" value="{{ $settingParameter->firstWhere('NAME', 'EPercobaanLogin')->VALUE ?? '' }}" placeholder="....................">
-                                    <span class="input-group-text">Kali</span>
+                                    <span class="input-group-text">Interval (Jam)</span>
+                                    <input type="number" class="form-control" name="system_rate_limiter_interval" id="system_rate_limiter_interval" value="{{ $settingParameter->firstWhere('NAME', 'EPercobaanLoginInterval')->VALUE ?? '' }}" placeholder="....................">
                                 </div>
                             </div>
                         </div>

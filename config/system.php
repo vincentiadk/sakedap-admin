@@ -2,6 +2,7 @@
 
 return [
     'retry_login' => 3,
+    'retry_login_interval' => 1,
     'aes_key' => null,
     'aes_iv' => null,
     'iframe_domain' => null,
