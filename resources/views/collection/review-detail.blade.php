@@ -184,9 +184,9 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Akses <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2">Akses</label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih">
+                        <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" disabled>
                             <option value=""></option>
                             <option value="1" {{ $collection->AKSES == 1 ? 'selected' : '' }}>Akses full file berwatermak secara online</option>
                             <option value="2" {{ $collection->AKSES == 2 ? 'selected' : '' }}>Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN</option>

@@ -239,14 +239,12 @@ class ReviewController extends Controller
                     'title' => 'required',
                     'collection_media_id' => 'required',
                     'received_at' => 'required',
-                    'access' => 'required',
                 ], [
                     'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
                     'city_id.required' => 'Kota tidak boleh kosong',
                     'title.required' => 'Judul tidak boleh kosong',
                     'collection_media_id.required' => 'Media tidak boleh kosong',
                     'received_at.required' => 'Tanggal terima tidak boleh kosong',
-                    'access.required' => 'Akses tidak boleh kosong',
                 ]);
             }
 
@@ -277,7 +275,6 @@ class ReviewController extends Controller
                         'publication_year' => date('Y', strtotime($request->publish_time)),
                         'preview' => $request->preview,
                         'physical_description' => json_encode($request->physical_description),
-                        'akses' => $request->access,
                         'status' => $status,
                         'price' => str_replace([',', '.'], '', $request->price),
                         'worksheet_id' => $request->worksheet_id,

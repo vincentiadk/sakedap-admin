@@ -365,11 +365,35 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File Konten</h5>
+                        <h5 class="hstack gap-2 mb-0">File Original</h5>
                     </div>
                     <div class="card-body">
                         <div class="ratio ratio-16x9">
-                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
+                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionOriginal->ID ?? '' }}&filename={{ $collectionOriginal->FILEURL ?? '' }}" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="hstack gap-2 mb-0">File Preview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="{{ url('stream-file') }}?type=file_preview&id={{ $collectionPreview->ID ?? '' }}&filename={{ $collectionPreview->FILEURL ?? '' }}" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="hstack gap-2 mb-0">File Watermark</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="{{ url('stream-file') }}?type=file_access&id={{ $collectionWatermark->ID ?? '' }}&filename={{ $collectionWatermark->FILEURL ?? '' }}" frameborder="0"></iframe>
                         </div>
                     </div>
                 </div>

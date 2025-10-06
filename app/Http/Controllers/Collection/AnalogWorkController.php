@@ -286,11 +286,29 @@ class AnalogWorkController extends Controller
                 catalog_id = $catalogId
         ", true);
 
-        $collectionContent = QueryAPI::get("
+        $collectionOriginal = QueryAPI::get("
             select
                 *
             from
                 catalogfiles
+            where
+                catalog_id = $catalogId
+        ", true);
+
+        $collectionPreview = QueryAPI::get("
+            select
+                *
+            from
+                e_file_preview
+            where
+                catalog_id = $catalogId
+        ", true);
+
+        $collectionWatermark = QueryAPI::get("
+            select
+                *
+            from
+                e_file_access
             where
                 catalog_id = $catalogId
         ", true);
@@ -310,7 +328,9 @@ class AnalogWorkController extends Controller
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,
                 'collectionCover' => $collectionCover,
-                'collectionContent' => $collectionContent,
+                'collectionOriginal' => $collectionOriginal,
+                'collectionPreview' => $collectionPreview,
+                'collectionWatermark' => $collectionWatermark,
                 'content' => 'collection.analog-work-detail',
                 'plugins' => [
                     'select2',
