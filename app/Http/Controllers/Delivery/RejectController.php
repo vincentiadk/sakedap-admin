@@ -246,6 +246,7 @@ class RejectController extends Controller
                 QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
                     'qty_hibah' => $dld->QTY_REJECT,
                     'qty_retur' => null,
+                    'diambil' => null,
                 ], false);
 
                 QueryAPI::create('hibah_detail', [
@@ -301,6 +302,7 @@ class RejectController extends Controller
                 QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
                     'qty_retur' => $dld->QTY_REJECT,
                     'qty_hibah' => null,
+                    'diambil' => 0,
                 ], false);
             }
         }

@@ -31,6 +31,8 @@ class ReturController extends Controller
             null,
             'letter_detail.letter_detail_id',
             null,
+            'letter.accept_date',
+            'letter_detail.diambil',
             'letter_detail.title',
             'penerbit.name',
             'branchs.name',
@@ -138,7 +140,8 @@ class ReturController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
-                                letter.proses_by as proses_by_letter
+                                letter.proses_by as proses_by_letter,
+                                letter.accept_date as accept_date_letter
                             from
                                 letter_detail
                             left join
@@ -166,22 +169,6 @@ class ReturController extends Controller
                     </a>
                 ';
 
-                if ($val->DIAMBIL == 1) {
-                    $action .= '
-                        <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 0)">
-                            <i class="ph-x me-1"></i>
-                            Tandai Belum Diambil
-                        </a>
-                    ';
-                } else {
-                    $action .= '
-                        <a href="javascript:void(0);" class="btn btn-teal btn-sm" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 1)">
-                            <i class="ph-handshake me-1"></i>
-                            Tandai Sudah Diambil
-                        </a>
-                    ';
-                }
-
                 $dataRemark = explode(';', $val->REMARK ?? '');
                 $listRemark = '';
 
@@ -199,10 +186,42 @@ class ReturController extends Controller
                     <input type="hidden" name="data" data-id="' . $val->LETTER_DETAIL_ID . '" data-title="' . $val->TITLE . '" data-executor="' . $val->NAME_PENERBIT . '" data-qty-retur="' . $val->QTY_RETUR . '" data-receipt="' . $val->RECEIPT_NO_LETTER . '">
                 ';
 
+                $status = '
+                    <div class="dropdown">
+                        <a href="#" class="' . ($val->DIAMBIL == 1 ? 'link-success' : ($val->DIAMBIL == 0 ? 'link-primary' : 'link-danger')) . ' fw-semibold d-inline-flex align-items-center dropdown-toggle ms-1" data-bs-toggle="dropdown">
+                            ' . ($val->DIAMBIL == 1 ? 'Sudah Diambil' : ($val->DIAMBIL == 0 ? 'Belum Diambil' : 'Batal Diambil')) . '
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="#" class="dropdown-item ' . ($val->DIAMBIL == 1 ? 'active' : '') . '" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 1)">
+                                <i class="ph-success-circle me-2"></i>
+                                Sudah Diambil
+                            </a>
+                            <a href="#" class="dropdown-item ' . ($val->DIAMBIL == 0 ? 'active' : '') . '" onclick="taken(' . $val->LETTER_DETAIL_ID . ', 0)">
+                                <i class="ph-primary-circle me-2"></i>
+                                Belum Diambil
+                            </a>
+                            <a href="#" class="dropdown-item ' . ($val->DIAMBIL == -1 ? 'active' : '') . '" onclick="taken(' . $val->LETTER_DETAIL_ID . ', -1)">
+                                <i class="ph-danger-circle me-2"></i>
+                                Batal Diambil
+                            </a>
+                        </div>
+                    </div>
+                ';
+
+                $timeAutoGrant = '';
+                $acceptDate = $val->ACCEPT_DATE_LETTER;
+
+                if ($acceptDate) {
+                    $future = Carbon::parse($acceptDate)->addDays(config('system.limit_retur'));
+                    $timeAutoGrant = $future->diffForHumans();
+                }
+
                 $data[] = [
                     $inputHidden,
                     $start + 1,
                     $action,
+                    $timeAutoGrant,
+                    $status,
                     $val->TITLE,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
@@ -245,6 +264,7 @@ class ReturController extends Controller
                 QueryAPI::update('letter_detail', $dld->LETTER_DETAIL_ID, [
                     'qty_hibah' => $dld->QTY_REJECT,
                     'qty_retur' => null,
+                    'diambil' => null,
                 ], false);
 
                 QueryAPI::create('hibah_detail', [

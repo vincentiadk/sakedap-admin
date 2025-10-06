@@ -27,8 +27,12 @@
                             Tandai Sudah Diambil
                         </a>
                         <a href="javascript:void(0);" class="dropdown-item" onclick="taken(null, 0)">
-                            <i class="ph-x me-1"></i>
+                            <i class="ph-minus-circle me-1"></i>
                             Tandai Belum Diambil
+                        </a>
+                        <a href="javascript:void(0);" class="dropdown-item" onclick="taken(null, -1)">
+                            <i class="ph-x me-1"></i>
+                            Tandai Batal Diambil
                         </a>
                     </div>
                 </div>
@@ -116,6 +120,8 @@
                         <th class="text-nowrap">#</th>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Auto Hibah</th>
+                        <th class="text-nowrap">Status</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Tujuan</th>
@@ -197,6 +203,8 @@
                 { orderable: false, className: 'align-middle text-center allow-select' },
                 { orderable: true, className: 'align-middle text-center allow-select' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle' },
+                { orderable: false, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
@@ -387,7 +395,7 @@
         }).show();
     }
 
-    function taken(param = null, value = 0) {
+    function taken(param = null, value = null) {
         if(param) {
             var id = [param];
         } else {

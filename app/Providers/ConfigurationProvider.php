@@ -60,6 +60,7 @@ class ConfigurationProvider extends ServiceProvider
                 $collectedSettings['system.catalog_content_max_upload'] = ($sp->firstWhere('NAME', 'EKatalogContentMaxUpload')->VALUE ?? 200) * 1024;
                 $collectedSettings['system.limit_submission_kckr'] = (int) ($sp->firstWhere('NAME', 'EBatasSerahKCKR')->VALUE ?? 3);
                 $collectedSettings['system.limit_grant'] = (int) ($sp->firstWhere('NAME', 'EBatasHibah')->VALUE ?? 3);
+                $collectedSettings['system.limit_retur'] = (int) ($sp->firstWhere('NAME', 'EBatasPengambilan')->VALUE ?? 3);
 
                 $collectedSettings['isbn.token'] = $sp->firstWhere('NAME', 'EAPIISBNToken')->VALUE ?? null;
                 $collectedSettings['isbn.base_url'] = $sp->firstWhere('NAME', 'EAPIISBNBaseUrl')->VALUE ?? null;

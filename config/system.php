@@ -9,4 +9,5 @@ return [
     'catalog_content_max_upload' => 204800,
     'limit_submission_kckr' => 3,
     'limit_grant' => 3,
+    'limit_retur' => 3,
 ];

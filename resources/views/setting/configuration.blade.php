@@ -43,7 +43,7 @@
                         <a href="#nav-tabs-email" class="nav-link" data-bs-toggle="tab">Email</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#nav-tabs-catalog" class="nav-link" data-bs-toggle="tab">Katalog</a>
+                        <a href="#nav-tabs-collection" class="nav-link" data-bs-toggle="tab">Koleksi</a>
                     </li>
                     <li class="nav-item">
                         <a href="#nav-tabs-captcha" class="nav-link" data-bs-toggle="tab">Captcha</a>
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-tabs-catalog">
+                    <div class="tab-pane fade" id="nav-tabs-collection">
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Batas Upload</label>
                             <div class="col-md-10">
@@ -250,7 +250,16 @@
                             <label class="col-form-label col-md-2">Batas Waktu Hibah</label>
                             <div class="col-md-10">
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="catalog_submission_grant" id="catalog_submission_grant" value="{{ $settingParameter->firstWhere('NAME', 'EBatasHibah')->VALUE ?? '' }}" placeholder="....................">
+                                    <input type="number" class="form-control" name="catalog_limit_grant" id="catalog_limit_grant" value="{{ $settingParameter->firstWhere('NAME', 'EBatasHibah')->VALUE ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Hari</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Batas Waktu Pengambilan</label>
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="catalog_limit_retur" id="catalog_limit_retur" value="{{ $settingParameter->firstWhere('NAME', 'EBatasPengambilan')->VALUE ?? '' }}" placeholder="....................">
                                     <span class="input-group-text">Hari</span>
                                 </div>
                             </div>

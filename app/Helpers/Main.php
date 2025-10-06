@@ -30,6 +30,7 @@ class Main
         'EKatalogContentMaxUpload',
         'EBatasSerahKCKR',
         'EBatasHibah',
+        'EBatasPengambilan',
         'ECaptchaSecret',
         'ECaptchaSite',
         'EAPIISBNToken',
