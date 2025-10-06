@@ -149,7 +149,6 @@ function configDataTable() {
             pageLength: 10,
             stateDuration: 60 * 60 * 24,
             searchDelay: 500,
-            scrollX: true,
             dom: '<"datatable-header justify-content-start"f<"ms-sm-auto"l><"ms-sm-3"B>><"dt-top-scroll-wrapper"><"datatable-scroll-wrap"t><"datatable-footer"ip>',
             language: {
                 search: '<div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',

@@ -94,6 +94,7 @@
                     <tr>
                         <th class="text-nowrap" rowspan="2">No</th>
                         <th class="text-nowrap" rowspan="2">Aksi</th>
+                        <th class="text-nowrap" rowspan="2">User</th>
                         <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
                         <th class="text-nowrap" rowspan="2">Resi</th>
                         <th class="text-nowrap" rowspan="2">Jasa Kirim</th>
@@ -169,6 +170,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

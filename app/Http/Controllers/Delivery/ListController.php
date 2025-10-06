@@ -31,6 +31,7 @@ class ListController extends Controller
         $column = [
             'l.letter_id',
             null,
+            'l.is_verification_by',
             'p.name',
             'l.receipt_no',
             'jp.name',
@@ -150,6 +151,7 @@ class ListController extends Controller
                                 l.receipt_no,
                                 l.proses_by,
                                 l.penerbit_id,
+                                l.is_verification_by,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
@@ -235,6 +237,7 @@ class ListController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->IS_VERIFICATION_BY,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
@@ -263,7 +266,7 @@ class ListController extends Controller
 
     public function verification(Request $request, $id)
     {
-        $letter = QueryAPI::get("
+        $letterSql = "
             select
                 letter.*,
                 jasa_pengiriman.name as name_jasa_pengiriman,
@@ -276,7 +279,9 @@ class ListController extends Controller
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
             where
                 letter.letter_id = $id
-        ", true);
+        ";
+
+        $letter = QueryAPI::get($letterSql, true);
 
         $letterDetail = QueryAPI::get("
             select
@@ -287,53 +292,98 @@ class ListController extends Controller
                 letter_id = $id
         ");
 
-        if ($request->ajax()) {
-            try {
-                $letterDetailIds = $request->collect('letter_detail_id');
-                $quantities = $request->collect('letter_detail_quantity');
-                $qtyAccepts = $request->collect('letter_detail_qty_accept');
-                $qtyRejects = $request->collect('letter_detail_qty_reject');
-                $remarks = $request->collect('letter_detail_remark');
-                $param = $request->param;
-                $status = 'DITERIMA PENUH';
-                $letterDetailsToUpdate = [];
+        $disable = 'disabled';
+        $currentStatus = $letter->STATUS ?? '';
+        $isUserVerificator = ($letter->IS_VERIFICATION_BY ?? '') === session('username');
+        $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
 
-                foreach ($letterDetailIds as $key => $ldi) {
-                    $qtyAccept = $qtyAccepts->get($key, 0);
-                    $qtyReject = $qtyRejects->get($key, 0);
-                    $remark = $remarks->get($key, []);
-                    $quantity = $quantities->get($key, 0);
+        if ($isBranchMatch && in_array($currentStatus, ['TERKIRIM'])) {
+            QueryAPI::update('letter', $id, [
+                'status' => 'CEK FISIK'
+            ], false);
 
-                    $letterDetailsToUpdate[] = [
-                        'id' => $ldi,
-                        'qty_accept' => $qtyAccept,
-                        'qty_reject' => $qtyReject,
-                        'remark' => is_array($remark) ? implode(';', $remark) : $remark
-                    ];
+            $letter = QueryAPI::get($letterSql, true);
+            $currentStatus = $letter->STATUS ?? '';
+        }
 
-                    if ($qtyAccept < $quantity) {
-                        $status = 'DITERIMA PARSIAL';
-                    }
-                }
+        if ($isUserVerificator) {
+            $disable = null;
+        } else {
+            $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
 
-                foreach ($letterDetailsToUpdate as $updateData) {
-                    $letterId = $updateData['id'];
-
-                    unset($updateData['id']);
-
-                    QueryAPI::update('letter_detail', $letterId, $updateData, false);
-                }
+            if ($isVerifiableNow && empty($letter->IS_VERIFICATION_BY)) {
+                $disable = null;
 
                 QueryAPI::update('letter', $id, [
-                    'status' => ($param === 'save-verification') ? $status : $request->status,
-                    'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                    'proses_by' => ($param === 'save-verification') ? session('name') : null,
+                    'is_verification_by' => session('username')
                 ], false);
 
-                $response = [
-                    'code' => 200,
-                    'message' => 'Data telah disimpan'
-                ];
+                $letter = QueryAPI::get($letterSql, true);
+            }
+        }
+
+        if ($request->ajax()) {
+            try {
+                $param = $request->param;
+
+                if ($param == 'cancel') {
+                    QueryAPI::update('letter', $id, [
+                        'is_verification_by' => null
+                    ], false);
+
+                    $response = [
+                        'code' => 200,
+                        'message' => 'Verifikasi telah dibatalkan'
+                    ];
+                } else {
+                    $letterDetailIds = $request->collect('letter_detail_id');
+                    $quantities = $request->collect('letter_detail_quantity');
+                    $qtyAccepts = $request->collect('letter_detail_qty_accept');
+                    $qtyRejects = $request->collect('letter_detail_qty_reject');
+                    $remarks = $request->collect('letter_detail_remark');
+                    $checkeds = $request->collect('letter_detail_checked');
+                    $status = 'DITERIMA PENUH';
+                    $letterDetailsToUpdate = [];
+
+                    foreach ($letterDetailIds as $key => $ldi) {
+                        $qtyAccept = $qtyAccepts->get($key, 0);
+                        $qtyReject = $qtyRejects->get($key, 0);
+                        $remark = $remarks->get($key, []);
+                        $quantity = $quantities->get($key, 0);
+                        $checked = $checkeds->get($key, 0);
+
+                        $letterDetailsToUpdate[] = [
+                            'id' => $ldi,
+                            'qty_accept' => $qtyAccept,
+                            'qty_reject' => $qtyReject,
+                            'remark' => is_array($remark) ? implode(';', $remark) : $remark,
+                            'checked' => $checked,
+                        ];
+
+                        if ($qtyAccept < $quantity) {
+                            $status = 'DITERIMA PARSIAL';
+                        }
+                    }
+
+                    foreach ($letterDetailsToUpdate as $updateData) {
+                        $letterId = $updateData['id'];
+
+                        unset($updateData['id']);
+
+                        QueryAPI::update('letter_detail', $letterId, $updateData, false);
+                    }
+
+                    QueryAPI::update('letter', $id, [
+                        'status' => ($param === 'save-verification') ? $status : $request->status,
+                        'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
+                        'proses_by' => ($param === 'save-verification') ? session('name') : null,
+                    ], false);
+
+                    $response = [
+                        'code' => 200,
+                        'message' => 'Data telah disimpan'
+                    ];
+                }
             } catch (\Exception $e) {
                 $response = [
                     'code' => $e->getCode(),
@@ -342,12 +392,6 @@ class ListController extends Controller
             }
 
             return response()->json($response);
-        }
-
-        if (in_array(($letter->STATUS ?? ''), ['DALAM PENGIRIMAN', 'TERKIRIM', 'CEK FISIK']) && ($letter->BRANCH_ID ?? '') == session('branch_id')) {
-            $disable = null;
-        } else {
-            $disable = 'disabled';
         }
 
         return view('layouts.index', [

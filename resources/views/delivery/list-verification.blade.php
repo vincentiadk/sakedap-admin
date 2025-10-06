@@ -57,6 +57,7 @@
                     <thead class="text-bg-light">
                         <tr>
                             <th class="text-center" rowspan="2">No</th>
+                            <th class="text-center" rowspan="2">Check</th>
                             <th rowspan="2">Judul</th>
                             <th rowspan="2">ISBN</th>
                             <th rowspan="2">Jilid</th>
@@ -75,6 +76,7 @@
                     <tbody>
                         @foreach($letterDetail ?? [] as $key => $ld)
                             @php
+                                $strRand = Str::random(5);
                                 $code = str_replace('-', '', $ld->ISBN);
                                 $total = $ld->COPY ?? 0;
 
@@ -116,6 +118,12 @@
                                 <input type="hidden" name="letter_detail_total" value="{{ $total }}">
 
                                 <td class="text-center">{{ $key + 1 }}</td>
+                                <td class="text-center">
+                                    <center>
+                                        <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
+                                        <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }}>
+                                    </center>
+                                </td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
                                 <td class="text-wrap">{{ $ld->ISBN }}</td>
                                 <td class="text-wrap">{{ $ld->NOMORPANGGILJILID }}</td>
@@ -172,6 +180,10 @@
                                 <option value="CEK FISIK" {{ $letter->STATUS == 'CEK FISIK' ? 'selected' : '' }}>CEK FISIK</option>
                             </select>
                         </div>
+                        <button type="button" class="btn btn-danger text-nowrap me-2" onclick="submitted('cancel')">
+                            <i class="ph-x me-1"></i>
+                            Batal Verifikasi
+                        </button>
                         <button type="button" class="btn btn-warning text-nowrap me-2" onclick="submitted('save')">
                             <i class="ph-floppy-disk me-1"></i>
                             Simpan
@@ -194,7 +206,12 @@
         });
 
         $('#datatable-client').DataTable({
-            scrollX: true
+            paging: false,
+            lengthChange: false,
+            info: false,
+            scrollY: '400px',
+            scrollX: false,
+            scrollCollapse: true,
         });
     });
 
