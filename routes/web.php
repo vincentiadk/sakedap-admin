@@ -294,6 +294,10 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('recording')->group(function () {
+        Route::get('{segment}', 'RecordingController@index');
+    });
+
     Route::prefix('promotion')->group(function () {
         Route::get('/', 'PromotionController@index');
         Route::get('datatable', 'PromotionController@datatable');

@@ -70,6 +70,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
+                                                    <a href="#menu-recording" class="nav-link rounded {{ Request::segment(1) == 'recording' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'recording' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-pencil-simple-line me-2"></i>
+                                                        Pencatatan
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
                                                     <a href="{{ url('promotion') }}" class="nav-link rounded {{ Request::segment(1) == 'promotion' ? 'active' : '' }}">
                                                         <i class="ph-ticket me-2"></i>
                                                         Promosi
@@ -197,6 +203,19 @@
                                                 <a href="{{ url('collection/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
                                                 <a href="{{ url('collection/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
                                                 <a href="{{ url('collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'recording' ? 'show active' : '' }}" id="menu-recording" role="tabpanel">
+                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <a href="{{ url('recording/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'accept' ? 'active' : '' }}">Koleksi Diterima</a>
+                                                <a href="{{ url('recording/deposit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'deposit' ? 'active' : '' }}">Koleksi Deposit</a>
+                                                <a href="{{ url('recording/registration') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'registration' ? 'active' : '' }}">Registrasi Koleksi (Retrospektif)</a>
+                                                <a href="{{ url('recording/catalog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'catalog' ? 'active' : '' }}">Daftar Katalog</a>
                                             </div>
                                         </div>
                                     </div>
