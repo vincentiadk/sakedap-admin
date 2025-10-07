@@ -94,6 +94,24 @@
                                 <input type="url" class="form-control" name="system_allow_iframe_domain" id="system_allow_iframe_domain" value="{{ $settingParameter->firstWhere('NAME', 'EIFrameDomain')->VALUE ?? '' }}" placeholder="....................">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Batas Berlaku Reset Password</label>
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="system_limit_reset_password" id="system_limit_reset_password" value="{{ $settingParameter->firstWhere('NAME', 'EBatasResetPassword')->VALUE ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Jam</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Batas Berlaku File Original</label>
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="system_limit_file_original" id="system_limit_file_original" value="{{ $settingParameter->firstWhere('NAME', 'EBatasFileOriginal')->VALUE ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Hari</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="fw-bold border-bottom pb-2 mb-3">Redis</div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Client</label>

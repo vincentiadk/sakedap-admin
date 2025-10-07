@@ -86,7 +86,7 @@ class AuthController extends Controller
                     'email' => $email,
                     'token' => Str::random(40),
                     'created_at' => date('Y-m-d H:i:s'),
-                    'expired_at' => date('Y-m-d H:i:s', strtotime('+2 hours')),
+                    'expired_at' => date('Y-m-d H:i:s', strtotime('+' . config('system.limit_reset_password') . ' hours')),
                 ], false);
 
                 if ($createRequest) {

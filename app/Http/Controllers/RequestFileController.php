@@ -225,7 +225,7 @@ class RequestFileController extends Controller
         if ($requestData && $status == 2) {
             $tokenDownload = Str::random(40);
             $payload['token_download'] = $tokenDownload;
-            $payload['expired_at'] = date('Y-m-d H:i:s', strtotime('+24 hours'));
+            $payload['expired_at'] = date('Y-m-d H:i:s', strtotime('+' . config('system.limit_file_original') . ' days'));
 
             if ($requestData->CATALOGFILE_ID) {
                 $templateEmail = QueryAPI::get("

@@ -56,6 +56,8 @@ class ConfigurationController extends Controller
                 ['name' => 'EAesInlisKey', 'value' => $request->system_aes_key_inlis],
                 ['name' => 'EAesInlisIV', 'value' => $request->system_aes_iv_inlis],
                 ['name' => 'EIFrameDomain', 'value' => $request->system_allow_iframe_domain],
+                ['name' => 'EBatasResetPassword', 'value' => $request->system_limit_reset_password],
+                ['name' => 'EBatasFileOriginal', 'value' => $request->system_limit_file_original],
                 ['name' => 'ERedisClient', 'value' => $request->system_redis_client],
                 ['name' => 'ERedisHost', 'value' => $request->system_redis_host],
                 ['name' => 'ERedisUsername', 'value' => $request->system_redis_username],

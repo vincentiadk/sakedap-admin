@@ -57,6 +57,8 @@ class ConfigurationProvider extends ServiceProvider
                 $collectedSettings['system.aes_key'] = $sp->firstWhere('NAME', 'EAesKey')->VALUE ?? null;
                 $collectedSettings['system.aes_iv'] = $sp->firstWhere('NAME', 'EAesIV')->VALUE ?? null;
                 $collectedSettings['system.iframe_domain'] = $sp->firstWhere('NAME', 'EIFrameDomain')->VALUE ?? null;
+                $collectedSettings['system.limit_reset_password'] = $sp->firstWhere('NAME', 'EBatasResetPassword')->VALUE ?? null;
+                $collectedSettings['system.limit_file_original'] = $sp->firstWhere('NAME', 'EBatasFileOriginal')->VALUE ?? null;
                 $collectedSettings['system.catalog_cover_max_upload'] = ($sp->firstWhere('NAME', 'EKatalogCoverMaxUpload')->VALUE ?? 2) * 1024;
                 $collectedSettings['system.catalog_content_max_upload'] = ($sp->firstWhere('NAME', 'EKatalogContentMaxUpload')->VALUE ?? 200) * 1024;
                 $collectedSettings['system.limit_submission_kckr'] = (int) ($sp->firstWhere('NAME', 'EBatasSerahKCKR')->VALUE ?? 3);

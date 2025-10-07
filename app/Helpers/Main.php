@@ -19,6 +19,8 @@ class Main
         'EAesInlisKey',
         'EAesInlisIV',
         'EIFrameDomain',
+        'EBatasResetPassword',
+        'EBatasFileOriginal',
         'ERedisClient',
         'ERedisHost',
         'ERedisUsername',
