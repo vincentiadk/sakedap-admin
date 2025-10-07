@@ -24,9 +24,8 @@ class CreateSingleController extends Controller
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
-                'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
                 'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
-                'contributor' => QueryAPI::get("select * from e_contributors where deleted_at is null"),
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),

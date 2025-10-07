@@ -264,7 +264,7 @@
                         <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
                             <option value=""></option>
                             @foreach($bigClass as $bc)
-                                <option value="{{ $bc->NAME }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->DESCRIPTION }}</option>
+                                <option value="{{ $bc->ID }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->DESCRIPTION }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -459,9 +459,13 @@
     <div class="card">
         <div class="card-body">
             <div class="text-end">
-                <button type="button" class="btn btn-primary" onclick="submitted()">
+                <button type="button" class="btn btn-warning" onclick="submitted('save')">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Data
+                    Simpan
+                </button>
+                <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
+                    <i class="ph-check me-1"></i>
+                    Simpan & Verifikas
                 </button>
             </div>
         </div>
@@ -501,35 +505,6 @@
             tokenSeparators: [';', ' ']
         });
     });
-
-    function addContributor() {
-        var total = $('#add-number-contributor').val();
-
-        for(var i = 1; i <= total; i++) {
-            $('#data-contributor').append(`
-                <tr>
-                    <input type="hidden" name="cc_contributor[]" value="1">
-                    <td>
-                        <select class="form-select select2-basic" name="cc_contributor_role[]">
-                            @foreach($contributor as $key => $c)
-                                <option value="{{ $c->NAME }}" {{ $key == 0 ? 'selected' : '' }}>{{ $c->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" name="cc_contributor_name[]" placeholder="Nama">
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger col-12" onclick="removeRow(this)"><i class="ph-trash"></i></button>
-                    </td>
-                </tr>
-            `);
-
-            $('select[name="cc_contributor_id[]"]').select2({
-                placeholder: 'Pilih'
-            });
-        }
-    }
 
     function removeRow(param) {
         $(param).closest('tr').remove();
@@ -578,9 +553,9 @@
         });
     }
 
-    function submitted() {
+    function submitted(param) {
         $.ajax({
-            url: '{{ url("collection/review/detail/" . $collection->ID) }}',
+            url: '{{ url("collection/review/detail/" . $collection->ID) }}?param=' + param,
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),

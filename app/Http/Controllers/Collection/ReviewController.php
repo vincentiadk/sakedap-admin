@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
+    private $worksheetCategory;
+
+    public function __construct()
+    {
+        $this->worksheetCategory = Main::COLLECTION_DIGITAL;
+    }
+
     public function index()
     {
         return view('layouts.index', [
@@ -262,6 +269,7 @@ class ReviewController extends Controller
                     $sessionId = session('id');
                     $currentDateTime = date('Y-m-d H:i:s');
                     $revisionCount = $collection->REVISION_COUNT ?? 0;
+                    $param = $request->param;
 
                     $updateData = [
                         'city_id' => $request->city_id,
@@ -275,7 +283,6 @@ class ReviewController extends Controller
                         'publication_year' => date('Y', strtotime($request->publish_time)),
                         'preview' => $request->preview,
                         'physical_description' => json_encode($request->physical_description),
-                        'status' => $status,
                         'price' => str_replace([',', '.'], '', $request->price),
                         'worksheet_id' => $request->worksheet_id,
                         'collection_media_id' => $request->collection_media_id,
@@ -306,38 +313,43 @@ class ReviewController extends Controller
                         }
                     }
 
-                    if ($isStatus2) {
-                        $updateData['deposit'] = Main::generateNumberDeposit(
-                            $request->worksheet_id,
-                            $request->year ?? date('Y'),
-                            $request->city_id
-                        );
+                    if ($param == 'save-verification') {
+                        $updateData['status'] = $status;
 
-                        $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
-                        $updateData['received_by'] = $sessionId;
-                        $updateData['validated_at'] = $currentDateTime;
-                        $updateData['validated_by'] = $sessionId;
-                    } else {
-                        $updateData['deposit'] = null;
-                        $updateData['received_at'] = null;
-                        $updateData['received_by'] = null;
-                        $updateData['validated_at'] = null;
-                        $updateData['validated_by'] = null;
+                        if ($isStatus2) {
+                            $updateData['deposit'] = Main::generateNumberDeposit(
+                                $request->worksheet_id,
+                                $request->year ?? date('Y'),
+                                $request->city_id
+                            );
+
+                            $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
+                            $updateData['received_by'] = $sessionId;
+                            $updateData['validated_at'] = $currentDateTime;
+                            $updateData['validated_by'] = $sessionId;
+                        } else {
+                            $updateData['deposit'] = null;
+                            $updateData['received_at'] = null;
+                            $updateData['received_by'] = null;
+                            $updateData['validated_at'] = null;
+                            $updateData['validated_by'] = null;
+                        }
+
+                        if ($isStatus3) {
+                            $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
+                            $updateData['problem'] = $request->problem;
+                        }
+
+                        if ($isStatus5) {
+                            $updateData['reject'] = $request->reject;
+                        }
                     }
 
-                    if ($isStatus3) {
-                        $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
-                        $updateData['problem'] = $request->problem;
-                    }
-
-                    if ($isStatus5) {
-                        $updateData['reject'] = $request->reject;
-                    }
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 
                     if ($updateCollection) {
-                        if ($isStatus3 && $request->collection_problem) {
+                        if (($isStatus3 && $request->collection_problem) || $param == 'save') {
                             $problemsToCreate = [];
 
                             foreach ($request->collection_problem as $cp) {
@@ -353,14 +365,14 @@ class ReviewController extends Controller
                             }
                         }
 
-                        if ($isStatus2) {
+                        if ($isStatus2 && $param == 'save-verification') {
                             QueryAPI::verificationCollection($id);
                         }
                     }
 
                     $response = [
                         'code' => 200,
-                        'message' => 'Data telah disimpan'
+                        'message' => 'Data telah ' . ($param == 'save-verification' ? 'diverifikasi' : 'disimpan')
                     ];
                 } catch (\Exception $e) {
                     $response = [
@@ -431,8 +443,8 @@ class ReviewController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-                'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
                 'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
                 'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
