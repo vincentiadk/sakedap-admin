@@ -80,6 +80,7 @@
                 <thead class="text-bg-light">
                     <tr>
                         <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Histori</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Jenis Bahan</th>
@@ -150,6 +151,7 @@
             },
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },

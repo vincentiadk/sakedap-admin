@@ -331,6 +331,7 @@ class DigitalWorkController extends Controller
                 'content' => 'collection.digital-work-detail',
                 'plugins' => [
                     'select2',
+                    'datatable',
                 ]
             ]
         ]);

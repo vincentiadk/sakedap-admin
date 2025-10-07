@@ -331,6 +331,7 @@ class PrintedWorkController extends Controller
                 'content' => 'collection.printed-work-detail',
                 'plugins' => [
                     'select2',
+                    'datatable',
                 ]
             ]
         ]);

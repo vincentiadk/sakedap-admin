@@ -33,6 +33,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('datatable-serverside')->group(function () {
         Route::get('catalog', 'DataTableServersideController@catalog');
+        Route::get('catalog-history', 'DataTableServersideController@catalogHistory');
     });
 
     Route::prefix('select2-serverside')->group(function () {

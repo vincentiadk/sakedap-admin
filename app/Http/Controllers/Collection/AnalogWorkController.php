@@ -331,6 +331,7 @@ class AnalogWorkController extends Controller
                 'content' => 'collection.analog-work-detail',
                 'plugins' => [
                     'select2',
+                    'datatable',
                 ]
             ]
         ]);

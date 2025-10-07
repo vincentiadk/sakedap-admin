@@ -371,6 +371,7 @@ class CollectionController extends Controller
                 'content' => 'report.collection-detail',
                 'plugins' => [
                     'select2',
+                    'datatable',
                 ]
             ]
         ]);

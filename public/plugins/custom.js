@@ -739,6 +739,39 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
     });
 }
 
+function lookupCatalogHistory(table, id) {
+    $('#lookup-dialog-datatable thead').html(`
+        <tr>
+            <th class="text-nowrap text-center">No</th>
+            <th class="text-nowrap">Judul</th>
+            <th class="text-nowrap">Aksi</th>
+            <th class="text-nowrap">User</th>
+            <th class="text-nowrap">Tgl</th>
+            <th class="text-nowrap">Ket</th>
+        </tr>
+    `);
+
+    lookup({
+        title: 'Histori ' + table + ' ' + id,
+        dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog-history',
+        dtAjaxData: function () {
+            return {
+                table: table,
+                id: id,
+            };
+        },
+        dtOrder: [[0, 'desc']],
+        dtColumns: [
+            { orderable: true, className: 'align-middle text-nowrap text-center' },
+            { orderable: true, className: 'align-middle text-wrap' },
+            { orderable: true, className: 'align-middle' },
+            { orderable: true, className: 'align-middle text-wrap' },
+            { orderable: true, className: 'align-middle text-nowrap' },
+            { orderable: true, className: 'align-middle text-wrap' },
+        ],
+    });
+}
+
 function responseError(response) {
     let errorException = 'Error ...';
     let errorMessage = 'Refresh ulang browser';

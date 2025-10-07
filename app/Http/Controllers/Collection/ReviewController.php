@@ -449,6 +449,7 @@ class ReviewController extends Controller
                 'plugins' => [
                     'select2',
                     'daterangepicker',
+                    'datatable',
                 ]
             ]
         ]);

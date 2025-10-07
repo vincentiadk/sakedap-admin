@@ -28,6 +28,7 @@ class RejectController extends Controller
     {
         $column = [
             'e_collections.id',
+            null,
             'penerbit.name',
             'e_collections.title',
             'worksheets.name',
@@ -167,8 +168,16 @@ class RejectController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
+                $btnHistory = '
+                    <button type="button" class="btn btn-primary btn-sm" onclick="lookupCatalogHistory(`E_COLLECTIONS`, ' . $val->ID . ')">
+                        <i class="ph-eye me-1"></i>
+                        Lihat
+                    </button>
+                ';
+
                 $data[] = [
                     $start + 1,
+                    $btnHistory,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
