@@ -32,7 +32,7 @@
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
                             <option value=""></option>
                             @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->DEPOSITFORMAT_CODE }}]</option>
+                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
                             @endforeach
                         </select>
                     </div>
@@ -138,7 +138,7 @@
                             <select class="form-select select2-basic" name="de_worksheet_id" id="de_worksheet_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
                                 <option value=""></option>
                                 @foreach($worksheet as $w)
-                                    <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->DEPOSITFORMAT_CODE }}]</option>
+                                    <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
                                 @endforeach
                             </select>
                         </div>
