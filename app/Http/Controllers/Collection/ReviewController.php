@@ -288,6 +288,7 @@ class ReviewController extends Controller
                         'jenis_media' => $request->media_type,
                         'description' => $request->description,
                         'author' => implode(';', ($request->author ?? [])),
+                        'kelas_besar_id' => $request->big_class_id,
                     ];
 
                     if ($request->category && is_array($request->category)) {
@@ -437,6 +438,7 @@ class ReviewController extends Controller
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
+                'bigClass' => QueryAPI::get("select * from master_kelas_besar"),
                 'collection' => $collection,
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),

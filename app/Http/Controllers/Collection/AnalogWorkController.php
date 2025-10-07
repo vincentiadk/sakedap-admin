@@ -320,6 +320,7 @@ class AnalogWorkController extends Controller
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
+                'bigClass' => QueryAPI::get("select * from master_kelas_besar"),
                 'collection' => $collection,
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),

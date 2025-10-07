@@ -30,6 +30,7 @@ class CreateSingleController extends Controller
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
+                'bigClass' => QueryAPI::get("select * from master_kelas_besar"),
                 'content' => 'collection.create-single',
                 'plugins' => [
                     'select2',
@@ -137,6 +138,8 @@ class CreateSingleController extends Controller
                         'jenis_isi' => $request->content_type,
                         'jenis_wadah' => $request->container_type,
                         'jenis_media' => $request->media_type,
+                        'description' => $request->description,
+                        'kelas_besar_id' => $request->big_class_id,
                     ];
 
                     $createCollection = QueryAPI::create('e_collections', $baseCollectionData);

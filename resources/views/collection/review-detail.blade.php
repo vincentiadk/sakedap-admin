@@ -8,7 +8,7 @@
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
             <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
                 <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-secondary me-2" onclick="lookupCatalogHistory('E_COLLECTIONS', {{ $collection->EDEPOSIT_COL_ID }})">
+                    <button type="button" class="btn btn-secondary me-2" onclick="lookupCatalogHistory('E_COLLECTIONS', {{ $collection->ID }})">
                         <i class="ph-books me-1"></i>
                         Histori E-Collection
                     </button>
@@ -253,7 +253,18 @@
                         <select class="form-select select2-basic" name="media_type" id="media_type">
                             <option value=""></option>
                             @foreach($mediaType as $mt)
-                                <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA == $ct->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
+                                <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA == $mt->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Kelas Besar</label>
+                    <div class="col-md-10">
+                        <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
+                            <option value=""></option>
+                            @foreach($bigClass as $bc)
+                                <option value="{{ $bc->NAME }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->DESCRIPTION }}</option>
                             @endforeach
                         </select>
                     </div>

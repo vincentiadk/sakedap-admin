@@ -194,12 +194,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis Media</label>
+                    <label class="col-form-label col-md-2">Kelas Besar</label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="media_type" id="media_type">
+                        <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
                             <option value=""></option>
-                            @foreach($mediaType as $mt)
-                                <option value="{{ $mt->NAME }}">{{ $mt->NAME }}</option>
+                            @foreach($bigClass as $bc)
+                                <option value="{{ $bc->ID }}">{{ $bc->DESCRIPTION }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -220,7 +220,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Sinopsis</label>
                     <div class="col-md-10">
-                        <textarea name="sinopsis" class="form-control" id="sinopsis" rows="5" placeholder="...................."></textarea>
+                        <textarea name="description" class="form-control" id="description" rows="5" placeholder="...................."></textarea>
                     </div>
                 </div>
             </div>
