@@ -278,6 +278,12 @@
 						</div>
 					</li>
                     <li class="nav-item">
+						<a href="{{ url('log-viewer') }}" class="navbar-nav-link rounded">
+							<i class="ph-file me-2"></i>
+							Log
+						</a>
+					</li>
+                    <li class="nav-item">
 						<a href="javascript:void(0);" class="navbar-nav-link text-danger rounded" onclick="logout()">
 							<i class="ph-sign-out me-2"></i>
 							Keluar
