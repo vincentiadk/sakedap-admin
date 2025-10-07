@@ -8,7 +8,7 @@
     </div>
 </div>
 <div class="content pt-0">
-    @elseif(session('success'))
+    @if(session('success'))
         <div class="alert bg-success text-white fade show border-0">
             {{ session('success') }}
         </div>

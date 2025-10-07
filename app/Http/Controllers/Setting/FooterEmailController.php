@@ -54,7 +54,7 @@ class FooterEmailController extends Controller
                 'template' => $template,
                 'content' => 'setting.footer-email',
                 'plugins' => [
-                    'ckeditor',
+                    'fileinput',
                 ]
             ]
         ]);

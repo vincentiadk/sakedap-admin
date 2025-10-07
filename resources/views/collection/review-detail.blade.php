@@ -368,27 +368,49 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File Cover</h5>
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
+                    <li class="nav-item">
+                        <a href="#nav-tabs-cover" class="nav-link active" data-bs-toggle="tab">File Cover</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#nav-tabs-original" class="nav-link" data-bs-toggle="tab">File Original</a>
+                    </li>
+                </ul>
+                <div class="tab-content flex-lg-fill mt-4">
+                    <div class="tab-pane fade show active" id="nav-tabs-cover">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="ratio ratio-16x9">
+                                    <img src="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="img-fluid object-fit-cover">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <div><b>Hash :</b> {{ $collectionCover->HASH ?? '' }}</div>
+                                    <div><b>Mime Type :</b> {{ $collectionCover->MIME ?? '' }}</div>
+                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionCover->FILE_SIZE ?? 0) }}</div>
+                                    <div><b>Metode :</b> {{ Main::method($collectionCover->METHOD ?? 0) }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <a href="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="ratio ratio-16x9" data-lightbox="Cover" data-title="{{ $collectionCover->FILEURL ?? '' }}">
-                            <img src="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="img-fluid ratio ratio-16x9">
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File Konten</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="ratio ratio-16x9">
-                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
+                    <div class="tab-pane fade" id="nav-tabs-original">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionOriginal->ID ?? '' }}&filename={{ $collectionOriginal->FILEURL ?? '' }}" frameborder="0"></iframe>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <div><b>Hash :</b> {{ $collectionOriginal->HASH ?? '' }}</div>
+                                    <div><b>Mime Type :</b> {{ $collectionOriginal->MIME ?? '' }}</div>
+                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionOriginal->FILE_SIZE ?? 0) }}</div>
+                                    <div><b>Metode :</b> {{ Main::method($collectionOriginal->METHOD ?? 0) }}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

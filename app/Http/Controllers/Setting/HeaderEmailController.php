@@ -54,7 +54,7 @@ class HeaderEmailController extends Controller
                 'template' => $template,
                 'content' => 'setting.header-email',
                 'plugins' => [
-                    'ckeditor',
+                    'fileinput',
                 ]
             ]
         ]);

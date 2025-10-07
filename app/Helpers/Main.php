@@ -397,4 +397,53 @@ class Main
 
         return $link;
     }
+
+    /**
+     * formatFileSize
+     *
+     * @param  mixed $bytes
+     * @param  mixed $precision
+     * @return void
+     */
+    public static function formatFileSize($bytes, $precision = 2)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+
+        if ($bytes == 0) {
+            return '0 ' . $units[0];
+        }
+
+        $power = floor(log($bytes, 1024));
+
+        return round($bytes / pow(1024, $power), $precision) . ' ' . $units[$power];
+    }
+
+    /**
+     * method
+     *
+     * @param  mixed $value
+     * @return void
+     */
+    public static function method($value)
+    {
+        $text = '';
+
+        if ($value == 1) {
+            $text = 'API';
+        } else if ($value == 2) {
+            $text = 'SFTP';
+        } else if ($value == 3) {
+            $text = 'Mandiri';
+        } else if ($value == 4) {
+            $text = 'Manual';
+        } else if ($value == 5) {
+            $text = 'Sistem';
+        } else if ($value == 6) {
+            $text = 'Bulk Penerbit';
+        } else if ($value == 7) {
+            $text = 'Bulk Admin';
+        }
+
+        return $text;
+    }
 }
