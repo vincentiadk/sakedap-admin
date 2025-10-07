@@ -513,6 +513,58 @@
         });
     }
 
+    function sendEmailResetPassword(id) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Kirim Email Reset Password?</h5><span class="text-muted">Pelaksana akan mendapatkan link dari email untuk melakukan reset password</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Kirim', 'btn btn-success ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("executor/manage/send-email-reset-password") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+                                onReloadTable();
+                                notification('success', response.message);
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
     function destroyData(id) {
         var notyConfirm = new Noty({
             text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',

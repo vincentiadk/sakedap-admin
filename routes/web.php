@@ -218,6 +218,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'ManageController@datatable');
             Route::get('show-data', 'ManageController@showData');
             Route::post('update-data', 'ManageController@updateData');
+            Route::post('send-email-reset-password', 'ManageController@sendEmailResetPassword');
             Route::delete('destroy-data', 'ManageController@destroyData');
         });
 

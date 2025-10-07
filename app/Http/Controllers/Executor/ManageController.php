@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Executor;
 use Carbon\Carbon;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ManageController extends Controller
@@ -152,6 +154,10 @@ class ManageController extends Controller
                             <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
                                 <i class="ph-pen me-1"></i>
                                 Edit Data
+                            </a>
+                            <a href="javascript:void(0);" class="dropdown-item" onclick="sendEmailResetPassword(' . $val->ID . ')">
+                                <i class="ph-envelope-open me-1"></i>
+                                Kirim Reset Password
                             </a>
                             <a href="javascript:void(0);" class="dropdown-item" onclick="destroyData(' . $val->ID . ')">
                                 <i class="ph-trash-simple me-1"></i>
@@ -339,6 +345,81 @@ class ManageController extends Controller
                     'message' => $e->getMessage()
                 ];
             }
+        }
+
+        return response()->json($response);
+    }
+
+    public function sendEmailResetPassword(Request $request)
+    {
+        $id = $request->id;
+        $data = QueryAPI::get("select * from penerbit where id = $id", true);
+
+        if ($data) {
+            $email = $data->EMAIL1 ?: null;
+
+            if ($email) {
+                try {
+                    $createRequest = QueryAPI::create('e_password_resets', [
+                        'email' => $email,
+                        'token' => Str::random(40),
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'expired_at' => date('Y-m-d H:i:s', strtotime('+' . config('system.limit_reset_password') . ' hours')),
+                    ], false);
+
+                    if ($createRequest) {
+                        try {
+                            $tokenUrl = url('reset-password-action?token=' . $createRequest->TOKEN . '&email=' . urlencode($email));
+                            $templateEmail = QueryAPI::get("select * from e_settings where slug = 'ResetPassword'", true);
+
+                            $payloadEmail = [
+                                'name' => $data->NAME,
+                                'email' => $email,
+                                'link' => '<a href="' . $tokenUrl . '">' . $tokenUrl . '</a>',
+                            ];
+
+                            if ($templateEmail) {
+                                Mail::send([], [], function ($message) use ($payloadEmail, $templateEmail) {
+                                    $message->to($payloadEmail['email'], $payloadEmail['name'])
+                                        ->subject('Permintaan Reset Password')
+                                        ->from(config('mail.from.address'), config('mail.from.name'))
+                                        ->html(Main::parseTemplateEmail($payloadEmail, $templateEmail), 'text/html');
+                                });
+                            }
+
+                            $response = [
+                                'code' => 200,
+                                'message' => 'Reset password telah terkirim'
+                            ];
+                        } catch (\Exception $e) {
+                            $response = [
+                                'code' => $e->getCode(),
+                                'message' => $e->getMessage()
+                            ];
+                        }
+                    } else {
+                        $response = [
+                            'code' => 500,
+                            'message' => 'Gagal membuat permintaan'
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    $response = [
+                        'code' => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ];
+                }
+            } else {
+                $response = [
+                    'code' => 404,
+                    'message' => 'Pelaksana serah tidak memiliki email'
+                ];
+            }
+        } else {
+            $response = [
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ];
         }
 
         return response()->json($response);
