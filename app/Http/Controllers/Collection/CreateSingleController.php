@@ -92,42 +92,6 @@ class CreateSingleController extends Controller
                 ];
             } else {
                 try {
-                    $author = [];
-
-                    if ($request->cc_contributor) {
-                        $contributorIds = array_filter($request->cc_contributor_id ?? []);
-
-                        if (!empty($contributorIds)) {
-                            $contributorsData = QueryAPI::get("
-                                select
-                                    id,
-                                    name
-                                from
-                                    e_contributors
-                                where
-                                    id in (" . implode(',', $contributorIds) . ") and
-                                    deleted_at is null
-                            ");
-
-                            $contributorsLookup = [];
-
-                            if ($contributorsData) {
-                                foreach ($contributorsData as $contributor) {
-                                    $contributorsLookup[$contributor->ID] = $contributor->NAME;
-                                }
-                            }
-
-                            foreach ($request->cc_contributor as $key => $ccc) {
-                                $contributorId = $request->cc_contributor_id[$key] ?? null;
-                                $contributorName = $request->cc_contributor_name[$key] ?? null;
-
-                                if ($contributorId && $contributorName && isset($contributorsLookup[$contributorId])) {
-                                    $author[] = '(' . $contributorsLookup[$contributorId] . ') ' . $contributorName;
-                                }
-                            }
-                        }
-                    }
-
                     $currentTime = date('Y-m-d H:i:s');
                     $userId = session('id');
                     $publishTime = strtotime($request->publish_time);
@@ -166,7 +130,7 @@ class CreateSingleController extends Controller
                         'penerbit_id' => $request->executor_id,
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
-                        'author' => implode(';', $author),
+                        'author' => implode(';', ($request->author ?? [])),
                         'parent_id' => 0,
                         'jilid' => $request->binding,
                         'currency' => $request->currency,

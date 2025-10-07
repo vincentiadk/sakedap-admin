@@ -266,7 +266,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Sinopsis</label>
                     <div class="col-md-10">
-                        <textarea name="sinopsis" class="form-control" id="sinopsis" rows="5" placeholder="...................." disabled>{{ $collection->DESCRIPTION }}</textarea>
+                        <textarea name="description" class="form-control" id="description" rows="5" placeholder="....................">{{ $collection->DESCRIPTION }}</textarea>
                     </div>
                 </div>
             </div>
@@ -276,7 +276,7 @@
                 <h5 class="hstack gap-2 mb-0">Kategori</h5>
             </div>
             <div class="card-body">
-                <select class="form-select select2-basic" name="category[]" id="category" data-placeholder="Tidak ada" multiple disabled>
+                <select class="form-select select2-basic" name="category[]" id="category" data-placeholder="Tidak ada" multiple>
                     <option value=""></option>
                     @foreach($category as $c)
                         <option value="{{ $c->ID }}" {{ in_array($c->ID, $collectionCategory) ? 'selected' : '' }}>{{ $c->NAME }}</option>
@@ -289,23 +289,11 @@
                 <h5 class="hstack gap-2 mb-0">Kontributor</h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <tbody>
-                            @if($collectionContributor)
-                                @foreach($collectionContributor as $cc)
-                                    <tr>
-                                        <td>{{ empty($cc) ? 'Format tidak valid' : $cc }}</td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td>Tidak ada data</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
+                <select class="form-select" name="author[]" id="author" data-placeholder="Tulis beberapa" multiple>
+                    @foreach(explode(';', ($collection->AUTHOR ?? '')) as $c)
+                        <option value="{{ $c }}" selected>{{ $c }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="card">
@@ -465,7 +453,46 @@
         }
 
         select2Serverside('#currency', 'currency');
+
+        $('#author').select2({
+            multiple: true,
+            tags: true,
+            tokenSeparators: [';', ' ']
+        });
     });
+
+    function addContributor() {
+        var total = $('#add-number-contributor').val();
+
+        for(var i = 1; i <= total; i++) {
+            $('#data-contributor').append(`
+                <tr>
+                    <input type="hidden" name="cc_contributor[]" value="1">
+                    <td>
+                        <select class="form-select select2-basic" name="cc_contributor_role[]">
+                            @foreach($contributor as $key => $c)
+                                <option value="{{ $c->NAME }}" {{ $key == 0 ? 'selected' : '' }}>{{ $c->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="cc_contributor_name[]" placeholder="Nama">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger col-12" onclick="removeRow(this)"><i class="ph-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+
+            $('select[name="cc_contributor_id[]"]').select2({
+                placeholder: 'Pilih'
+            });
+        }
+    }
+
+    function removeRow(param) {
+        $(param).closest('tr').remove();
+    }
 
     function changeStatus() {
         var status = $('input[name="status"]:checked').val();
@@ -475,16 +502,11 @@
         if(status == 3) {
             $('#content-change-status').html(`
                 <div class="form-group">
-                    <div class="row">
+                    <select class="form-select select2-basic" name="collection_problem[]" id="collection_problem" data-placeholder="Pilih" multiple>
                         @foreach($problem as $p)
-                            <div class="col-md-6">
-                                <div class="form-check mb-1">
-                                    <input type="checkbox" class="form-check-input form-check-input-warning" name="collection_problem[]" id="problem-{{ $p->ID }}" value="{{ $p->ID }}">
-                                    <label class="form-check-label" for="problem-{{ $p->ID }}">{{ $p->NAME }}</label>
-                                </div>
-                            </div>
+                            <option value="{{ $p->ID }}">{{ $p->NAME }}</option>
                         @endforeach
-                    </div>
+                    </select>
                 </div>
                 <div class="form-group">
                     <textarea class="form-control" name="problem" id="problem" rows="5" placeholder="Keterangan lain masalah"></textarea>
@@ -497,6 +519,8 @@
                 </div>
             `);
         }
+
+        select2Basic();
     }
 
     function clearValidation() {

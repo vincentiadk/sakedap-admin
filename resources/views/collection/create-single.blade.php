@@ -243,22 +243,7 @@
                 <h5 class="hstack gap-2 mb-0">Kontributor</h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <tbody id="data-contributor"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-footer bg-white">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="input-group">
-                            <button type="button" class="btn btn-success" onclick="addContributor()">Tambah</button>
-                            <input type="number" class="form-control text-center" id="add-number-contributor" min="1" value="1" placeholder="....................">
-                            <span class="input-group-text">Baris</span>
-                        </div>
-                    </div>
-                </div>
+                <select class="form-select" name="author[]" id="author" data-placeholder="Tulis beberapa" multiple></select>
             </div>
         </div>
         <div class="card">
@@ -375,6 +360,12 @@
             maxFileSize: 204800,
         });
 
+        $('#author').select2({
+            multiple: true,
+            tags: true,
+            tokenSeparators: [';', ' ']
+        });
+
         codeType();
     });
 
@@ -414,35 +405,6 @@
                 responseError(response);
             }
         });
-    }
-
-    function addContributor() {
-        var total = $('#add-number-contributor').val();
-
-        for(var i = 1; i <= total; i++) {
-            $('#data-contributor').append(`
-                <tr>
-                    <input type="hidden" name="cc_contributor[]" value="1">
-                    <td>
-                        <select class="form-select select2-basic" name="cc_contributor_id[]">
-                            @foreach($contributor as $key => $c)
-                                <option value="{{ $c->ID }}" {{ $key == 0 ? 'selected' : '' }}>{{ $c->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" name="cc_contributor_name[]" placeholder="Nama">
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger col-12" onclick="removeRow(this)"><i class="ph-trash"></i></button>
-                    </td>
-                </tr>
-            `);
-
-            $('select[name="cc_contributor_id[]"]').select2({
-                placeholder: 'Pilih'
-            });
-        }
     }
 
     function addEdition() {

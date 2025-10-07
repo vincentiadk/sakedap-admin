@@ -49,7 +49,7 @@ class ProblemController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = '(e_collections.status = 3 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
+        $whereCondition[] = "(e_collections.status = '3' and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -113,7 +113,7 @@ class ProblemController extends Controller
                     parent_id is null
                 ) and
                 (
-                    status = 3 and
+                    status = '3' and
                     deleted_at is null
                 )
         ", true)->TOTAL ?? 0;
@@ -123,13 +123,13 @@ class ProblemController extends Controller
                 count(*) as total
             from
                 e_collections
-            join
+            left join
                 penerbit on penerbit.id = e_collections.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-            join
+            left join
                 worksheets on worksheets.id = e_collections.worksheet_id
-            join
+            left join
                 users on users.id = e_collections.rejected_by
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -150,13 +150,13 @@ class ProblemController extends Controller
                                 users.fullname as name_user
                             from
                                 e_collections
-                            join
+                            left join
                                 penerbit on penerbit.id = e_collections.penerbit_id
-                            join
+                            left join
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            join
+                            left join
                                 worksheets on worksheets.id = e_collections.worksheet_id
-                            join
+                            left join
                                 users on users.id = e_collections.rejected_by
                             $whereClause
                             $orderBy

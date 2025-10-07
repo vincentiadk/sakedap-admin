@@ -258,23 +258,11 @@
                 <h5 class="hstack gap-2 mb-0">Kontributor</h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <tbody>
-                            @if($collectionContributor)
-                                @foreach($collectionContributor as $cc)
-                                    <tr>
-                                        <td>{{ empty($cc) ? 'Format tidak valid' : $cc }}</td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td>Tidak ada data</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
+                <select class="form-select select2-basic" name="author[]" id="author" data-placeholder="Tidak ada" multiple disabled>
+                    @foreach(explode(';', ($collection->AUTHOR ?? '')) as $c)
+                        <option value="{{ $c }}" selected>{{ $c }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="card">

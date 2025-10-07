@@ -120,7 +120,7 @@ class DigitalWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            join
+            left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             where
                 (
@@ -136,11 +136,11 @@ class DigitalWorkController extends Controller
                 count(*) as total
             from
                 catalogs
-            join
+            left join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = catalogs.city_id
-            join
+            left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -164,11 +164,11 @@ class DigitalWorkController extends Controller
                                 worksheets.name as name_worksheet
                             from
                                 catalogs
-                            join
+                            left join
                                 penerbit on penerbit.id = catalogs.penerbit_id
-                            join
+                            left join
                                 kabupaten on kabupaten.id = catalogs.city_id
-                            join
+                            left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
                             $orderBy
@@ -230,13 +230,13 @@ class DigitalWorkController extends Controller
                 e_collections.jumlah_eks as jumlah_eks_e_collection
             from
                 catalogs
-            join
+            left join
                 e_collections on e_collections.id = catalogs.edeposit_col_id
-            join
+            left join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = catalogs.city_id
-            join
+            left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             where
                 (

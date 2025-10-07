@@ -50,7 +50,7 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = '(e_collections.status = 1 and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)';
+        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -114,7 +114,7 @@ class ReviewController extends Controller
                     parent_id is null
                 ) and
                 (
-                    status = 1 and
+                    status = '1' and
                     deleted_at is null
                 )
         ", true)->TOTAL ?? 0;
@@ -124,11 +124,11 @@ class ReviewController extends Controller
                 count(*) as total
             from
                 e_collections
-            join
+            left join
                 penerbit on penerbit.id = e_collections.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-            join
+            left join
                 worksheets on worksheets.id = e_collections.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -149,11 +149,11 @@ class ReviewController extends Controller
                                 worksheets.name as name_worksheet
                             from
                                 e_collections
-                            join
+                            left join
                                 penerbit on penerbit.id = e_collections.penerbit_id
-                            join
+                            left join
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            join
+                            left join
                                 worksheets on worksheets.id = e_collections.worksheet_id
                             $whereClause
                             $orderBy
@@ -205,11 +205,11 @@ class ReviewController extends Controller
                 propinsi.namapropinsi as namapropinsi
             from
                 e_collections
-            join
+            left join
                 penerbit on penerbit.id = e_collections.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
-            join
+            left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             where
                 (
@@ -218,7 +218,7 @@ class ReviewController extends Controller
                 ) and
                 e_collections.id = $id and
                 e_collections.deleted_at is null and
-                e_collections.status = 1
+                e_collections.status = '1'
         ", true);
 
         if (!$collection) {
@@ -286,8 +286,24 @@ class ReviewController extends Controller
                         'jenis_isi' => $request->content_type,
                         'jenis_wadah' => $request->container_type,
                         'jenis_media' => $request->media_type,
-                        'jumlah_eks' => $request->number_copy,
+                        'description' => $request->description,
+                        'author' => implode(';', ($request->author ?? [])),
                     ];
+
+                    if ($request->category && is_array($request->category)) {
+                        $categoryData = [];
+
+                        foreach ($request->category as $categoryId) {
+                            $categoryData[] = [
+                                'collection_id' => $id,
+                                'category_id' => $categoryId
+                            ];
+                        }
+
+                        foreach ($categoryData as $data) {
+                            QueryAPI::create('e_collection_categories', $data);
+                        }
+                    }
 
                     if ($isStatus2) {
                         $updateData['deposit'] = Main::generateNumberDeposit(
@@ -318,7 +334,6 @@ class ReviewController extends Controller
                     }
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
-
 
                     if ($updateCollection) {
                         if ($isStatus3 && $request->collection_problem) {

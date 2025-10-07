@@ -99,11 +99,11 @@ class DataTableServersideController extends Controller
                 count(*) as total
             from
                 catalogs
-            join
+            left join
                 penerbit on penerbit.id = catalogs.penerbit_id
-            join
+            left join
                 kabupaten on kabupaten.id = catalogs.city_id
-            join
+            left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -129,13 +129,13 @@ class DataTableServersideController extends Controller
                                 coalesce(count(collections.id), 0) as total_collection
                             from
                                 catalogs
-                            join
+                            left join
                                 penerbit on penerbit.id = catalogs.penerbit_id
-                            join
+                            left join
                                 kabupaten on kabupaten.id = catalogs.city_id
-                            join
+                            left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
-                            join
+                            left join
                                 collections on collections.catalog_id = catalogs.id
                             $whereClause
                             group by
