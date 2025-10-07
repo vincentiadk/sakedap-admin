@@ -175,7 +175,7 @@ class PromotionController extends Controller
                     $val->KODE_PROMO,
                     $startDate,
                     $endDate,
-                    'Rp ' . number_format($val->SALDO),
+                    'Rp ' . number_format($val->SALDO ?: 0),
                     $val->DISKON . ' %',
                     $val->JUMLAH_PAKET,
                 ];
