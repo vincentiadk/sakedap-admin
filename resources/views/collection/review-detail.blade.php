@@ -300,7 +300,12 @@
                             <span class="input-group-text">Total Halaman / Durasi</span>
                             <input type="text" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($physicalDescription->paging) ? $physicalDescription->paging : '' }}" placeholder="....................">
                             <span class="input-group-text">Ilustrasi</span>
-                            <input type="text" class="form-control" name="physical_description[ill]" id="physical_description[ill]" value="{{ isset($physicalDescription->ill) ? $physicalDescription->ill : '' }}" placeholder="....................">
+                            <input type="text" class="form-control" name="physical_description[ill]" list="suggestion-physical-description-ill" id="physical_description[ill]" value="{{ isset($physicalDescription->ill) ? $physicalDescription->ill : '' }}" placeholder="...................." autocomplete="off">
+                            <datalist id="suggestion-physical-description-ill">
+                                <option value="Tidak Ada">Tidak Ada</option>
+                                <option value="Ada (Berwarna)">Ada (Berwarna)</option>
+                                <option value="Ada (Tidak Berwarna)">Ada (Tidak Berwarna)</option>
+                            </datalist>
                             <span class="input-group-text">Ukuran / Dimensi</span>
                             <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" value="{{ isset($physicalDescription->sizes) ? $physicalDescription->sizes : '' }}" placeholder="....................">
                         </div>
@@ -529,6 +534,15 @@
             multiple: true,
             tags: true,
             tokenSeparators: [';']
+        });
+
+        $('input[name="physical_description[paging]"]').focus(function() {
+            new bootstrap.Tooltip($(this), {
+                trigger: 'focus',
+                html: true,
+                title: '<div class="text-start">Cth durasi : 1.5 jam</div><div class="text-start">Cth halaman : 1 halaman</div>',
+                placement: 'left'
+            });
         });
     });
 
