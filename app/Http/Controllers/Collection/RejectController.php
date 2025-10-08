@@ -49,7 +49,7 @@ class RejectController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '5' and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)";
+        $whereCondition[] = "(e_collections.status = '5' and e_collections.deleted_at is null)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -108,10 +108,6 @@ class RejectController extends Controller
             from
                 e_collections
             where
-                (
-                    parent_id = 0 or
-                    parent_id is null
-                ) and
                 (
                     status = '5' and
                     deleted_at is null

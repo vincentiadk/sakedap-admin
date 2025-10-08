@@ -739,6 +739,80 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
     });
 }
 
+function lookupCatalogParent(selectorInput, selectorId) {
+    $(selectorInput).click(function () {
+        $('#lookup-dialog-filter').html(`
+            <div class="input-group">
+                <span class="input-group-text">Cari Berdasarkan</span>
+                <select class="form-select select2-basic" id="lookup-dialog-filter-searchable" data-width="1%" data-dropdown-parent="#lookup-dialog-modal" data-placeholder="Global" multiple>
+                    <option value="catalogs.bibid">BIB ID</option>
+                    <option value="catalogs.title">Judul</option>
+                    <option value="catalogs.author">Kepeng</option>
+                    <option value="penerbit.name">Pelaksana Serah</option>
+                    <option value="catalogs.publishyear">Tahun Terbit</option>
+                    <option value="catalogs.subject">Subjek</option>
+                    <option value="catalogs.isbn">ISBN</option>
+                    <option value="catalogs.callnumber">Nomor Panggil</option>
+                    <option value="worksheets.name">Jenis Bahan</option>
+                </select>
+            </div>
+        `);
+
+        $('#lookup-dialog-datatable thead').html(`
+            <tr>
+                <th class="text-nowrap text-center">No</th>
+                <th class="text-nowrap text-center">#</th>
+                <th class="text-nowrap">BIB ID</th>
+                <th class="text-nowrap">ISBN</th>
+                <th class="text-nowrap">Nomor Panggil</th>
+                <th class="text-nowrap">Jumlah Koleksi</th>
+                <th class="text-nowrap">Tahun Terbit</th>
+                <th class="text-nowrap">Judul</th>
+                <th class="text-nowrap">Pelaksana Serah</th>
+                <th class="text-nowrap">Kepengarangan</th>
+                <th class="text-nowrap">Detail</th>
+            </tr>
+        `);
+
+        lookup({
+            title: 'Pilih Data Katalog Parent',
+            dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog-parent',
+            dtAjaxData: function () {
+                return {
+                    searchable: $('#lookup-dialog-filter-searchable').val()
+                };
+            },
+            dtOrder: [],
+            dtColumns: [
+                { orderable: true, className: 'align-middle text-nowrap text-center' },
+                { orderable: false, className: 'align-middle text-nowrap text-center' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+            ],
+            onSelect: function (data) {
+                $(selectorId).val(data.data('id'));
+                $(selectorInput).val(data.data('title'));
+                $(selectorInput).change();
+            }
+        });
+
+        select2Basic();
+
+        $('#lookup-dialog-filter-searchable').change(function (e) {
+            if (window.gLookupDialogDataTable) {
+                window.gLookupDialogDataTable.ajax.reload(null, false);
+            }
+        });
+    });
+}
+
 function lookupCatalogHistory(table, id) {
     $('#lookup-dialog-datatable thead').html(`
         <tr>

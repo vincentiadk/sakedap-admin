@@ -35,6 +35,7 @@ class CreateSingleController extends Controller
                     'select2',
                     'daterangepicker',
                     'fileinput',
+                    'datatable',
                 ]
             ]
         ]);
@@ -49,6 +50,38 @@ class CreateSingleController extends Controller
             'code' => $data ? 200 : 500,
             'data' => $data
         ]);
+    }
+
+    public function catalogParent(Request $request)
+    {
+        $id = $request->id;
+        $data = QueryAPI::get("
+            select
+                catalogs.*,
+                penerbit.name as name_penerbit,
+                kabupaten.namakab as namakab,
+                propinsi.namapropinsi as namapropinsi,
+                e_collections.code_type as code_type_e_collection,
+                e_collections.serial as serial_e_collection,
+                e_collections.currency as currency_e_collection,
+                e_collections.price as price_e_collection,
+                e_collections.jilid as jilid_e_collection,
+                e_collections.description as description_e_collection
+            from
+                catalogs
+            left join
+                penerbit on penerbit.id = catalogs.penerbit_id
+            left join
+                kabupaten on kabupaten.id = catalogs.city_id
+            left join
+                propinsi on propinsi.id = kabupaten.propinsiid
+            left join
+                e_collections on e_collections.id = catalogs.edeposit_col_id
+            where
+                catalogs.id = $id
+        ", true);
+
+        return response()->json($data);
     }
 
     public function submitted(Request $request)
@@ -96,9 +129,12 @@ class CreateSingleController extends Controller
                     $userId = session('id');
                     $publishTime = strtotime($request->publish_time);
                     $receivedTime = strtotime($request->received_at);
+                    $catalogId = $request->catalog_id;
+                    $catalog = QueryAPI::get("select edeposit_col_id from catalogs where id = $catalogId", true);
 
                     $baseCollectionData = [
                         'id_old' => 0,
+                        'parent_id' => $catalog->EDEPOSIT_COL_ID ?? null,
                         'publisher_id' => $request->executor_id,
                         'city_id' => $request->city_id,
                         'title_ori' => $request->title,
@@ -131,7 +167,6 @@ class CreateSingleController extends Controller
                         'kabupaten_id' => $request->city_id,
                         'title' => $request->title,
                         'author' => implode(';', ($request->author ?? [])),
-                        'parent_id' => 0,
                         'jilid' => $request->binding,
                         'currency' => $request->currency,
                         'jenis_isi' => $request->content_type,
@@ -139,6 +174,8 @@ class CreateSingleController extends Controller
                         'jenis_media' => $request->media_type,
                         'description' => $request->description,
                         'kelas_besar_id' => $request->big_class_id,
+                        'edition' => $request->edition,
+                        'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
                     ];
 
                     $createCollection = QueryAPI::create('e_collections', $baseCollectionData);
@@ -182,7 +219,7 @@ class CreateSingleController extends Controller
                                 $editionData = $baseCollectionData;
                                 $editionData['parent_id'] = $createCollection->ID;
                                 $editionData['edition'] = $editionTitle;
-                                $editionData['date'] = $editionDate;
+                                $editionData['edition_date'] = $editionDate;
                                 $editionData['publication_month'] = date('m', strtotime($editionDate));
                                 $editionData['publication_year'] = date('Y', strtotime($editionDate));
                                 $createEdition = QueryAPI::create('e_collections', $editionData);
@@ -259,9 +296,9 @@ class CreateSingleController extends Controller
                             'iszip' => false,
                             'file' => $fileContent,
                         ]);
-
-                        QueryAPI::verificationCollection($createCollection->ID);
                     }
+
+                    QueryAPI::verificationCollection($createCollection->ID);
 
                     $response = [
                         'code' => 200,

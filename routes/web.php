@@ -33,6 +33,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('datatable-serverside')->group(function () {
         Route::get('catalog', 'DataTableServersideController@catalog');
+        Route::get('catalog-parent', 'DataTableServersideController@catalogParent');
         Route::get('catalog-history', 'DataTableServersideController@catalogHistory');
     });
 
@@ -247,6 +248,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('create-single')->group(function () {
             Route::get('/', 'CreateSingleController@index');
             Route::get('check-isbn-code', 'CreateSingleController@checkISBNCode');
+            Route::get('catalog-parent', 'CreateSingleController@catalogParent');
             Route::post('submitted', 'CreateSingleController@submitted');
         });
 

@@ -227,11 +227,14 @@ class DigitalWorkController extends Controller
                 e_collections.jenis_wadah as jenis_wadah_e_collection,
                 e_collections.jenis_media as jenis_media_e_collection,
                 e_collections.currency as currency_e_collection,
-                e_collections.jumlah_eks as jumlah_eks_e_collection
+                e_collections.jumlah_eks as jumlah_eks_e_collection,
+                parents.title as title_parent
             from
                 catalogs
             left join
                 e_collections on e_collections.id = catalogs.edeposit_col_id
+            left join
+                e_collections parents on parents.id = e_collections.parent_id
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join

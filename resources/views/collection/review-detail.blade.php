@@ -61,6 +61,16 @@
                 </table>
             </div>
         </div>
+        @if($collection->TITLE_PARENT)
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="hstack gap-2 mb-0">Parent</h5>
+                </div>
+                <div class="card-body">
+                    {{ $collection->TITLE_PARENT }}
+                </div>
+            </div>
+        @endif
         <div class="card">
             <div class="card-header">
                 <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
@@ -74,6 +84,20 @@
                 <h5 class="hstack gap-2 mb-0">Meta Data</h5>
             </div>
             <div class="card-body">
+                @if($collection->TITLE_PARENT)
+                    <div class="form-group row">
+                        <label class="col-form-label col-md-2">Edisi</label>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" name="edition" id="edition" value="{{ $collection->EDITION ?? $collection->EDITION }}" placeholder="....................">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-md-2">Tanggal Terbit Edisi <span class="text-danger fw-bold">*</span></label>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" value="{{ Carbon::parse($collection->EDITION_DATE)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
+                        </div>
+                    </div>
+                @endif
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
@@ -315,78 +339,80 @@
                 </select>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>Edisi / Volume</th>
-                                <th>Tgl Terbit</th>
-                                <th>Cover</th>
-                                <th>Konten</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if($collectionCopy)
-                                @foreach($collectionCopy as $key => $cc)
-                                    @php
-                                        $cover = QueryAPI::get("
-                                            select
-                                                *
-                                            from
-                                                catalogcovers
-                                            where
-                                                e_col_id = $cc->ID
-                                        ", true);
-
-                                        $content = QueryAPI::get("
-                                            select
-                                                *
-                                            from
-                                                catalogfiles
-                                            where
-                                                e_col_id = $cc->ID
-                                        ", true);
-                                    @endphp
-                                    <tr>
-                                        <td>{{ $cc->EDITION }}</td>
-                                        <td>{{ $cc->DATE ? Carbon::parse($cc->DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
-                                        <td>
-                                            @if($cover)
-                                                <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
-                                                    <i class="ph-image me-1"></i>
-                                                    Lihat
-                                                </a>
-                                            @else
-                                                Tidak ada cover
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($content)
-                                                <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
-                                                    <i class="ph-file me-1"></i>
-                                                    Lihat
-                                                </a>
-                                            @else
-                                                Tidak ada konten
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
+        @if(!$collection->TITLE_PARENT)
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
                                 <tr>
-                                    <td colspan="4">Tidak ada data</td>
+                                    <th>Edisi / Volume</th>
+                                    <th>Tgl Terbit</th>
+                                    <th>Cover</th>
+                                    <th>Konten</th>
                                 </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @if($collectionCopy)
+                                    @foreach($collectionCopy as $key => $cc)
+                                        @php
+                                            $cover = QueryAPI::get("
+                                                select
+                                                    *
+                                                from
+                                                    catalogcovers
+                                                where
+                                                    e_col_id = $cc->ID
+                                            ", true);
+
+                                            $content = QueryAPI::get("
+                                                select
+                                                    *
+                                                from
+                                                    catalogfiles
+                                                where
+                                                    e_col_id = $cc->ID
+                                            ", true);
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $cc->EDITION }}</td>
+                                            <td>{{ $cc->EDITION_DATE ? Carbon::parse($cc->EDITION_DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
+                                            <td>
+                                                @if($cover)
+                                                    <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
+                                                        <i class="ph-image me-1"></i>
+                                                        Lihat
+                                                    </a>
+                                                @else
+                                                    Tidak ada cover
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($content)
+                                                    <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
+                                                        <i class="ph-file me-1"></i>
+                                                        Lihat
+                                                    </a>
+                                                @else
+                                                    Tidak ada konten
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="4">Tidak ada data</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
         <div class="card">
             <div class="card-body">
                 <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
@@ -502,7 +528,7 @@
         $('#author').select2({
             multiple: true,
             tags: true,
-            tokenSeparators: [';', ' ']
+            tokenSeparators: [';']
         });
     });
 

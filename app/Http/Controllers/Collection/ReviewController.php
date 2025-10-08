@@ -57,7 +57,7 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)";
+        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -116,10 +116,6 @@ class ReviewController extends Controller
             from
                 e_collections
             where
-                (
-                    parent_id = 0 or
-                    parent_id is null
-                ) and
                 (
                     status = '1' and
                     deleted_at is null
@@ -209,7 +205,8 @@ class ReviewController extends Controller
                 penerbit.id as id_penerbit,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
-                propinsi.namapropinsi as namapropinsi
+                propinsi.namapropinsi as namapropinsi,
+                parents.title as title_parent
             from
                 e_collections
             left join
@@ -218,11 +215,9 @@ class ReviewController extends Controller
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
+            left join
+                e_collections parents on parents.id = e_collections.parent_id
             where
-                (
-                    e_collections.parent_id = 0 or
-                    e_collections.parent_id is null
-                ) and
                 e_collections.id = $id and
                 e_collections.deleted_at is null and
                 e_collections.status = '1'
@@ -296,6 +291,8 @@ class ReviewController extends Controller
                         'description' => $request->description,
                         'author' => implode(';', ($request->author ?? [])),
                         'kelas_besar_id' => $request->big_class_id,
+                        'edition' => $request->edition,
+                        'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
                     ];
 
                     if ($request->category && is_array($request->category)) {

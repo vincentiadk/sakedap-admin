@@ -50,7 +50,7 @@ class ProblemController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '3' and e_collections.deleted_at is null) and (e_collections.parent_id = 0 or e_collections.parent_id is null)";
+        $whereCondition[] = "(e_collections.status = '3' and e_collections.deleted_at is null)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -109,10 +109,6 @@ class ProblemController extends Controller
             from
                 e_collections
             where
-                (
-                    parent_id = 0 or
-                    parent_id is null
-                ) and
                 (
                     status = '3' and
                     deleted_at is null
