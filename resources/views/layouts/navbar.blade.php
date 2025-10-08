@@ -280,7 +280,13 @@
                     <li class="nav-item">
 						<a href="{{ url('log-viewer') }}" class="navbar-nav-link rounded">
 							<i class="ph-file me-2"></i>
-							Log
+							Log Sistem
+						</a>
+					</li>
+                    <li class="nav-item">
+						<a href="{{ url('log-awb') }}" class="navbar-nav-link rounded">
+							<i class="ph-note me-2"></i>
+							Log AWB
 						</a>
 					</li>
                     <li class="nav-item">
