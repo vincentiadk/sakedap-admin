@@ -373,10 +373,12 @@ class ListController extends Controller
                         QueryAPI::update('letter_detail', $letterId, $updateData, false);
                     }
 
+                    $requestStatus = $request->status;
+
                     QueryAPI::update('letter', $id, [
-                        'status' => ($param === 'save-verification') ? $status : $request->status,
+                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
                         'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                        'proses_by' => ($param === 'save-verification') ? session('name') : null,
+                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('name') : null,
                     ], false);
 
                     $response = [
