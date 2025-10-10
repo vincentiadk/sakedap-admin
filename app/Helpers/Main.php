@@ -228,22 +228,26 @@ class Main
      * @param  mixed $executorId
      * @return void
      */
-    public static function copyright($executorId)
+    public static function copyright($executorId = null)
     {
-        $executor = QueryAPI::get("
-            select
-                *
-            from
-                penerbit
-            where
-                id = $executorId
-        ", true);
+        $text = '';
 
-        if ($executor) {
-            return 'Copyrights (c) ' . date('Y') . ' ' . $executor->NAME;
+        if ($executorId) {
+            $executor = QueryAPI::get("
+                select
+                    *
+                from
+                    penerbit
+                where
+                    id = $executorId
+            ", true);
+
+            if ($executor) {
+                $text = 'Copyrights (c) ' . date('Y') . ' ' . $executor->NAME;
+            }
         }
 
-        return null;
+        return $text;
     }
 
     /**

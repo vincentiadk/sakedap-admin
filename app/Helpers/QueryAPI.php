@@ -258,9 +258,38 @@ class QueryAPI
             'terminal' => request()->ip(),
         ]);
 
+        $fileInput = $payload['file'];
+        $fileContent = null;
+        $filename = 'uploaded_file';
+
+        if (isset($payload['filename'])) {
+            $filename = $payload['filename'];
+        } elseif (is_object($fileInput) && method_exists($fileInput, 'getClientOriginalName')) {
+            $filename = $fileInput->getClientOriginalName();
+        }
+
+        if (is_resource($fileInput)) {
+            $fileContent = stream_get_contents($fileInput);
+
+            if (is_resource($fileInput)) {
+                fclose($fileInput);
+            }
+        } else if (is_object($fileInput) && method_exists($fileInput, 'getRealPath')) {
+            $path = $fileInput->getRealPath();
+            $fileContent = file_get_contents($path);
+        } else if (is_string($fileInput)) {
+            $fileContent = file_get_contents($fileInput);
+        }
+
+        if ($fileContent === null) {
+            Log::channel('sakedap-api')->error('Gagal upload: File content is NULL and cannot be processed.', $payload);
+
+            return false;
+        }
+
         $query = Http::connectTimeout(60)
             ->timeout(120)
-            ->attach('file', file_get_contents($payload['file']), $payload['file']->getClientOriginalName())
+            ->attach('file', $fileContent, $filename)
             ->withQueryParameters($param)
             ->post(static::$baseUrl);
 

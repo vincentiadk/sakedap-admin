@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class DownloadController extends Controller
 {
@@ -60,5 +61,16 @@ class DownloadController extends Controller
                 document.location.href = "https://edeposit.perpusnas.go.id";
             </script>
         ';
+    }
+
+    public function fromStorage(Request $request)
+    {
+        $path = $request->path ?? '';
+
+        if (Storage::exists($path)) {
+            return Storage::download($path);
+        }
+
+        abort(404);
     }
 }

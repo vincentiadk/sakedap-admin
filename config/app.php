@@ -138,6 +138,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
         'Carbon' => Carbon\Carbon::class,
+        'Zip' => ZanySoft\Zip\Facades\Zip::class,
     ],
 
 ];

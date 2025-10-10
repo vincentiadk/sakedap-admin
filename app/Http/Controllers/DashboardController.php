@@ -154,6 +154,7 @@ class DashboardController extends Controller
         $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
+        $response = [];
         $condition = [];
 
         if (Main::isNotCenterBranch()) {

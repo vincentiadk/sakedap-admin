@@ -414,7 +414,7 @@ class ReviewController extends Controller
             from
                 catalogcovers
             where
-                catalog_id = $id
+                e_col_id = $id
         ", true);
 
         $collectionContent = QueryAPI::get("
@@ -423,7 +423,7 @@ class ReviewController extends Controller
             from
                 catalogfiles
             where
-                catalog_id = $id
+                e_col_id = $id
         ", true);
 
         $collectionProblemHistory = QueryAPI::get("

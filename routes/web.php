@@ -20,6 +20,7 @@ Route::get('stream-file', function (Request $request) {
 
 Route::prefix('download')->group(function () {
     Route::get('from-public', 'DownloadController@fromPublic');
+    Route::get('from-storage', 'DownloadController@fromStorage');
     Route::get('request-file', 'DownloadController@requestFile');
 });
 
@@ -256,6 +257,8 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('create-more')->group(function () {
             Route::get('/', 'CreateMoreController@index');
+            Route::get('datatable-bulk', 'CreateMoreController@datatableBulk');
+            Route::get('detail-bulk', 'CreateMoreController@detailBulk');
             Route::post('submitted', 'CreateMoreController@submitted');
         });
 

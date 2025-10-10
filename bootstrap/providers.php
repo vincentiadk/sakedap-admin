@@ -8,4 +8,5 @@ return [
     Barryvdh\DomPDF\ServiceProvider::class,
     Maatwebsite\Excel\ExcelServiceProvider::class,
     Milon\Barcode\BarcodeServiceProvider::class,
+    ZanySoft\Zip\ZipServiceProvider::class,
 ];
