@@ -210,6 +210,11 @@ Route::middleware('authentication')->group(function () {
             Route::post('submitted', 'CreateDataController@submitted');
         });
 
+        Route::prefix('problem')->group(function () {
+            Route::get('/', 'ProblemController@index');
+            Route::get('datatable', 'ProblemController@datatable');
+        });
+
         Route::prefix('review')->group(function () {
             Route::get('/', 'ReviewController@index');
             Route::get('datatable', 'ReviewController@datatable');

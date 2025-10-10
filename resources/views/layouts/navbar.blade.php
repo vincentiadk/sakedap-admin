@@ -179,6 +179,7 @@
                                             <div class="col-md-2">
                                                 <a href="{{ url('executor/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
                                                 <a href="{{ url('executor/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
+                                                <a href="{{ url('executor/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
                                                 <a href="{{ url('executor/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
                                                 <a href="{{ url('executor/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
                                                 <a href="{{ url('executor/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
