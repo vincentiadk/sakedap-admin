@@ -45,26 +45,41 @@ class ReceiptController extends Controller
         $letterDetail = QueryAPI::get("select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
         $collection = QueryAPI::get("select count(collections.id) as total from collections where replace(isbn, '-', '') = '$code' and source_id = 6", true);
 
-        $total = 0;
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
         $totalCollection = $collection->TOTAL ?? 0;
-        $acceptOption = [];
+        $totalSystem = 0;
+        $maxAccept = Main::isNotCenterBranch() ? 1 : 2;
+        $optionAccept = [];
 
         if ($totalLetterDetail > 0) {
-            $total = $totalLetterDetail;
+            $totalSystem = $totalLetterDetail;
         } else if ($totalCollection > 0) {
-            $total = $totalCollection;
+            $totalSystem = $totalCollection;
         }
 
-        for ($i = 0; $i <= $acceptDefault; $i++) {
-            $selected = $i == $acceptDefault ? 'selected' : '';
-            $acceptOption[] = '<option value="' . $i . '" ' . $selected . '>' . $i . '</option>';
+        if ($totalSystem == 0) {
+            $totalAccept = $maxAccept;
+            $totalReject = 0;
+        } else if ($totalSystem == 1) {
+            $totalAccept = 1;
+            $totalReject = 1;
+        } else {
+            $totalAccept = 0;
+            $totalReject = $maxAccept;
+        }
+
+        for ($i = 0; $i <= $totalAccept; $i++) {
+            $optionSelected = $i == $totalAccept ? 'selected' : '';
+            $optionAccept[] = '<option value="' . $i . '" ' . $optionSelected . '>' . $i . '</option>';
         }
 
         return response()->json([
-            'total' => $total,
-            'acceptOption' => implode('', $acceptOption),
-            'data' => $data
+            'data' => $data,
+            'totalAccept' => $totalAccept,
+            'optionAccept' => $optionAccept,
+            'totalReject' => $totalReject,
+            'totalSystem' => $totalSystem,
+            'totalAccept' => Main::isNotCenterBranch() ? 1 : 2,
         ]);
     }
 

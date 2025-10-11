@@ -104,7 +104,7 @@
                                 <th class="text-nowrap text-center" rowspan="2">Hapus</th>
                             </tr>
                             <tr>
-                                <th class="text-nowrap text-center">Tercatat</th>
+                                <th class="text-nowrap text-center">Disistem</th>
                                 <th class="text-nowrap text-center">Dikirim</th>
                                 <th class="text-nowrap text-center">Diterima</th>
                                 <th class="text-nowrap text-center">Ditolak</th>
@@ -244,18 +244,18 @@
                                     <td class="text-wrap">${ response.data.edisi ?? '' }</td>
                                     <td class="text-wrap">${ response.data.keterangan ?? '' }</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-plaintext" value="${ response.total }" readonly>
+                                        <input type="number" class="form-control form-control-plaintext" value="${ response.totalSystem }" readonly>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-plaintext ci-total-${ randStr }" readonly>
                                     </td>
                                     <td>
                                         <select class="form-select w-auto flex-grow-0 ci-accept-${ randStr }" name="ci_qty_accept[]" onchange="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
-                                            ${ response.acceptOption }
+                                            ${ response.optionAccept }
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="${ response.total }" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
+                                        <input type="number" class="form-control ci-reject-${ randStr }" name="ci_qty_reject[]" value="${ response.totalReject }" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
                                     </td>
                                     <td>
                                         <select class="form-select ci-description-${ randStr }" name="ci_description[]" multiple></select>
@@ -281,6 +281,12 @@
                             select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
                                 minimumInputLength: 0
                             });
+
+                            if(response.totalReject > 0) {
+                                $('.ci-description-' + randStr ).html(`
+                                    <option value="Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan." selected>Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.</option>
+                                `);
+                            }
                         } else {
                             swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.data?.nama_penerbit, 'warning');
                         }

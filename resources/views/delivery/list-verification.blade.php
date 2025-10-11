@@ -68,7 +68,7 @@
                             <th rowspan="2">Catatan</th>
                         </tr>
                         <tr>
-                            <th class="text-center">Tercatat</th>
+                            <th class="text-center">Disistem</th>
                             <th class="text-center">Dikirim</th>
                             <th class="text-center">Diterima</th>
                             <th class="text-center">Ditolak</th>
@@ -79,7 +79,9 @@
                             @php
                                 $strRand = Str::random(5);
                                 $code = str_replace('-', '', $ld->ISBN);
-                                $total = $ld->COPY ?? 0;
+                                $totalSystem = 0;
+                                $totalSent = $ld->COPY ?? 0;
+                                $totalReject = $totalSent;
 
                                 if ($code) {
                                     $sqlLetterDetail = "select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where isbn = '$code'";
@@ -92,31 +94,38 @@
                                     $totalCollection = $collection->TOTAL ?? 0;
 
                                     if ($totalLetterDetail > 0) {
-                                        $total += $totalLetterDetail;
+                                        $totalSystem += $totalLetterDetail;
                                     } else if ($totalCollection > 0) {
-                                        $total += $totalCollection;
+                                        $totalSystem += $totalCollection;
                                     }
                                 }
 
-                                $totalSystem = $total;
-                                $accept = $ld->QTY_ACCEPT ?? $acceptDefault;
-                                $reject = abs($total - $accept);
+                                $totalAccept = 0;
 
-                                $acceptStart = 0;
-                                $acceptEnd = $acceptDefault;
-
-                                if ($total >= 2 && $total < 3) {
-                                    if ($acceptDefault == 1) {
-                                        $acceptEnd = 1;
+                                if ($totalSystem == 0 || $totalSystem == 1) {
+                                    if ($totalSent == 1) {
+                                        $totalAccept = 1;
+                                        $totalReject -= 1;
+                                    } else {
+                                        if (Main::isNotCenterBranch()) {
+                                            $totalAccept = 1;
+                                            $totalReject -= 1;
+                                        } else {
+                                            $totalAccept = 2;
+                                            $totalReject -= 2;
+                                        }
                                     }
                                 }
 
-                                $rejectStart = $reject;
-                                $rejectEnd = $total;
+                                if($totalSent >= 2) {
+                                    $maxAccept = Main::isNotCenterBranch() ? 1 : 2;
+                                } else {
+                                    $maxAccept = 1;
+                                }
                             @endphp
                             <tr>
                                 <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
-                                <input type="hidden" name="letter_detail_total" value="{{ $total }}">
+                                <input type="hidden" name="letter_detail_total" value="{{ $totalSent }}">
 
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-center">
@@ -137,18 +146,15 @@
                                 </td>
                                 <td>
                                     <select class="form-select" name="letter_detail_qty_accept[]" onchange="calculateQty(this, 'accept')">
-                                        @for($i = $acceptStart; $i <= $acceptEnd; $i++)
-                                            <option value="{{ $i }}" {{ ($accept) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @for($i = 0; $i <= $maxAccept; $i++)
+                                            <option value="{{ $i }}" {{ ($totalAccept) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </td>
                                 <td>
                                     <select class="form-select" name="letter_detail_qty_reject[]" onchange="calculateQty(this, 'reject')">
-                                        @if($total < 3)
-                                            <option value="0">0</option>
-                                        @endif
-                                        @for($i = $rejectStart; $i <= $rejectEnd; $i++)
-                                            <option value="{{ $i }}" {{ ($reject) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @for($i = 0; $i <= $totalSent; $i++)
+                                            <option value="{{ $i }}" {{ ($totalReject) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </td>
