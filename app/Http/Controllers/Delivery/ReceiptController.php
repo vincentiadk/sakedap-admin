@@ -35,7 +35,6 @@ class ReceiptController extends Controller
     {
         $code = str_replace('-', '', $request->code);
         $executorId = $request->code;
-        $acceptDefault = $request->accept_default;
 
         $data = ISBN::get('search', [
             'code' => $code,
@@ -68,7 +67,7 @@ class ReceiptController extends Controller
             $totalReject = $maxAccept;
         }
 
-        for ($i = 0; $i <= $totalAccept; $i++) {
+        for ($i = 0; $i <= $maxAccept; $i++) {
             $optionSelected = $i == $totalAccept ? 'selected' : '';
             $optionAccept[] = '<option value="' . $i . '" ' . $optionSelected . '>' . $i . '</option>';
         }
@@ -229,6 +228,8 @@ class ReceiptController extends Controller
 
                             $qtyAccept = (int) ($request->ci_qty_accept[$key] ?? 0);
                             $qtyReject = (int) ($request->ci_qty_reject[$key] ?? 0);
+                            $qrcbn = ($request->ci_qrcbn[$key] ?? 0);
+                            $isbd = ($request->ci_isbd[$key] ?? 0);
 
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
                             $totalPackage++;
@@ -270,6 +271,8 @@ class ReceiptController extends Controller
                                 'penerbit_terbitan_id' => $isbn->ptid,
                                 'penerbit_id' => $isbn->PENERBIT_ID ?? null,
                                 'nomorpanggiljilid' => $isbn->keterangan,
+                                'qrcbn' => $qrcbn,
+                                'isbd' => $isbd,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);

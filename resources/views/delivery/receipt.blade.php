@@ -101,6 +101,8 @@
                                 <th class="text-nowrap text-center" colspan="2">Total</th>
                                 <th class="text-nowrap text-center" colspan="2">Jumlah Eks</th>
                                 <th class="text-nowrap" rowspan="2">Keterangan</th>
+                                <th class="text-nowrap" rowspan="2">QRCBN</th>
+                                <th class="text-nowrap" rowspan="2">ISBD</th>
                                 <th class="text-nowrap text-center" rowspan="2">Hapus</th>
                             </tr>
                             <tr>
@@ -259,6 +261,12 @@
                                     </td>
                                     <td>
                                         <select class="form-select ci-description-${ randStr }" name="ci_description[]" multiple></select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="ci_qrcbn[]">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="ci_isbd[]">
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
