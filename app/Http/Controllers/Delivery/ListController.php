@@ -16,6 +16,7 @@ class ListController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null"),
                 'content' => 'delivery.list',
                 'plugins' => [
                     'datatable',
@@ -61,6 +62,10 @@ class ListController extends Controller
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'p.province_id = ' . session('province_id');
+        }
+
+        if ($request->proses_by) {
+            $whereCondition[] = "l.proses_by = '$request->proses_by'";
         }
 
         if ($request->receipt_no) {

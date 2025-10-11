@@ -14,13 +14,13 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Pelaksana Serah :</label>
                         <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Jasa Kirim :</label>
                         <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
@@ -31,32 +31,35 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Tujuan :</label>
                         <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">No Resi :</label>
                         <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Semua">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <div class="input-group">
-                            <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
-                                <option value="accept_date">Diterima</option>
-                                <option value="letter_date">Pengiriman</option>
-                                <option value="createdate">Dibuat</option>
-                            </select>
-                            <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
-                        </div>
+                        <label class="form-label">Jenis Tanggal :</label>
+                        <select class="form-select" name="date_type" id="date_type">
+                            <option value="accept_date">Diterima</option>
+                            <option value="letter_date">Pengiriman</option>
+                            <option value="createdate">Dibuat</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal :</label>
+                        <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Status :</label>
                         <select class="form-select" name="status" id="status">
@@ -69,6 +72,19 @@
                             <option value="DITERIMA PENUH">DITERIMA PENUH</option>
                             <option value="DITERIMA PARSIAL">DITERIMA PARSIAL</option>
                             <option value="RETUR">RETUR</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Proses By :</label>
+                        <select class="form-select select2-basic" name="proses_by" id="proses_by" data-placeholder="Semua">
+                            <option value="">Semua</option>
+                            @if($prosesBy)
+                                @foreach($prosesBy as $pb)
+                                    <option value="{{ $pb->PROSES_BY }}">{{ $pb->PROSES_BY }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -158,6 +174,7 @@
                     status: $('#status').val(),
                     receipt_no: $('#receipt_no').val(),
                     branch_id: $('#branch_id').val(),
+                    proses_by: $('#proses_by').val(),
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
