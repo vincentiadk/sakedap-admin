@@ -342,6 +342,7 @@ class ListController extends Controller
                     $qtyRejects = $request->collect('letter_detail_qty_reject');
                     $remarks = $request->collect('letter_detail_remark');
                     $checkeds = $request->collect('letter_detail_checked');
+                    $notes = $request->collect('letter_detail_note');
                     $status = 'DITERIMA PENUH';
                     $letterDetailsToUpdate = [];
 
@@ -351,6 +352,7 @@ class ListController extends Controller
                         $remark = $remarks->get($key, []);
                         $quantity = $quantities->get($key, 0);
                         $checked = $checkeds->get($key, 0);
+                        $note = $notes->get($key, 0);
 
                         $letterDetailsToUpdate[] = [
                             'id' => $ldi,
@@ -358,6 +360,7 @@ class ListController extends Controller
                             'qty_reject' => $qtyReject,
                             'remark' => is_array($remark) ? implode(';', $remark) : $remark,
                             'checked' => $checked,
+                            'isbn_status' => $note,
                         ];
 
                         if ($qtyAccept < $quantity) {

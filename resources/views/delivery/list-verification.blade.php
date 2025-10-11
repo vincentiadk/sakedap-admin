@@ -65,6 +65,7 @@
                             <th colspan="2" class="text-center">Total</th>
                             <th colspan="2" class="text-center">Jumlah Eks</th>
                             <th rowspan="2">Alasan Ditolak</th>
+                            <th rowspan="2">Catatan</th>
                         </tr>
                         <tr>
                             <th class="text-center">Tercatat</th>
@@ -161,6 +162,9 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="letter_detail_note[]" value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="....................">
                                 </td>
                             </tr>
                         @endforeach
