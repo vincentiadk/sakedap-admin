@@ -377,7 +377,7 @@
                                         <select class="form-select select2-basic" name="cni_type[]">
                                             <option value=""></option>
                                             @foreach($media as $m)
-                                                <option value="{{ $m->NAME }}">{{ $m->NAME }}</option>
+                                                <option value="{{ $m->NAME }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                                             @endforeach
                                         </select>
                                     </div>

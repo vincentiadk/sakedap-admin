@@ -72,7 +72,7 @@
                         <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id">
                             <option value=""></option>
                             @foreach($media as $m)
-                                <option value="{{ $m->ID }}">{{ $m->NAME }}</option>
+                                <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
                     </div>

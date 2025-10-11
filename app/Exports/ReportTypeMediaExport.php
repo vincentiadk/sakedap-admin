@@ -40,7 +40,7 @@ class ReportTypeMediaExport implements FromView, ShouldAutoSize
     public function view(): View
     {
         $request = (object) $this->request;
-        $media = QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null");
+        $media = QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'");
         $provinceId = $request->province_id;
         $year = $request->year;
         $tableData = [];

@@ -41,7 +41,7 @@ class TypeMediaController extends Controller
 
     public function loadData(Request $request)
     {
-        $media = QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null");
+        $media = QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'");
         $year = $request->year;
         $response = [];
 

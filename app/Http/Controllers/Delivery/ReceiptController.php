@@ -21,7 +21,7 @@ class ReceiptController extends Controller
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
                 'content' => 'delivery.receipt',
                 'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
-                'media' => QueryAPI::get("select * from collectionmedias where isdelete is null or isdelete = 0"),
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
                 'plugins' => [
                     'select2',
                     'datatable',

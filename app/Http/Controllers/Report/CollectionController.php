@@ -357,7 +357,7 @@ class CollectionController extends Controller
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-                'media' => QueryAPI::get("select * from collectionmedias where isdelete = 0 or isdelete is null"),
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
                 'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
                 'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
