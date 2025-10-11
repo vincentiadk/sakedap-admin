@@ -659,8 +659,12 @@ function lookup(options) {
     });
 }
 
-function lookupCatalog(selectorInput, selectorId, replaceID = false) {
+function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {}) {
     $(selectorInput).click(function () {
+        var dataAjax = $.extend({
+            searchable: $('#lookup-dialog-filter-searchable').val()
+        }, payload);
+
         $('#lookup-dialog-filter').html(`
             <div class="input-group">
                 <span class="input-group-text">Cari Berdasarkan</span>
@@ -698,9 +702,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false) {
             title: 'Pilih Data Katalog',
             dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog',
             dtAjaxData: function () {
-                return {
-                    searchable: $('#lookup-dialog-filter-searchable').val()
-                };
+                return dataAjax;
             },
             dtOrder: [],
             dtColumns: [

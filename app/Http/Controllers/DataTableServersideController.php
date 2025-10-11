@@ -50,6 +50,17 @@ class DataTableServersideController extends Controller
             $whereCondition[] = 'kabupaten.propinsiid = ' . session('province_id');
         }
 
+        if ($request->worksheet_id) {
+            $worksheetId = $request->worksheet_id ?? null;
+
+            if (is_array($worksheetId)) {
+                $worksheetId = implode(',', $worksheetId);
+                $whereCondition[] = "catalogs.worksheet_id in ($worksheetId)";
+            } else {
+                $whereCondition[] = "catalogs.worksheet_id = $worksheetId";
+            }
+        }
+
         if ($request->searchable) {
             $whereConditionFilter = [];
 

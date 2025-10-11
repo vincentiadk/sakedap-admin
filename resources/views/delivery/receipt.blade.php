@@ -493,7 +493,9 @@
                 </tr>
             `);
 
-            lookupCatalog(`.cp_catalog_text_${ randStr }`, `.cp_catalog_id_${ randStr }`);
+            lookupCatalog(`.cp_catalog_text_${ randStr }`, `.cp_catalog_id_${ randStr }`, false, {
+                worksheet_id: [13, 142]
+            });
         }
     }
 
