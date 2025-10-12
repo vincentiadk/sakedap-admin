@@ -276,6 +276,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'PromotionController@datatable');
         });
 
+        Route::prefix('physical-reception')->group(function () {
+            Route::get('/', 'PhysicalReceptionController@index');
+            Route::get('datatable', 'PhysicalReceptionController@datatable');
+        });
+
         Route::prefix('physical-recording')->group(function () {
             Route::get('/', 'PhysicalRecordingController@index');
         });

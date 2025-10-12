@@ -65,7 +65,7 @@ class DeliveryController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition = [];
+        $whereCondition[] = "l.status != 'DRAFT'";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'p.province_id = ' . session('province_id');
@@ -237,8 +237,8 @@ class DeliveryController extends Controller
                     $val->TOTAL_EKS_GRANT,
                     $val->STATUS,
                     $val->KODE_PROMO,
-                    'Rp ' . number_format($val->BIAYA_KIRIM),
-                    ($val->BERAT > 0 ? number_format($val->BERAT / 1000, '2', ',', '.') : 0) . ' Kg',
+                    'Rp ' . number_format(($val->BIAYA_KIRIM ?: 0)),
+                    (($val->BERAT ?: 0) > 0 ? number_format($val->BERAT / 1000, '2', ',', '.') : 0) . ' Kg',
                     $val->JUMLAH_PAKET,
                     $val->PROSES_BY,
                 ];
