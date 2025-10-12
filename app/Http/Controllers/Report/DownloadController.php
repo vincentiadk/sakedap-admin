@@ -40,26 +40,12 @@ class DownloadController extends Controller
             $type = Redis::hget('download:' . $ld, 'type');
             $types = $type ?? null;
 
-            if ($types == 'report-periodic') {
-                $typeText = 'Laporan Periodik';
-            } else if ($types == 'report-executor') {
-                $typeText = 'Laporan Pelaksana Serah';
-            } else if ($types == 'report-collection') {
-                $typeText = 'Laporan Koleksi';
-            } else if ($types == 'report-performance-user') {
-                $typeText = 'Laporan Performa User';
-            } else if ($types == 'report-log') {
-                $typeText = 'Laporan Log';
+            if ($types == 'report-manage') {
+                $typeText = 'Laporan Pengelolaan';
             } else if ($types == 'report-promotion') {
                 $typeText = 'Laporan Promosi';
-            } else if ($types == 'report-postage') {
-                $typeText = 'Laporan Ongkir';
-            } else if ($types == 'report-warning') {
-                $typeText = 'Laporan Teguran';
             } else if ($types == 'report-service') {
                 $typeText = 'Laporan Pelayanan';
-            } else if ($types == 'report-type-media') {
-                $typeText = 'Laporan Jenis Media';
             } else {
                 $typeText = 'N/A';
             }

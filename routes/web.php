@@ -70,23 +70,316 @@ Route::middleware('authentication')->group(function () {
         Route::get('data-type', 'DashboardController@dataType');
     });
 
-    Route::prefix('master-data')->namespace('MasterData')->group(function () {
-        Route::prefix('visit')->group(function () {
-            Route::get('/', 'VisitController@index');
-            Route::get('datatable', 'VisitController@datatable');
-            Route::post('create-data', 'VisitController@createData');
-            Route::get('show-data', 'VisitController@showData');
-            Route::post('update-data', 'VisitController@updateData');
-            Route::delete('destroy-data', 'VisitController@destroyData');
+    Route::prefix('physical-delivery')->namespace('PhysicalDelivery')->group(function () {
+        Route::prefix('delivery-verification')->group(function () {
+            Route::get('/', 'DeliveryVerificationController@index');
+            Route::get('datatable', 'DeliveryVerificationController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
         });
 
-        Route::prefix('category')->group(function () {
-            Route::get('/', 'CategoryController@index');
-            Route::get('datatable', 'CategoryController@datatable');
-            Route::post('create-data', 'CategoryController@createData');
-            Route::get('show-data', 'CategoryController@showData');
-            Route::post('update-data', 'CategoryController@updateData');
-            Route::delete('destroy-data', 'CategoryController@destroyData');
+        Route::prefix('in-delivery')->group(function () {
+            Route::get('/', 'InDeliveryController@index');
+            Route::get('datatable', 'InDeliveryController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'InDeliveryController@detail');
+        });
+
+        Route::prefix('accept')->group(function () {
+            Route::get('/', 'AcceptController@index');
+            Route::get('datatable', 'AcceptController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'AcceptController@detail');
+            Route::get('print/{id}', 'AcceptController@print');
+            Route::post('send-email', 'AcceptController@sendEmail');
+        });
+
+        Route::prefix('create-receipt')->group(function () {
+            Route::get('/', 'CreateReceiptController@index');
+            Route::get('search-isbn', 'CreateReceiptController@searchISBN');
+            Route::get('select-catalog', 'CreateReceiptController@selectCatalog');
+            Route::post('submitted', 'CreateReceiptController@submitted');
+        });
+    });
+
+    Route::prefix('national-management')->namespace('NationalManagement')->group(function () {
+        Route::prefix('deposit-collection-list')->group(function () {
+            Route::get('/', 'DepositCollectionListController@index');
+        });
+
+        Route::prefix('catalog-list')->group(function () {
+            Route::get('/', 'CatalogListController@index');
+        });
+
+        Route::prefix('delivery-to-processing')->group(function () {
+            Route::get('/', 'DeliveryToProcessingController@index');
+        });
+
+        Route::prefix('delivery-to-processing-list')->group(function () {
+            Route::get('/', 'DeliveryToProcessingListController@index');
+        });
+    });
+
+    Route::prefix('physical-collection')->namespace('PhysicalCollection')->group(function () {
+        Route::prefix('collection-on-delivery')->group(function () {
+            Route::get('/', 'CollectionOnDeliveryController@index');
+            Route::get('datatable', 'CollectionOnDeliveryController@datatable');
+            Route::get('detail', 'CollectionOnDeliveryController@detail');
+        });
+
+        Route::prefix('collection-accept')->group(function () {
+            Route::get('/', 'CollectionAcceptController@index');
+            Route::get('datatable', 'CollectionAcceptController@datatable');
+            Route::get('detail', 'CollectionAcceptController@detail');
+        });
+
+        Route::prefix('collection-reject')->group(function () {
+            Route::get('/', 'CollectionRejectController@index');
+            Route::get('datatable', 'CollectionRejectController@datatable');
+            Route::post('grant', 'CollectionRejectController@grant');
+            Route::post('retur', 'CollectionRejectController@retur');
+        });
+
+        Route::prefix('collection-grant')->group(function () {
+            Route::get('/', 'CollectionGrantController@index');
+            Route::get('datatable', 'CollectionGrantController@datatable');
+            Route::post('create-group', 'CollectionGrantController@createGroup');
+            Route::post('out-group', 'CollectionGrantController@outGroup');
+        });
+
+        Route::prefix('collection-retur')->group(function () {
+            Route::get('/', 'CollectionReturController@index');
+            Route::get('datatable', 'CollectionReturController@datatable');
+            Route::post('grant', 'CollectionReturController@grant');
+            Route::post('taken', 'CollectionReturController@taken');
+        });
+
+        Route::prefix('verification-collection-received')->group(function () {
+            Route::get('/', 'VerificationCollectionReceivedController@index');
+        });
+
+        Route::prefix('retrospective-collection-registration')->group(function () {
+            Route::get('/', 'RetrospectiveCollectionRegistrationController@index');
+        });
+
+        Route::prefix('label')->group(function () {
+            Route::get('/', 'LabelController@index');
+            Route::get('datatable', 'LabelController@datatable');
+            Route::get('print/{type}', 'LabelController@print');
+        });
+    });
+
+    Route::prefix('digital-storage-handover')->namespace('DigitalStorageHandover')->group(function () {
+        Route::prefix('review')->group(function () {
+            Route::get('/', 'ReviewController@index');
+            Route::get('datatable', 'ReviewController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
+        });
+
+        Route::prefix('problem')->group(function () {
+            Route::get('/', 'ProblemController@index');
+            Route::get('datatable', 'ProblemController@datatable');
+        });
+
+        Route::prefix('accept')->group(function () {
+            Route::get('/', 'AcceptController@index');
+            Route::get('datatable', 'AcceptController@datatable');
+            Route::get('detail/{id}', 'AcceptController@detail');
+        });
+
+        Route::prefix('reject')->group(function () {
+            Route::get('/', 'RejectController@index');
+            Route::get('datatable', 'RejectController@datatable');
+        });
+
+        Route::prefix('single-upload')->group(function () {
+            Route::get('/', 'SingleUploadController@index');
+            Route::get('check-isbn-code', 'SingleUploadController@checkISBNCode');
+            Route::get('catalog-parent', 'SingleUploadController@catalogParent');
+            Route::post('submitted', 'SingleUploadController@submitted');
+        });
+
+        Route::prefix('bulk-upload')->group(function () {
+            Route::get('/', 'BulkUploadController@index');
+            Route::get('datatable-bulk', 'BulkUploadController@datatableBulk');
+            Route::get('detail-bulk', 'BulkUploadController@detailBulk');
+            Route::post('submitted', 'BulkUploadController@submitted');
+        });
+    });
+
+    Route::prefix('coaching-supervision')->namespace('CoachingSupervision')->group(function () {
+        Route::prefix('create-executor')->group(function () {
+            Route::get('/', 'CreateExecutorController@index');
+            Route::post('submitted', 'CreateExecutorController@submitted');
+        });
+
+        Route::prefix('executor-list')->group(function () {
+            Route::get('/', 'ExecutorListController@index');
+            Route::get('datatable', 'ExecutorListController@datatable');
+            Route::get('show-data', 'ExecutorListController@showData');
+            Route::post('update-data', 'ExecutorListController@updateData');
+            Route::post('send-email-reset-password', 'ExecutorListController@sendEmailResetPassword');
+            Route::delete('destroy-data', 'ExecutorListController@destroyData');
+        });
+
+        Route::prefix('problem')->group(function () {
+            Route::get('/', 'ProblemController@index');
+            Route::get('datatable', 'ProblemController@datatable');
+        });
+
+        Route::prefix('review')->group(function () {
+            Route::get('/', 'ReviewController@index');
+            Route::get('datatable', 'ReviewController@datatable');
+            Route::get('show-data', 'ReviewController@showData');
+            Route::post('update-data', 'ReviewController@updateData');
+            Route::delete('destroy-data', 'ReviewController@destroyData');
+        });
+
+        Route::prefix('compliance')->group(function () {
+            Route::get('/', 'ComplianceController@index');
+        });
+
+        Route::prefix('coaching-schedule')->group(function () {
+            Route::get('/', 'CoachingScheduleController@index');
+        });
+
+        Route::prefix('monitoring')->group(function () {
+            Route::get('/', 'MonitoringController@index');
+        });
+
+        Route::prefix('warning')->group(function () {
+            Route::get('/', 'WarningController@index');
+            Route::get('datatable', 'WarningController@datatable');
+            Route::post('create-data', 'WarningController@createData');
+            Route::get('show-data', 'WarningController@showData');
+            Route::post('update-data', 'WarningController@updateData');
+            Route::post('lockable', 'WarningController@lockable');
+            Route::delete('destroy-data', 'WarningController@destroyData');
+        });
+    });
+
+    Route::prefix('report')->namespace('Report')->group(function () {
+        Route::prefix('promotion')->group(function () {
+            Route::get('/', 'PromotionController@index');
+            Route::get('datatable', 'PromotionController@datatable');
+        });
+
+        Route::prefix('physical-recording')->group(function () {
+            Route::get('/', 'PhysicalRecordingController@index');
+        });
+
+        Route::prefix('manage')->group(function () {
+            Route::get('/', 'ManageController@index');
+            Route::get('datatable', 'ManageController@datatable');
+            Route::get('detail/{id}', 'ManageController@detail');
+        });
+
+        Route::prefix('service')->group(function () {
+            Route::get('/', 'ServiceController@index');
+            Route::get('load-data', 'ServiceController@loadData');
+        });
+
+        Route::prefix('physical-recording')->group(function () {
+            Route::get('/', 'PhysicalRecordingController@index');
+        });
+
+        Route::prefix('download')->group(function () {
+            Route::get('/', 'DownloadController@index');
+        });
+    });
+
+    Route::prefix('administration-system')->namespace('AdministrationSystem')->group(function () {
+        Route::prefix('setting-system')->group(function () {
+            Route::get('/', 'SettingSystemController@index');
+            Route::post('submitted', 'SettingSystemController@submitted');
+            Route::post('test-send-email', 'SettingSystemController@testSendEmail');
+        });
+
+        Route::prefix('promotion')->group(function () {
+            Route::get('/', 'PromotionController@index');
+            Route::get('datatable', 'PromotionController@datatable');
+            Route::post('create-data', 'PromotionController@createData');
+            Route::get('show-data', 'PromotionController@showData');
+            Route::post('update-data', 'PromotionController@updateData');
+            Route::delete('destroy-data', 'PromotionController@destroyData');
+        });
+
+        Route::prefix('template-email')->group(function () {
+            Route::get('/', 'TemplateEmailController@index');
+            Route::get('datatable', 'TemplateEmailController@datatable');
+            Route::get('show-data', 'TemplateEmailController@showData');
+            Route::post('update-data', 'TemplateEmailController@updateData');
+        });
+
+        Route::prefix('header-email')->group(function () {
+            Route::match(['get', 'post'], '/', 'HeaderEmailController@index');
+        });
+
+        Route::prefix('footer-email')->group(function () {
+            Route::match(['get', 'post'], '/', 'FooterEmailController@index');
+        });
+
+        Route::prefix('user')->group(function () {
+            Route::get('/', 'UserController@index');
+        });
+
+        Route::prefix('news')->group(function () {
+            Route::get('/', 'NewsController@index');
+            Route::get('datatable', 'NewsController@datatable');
+            Route::post('create-data', 'NewsController@createData');
+            Route::get('show-data', 'NewsController@showData');
+            Route::post('update-data', 'NewsController@updateData');
+            Route::delete('destroy-data', 'NewsController@destroyData');
+        });
+
+        Route::prefix('banner')->group(function () {
+            Route::get('/', 'BannerController@index');
+            Route::get('datatable', 'BannerController@datatable');
+            Route::post('create-data', 'BannerController@createData');
+            Route::get('show-data', 'BannerController@showData');
+            Route::post('update-data', 'BannerController@updateData');
+            Route::delete('destroy-data', 'BannerController@destroyData');
+        });
+
+        Route::prefix('faq')->group(function () {
+            Route::get('/', 'FaqController@index');
+            Route::get('datatable', 'FaqController@datatable');
+            Route::post('create-data', 'FaqController@createData');
+            Route::get('show-data', 'FaqController@showData');
+            Route::post('update-data', 'FaqController@updateData');
+            Route::delete('destroy-data', 'FaqController@destroyData');
+        });
+
+        Route::prefix('terms-conditions')->group(function () {
+            Route::match(['get', 'post'], '/', 'TermsConditionsController@index');
+        });
+
+        Route::prefix('about-us')->group(function () {
+            Route::match(['get', 'post'], '/', 'AboutUsController@index');
+        });
+
+        Route::prefix('media-type')->group(function () {
+            Route::get('/', 'MediaTypeController@index');
+            Route::get('datatable', 'MediaTypeController@datatable');
+            Route::post('create-data', 'MediaTypeController@createData');
+            Route::get('show-data', 'MediaTypeController@showData');
+            Route::post('update-data', 'MediaTypeController@updateData');
+            Route::delete('destroy-data', 'MediaTypeController@destroyData');
+        });
+
+        Route::prefix('news-category')->group(function () {
+            Route::get('/', 'NewsCategoryController@index');
+            Route::get('datatable', 'NewsCategoryController@datatable');
+            Route::post('create-data', 'NewsCategoryController@createData');
+            Route::get('show-data', 'NewsCategoryController@showData');
+            Route::post('update-data', 'NewsCategoryController@updateData');
+            Route::delete('destroy-data', 'NewsCategoryController@destroyData');
+        });
+
+        Route::prefix('collection-category')->group(function () {
+            Route::get('/', 'CollectionCategoryController@index');
+            Route::get('datatable', 'CollectionCategoryController@datatable');
+            Route::post('create-data', 'CollectionCategoryController@createData');
+            Route::get('show-data', 'CollectionCategoryController@showData');
+            Route::post('update-data', 'CollectionCategoryController@updateData');
+            Route::delete('destroy-data', 'CollectionCategoryController@destroyData');
         });
 
         Route::prefix('problem')->group(function () {
@@ -98,26 +391,33 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'ProblemController@destroyData');
         });
 
-        Route::prefix('media')->group(function () {
-            Route::get('/', 'MediaController@index');
-            Route::get('datatable', 'MediaController@datatable');
-            Route::post('create-data', 'MediaController@createData');
-            Route::get('show-data', 'MediaController@showData');
-            Route::post('update-data', 'MediaController@updateData');
-            Route::delete('destroy-data', 'MediaController@destroyData');
+        Route::prefix('library')->group(function () {
+            Route::get('/', 'LibraryController@index');
+            Route::get('datatable', 'LibraryController@datatable');
+            Route::post('create-data', 'LibraryController@createData');
+            Route::get('show-data', 'LibraryController@showData');
+            Route::post('update-data', 'LibraryController@updateData');
+            Route::delete('destroy-data', 'LibraryController@destroyData');
         });
 
-        Route::prefix('role')->group(function () {
-            Route::get('/', 'RoleController@index');
-            Route::get('datatable', 'RoleController@datatable');
-            Route::post('create-data', 'RoleController@createData');
-            Route::get('show-data', 'RoleController@showData');
-            Route::post('update-data', 'RoleController@updateData');
-            Route::delete('destroy-data', 'RoleController@destroyData');
+        Route::prefix('depo')->group(function () {
+            Route::get('/', 'DepoController@index');
+            Route::get('datatable', 'DepoController@datatable');
+            Route::post('create-data', 'DepoController@createData');
+            Route::get('show-data', 'DepoController@showData');
+            Route::post('update-data', 'DepoController@updateData');
+            Route::delete('destroy-data', 'DepoController@destroyData');
         });
-    });
 
-    Route::prefix('location')->namespace('Location')->group(function () {
+        Route::prefix('leader')->group(function () {
+            Route::get('/', 'LeaderController@index');
+            Route::get('datatable', 'LeaderController@datatable');
+            Route::post('create-data', 'LeaderController@createData');
+            Route::get('show-data', 'LeaderController@showData');
+            Route::post('update-data', 'LeaderController@updateData');
+            Route::delete('destroy-data', 'LeaderController@destroyData');
+        });
+
         Route::prefix('province')->group(function () {
             Route::get('/', 'ProvinceController@index');
             Route::get('datatable', 'ProvinceController@datatable');
@@ -152,363 +452,6 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'VillageController@showData');
             Route::post('update-data', 'VillageController@updateData');
             Route::delete('destroy-data', 'VillageController@destroyData');
-        });
-    });
-
-    Route::prefix('library')->namespace('Library')->group(function () {
-        Route::prefix('data')->group(function () {
-            Route::get('/', 'DataController@index');
-            Route::get('datatable', 'DataController@datatable');
-            Route::post('create-data', 'DataController@createData');
-            Route::get('show-data', 'DataController@showData');
-            Route::post('update-data', 'DataController@updateData');
-            Route::delete('destroy-data', 'DataController@destroyData');
-        });
-
-        Route::prefix('depo')->group(function () {
-            Route::get('/', 'DepoController@index');
-            Route::get('datatable', 'DepoController@datatable');
-            Route::post('create-data', 'DepoController@createData');
-            Route::get('show-data', 'DepoController@showData');
-            Route::post('update-data', 'DepoController@updateData');
-            Route::delete('destroy-data', 'DepoController@destroyData');
-        });
-    });
-
-    Route::prefix('news')->namespace('News')->group(function () {
-        Route::prefix('category')->group(function () {
-            Route::get('/', 'CategoryController@index');
-            Route::get('datatable', 'CategoryController@datatable');
-            Route::post('create-data', 'CategoryController@createData');
-            Route::get('show-data', 'CategoryController@showData');
-            Route::post('update-data', 'CategoryController@updateData');
-            Route::delete('destroy-data', 'CategoryController@destroyData');
-        });
-
-        Route::prefix('content')->group(function () {
-            Route::get('/', 'ContentController@index');
-            Route::get('datatable', 'ContentController@datatable');
-            Route::post('create-data', 'ContentController@createData');
-            Route::get('show-data', 'ContentController@showData');
-            Route::post('update-data', 'ContentController@updateData');
-            Route::delete('destroy-data', 'ContentController@destroyData');
-        });
-    });
-
-    Route::prefix('executor')->namespace('Executor')->group(function () {
-        Route::prefix('category')->group(function () {
-            Route::get('/', 'CategoryController@index');
-            Route::get('datatable', 'CategoryController@datatable');
-            Route::post('create-data', 'CategoryController@createData');
-            Route::get('show-data', 'CategoryController@showData');
-            Route::post('update-data', 'CategoryController@updateData');
-            Route::delete('destroy-data', 'CategoryController@destroyData');
-        });
-
-        Route::prefix('create-data')->group(function () {
-            Route::get('/', 'CreateDataController@index');
-            Route::post('submitted', 'CreateDataController@submitted');
-        });
-
-        Route::prefix('problem')->group(function () {
-            Route::get('/', 'ProblemController@index');
-            Route::get('datatable', 'ProblemController@datatable');
-        });
-
-        Route::prefix('review')->group(function () {
-            Route::get('/', 'ReviewController@index');
-            Route::get('datatable', 'ReviewController@datatable');
-            Route::get('show-data', 'ReviewController@showData');
-            Route::post('update-data', 'ReviewController@updateData');
-            Route::delete('destroy-data', 'ReviewController@destroyData');
-        });
-
-        Route::prefix('manage')->group(function () {
-            Route::get('/', 'ManageController@index');
-            Route::get('datatable', 'ManageController@datatable');
-            Route::get('show-data', 'ManageController@showData');
-            Route::post('update-data', 'ManageController@updateData');
-            Route::post('send-email-reset-password', 'ManageController@sendEmailResetPassword');
-            Route::delete('destroy-data', 'ManageController@destroyData');
-        });
-
-        Route::prefix('warning')->group(function () {
-            Route::get('/', 'WarningController@index');
-            Route::get('datatable', 'WarningController@datatable');
-            Route::post('create-data', 'WarningController@createData');
-            Route::get('show-data', 'WarningController@showData');
-            Route::post('update-data', 'WarningController@updateData');
-            Route::post('lockable', 'WarningController@lockable');
-            Route::delete('destroy-data', 'WarningController@destroyData');
-        });
-
-        Route::prefix('supervision')->group(function () {
-            Route::get('{segment}', 'SupervisionController@index');
-        });
-    });
-
-    Route::prefix('bill-isbn')->group(function () {
-        Route::get('/', 'BillISBNController@index');
-        Route::get('datatable', 'BillISBNController@datatable');
-    });
-
-    Route::prefix('collection')->namespace('Collection')->group(function () {
-        Route::prefix('create-single')->group(function () {
-            Route::get('/', 'CreateSingleController@index');
-            Route::get('check-isbn-code', 'CreateSingleController@checkISBNCode');
-            Route::get('catalog-parent', 'CreateSingleController@catalogParent');
-            Route::post('submitted', 'CreateSingleController@submitted');
-        });
-
-        Route::prefix('create-more')->group(function () {
-            Route::get('/', 'CreateMoreController@index');
-            Route::get('datatable-bulk', 'CreateMoreController@datatableBulk');
-            Route::get('detail-bulk', 'CreateMoreController@detailBulk');
-            Route::post('submitted', 'CreateMoreController@submitted');
-        });
-
-        Route::prefix('reject')->group(function () {
-            Route::get('/', 'RejectController@index');
-            Route::get('datatable', 'RejectController@datatable');
-        });
-
-        Route::prefix('problem')->group(function () {
-            Route::get('/', 'ProblemController@index');
-            Route::get('datatable', 'ProblemController@datatable');
-        });
-
-        Route::prefix('review')->group(function () {
-            Route::get('/', 'ReviewController@index');
-            Route::get('datatable', 'ReviewController@datatable');
-            Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
-        });
-
-        Route::prefix('digital-work')->group(function () {
-            Route::get('/', 'DigitalWorkController@index');
-            Route::get('datatable', 'DigitalWorkController@datatable');
-            Route::get('detail/{id}', 'DigitalWorkController@detail');
-        });
-
-        Route::prefix('printed-work')->group(function () {
-            Route::get('/', 'PrintedWorkController@index');
-            Route::get('datatable', 'PrintedWorkController@datatable');
-            Route::get('detail/{id}', 'PrintedWorkController@detail');
-        });
-
-        Route::prefix('analog-work')->group(function () {
-            Route::get('/', 'AnalogWorkController@index');
-            Route::get('datatable', 'AnalogWorkController@datatable');
-            Route::get('detail/{id}', 'AnalogWorkController@detail');
-        });
-
-        Route::prefix('label')->group(function () {
-            Route::get('/', 'LabelController@index');
-            Route::get('datatable', 'LabelController@datatable');
-            Route::get('print/{type}', 'LabelController@print');
-        });
-    });
-
-    Route::prefix('recording')->group(function () {
-        Route::get('{segment}', 'RecordingController@index');
-    });
-
-    Route::prefix('promotion')->group(function () {
-        Route::get('/', 'PromotionController@index');
-        Route::get('datatable', 'PromotionController@datatable');
-        Route::post('create-data', 'PromotionController@createData');
-        Route::get('show-data', 'PromotionController@showData');
-        Route::post('update-data', 'PromotionController@updateData');
-        Route::delete('destroy-data', 'PromotionController@destroyData');
-    });
-
-    Route::prefix('delivery')->namespace('Delivery')->group(function () {
-        Route::prefix('list')->group(function () {
-            Route::get('/', 'ListController@index');
-            Route::get('datatable', 'ListController@datatable');
-            Route::match(['get', 'post'], 'verification/{id}', 'ListController@verification');
-            Route::get('print/{id}', 'ListController@print');
-            Route::post('send-email', 'ListController@sendEmail');
-        });
-
-        Route::prefix('sent')->group(function () {
-            Route::get('/', 'SentController@index');
-            Route::get('datatable', 'SentController@datatable');
-            Route::get('detail', 'SentController@detail');
-        });
-
-        Route::prefix('accepted')->group(function () {
-            Route::get('/', 'AcceptedController@index');
-            Route::get('datatable', 'AcceptedController@datatable');
-            Route::get('detail', 'AcceptedController@detail');
-        });
-
-        Route::prefix('receipt')->group(function () {
-            Route::get('/', 'ReceiptController@index');
-            Route::get('search-isbn', 'ReceiptController@searchISBN');
-            Route::get('select-catalog', 'ReceiptController@selectCatalog');
-            Route::post('submitted', 'ReceiptController@submitted');
-        });
-
-        Route::prefix('reject')->group(function () {
-            Route::get('/', 'RejectController@index');
-            Route::get('datatable', 'RejectController@datatable');
-            Route::post('grant', 'RejectController@grant');
-            Route::post('retur', 'RejectController@retur');
-        });
-
-        Route::prefix('grant')->group(function () {
-            Route::get('/', 'GrantController@index');
-            Route::get('datatable', 'GrantController@datatable');
-            Route::post('create-group', 'GrantController@createGroup');
-            Route::post('out-group', 'GrantController@outGroup');
-        });
-
-        Route::prefix('retur')->group(function () {
-            Route::get('/', 'ReturController@index');
-            Route::get('datatable', 'ReturController@datatable');
-            Route::post('grant', 'ReturController@grant');
-            Route::post('taken', 'ReturController@taken');
-        });
-    });
-
-    Route::prefix('request-file')->group(function () {
-        Route::get('/', 'RequestFileController@index');
-        Route::get('datatable', 'RequestFileController@datatable');
-        Route::post('set-status', 'RequestFileController@setStatus');
-    });
-
-    Route::prefix('award')->group(function () {
-        Route::get('/', 'AwardController@index');
-        Route::get('datatable', 'AwardController@datatable');
-        Route::post('create-data', 'AwardController@createData');
-        Route::get('show-data', 'AwardController@showData');
-        Route::post('update-data', 'AwardController@updateData');
-        Route::delete('destroy-data', 'AwardController@destroyData');
-
-        Route::prefix('nomination/{id}')->group(function () {
-            Route::match(['get', 'post'], '/', 'AwardController@nomination');
-            Route::get('datatable', 'AwardController@nominationDatatable');
-            Route::post('add', 'AwardController@nominationAdd');
-            Route::delete('remove', 'AwardController@nominationRemove');
-        });
-    });
-
-    Route::prefix('template-email')->group(function () {
-        Route::get('/', 'TemplateEmailController@index');
-        Route::get('datatable', 'TemplateEmailController@datatable');
-        Route::get('show-data', 'TemplateEmailController@showData');
-        Route::post('update-data', 'TemplateEmailController@updateData');
-    });
-
-    Route::prefix('report')->namespace('Report')->group(function () {
-        Route::prefix('periodic')->group(function () {
-            Route::get('/', 'PeriodicController@index');
-            Route::get('load-data', 'PeriodicController@loadData');
-        });
-
-        Route::prefix('executor')->group(function () {
-            Route::get('/', 'ExecutorController@index');
-            Route::get('datatable', 'ExecutorController@datatable');
-        });
-
-        Route::prefix('collection')->group(function () {
-            Route::get('/', 'CollectionController@index');
-            Route::get('datatable', 'CollectionController@datatable');
-            Route::get('detail/{id}', 'CollectionController@detail');
-        });
-
-        Route::prefix('performance-user')->group(function () {
-            Route::get('/', 'PerformanceUserController@index');
-            Route::get('datatable', 'PerformanceUserController@datatable');
-        });
-
-        Route::prefix('log')->group(function () {
-            Route::get('/', 'LogController@index');
-            Route::get('datatable', 'LogController@datatable');
-        });
-
-        Route::prefix('promotion')->group(function () {
-            Route::get('/', 'PromotionController@index');
-            Route::get('datatable', 'PromotionController@datatable');
-        });
-
-        Route::prefix('download')->group(function () {
-            Route::get('/', 'DownloadController@index');
-        });
-
-        Route::prefix('postage')->group(function () {
-            Route::get('/', 'PostageController@index');
-            Route::get('load-data', 'PostageController@loadData');
-        });
-
-        Route::prefix('warning')->group(function () {
-            Route::get('/', 'WarningController@index');
-            Route::get('load-data', 'WarningController@loadData');
-        });
-
-        Route::prefix('service')->group(function () {
-            Route::get('/', 'ServiceController@index');
-            Route::get('load-data', 'ServiceController@loadData');
-        });
-
-        Route::prefix('type-media')->group(function () {
-            Route::get('/', 'TypeMediaController@index');
-            Route::get('load-data', 'TypeMediaController@loadData');
-        });
-    });
-
-    Route::prefix('setting')->namespace('Setting')->group(function () {
-        Route::prefix('leader')->group(function () {
-            Route::get('/', 'LeaderController@index');
-            Route::get('datatable', 'LeaderController@datatable');
-            Route::post('create-data', 'LeaderController@createData');
-            Route::get('show-data', 'LeaderController@showData');
-            Route::post('update-data', 'LeaderController@updateData');
-            Route::delete('destroy-data', 'LeaderController@destroyData');
-        });
-
-        Route::prefix('banner')->group(function () {
-            Route::get('/', 'BannerController@index');
-            Route::get('datatable', 'BannerController@datatable');
-            Route::post('create-data', 'BannerController@createData');
-            Route::get('show-data', 'BannerController@showData');
-            Route::post('update-data', 'BannerController@updateData');
-            Route::delete('destroy-data', 'BannerController@destroyData');
-        });
-
-        Route::prefix('faq')->group(function () {
-            Route::get('/', 'FaqController@index');
-            Route::get('datatable', 'FaqController@datatable');
-            Route::post('create-data', 'FaqController@createData');
-            Route::get('show-data', 'FaqController@showData');
-            Route::post('update-data', 'FaqController@updateData');
-            Route::delete('destroy-data', 'FaqController@destroyData');
-        });
-
-        Route::prefix('terms-conditions')->group(function () {
-            Route::match(['get', 'post'], '/', 'TermsConditionsController@index');
-        });
-
-        Route::prefix('about-us')->group(function () {
-            Route::match(['get', 'post'], '/', 'AboutUsController@index');
-        });
-
-        Route::prefix('header-email')->group(function () {
-            Route::match(['get', 'post'], '/', 'HeaderEmailController@index');
-        });
-
-        Route::prefix('footer-email')->group(function () {
-            Route::match(['get', 'post'], '/', 'FooterEmailController@index');
-        });
-
-        Route::prefix('user')->group(function () {
-            Route::get('/', 'UserController@index');
-        });
-
-        Route::prefix('configuration')->group(function () {
-            Route::get('/', 'ConfigurationController@index');
-            Route::post('submitted', 'ConfigurationController@submitted');
-            Route::post('test-send-email', 'ConfigurationController@testSendEmail');
         });
     });
 });

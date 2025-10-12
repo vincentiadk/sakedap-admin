@@ -23,38 +23,32 @@
                                             <ul class="nav nav-pills flex-xl-column flex-nowrap text-nowrap justify-content-center wmin-xl-300" role="tablist">
                                                 <li class="nav-item" role="presentation">
                                                     <a href="{{ url('dashboard') }}" class="nav-link rounded {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}">
-                                                        <i class="ph-chart-bar me-2"></i>
+                                                        <i class="ph-chart-pie me-2"></i>
                                                         Dasboard
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-master-data" class="nav-link rounded {{ Request::segment(1) == 'master-data' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'master-data' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-archive me-2"></i>
-                                                        Master Data
+                                                    <a href="#menu-physical-delivery" class="nav-link rounded {{ Request::segment(1) == 'physical-delivery' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'physical-delivery' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-archive-box me-2"></i>
+                                                        Pengiriman Fisik
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-location" class="nav-link rounded {{ Request::segment(1) == 'location' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'location' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-buildings me-2"></i>
-                                                        Lokasi
+                                                    <a href="#menu-national-management" class="nav-link rounded {{ Request::segment(1) == 'national-management' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'national-management' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-user-circle-gear me-2"></i>
+                                                        Pengelolaan Koleksi Perpusnas
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-library" class="nav-link rounded {{ Request::segment(1) == 'library' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'library' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-book-open me-2"></i>
-                                                        Perpustakaan
+                                                    <a href="#menu-physical-collection" class="nav-link rounded {{ Request::segment(1) == 'physical-collection' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'physical-collection' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-books me-2"></i>
+                                                        Koleksi Fisik
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-news" class="nav-link rounded {{ Request::segment(1) == 'news' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'news' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-newspaper me-2"></i>
-                                                        Berita
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="#menu-executor" class="nav-link rounded {{ Request::segment(1) == 'executor' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'executor' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-users-four me-2"></i>
-                                                        Pelaksana Serah
+                                                    <a href="#menu-digital-storage-handover" class="nav-link rounded {{ Request::segment(1) == 'digital-storage-handover' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'digital-storage-handover' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-monitor-play me-2"></i>
+                                                        Serah Simpan Digital
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
@@ -64,27 +58,21 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-collection" class="nav-link rounded {{ Request::segment(1) == 'collection' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'collection' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-books me-2"></i>
-                                                        Koleksi
+                                                    <a href="#menu-coaching-supervision" class="nav-link rounded {{ Request::segment(1) == 'coaching-supervision' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'coaching-supervision' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-user-focus me-2"></i>
+                                                        Pengawasan & Pembinaan
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="#menu-recording" class="nav-link rounded {{ Request::segment(1) == 'recording' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'recording' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-pencil-simple-line me-2"></i>
-                                                        Pencatatan
+                                                    <a href="#menu-report" class="nav-link rounded {{ Request::segment(1) == 'report' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'report' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-notebook me-2"></i>
+                                                        Laporan
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('promotion') }}" class="nav-link rounded {{ Request::segment(1) == 'promotion' ? 'active' : '' }}">
-                                                        <i class="ph-ticket me-2"></i>
-                                                        Promosi
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="#menu-delivery" class="nav-link rounded {{ Request::segment(1) == 'delivery' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'delivery' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-truck me-2"></i>
-                                                        Pengiriman
+                                                    <a href="#menu-administration-system" class="nav-link rounded {{ Request::segment(1) == 'administration-system' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'administration-system' ? 'true' : 'false' }}" role="tab">
+                                                        <i class="ph-gear me-2"></i>
+                                                        Administrasi Sistem
                                                     </a>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
@@ -99,178 +87,155 @@
                                                         Pekan Penghargaan
                                                     </a>
                                                 </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="{{ url('template-email') }}" class="nav-link rounded {{ Request::segment(1) == 'template-email' ? 'active' : '' }}">
-                                                        <i class="ph-envelope me-2"></i>
-                                                        Template Email
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="#menu-report" class="nav-link rounded {{ Request::segment(1) == 'report' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'report' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-notebook me-2"></i>
-                                                        Laporan
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="#menu-setting" class="nav-link rounded {{ Request::segment(1) == 'setting' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'setting' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-gear me-2"></i>
-                                                        Pengaturan
-                                                    </a>
-                                                </li>
                                             </ul>
                                         </div>
 									</div>
 								</div>
 								<div class="tab-content flex-xl-1 main-menu-sub">
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'master-data' ? 'show active' : '' }}" id="menu-master-data" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'physical-delivery' ? 'show active' : '' }}" id="menu-physical-delivery" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('master-data/visit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'visit' ? 'active' : '' }}">Kunjungan</a>
-                                                <a href="{{ url('master-data/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
-                                                <a href="{{ url('master-data/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
-                                                <a href="{{ url('master-data/media') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'media' ? 'active' : '' }}">Media</a>
-                                                <a href="{{ url('master-data/role') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'master-data' && Request::segment(2) == 'role' ? 'active' : '' }}">Peranan</a>
+                                                <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">Verifikasi Pengiriman</a>
+                                                <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">Dalam Pengiriman</a>
+                                                <a href="{{ url('physical-delivery/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
+                                                <a href="{{ url('physical-delivery/create-receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'create-receipt' ? 'active' : '' }}">Tambah Bukti Penerimaan</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'location' ? 'show active' : '' }}" id="menu-location" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'national-management' ? 'show active' : '' }}" id="menu-national-management" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('location/province') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'province' ? 'active' : '' }}">Provinsi</a>
-                                                <a href="{{ url('location/city') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'city' ? 'active' : '' }}">Kota / Kabupaten</a>
-                                                <a href="{{ url('location/district') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'district' ? 'active' : '' }}">Kecamatan</a>
-                                                <a href="{{ url('location/village') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'location' && Request::segment(2) == 'village' ? 'active' : '' }}">Kelurahan / Desa</a>
+                                                <a href="{{ url('national-management/deposit-collection-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'deposit-collection-list' ? 'active' : '' }}">Daftar Koleksi Deposit</a>
+                                                <a href="{{ url('national-management/catalog-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'catalog-list' ? 'active' : '' }}">Daftar Katalog</a>
+                                                <a href="{{ url('national-management/delivery-to-processing') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'delivery-to-processing' ? 'active' : '' }}">Pengiriman ke Pengolahan</a>
+                                                <a href="{{ url('national-management/delivery-to-processing-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'delivery-to-processing-list' ? 'active' : '' }}">Daftar Pengiriman ke Pengolahan</a>
+                                                <a href="{{ url('national-management/alignment-storage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'alignment-storage' ? 'active' : '' }}">Penyimpanan & Penjajaran</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'library' ? 'show active' : '' }}" id="menu-library" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'physical-collection' ? 'show active' : '' }}" id="menu-physical-collection" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('library/data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'data' ? 'active' : '' }}">Data</a>
-                                                <a href="{{ url('library/depo') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'library' && Request::segment(2) == 'depo' ? 'active' : '' }}">Depo</a>
+                                                <a href="{{ url('physical-collection/collection-on-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'collection-on-delivery' ? 'active' : '' }}">Koleksi Dalam Pengiriman</a>
+                                                <a href="{{ url('physical-collection/collection-accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'collection-accept' ? 'active' : '' }}">Koleksi Diterima</a>
+                                                <a href="{{ url('physical-collection/collection-reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'collection-reject' ? 'active' : '' }}">Koleksi Ditolak</a>
+                                                <a href="{{ url('physical-collection/collection-grant') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'collection-grant' ? 'active' : '' }}">Koleksi Dihibahkan</a>
+                                                <a href="{{ url('physical-collection/collection-retur') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'collection-retur' ? 'active' : '' }}">Koleksi Dikembalikan</a>
+                                                <a href="{{ url('physical-collection/verification-collection-received') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'verification-collection-received' ? 'active' : '' }}">Verifikasi Koleksi Yang Diterima</a>
+                                                <a href="{{ url('physical-collection/retrospective-collection-registration') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'retrospective-collection-registration' ? 'active' : '' }}">Registrasi Koleksi Retrospeksi</a>
+                                                <a href="{{ url('physical-collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'news' ? 'show active' : '' }}" id="menu-news" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'digital-storage-handover' ? 'show active' : '' }}" id="menu-digital-storage-handover" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('news/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'news' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
-                                                <a href="{{ url('news/content') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'news' && Request::segment(2) == 'content' ? 'active' : '' }}">Konten</a>
+                                                <a href="{{ url('digital-storage-handover/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
+                                                <a href="{{ url('digital-storage-handover/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
+                                                <a href="{{ url('digital-storage-handover/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
+                                                <a href="{{ url('digital-storage-handover/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
+                                                <a href="{{ url('digital-storage-handover/single-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'single-upload' ? 'active' : '' }}">Unggah Tunggal</a>
+                                                <a href="{{ url('digital-storage-handover/bulk-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'bulk-upload' ? 'active' : '' }}">Unggah Banyak</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'executor' ? 'show active' : '' }}" id="menu-executor" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'coaching-supervision' ? 'show active' : '' }}" id="menu-coaching-supervision" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('executor/category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'category' ? 'active' : '' }}">Kategori</a>
-                                                <a href="{{ url('executor/create-data') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'create-data' ? 'active' : '' }}">Tambah Data</a>
-                                                <a href="{{ url('executor/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
-                                                <a href="{{ url('executor/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('executor/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
-                                                <a href="{{ url('executor/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
-                                                <a href="{{ url('executor/supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
-                                                <a href="{{ url('executor/supervision/coaching') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'coaching' ? 'active' : '' }}">Pembinaan</a>
-                                                <a href="{{ url('executor/supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'executor' && Request::segment(3) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
+                                                <a href="{{ url('coaching-supervision/create-executor') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'create-executor' ? 'active' : '' }}">Tambah Data Pelaksana Serah</a>
+                                                <a href="{{ url('coaching-supervision/executor-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'executor-list' ? 'active' : '' }}">Daftar Pelaksana Serah</a>
+                                                <a href="{{ url('coaching-supervision/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
+                                                <a href="{{ url('coaching-supervision/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
+                                                <a href="{{ url('coaching-supervision/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
+                                                <a href="{{ url('coaching-supervision/coaching-schedule') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'coaching-schedule' ? 'active' : '' }}">Jadwal Pembinaan</a>
+                                                <a href="{{ url('coaching-supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
+                                                <a href="{{ url('coaching-supervision/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'collection' ? 'show active' : '' }}" id="menu-collection" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'report' ? 'show active' : '' }}" id="menu-report" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
                                             <div class="col-md-2">
-                                                <a href="{{ url('collection/create-single') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'create-single' ? 'active' : '' }}">Tambah Tunggal</a>
-                                                <a href="{{ url('collection/create-more') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'create-more' ? 'active' : '' }}">Tambah Banyak</a>
-                                                <a href="{{ url('collection/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
-                                                <a href="{{ url('collection/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
-                                                <a href="{{ url('collection/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('collection/digital-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'digital-work' ? 'active' : '' }}">Karya Digital</a>
-                                                <a href="{{ url('collection/printed-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'printed-work' ? 'active' : '' }}">Karya Cetak</a>
-                                                <a href="{{ url('collection/analog-work') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'analog-work' ? 'active' : '' }}">Karya Analog</a>
-                                                <a href="{{ url('collection/label') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'collection' && Request::segment(2) == 'label' ? 'active' : '' }}">Label</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'recording' ? 'show active' : '' }}" id="menu-recording" role="tabpanel">
-                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('recording/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'accept' ? 'active' : '' }}">Koleksi Diterima</a>
-                                                <a href="{{ url('recording/deposit') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'deposit' ? 'active' : '' }}">Koleksi Deposit</a>
-                                                <a href="{{ url('recording/registration') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'registration' ? 'active' : '' }}">Registrasi Koleksi (Retrospektif)</a>
-                                                <a href="{{ url('recording/catalog') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'recording' && Request::segment(2) == 'catalog' ? 'active' : '' }}">Daftar Katalog</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'delivery' ? 'show active' : '' }}" id="menu-delivery" role="tabpanel">
-                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('delivery/list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'list' ? 'active' : '' }}">Daftar Pengiriman</a>
-                                                <a href="{{ url('delivery/sent') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'sent' ? 'active' : '' }}">Dalam Pengiriman</a>
-                                                <a href="{{ url('delivery/accepted') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'accepted' ? 'active' : '' }}">Koleksi Diterima</a>
-                                                <a href="{{ url('delivery/receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'receipt' ? 'active' : '' }}">Bukti Penerimaan</a>
-                                                <a href="{{ url('delivery/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'reject' ? 'active' : '' }}">Koleksi Ditolak</a>
-                                                <a href="{{ url('delivery/grant') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'grant' ? 'active' : '' }}">Koleksi Dihibahkan</a>
-                                                <a href="{{ url('delivery/retur') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'delivery' && Request::segment(2) == 'retur' ? 'active' : '' }}">Koleksi Dikembalikan</a>
-                                            </div>
-                                        </div>
-                                    </div>
-									<div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'report' ? 'show active' : '' }}" id="menu-report" role="tabpanel">
-                                        <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('report/periodic') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'periodic' ? 'active' : '' }}">Periodik</a>
-                                                <a href="{{ url('report/executor') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'executor' ? 'active' : '' }}">Pelaksana Serah</a>
-                                                <a href="{{ url('report/collection') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'collection' ? 'active' : '' }}">Koleksi</a>
-                                                <a href="{{ url('report/performance-user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'performance-user' ? 'active' : '' }}">Performa User</a>
-                                                <a href="{{ url('report/log') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'log' ? 'active' : '' }}">Log</a>
+                                                <a href="{{ url('report/delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'delivery' ? 'active' : '' }}">Pengiriman</a>
                                                 <a href="{{ url('report/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
-                                                <a href="{{ url('report/postage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'postage' ? 'active' : '' }}">Ongkir</a>
-                                                <a href="{{ url('report/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
-                                                <a href="{{ url('report/service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'service' ? 'active' : '' }}">Pelayanan</a>
-                                                <a href="{{ url('report/type-media') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'type-media' ? 'active' : '' }}">Jenis Media</a>
-                                                <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Unduhan</a>
+                                                <a href="{{ url('report/physical-reception') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'physical-reception' ? 'active' : '' }}">Penerimaan Fisik</a>
+                                                <a href="{{ url('report/physical-recording') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'physical-recording' ? 'active' : '' }}">Pencatatan Fisik</a>
+                                                <a href="{{ url('report/physical-alignment') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'physical-alignment' ? 'active' : '' }}">Penjajaran Fisik</a>
+                                                <a href="{{ url('report/manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'manage' ? 'active' : '' }}">Pengelolaan</a>
+                                                <a href="{{ url('report/digital-manage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital-manage' ? 'active' : '' }}">Pengelolaan Digital</a>
+                                                <a href="{{ url('report/digital-empowerment') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'digital-empowerment' ? 'active' : '' }}">Pendayahgunaan Digital</a>
+                                                <a href="{{ url('report/physical-empowerment') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'physical-empowerment' ? 'active' : '' }}">Pendayahgunaan Fisik</a>
+                                                <a href="{{ url('report/service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'service' ? 'active' : '' }}">Layanan</a>
+                                                <a href="{{ url('report/asset') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'asset' ? 'active' : '' }}">Aset</a>
+                                                <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Download</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'setting' ? 'show active' : '' }}" id="menu-setting" role="tabpanel">
+                                    <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'administration-system' ? 'show active' : '' }}" id="menu-administration-system" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
+                                            <div class="col-md-3">
+                                                <div class="alert alert-info text-center fw-semibold">Main</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('administration-system/setting-system') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-system' ? 'active' : '' }}">Pengaturan Sistem</a>
+                                                    <a href="{{ url('administration-system/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
+                                                    <a href="{{ url('administration-system/template-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'template-email' ? 'active' : '' }}">Template Email</a>
+                                                    <a href="{{ url('administration-system/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>
+                                                    <a href="{{ url('administration-system/footer-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'footer-email' ? 'active' : '' }}">Footer Email</a>
+                                                    <a href="{{ url('administration-system/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'user' ? 'active' : '' }}">User</a>
+                                                </div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('setting/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
-                                                <a href="{{ url('setting/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
-                                                <a href="{{ url('setting/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
-                                                <a href="{{ url('setting/terms-conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'terms-conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>
-                                                <a href="{{ url('setting/about-us') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'about-us' ? 'active' : '' }}">Tentang Kami</a>
-                                                <a href="{{ url('setting/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>
-                                                <a href="{{ url('setting/footer-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'footer-email' ? 'active' : '' }}">Footer Email</a>
-                                                <a href="{{ url('setting/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'user' ? 'active' : '' }}">Pengguna</a>
-                                                <a href="{{ url('setting/configuration') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'setting' && Request::segment(2) == 'configuration' ? 'active' : '' }}">Konfigurasi</a>
+                                            <div class="col-md-3">
+                                                <div class="alert alert-info text-center fw-semibold">Front Office</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('administration-system/news') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'news' ? 'active' : '' }}">Berita</a>
+                                                    <a href="{{ url('administration-system/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
+                                                    <a href="{{ url('administration-system/event') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'event' ? 'active' : '' }}">Event</a>
+                                                    <a href="{{ url('administration-system/faq') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'faq' ? 'active' : '' }}">FAQ</a>
+                                                    <a href="{{ url('administration-system/about-us') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'about-us' ? 'active' : '' }}">Tentang Kami</a>
+                                                    <a href="{{ url('administration-system/terms-conditions') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'terms-conditions' ? 'active' : '' }}">Syarat & Ketentuan</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="alert alert-info text-center fw-semibold">Master Data</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('administration-system/media-type') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'media-type' ? 'active' : '' }}">Jenis Media</a>
+                                                    <a href="{{ url('administration-system/news-category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'news-category' ? 'active' : '' }}">Kategori Berita</a>
+                                                    <a href="{{ url('administration-system/collection-category') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'collection-category' ? 'active' : '' }}">Kategori Koleksi</a>
+                                                    <a href="{{ url('administration-system/compliance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'compliance' ? 'active' : '' }}">Kepatuhan</a>
+                                                    <a href="{{ url('administration-system/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'problem' ? 'active' : '' }}">Masalah</a>
+                                                    <a href="{{ url('administration-system/library') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'library' ? 'active' : '' }}">Perpustakaan</a>
+                                                    <a href="{{ url('administration-system/depo') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'depo' ? 'active' : '' }}">Depo</a>
+                                                    <a href="{{ url('administration-system/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
+                                                    <a href="{{ url('administration-system/storage-space') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'storage-space' ? 'active' : '' }}">Ruang Penyimpanan</a>
+                                                    <a href="{{ url('administration-system/size-weight-book') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'size-weight-book' ? 'active' : '' }}">Ukuran & Berat Buku</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="alert alert-info text-center fw-semibold">Lokasi</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('administration-system/province') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'province' ? 'active' : '' }}">Provinsi</a>
+                                                    <a href="{{ url('administration-system/city') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'city' ? 'active' : '' }}">Kota / Kabupaten</a>
+                                                    <a href="{{ url('administration-system/district') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'district' ? 'active' : '' }}">Kecamatan</a>
+                                                    <a href="{{ url('administration-system/village') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'village' ? 'active' : '' }}">Kelurahan / Desa</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -278,16 +243,27 @@
 							</div>
 						</div>
 					</li>
-                    <li class="nav-item">
-						<a href="{{ url('log-viewer') }}" class="navbar-nav-link rounded">
+                    <li class="nav-item nav-item-dropdown-xl dropdown">
+						<a href="#" class="navbar-nav-link dropdown-toggle rounded" data-bs-toggle="dropdown">
 							<i class="ph-file me-2"></i>
-							Log Sistem
+							Log
+						</a>
+						<div class="dropdown-menu">
+							<a href="{{ url('log-viewer') }}" class="dropdown-item rounded">Sistem</a>
+							<a href="{{ url('log-awb') }}" class="dropdown-item rounded">AWB</a>
+							<a href="{{ url('log-activity') }}" class="dropdown-item rounded">Aktivitas</a>
+						</div>
+					</li>
+                    <li class="nav-item">
+						<a href="{{ url('auth/profile') }}" class="navbar-nav-link rounded">
+							<i class="ph-user-circle me-2"></i>
+							Profil
 						</a>
 					</li>
                     <li class="nav-item">
-						<a href="{{ url('log-awb') }}" class="navbar-nav-link rounded">
-							<i class="ph-note me-2"></i>
-							Log AWB
+						<a href="{{ url('auth/change-password') }}" class="navbar-nav-link rounded">
+							<i class="ph-lock me-2"></i>
+							Ganti Password
 						</a>
 					</li>
                     <li class="nav-item">

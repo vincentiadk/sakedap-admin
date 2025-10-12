@@ -2,24 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Exports\ReportLogExport;
+use App\Exports\ReportManageExport;
 use Illuminate\Support\Facades\Log;
-use App\Exports\ReportPostageExport;
 use App\Exports\ReportServiceExport;
-use App\Exports\ReportWarningExport;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ReportExecutorExport;
-use App\Exports\ReportPeriodicExport;
 use Illuminate\Support\Facades\Redis;
 use App\Exports\ReportPromotionExport;
-use App\Exports\ReportTypeMediaExport;
 use Illuminate\Queue\SerializesModels;
-use App\Exports\ReportCollectionExport;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Exports\ReportPerformanceUserExport;
 
 class ExcelDownloadBackgroundJob implements ShouldQueue
 {
@@ -77,34 +70,14 @@ class ExcelDownloadBackgroundJob implements ShouldQueue
             $disk = 'public';
 
             switch ($this->type) {
-                case 'report-periodic':
-                    Excel::store(new ReportPeriodicExport($this->request), $filename, $disk);
-                    break;
-                case 'report-executor':
-                    Excel::store(new ReportExecutorExport($this->request), $filename, $disk);
-                    break;
-                case 'report-collection':
-                    Excel::store(new ReportCollectionExport($this->request), $filename, $disk);
-                    break;
-                case 'report-performance-user':
-                    Excel::store(new ReportPerformanceUserExport($this->request), $filename, $disk);
-                case 'report-log':
-                    Excel::store(new ReportLogExport($this->request), $filename, $disk);
+                case 'report-manage':
+                    Excel::store(new ReportManageExport($this->request), $filename, $disk);
                     break;
                 case 'report-promotion':
                     Excel::store(new ReportPromotionExport($this->request), $filename, $disk);
                     break;
-                case 'report-postage':
-                    Excel::store(new ReportPostageExport($this->request), $filename, $disk);
-                    break;
-                case 'report-warning':
-                    Excel::store(new ReportWarningExport($this->request), $filename, $disk);
-                    break;
                 case 'report-service':
                     Excel::store(new ReportServiceExport($this->request), $filename, $disk);
-                    break;
-                case 'report-type-media':
-                    Excel::store(new ReportTypeMediaExport($this->request), $filename, $disk);
                     break;
                 default:
                     throw new \Exception('Jenis tidak valid.');
