@@ -231,6 +231,7 @@ class AcceptController extends Controller
                             Resi Penerimaan
                         </a>
                     ';
+
                     $action .= '
                         <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="sendEmail(' . $val->LETTER_ID . ')">
                             <i class="ph-envelope-open me-1"></i>

@@ -266,6 +266,13 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('report')->namespace('Report')->group(function () {
+        Route::prefix('delivery')->group(function () {
+            Route::get('/', 'DeliveryController@index');
+            Route::get('datatable', 'DeliveryController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryController@detail');
+            Route::get('print/{id}', 'DeliveryController@print');
+        });
+
         Route::prefix('promotion')->group(function () {
             Route::get('/', 'PromotionController@index');
             Route::get('datatable', 'PromotionController@datatable');
