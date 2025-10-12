@@ -16,7 +16,7 @@ class DeliveryController extends Controller
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
                 'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null"),
-                'content' => 'physical-delivery.accept',
+                'content' => 'report.delivery',
                 'plugins' => [
                     'datatable',
                     'select2',
@@ -30,7 +30,6 @@ class DeliveryController extends Controller
     {
         $column = [
             'l.letter_id',
-            null,
             'l.letter_date',
             'l.letter_number',
             'l.accept_date',
@@ -159,7 +158,7 @@ class DeliveryController extends Controller
                     from
                         (
                             select
-                                letter.*
+                                l.*,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
@@ -218,54 +217,8 @@ class DeliveryController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
-
-                $action = '
-                    <a href="' . url('physical-delivery/accept/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
-                        <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
-                        ' . (in_array($val->STATUS, $statusAccept) ? 'Detail' : 'Verifikasi') . '
-                    </a>
-                ';
-
-                if (in_array($val->STATUS, $statusAccept)) {
-                    $action .= '
-                        <a href="' . url('physical-delivery/accept/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm mt-1 text-nowrap" target="_blank">
-                            <i class="ph-printer me-1"></i>
-                            Resi Penerimaan
-                        </a>
-                    ';
-                }
-
-                $column = [
-                    'l.letter_id',
-                    null,
-                    'l.letter_date',
-                    'l.letter_number',
-                    'l.accept_date',
-                    'l.sender',
-                    'l.phone',
-                    'p.name',
-                    'l.letter_number_ut',
-                    'l.receipt_no',
-                    'jp.name',
-                    'b.name',
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    'l.status',
-                    'l.kode_promo',
-                    'l.biaya_kirim',
-                    'l.berat',
-                    'l.jumlah_paket',
-                    'l.proses_by',
-                ];
-
                 $data[] = [
                     $start + 1,
-                    $action,
                     $val->LETTER_DATE ? Carbon::parse($val->LETTER_DATE)->isoFormat('dddd, D MMMM Y') : '',
                     $val->LETTER_NUMBER,
                     $val->ACCEPT_DATE ? Carbon::parse($val->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '',
@@ -300,193 +253,5 @@ class DeliveryController extends Controller
             'recordsFiltered' => $totalFiltered,
             'data' => $data
         ]);
-    }
-
-    public function detail($id)
-    {
-        $letterSql = "
-            select
-                letter.*,
-                jasa_pengiriman.name as name_jasa_pengiriman,
-                penerbit.name as name_penerbit
-            from
-                letter
-            left join
-                penerbit on penerbit.id = letter.penerbit_id
-            left join
-                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
-            where
-                letter.letter_id = $id
-        ";
-
-        $letter = QueryAPI::get($letterSql, true);
-
-        $letterDetail = QueryAPI::get("
-            select
-                *
-            from
-                letter_detail
-            where
-                letter_id = $id
-        ");
-
-        return view('layouts.index', [
-            'data' => [
-                'letter' => $letter,
-                'letterDetail' => $letterDetail,
-                'content' => 'report.accept-detail',
-                'plugins' => [
-                    'select2',
-                    'datatable',
-                ]
-            ]
-        ]);
-    }
-
-    public function print($id)
-    {
-        if (!isset($id)) {
-            return redirect('physical-delivery/accept');
-        }
-
-        $letter = QueryAPI::get("
-            select
-                letter.*,
-                penerbit.name as name_penerbit
-            from
-                letter
-            left join
-                penerbit on penerbit.id = letter.penerbit_id
-            where
-                letter.letter_id = $id
-        ", true);
-
-        if (!$letter) {
-            return redirect('physical-delivery/accept');
-        }
-
-        $settings = QueryAPI::get("
-            select
-                *
-            from
-                e_settings
-            where
-                slug in ('ResiPenerimaan','Header','Footer')
-        ");
-
-        $templateEmailContent = null;
-        $templateEmailHeader = null;
-        $templateEmailFooter = null;
-
-        if ($settings) {
-            foreach ($settings as $setting) {
-                if ($setting->SLUG == 'ResiPenerimaan') {
-                    $templateEmailContent = $setting;
-                } elseif ($setting->SLUG == 'Header') {
-                    $templateEmailHeader = $setting;
-                } elseif ($setting->SLUG == 'Footer') {
-                    $templateEmailFooter = $setting;
-                }
-            }
-        }
-
-        if (!$templateEmailContent || !$templateEmailHeader || !$templateEmailFooter) {
-            return redirect('physical-delivery/accept');
-        }
-
-        $branchId = session('branch_id');
-        $dateNow = date('Y-m-d');
-        $signature = '';
-
-        $leader = QueryAPI::get("
-            select
-                *
-            from
-                penanggung_jawab
-            where
-                branch_id = $branchId and
-                (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
-        ", true);
-
-        if ($leader) {
-            $signatureUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? '') . '&filename=' . ($leader->TTD_FILE_NAME ?? '');
-            $signature = $leader->JABATAN . '<br><br>' . '<img src="' . $signatureUrl . '" style="max-width:40px !important;"><br><br>' . $leader->NAMA . '<br>' . '<span style="font-weight:bold;">' . $leader->NIP . '</span>';
-        }
-
-        $dataParseTemplate = [
-            'accepted_date' => date('d/m/Y', strtotime($letter->ACCEPT_DATE)),
-            'letter_no' => $letter->LETTER_NUMBER_UT,
-            'publisher_name' => $letter->NAME_PENERBIT,
-            'director' => $signature,
-            'header' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? '')) . '" style="max-width:100%;">',
-            'footer' => '<img src="' . url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? '')) . '" style="max-width:100%; margin-bottom:10px">',
-            'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
-        ];
-
-        $pdf = new \TCPDF();
-        $pdf->SetMargins(10, 5, 10, 0);
-        $pdf->SetAutoPageBreak(true, 0);
-        $pdf->AddPage();
-        $html = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-        $collections = QueryAPI::get("
-            select
-                letter_detail.letter_id,
-                letter.accept_date as accept_date_letter,
-                letter_detail.title,
-                letter_detail.jenis_media,
-                letter_detail.isbn,
-                letter_detail.qty_accept,
-                collections.noinduk as noinduk_collection,
-                collections.mark_province as mark_province_collection
-            from
-                letter_detail
-            left join
-                letter on letter.letter_id = letter_detail.letter_id
-            left join
-                collections on collections.id = letter_detail.collection_id
-            where
-                letter.letter_id = $letter->LETTER_ID and
-                letter_detail.qty_accept is not null and
-                letter_detail.qty_accept > 0
-        ");
-
-        $htmlCollections = '<table border="1" style="font-size:8px">';
-        $htmlCollections .= '<tr>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">No</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">Tanggal Terima</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">Judul</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">Jenis Media</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">ISBN/ISSN</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">Jumlah (Eksemplar)</th>';
-        $htmlCollections .= '<th style="padding:12px;text-align: center;">TRK</th>';
-        $htmlCollections .= '</tr>';
-
-        if ($collections) {
-            foreach ($collections as $key => $c) {
-                $trk = Main::isNotCenterBranch() ? $c->MARK_PROVINCE_COLLECTION : $c->NOINDUK_COLLECTION;
-
-                $htmlCollections .= '<tr>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($key + 1) . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->TITLE ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->ISBN ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
-                $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($trk ?? '-') . '</td>';
-                $htmlCollections .= '</tr>';
-            }
-        }
-
-        $htmlCollections .= '</table>';
-
-        $pdf->AddPage();
-        $pdf->writeHTML($htmlCollections, true, false, true, false, '');
-
-        $letterNumberUT = $letter->LETTER_NUMBER_UT ?? date('YmdHis');
-        $filename = storage_path("app/public/physical-delivery/accept/receipt/$letterNumberUT.pdf");
-
-        return $pdf->output($filename, 'I');
     }
 }
