@@ -70,6 +70,57 @@ class AuthController extends Controller
         return view('login');
     }
 
+    public function changePassword(Request $request)
+    {
+        if ($request->_token == csrf_token()) {
+            $validation = Validator::make($request->all(), [
+                'new_password' => 'required',
+                'confirm_password' => 'required|same:new_password'
+            ], [
+                'new_password.required' => 'Password baru tidak boleh kosong',
+                'confirm_password.required' => 'Konfirmasi password tidak boleh kosong',
+                'confirm_password.same' => 'Konfirmasi password harus sama dengan password baru'
+            ]);
+
+            if ($validation->fails()) {
+                return redirect()->back()->withErrors($validation);
+            } else {
+                try {
+                    $hash = QueryAPI::hashPassword($request->new_password);
+
+                    if ($hash) {
+                        $change = QueryAPI::update('users', session('id'), [
+                            'password' => $hash->Output,
+                            'updateby' => session('name'),
+                            'updatedate' => date('Y-m-d H:i:s'),
+                            'updateterminal' => $request->ip(),
+                        ], false);
+
+                        if ($change) {
+                            $message = ['success' => 'Password berhasil diganti'];
+                        } else {
+                            $message = ['failed' => 'Password gagal diganti'];
+                        }
+                    } else {
+                        $message = ['failed' => 'Gagal lakukan hash password'];
+                    }
+
+                    return redirect('auth/change-password')->with($message);
+                } catch (\Exception $e) {
+                    return redirect()->back()->with([
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+        $data = [
+            'content' => 'change-password'
+        ];
+
+        return view('layouts.index', ['data' => $data]);
+    }
+
     public function resetPasswordRequest(Request $request)
     {
         if (session('id')) {
