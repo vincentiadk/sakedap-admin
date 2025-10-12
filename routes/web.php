@@ -36,6 +36,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('auth')->group(function () {
         Route::match(['get', 'post'], 'change-password', 'AuthController@changePassword');
+        Route::match(['get', 'post'], 'profile', 'AuthController@profile');
         Route::get('logout', 'AuthController@logout');
     });
 

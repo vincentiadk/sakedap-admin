@@ -121,6 +121,57 @@ class AuthController extends Controller
         return view('layouts.index', ['data' => $data]);
     }
 
+    public function profile(Request $request)
+    {
+        if ($request->_token == csrf_token()) {
+            $validation = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email',
+            ], [
+                'name.required' => 'Nama tidak boleh kosong',
+                'email.required' => 'Email tidak boleh kosong',
+                'email.email' => 'Email tidak valid'
+            ]);
+
+            if ($validation->fails()) {
+                return redirect()->back()->withErrors($validation);
+            } else {
+                try {
+                    $change = QueryAPI::update('users', session('id'), [
+                        'fullname' => $request->name,
+                        'emailaddress' => $request->email,
+                        'updateby' => session('name'),
+                        'updatedate' => date('Y-m-d H:i:s'),
+                        'updateterminal' => $request->ip(),
+                    ], false);
+
+                    if ($change) {
+                        session([
+                            'name' => $request->name,
+                            'email' => $request->email,
+                        ]);
+
+                        $message = ['success' => 'Profil berhasil diganti'];
+                    } else {
+                        $message = ['failed' => 'Profil gagal diganti'];
+                    }
+
+                    return redirect('auth/profile')->with($message);
+                } catch (\Exception $e) {
+                    return redirect()->back()->with([
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+        $data = [
+            'content' => 'profile'
+        ];
+
+        return view('layouts.index', ['data' => $data]);
+    }
+
     public function resetPasswordRequest(Request $request)
     {
         if (session('id')) {
