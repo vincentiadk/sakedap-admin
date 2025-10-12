@@ -27,6 +27,11 @@ Route::prefix('download')->group(function () {
 Route::middleware('authentication')->group(function () {
     Route::get('log-awb', 'LogAWBController@index');
 
+    Route::prefix('log-activity')->group(function () {
+        Route::get('/', 'LogActivityController@index');
+        Route::get('datatable', 'LogActivityController@datatable');
+    });
+
     Route::get('notification', 'NotificationController@index');
 
     Route::prefix('auth')->group(function () {
