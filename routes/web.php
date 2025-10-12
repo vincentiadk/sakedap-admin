@@ -115,6 +115,10 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('delivery-to-processing-list')->group(function () {
             Route::get('/', 'DeliveryToProcessingListController@index');
         });
+
+        Route::prefix('alignment-storage')->group(function () {
+            Route::get('/', 'AlignmentStorageController@index');
+        });
     });
 
     Route::prefix('physical-collection')->namespace('PhysicalCollection')->group(function () {
