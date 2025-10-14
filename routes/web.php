@@ -306,6 +306,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('detail/{id}', 'ManageController@detail');
         });
 
+        Route::prefix('digital-manage')->group(function () {
+            Route::get('/', 'DigitalManageController@index');
+            Route::get('datatable', 'DigitalManageController@datatable');
+        });
+
         Route::prefix('service')->group(function () {
             Route::get('/', 'ServiceController@index');
             Route::get('load-data', 'ServiceController@loadData');
