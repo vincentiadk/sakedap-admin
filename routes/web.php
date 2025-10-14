@@ -394,6 +394,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'NewsController@destroyData');
         });
 
+        Route::prefix('event')->group(function () {
+            Route::get('/', 'EventController@index');
+            Route::get('datatable', 'EventController@datatable');
+            Route::post('create-data', 'EventController@createData');
+            Route::get('show-data', 'EventController@showData');
+            Route::post('update-data', 'EventController@updateData');
+            Route::delete('destroy-data', 'EventController@destroyData');
+        });
+
         Route::prefix('banner')->group(function () {
             Route::get('/', 'BannerController@index');
             Route::get('datatable', 'BannerController@datatable');

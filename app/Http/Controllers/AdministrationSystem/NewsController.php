@@ -49,7 +49,7 @@ class NewsController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = 'e_news.deleted_at is null';
+        $whereCondition[] = "(e_news.deleted_at is null and e_news.flag = 'BERITA')";
 
         if ($search) {
             $terms = [];
@@ -79,7 +79,8 @@ class NewsController extends Controller
             from
                 e_news
             where
-                deleted_at is null
+                deleted_at is null and
+                flag = 'BERITA'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -214,6 +215,7 @@ class NewsController extends Controller
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
+                    'flag' => 'BERITA',
                 ]);
 
                 if ($createData) {
@@ -292,6 +294,7 @@ class NewsController extends Controller
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
+                    'flag' => 'BERITA',
                 ]);
 
                 if ($updateData) {
