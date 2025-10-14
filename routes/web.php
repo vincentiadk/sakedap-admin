@@ -295,9 +295,14 @@ Route::middleware('authentication')->group(function () {
             Route::get('datatable', 'PhysicalAlignmentController@datatable');
         });
 
-        Route::prefix('physical-alignment')->group(function () {
-            Route::get('/', 'PhysicalAlignmentController@index');
-            Route::get('datatable', 'PhysicalAlignmentController@datatable');
+        Route::prefix('digital-empowerment')->group(function () {
+            Route::get('/', 'DigitalEmpowermentController@index');
+            Route::get('datatable', 'DigitalEmpowermentController@datatable');
+        });
+
+        Route::prefix('physical-empowerment')->group(function () {
+            Route::get('/', 'PhysicalEmpowermentController@index');
+            Route::get('datatable', 'PhysicalEmpowermentController@datatable');
         });
 
         Route::prefix('manage')->group(function () {
