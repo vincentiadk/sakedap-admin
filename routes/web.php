@@ -403,6 +403,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'EventController@destroyData');
         });
 
+        Route::prefix('tutorial')->group(function () {
+            Route::get('/', 'TutorialController@index');
+            Route::get('datatable', 'TutorialController@datatable');
+            Route::post('create-data', 'TutorialController@createData');
+            Route::get('show-data', 'TutorialController@showData');
+            Route::post('update-data', 'TutorialController@updateData');
+            Route::delete('destroy-data', 'TutorialController@destroyData');
+        });
+
         Route::prefix('banner')->group(function () {
             Route::get('/', 'BannerController@index');
             Route::get('datatable', 'BannerController@datatable');
