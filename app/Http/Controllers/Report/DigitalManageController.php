@@ -37,7 +37,6 @@ class DigitalManageController extends Controller
     {
         $column = [
             'id',
-            null,
             'action',
             'tablename',
             'actionby',
