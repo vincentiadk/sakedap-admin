@@ -214,6 +214,11 @@ Route::middleware('authentication')->group(function () {
         });
     });
 
+    Route::prefix('bill-isbn')->group(function () {
+        Route::get('/', 'BillISBNController@index');
+        Route::get('datatable', 'BillISBNController@datatable');
+    });
+
     Route::prefix('coaching-supervision')->namespace('CoachingSupervision')->group(function () {
         Route::prefix('create-executor')->group(function () {
             Route::get('/', 'CreateExecutorController@index');
@@ -283,6 +288,11 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('physical-recording')->group(function () {
             Route::get('/', 'PhysicalRecordingController@index');
+        });
+
+        Route::prefix('physical-alignment')->group(function () {
+            Route::get('/', 'PhysicalAlignmentController@index');
+            Route::get('datatable', 'PhysicalAlignmentController@datatable');
         });
 
         Route::prefix('physical-alignment')->group(function () {

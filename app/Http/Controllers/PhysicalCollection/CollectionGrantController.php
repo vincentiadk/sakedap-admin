@@ -53,7 +53,7 @@ class CollectionGrantController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "group_id is null";
+        $whereCondition[] = "hibah_detail.group_id is null";
 
         if (Main::isNotCenterBranch()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');

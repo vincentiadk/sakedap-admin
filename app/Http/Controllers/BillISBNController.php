@@ -11,10 +11,6 @@ class BillISBNController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'bill-isbn'
-        ];
-
         return view('layouts.index', [
             'data' => [
                 'content' => 'bill-isbn',
