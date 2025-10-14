@@ -285,6 +285,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'PhysicalRecordingController@index');
         });
 
+        Route::prefix('physical-alignment')->group(function () {
+            Route::get('/', 'PhysicalAlignmentController@index');
+            Route::get('datatable', 'PhysicalAlignmentController@datatable');
+        });
+
         Route::prefix('manage')->group(function () {
             Route::get('/', 'ManageController@index');
             Route::get('datatable', 'ManageController@datatable');
