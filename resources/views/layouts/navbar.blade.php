@@ -107,15 +107,21 @@
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'national-management' ? 'show active' : '' }}" id="menu-national-management" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-6">
+                                                <div class="alert alert-info text-center fw-semibold">Pengelolaan Koleksi</div>
                                                 <a href="{{ url('national-management/deposit-collection-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'deposit-collection-list' ? 'active' : '' }}">Daftar Koleksi Deposit</a>
                                                 <a href="{{ url('national-management/catalog-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'catalog-list' ? 'active' : '' }}">Daftar Katalog</a>
                                                 <a href="{{ url('national-management/delivery-to-processing') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'delivery-to-processing' ? 'active' : '' }}">Pengiriman ke Pengolahan</a>
                                                 <a href="{{ url('national-management/delivery-to-processing-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'delivery-to-processing-list' ? 'active' : '' }}">Daftar Pengiriman ke Pengolahan</a>
                                                 <a href="{{ url('national-management/alignment-storage') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'alignment-storage' ? 'active' : '' }}">Penyimpanan & Penjajaran</a>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="alert alert-info text-center fw-semibold">Pengelolaan Serial</div>
+                                                <a href="{{ url('national-management/cardex-list') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'cardex-list' ? 'active' : '' }}">Daftar Kardeks</a>
+                                                <a href="{{ url('national-management/volume-by-title') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'volume-by-title' ? 'active' : '' }}">Jilid Berdasarkan Judul</a>
+                                                <a href="{{ url('national-management/collection-volume') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'collection-volume' ? 'active' : '' }}">Jilid Koleksi</a>
+                                                <a href="{{ url('national-management/create-volume') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'create-volume' ? 'active' : '' }}">Buat Jilid Baru</a>
+                                                <a href="{{ url('national-management/import-serial-collection') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'national-management' && Request::segment(2) == 'import-serial-collection' ? 'active' : '' }}">Import Koleksi Serial</a>
                                             </div>
                                         </div>
                                     </div>

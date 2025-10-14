@@ -125,6 +125,26 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('alignment-storage')->group(function () {
             Route::get('/', 'AlignmentStorageController@index');
         });
+
+        Route::prefix('cardex-list')->group(function () {
+            Route::get('/', 'CardexListController@index');
+        });
+
+        Route::prefix('volume-by-title')->group(function () {
+            Route::get('/', 'VolumeByTitleController@index');
+        });
+
+        Route::prefix('collection-volume')->group(function () {
+            Route::get('/', 'CollectionVolumeController@index');
+        });
+
+        Route::prefix('create-volume')->group(function () {
+            Route::get('/', 'CreateVolumeController@index');
+        });
+
+        Route::prefix('import-serial-collection')->group(function () {
+            Route::get('/', 'ImportSerialCollectionController@index');
+        });
     });
 
     Route::prefix('physical-collection')->namespace('PhysicalCollection')->group(function () {
