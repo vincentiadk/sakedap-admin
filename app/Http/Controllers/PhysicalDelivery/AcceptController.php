@@ -32,6 +32,7 @@ class AcceptController extends Controller
         $column = [
             'l.letter_id',
             null,
+            'l.accept_date',
             'l.is_verification_by',
             'p.name',
             'l.receipt_no',
@@ -157,6 +158,7 @@ class AcceptController extends Controller
                                 l.proses_by,
                                 l.penerbit_id,
                                 l.is_verification_by,
+                                l.accept_date,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
@@ -243,6 +245,7 @@ class AcceptController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    ($val->ACCEPT_DATE ?: null) ? Carbon::parse($val->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '',
                     $val->IS_VERIFICATION_BY,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,

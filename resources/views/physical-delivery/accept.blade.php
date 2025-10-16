@@ -104,6 +104,7 @@
                     <tr>
                         <th class="text-nowrap" rowspan="2">No</th>
                         <th class="text-nowrap" rowspan="2">Aksi</th>
+                        <th class="text-nowrap" rowspan="2">Tgl Terima</th>
                         <th class="text-nowrap" rowspan="2">User</th>
                         <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
                         <th class="text-nowrap" rowspan="2">Resi</th>
@@ -156,7 +157,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [[2, 'desc']],
             ajax: {
                 url: '{{ url("physical-delivery/accept/datatable") }}',
                 dataType: 'JSON',
@@ -181,6 +182,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
