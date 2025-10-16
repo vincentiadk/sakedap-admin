@@ -526,6 +526,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'StorageSpaceController@destroyData');
         });
 
+        Route::prefix('size-weight-book')->group(function () {
+            Route::get('/', 'SizeWeightBookController@index');
+            Route::get('datatable', 'SizeWeightBookController@datatable');
+            Route::post('create-data', 'SizeWeightBookController@createData');
+            Route::get('show-data', 'SizeWeightBookController@showData');
+            Route::post('update-data', 'SizeWeightBookController@updateData');
+            Route::delete('destroy-data', 'SizeWeightBookController@destroyData');
+        });
+
         Route::prefix('province')->group(function () {
             Route::get('/', 'ProvinceController@index');
             Route::get('datatable', 'ProvinceController@datatable');
