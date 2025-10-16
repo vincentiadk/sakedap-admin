@@ -14,8 +14,8 @@ class DeliveryController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
-                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null"),
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
+                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null") ?? [],
                 'content' => 'report.delivery',
                 'plugins' => [
                     'datatable',

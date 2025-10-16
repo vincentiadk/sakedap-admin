@@ -13,9 +13,9 @@ class PhysicalEmpowermentController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where upper(tablename) = 'COLLECTIONS'"),
-                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where upper(tablename) = 'COLLECTIONS'"),
-                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata where upper(tablename) = 'COLLECTIONS'"),
+                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where upper(tablename) = 'COLLECTIONS'") ?? [],
+                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where upper(tablename) = 'COLLECTIONS'") ?? [],
+                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata where upper(tablename) = 'COLLECTIONS'") ?? [],
                 'content' => 'report.physical-empowerment',
                 'plugins' => [
                     'datatable',

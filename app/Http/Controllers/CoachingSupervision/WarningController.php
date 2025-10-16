@@ -16,7 +16,7 @@ class WarningController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'officer' => QueryAPI::get("select * from petugas_pembina"),
+                'officer' => QueryAPI::get("select * from petugas_pembina") ?? [],
                 'content' => 'coaching-supervision.warning',
                 'plugins' => [
                     'datatable',
@@ -456,7 +456,7 @@ class WarningController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from e_publisher_warnings where id = $id");
+        $query = QueryAPI::get("select * from e_publisher_warnings where id = $id", true);
 
         $validation = Validator::make($request->all(), [
             'executor_id' => 'required',

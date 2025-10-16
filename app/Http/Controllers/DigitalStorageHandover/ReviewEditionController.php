@@ -23,7 +23,7 @@ class ReviewEditionController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
                 'content' => 'digital-storage-handover.review-edition',
                 'plugins' => [
                     'datatable',
@@ -443,14 +443,14 @@ class ReviewEditionController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'"),
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
-                'category' => QueryAPI::get("select * from e_categories where deleted_at is null"),
-                'problem' => QueryAPI::get("select * from e_problems where deleted_at is null"),
-                'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'"),
-                'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'"),
-                'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'"),
-                'bigClass' => QueryAPI::get("select * from master_kelas_besar"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'") ?? [],
+                'category' => QueryAPI::get("select * from e_categories where deleted_at is null") ?? [],
+                'problem' => QueryAPI::get("select * from e_problems where deleted_at is null") ?? [],
+                'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'") ?? [],
+                'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'") ?? [],
+                'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'") ?? [],
+                'bigClass' => QueryAPI::get("select * from master_kelas_besar") ?? [],
                 'collection' => $collection,
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),

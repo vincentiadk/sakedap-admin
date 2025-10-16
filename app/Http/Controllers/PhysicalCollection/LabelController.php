@@ -22,7 +22,7 @@ class LabelController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category in $this->worksheetCategory"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category in $this->worksheetCategory") ?? [],
                 'content' => 'physical-collection.label',
                 'plugins' => [
                     'daterangepicker',

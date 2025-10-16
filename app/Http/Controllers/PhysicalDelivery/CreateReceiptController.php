@@ -18,10 +18,10 @@ class CreateReceiptController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-delivery.create-receipt',
                 'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'"),
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'") ?? [],
                 'plugins' => [
                     'select2',
                     'datatable',

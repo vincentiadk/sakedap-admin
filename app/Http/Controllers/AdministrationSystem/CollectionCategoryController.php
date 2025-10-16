@@ -14,7 +14,7 @@ class CollectionCategoryController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
                 'content' => 'administration-system.collection-category',
                 'plugins' => [
                     'datatable',

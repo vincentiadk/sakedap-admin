@@ -13,7 +13,7 @@ class StorageSpaceController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'locationLibrary' => QueryAPI::get("select * from location_library where isdelete = 0 or isdelete is null"),
+                'locationLibrary' => QueryAPI::get("select * from location_library where isdelete = 0 or isdelete is null") ?? [],
                 'content' => 'administration-system.storage-space',
                 'plugins' => [
                     'datatable',
@@ -275,7 +275,7 @@ class StorageSpaceController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from locations where id = $id");
+        $query = QueryAPI::get("select * from locations where id = $id", true);
 
         $validation = Validator::make($request->all(), [
             'code' => 'required',

@@ -305,7 +305,7 @@ class AwardController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
                 'award' => $award,
                 'catalog' => $awardCatalog,
                 'content' => 'award-nomination',

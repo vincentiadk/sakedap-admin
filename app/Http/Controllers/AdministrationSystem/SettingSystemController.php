@@ -18,9 +18,9 @@ class SettingSystemController extends Controller
         }, Main::CONFIG_PARAM);
 
         $settingParameterName = implode(',', $configParam);
-        $settingParameter = QueryAPI::get("select * from settingparameters where name in ($settingParameterName)");
+        $settingParameter = QueryAPI::get("select * from settingparameters where name in ($settingParameterName)") ?? [];
         $mail = QueryAPI::get("select * from mailserver where modul = 'EDEPOSIT'", true);
-        $obedient = QueryAPI::get("select * from e_kepatuhan_kckr");
+        $obedient = QueryAPI::get("select * from e_kepatuhan_kckr") ?? [];
 
         return view('layouts.index', [
             'data' => [

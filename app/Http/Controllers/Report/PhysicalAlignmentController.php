@@ -14,15 +14,15 @@ class PhysicalAlignmentController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-                'source' => QueryAPI::get("select * from collectionsources where (isdelete = 0 or isdelete is null)"),
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null)"),
-                'category' => QueryAPI::get("select * from collectioncategorys where (isdelete = 0 or isdelete is null)"),
-                'access' => QueryAPI::get("select * from collectionrules where (isdelete = 0 or isdelete is null)"),
-                'location' => QueryAPI::get("select * from locations where (isdelete = 0 or isdelete is null)"),
-                'rack' => QueryAPI::get("select * from location_shelf"),
-                'carpet' => QueryAPI::get("select * from location_rugs"),
-                'availability' => QueryAPI::get("select * from collectionstatus"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
+                'source' => QueryAPI::get("select * from collectionsources where (isdelete = 0 or isdelete is null)") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null)") ?? [],
+                'category' => QueryAPI::get("select * from collectioncategorys where (isdelete = 0 or isdelete is null)") ?? [],
+                'access' => QueryAPI::get("select * from collectionrules where (isdelete = 0 or isdelete is null)") ?? [],
+                'location' => QueryAPI::get("select * from locations where (isdelete = 0 or isdelete is null)") ?? [],
+                'rack' => QueryAPI::get("select * from location_shelf") ?? [],
+                'carpet' => QueryAPI::get("select * from location_rugs") ?? [],
+                'availability' => QueryAPI::get("select * from collectionstatus") ?? [],
                 'content' => 'report.physical-alignment',
                 'plugins' => [
                     'datatable',

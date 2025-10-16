@@ -14,7 +14,7 @@ class EventController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'category' => QueryAPI::get("select * from e_news_kategori"),
+                'category' => QueryAPI::get("select * from e_news_kategori") ?? [],
                 'content' => 'administration-system.event',
                 'plugins' => [
                     'datatable',

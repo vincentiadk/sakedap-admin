@@ -15,7 +15,7 @@ class LeaderController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from branchs where isdelete = 0 or isdelete is null"),
+                'worksheet' => QueryAPI::get("select * from branchs where isdelete = 0 or isdelete is null") ?? [],
                 'content' => 'administration-system.leader',
                 'plugins' => [
                     'ckeditor',
@@ -283,7 +283,7 @@ class LeaderController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from penanggung_jawab where id = $id");
+        $query = QueryAPI::get("select * from penanggung_jawab where id = $id", true);
 
         $validation = Validator::make($request->all(), [
             'name' => 'required',

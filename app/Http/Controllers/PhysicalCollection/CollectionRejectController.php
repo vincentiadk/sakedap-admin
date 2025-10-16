@@ -14,7 +14,7 @@ class CollectionRejectController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-collection.collection-reject',
                 'plugins' => [
                     'datatable',

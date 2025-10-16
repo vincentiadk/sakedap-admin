@@ -13,7 +13,7 @@ class RejectController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
+                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
                 'content' => 'digital-storage-handover.reject',
                 'plugins' => [
                     'datatable',

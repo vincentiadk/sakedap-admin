@@ -36,9 +36,9 @@ class LogActivityController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata"),
-                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata"),
-                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata"),
+                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata") ?? [],
+                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata") ?? [],
+                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata") ?? [],
                 'content' => 'log-activity',
                 'plugins' => [
                     'datatable',

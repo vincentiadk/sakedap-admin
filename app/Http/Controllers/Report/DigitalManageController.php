@@ -20,9 +20,9 @@ class DigitalManageController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where tablename in ($this->tableName)"),
-                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where tablename in ($this->tableName)"),
-                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata where tablename in ($this->tableName)"),
+                'action' => QueryAPI::get("select distinct(lower(action)) as name from historydata where tablename in ($this->tableName)") ?? [],
+                'actionBy' => QueryAPI::get("select distinct(actionby) as name from historydata where tablename in ($this->tableName)") ?? [],
+                'tableName' => QueryAPI::get("select distinct(tablename) as name from historydata where tablename in ($this->tableName)") ?? [],
                 'content' => 'report.digital-manage',
                 'plugins' => [
                     'datatable',

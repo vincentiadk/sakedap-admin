@@ -15,7 +15,7 @@ class CollectionOnDeliveryController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-collection.collection-on-delivery',
                 'plugins' => [
                     'datatable',

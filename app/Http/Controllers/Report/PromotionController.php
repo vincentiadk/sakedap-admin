@@ -38,7 +38,7 @@ class PromotionController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman"),
+                'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'report.promotion',
                 'plugins' => [
                     'datatable',

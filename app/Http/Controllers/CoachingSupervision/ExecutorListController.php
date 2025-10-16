@@ -17,8 +17,8 @@ class ExecutorListController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'category' => QueryAPI::get("select * from penerbit_kategori"),
-                'type' => QueryAPI::get("select * from penerbit_jenis"),
+                'category' => QueryAPI::get("select * from penerbit_kategori") ?? [],
+                'type' => QueryAPI::get("select * from penerbit_jenis") ?? [],
                 'content' => 'coaching-supervision.executor-list',
                 'plugins' => [
                     'daterangepicker',

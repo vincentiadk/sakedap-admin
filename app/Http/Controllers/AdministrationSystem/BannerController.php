@@ -248,7 +248,7 @@ class BannerController extends Controller
     public function updateData(Request $request)
     {
         $id = $request->table_id;
-        $query = QueryAPI::get("select * from e_banners where id = $id");
+        $query = QueryAPI::get("select * from e_banners where id = $id", true);
 
         $validation = Validator::make($request->all(), [
             'title' => 'required',

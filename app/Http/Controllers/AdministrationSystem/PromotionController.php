@@ -151,7 +151,7 @@ class PromotionController extends Controller
                 ';
 
                 if ($val->PROVINCE_ID) {
-                    $dataProvince = QueryAPI::get("select * from propinsi where id in ($val->PROVINCE_ID)");
+                    $dataProvince = QueryAPI::get("select * from propinsi where id in ($val->PROVINCE_ID)") ?? [];
                     $listProvince = '';
 
                     if ($dataProvince) {
@@ -268,7 +268,7 @@ class PromotionController extends Controller
         $province = null;
 
         if ($provinceId) {
-            $province = QueryAPI::get("select * from propinsi where id in ($provinceId)");
+            $province = QueryAPI::get("select * from propinsi where id in ($provinceId)") ?? [];
         }
 
         return response()->json([

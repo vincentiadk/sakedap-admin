@@ -29,7 +29,7 @@ class ConfigurationProvider extends ServiceProvider
             }, Main::CONFIG_PARAM);
 
             $settingParameterName = implode(',', $configParam);
-            $settingParameter = QueryAPI::get("select * from settingparameters where name in ($settingParameterName)");
+            $settingParameter = QueryAPI::get("select * from settingparameters where name in ($settingParameterName)") ?? [];
             $mail = QueryAPI::get("select * from mailserver where modul = 'EDEPOSIT'", true);
             $collectedSettings = [];
 
