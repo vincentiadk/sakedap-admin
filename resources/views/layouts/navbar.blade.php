@@ -234,6 +234,8 @@
                                                     <a href="{{ url('administration-system/leader') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'leader' ? 'active' : '' }}">Pimpinan</a>
                                                     <a href="{{ url('administration-system/storage-space') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'storage-space' ? 'active' : '' }}">Ruang Penyimpanan</a>
                                                     <a href="{{ url('administration-system/size-weight-book') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'size-weight-book' ? 'active' : '' }}">Ukuran & Berat Buku</a>
+                                                    <a href="{{ url('administration-system/delivery-service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'delivery-service' ? 'active' : '' }}">Jasa Pengiriman</a>
+                                                    <a href="{{ url('administration-system/setting-deposit-number') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-deposit-number' ? 'active' : '' }}">Setting Nomor Deposit</a>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">

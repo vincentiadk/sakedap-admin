@@ -535,6 +535,14 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'SizeWeightBookController@destroyData');
         });
 
+        Route::prefix('delivery-service')->group(function () {
+            Route::get('/', 'DeliveryServiceController@index');
+        });
+
+        Route::prefix('setting-deposit-number')->group(function () {
+            Route::get('/', 'SettingDepositNumberController@index');
+        });
+
         Route::prefix('province')->group(function () {
             Route::get('/', 'ProvinceController@index');
             Route::get('datatable', 'ProvinceController@datatable');
