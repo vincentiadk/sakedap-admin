@@ -211,6 +211,12 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
         });
 
+        Route::prefix('review-edition')->group(function () {
+            Route::get('/', 'ReviewEditionController@index');
+            Route::get('datatable', 'ReviewEditionController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'ReviewEditionController@detail');
+        });
+
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
             Route::get('datatable', 'ProblemController@datatable');

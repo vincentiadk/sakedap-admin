@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class ReviewController extends Controller
+class ReviewEditionController extends Controller
 {
     private $worksheetCategory;
 
@@ -24,7 +24,7 @@ class ReviewController extends Controller
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category is not null"),
-                'content' => 'digital-storage-handover.review',
+                'content' => 'digital-storage-handover.review-edition',
                 'plugins' => [
                     'datatable',
                     'daterangepicker',
@@ -41,6 +41,7 @@ class ReviewController extends Controller
             null,
             'penerbit.name',
             'e_collections.title',
+            'e_collections.edition',
             'worksheets.name',
             'e_collections.code',
             'e_collections.updated_at',
@@ -57,7 +58,7 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and e_collections.parent_id is null";
+        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and e_collections.parent_id is not null";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -120,7 +121,7 @@ class ReviewController extends Controller
                     status = '1' and
                     deleted_at is null
                 ) and
-                e_collections.parent_id is null
+                e_collections.parent_id is not null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -170,7 +171,7 @@ class ReviewController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('digital-storage-handover/review/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                    <a href="' . url('digital-storage-handover/review-edition/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
                         <i class="ph-check-square-offset me-1"></i>
                         Tinjau
                     </a>
@@ -180,7 +181,8 @@ class ReviewController extends Controller
                     $start + 1,
                     $action,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
-                    ($val->TITLE ?? $val->TITLE_ORI),
+                    $val->TITLE,
+                    $val->EDITION,
                     $val->NAME_WORKSHEET,
                     $val->CODE,
                     Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
@@ -457,7 +459,7 @@ class ReviewController extends Controller
                 'collectionContent' => $collectionContent,
                 'collectionProblemHistory' => $collectionProblemHistory,
                 'physicalDescription' => json_decode($collection->physical_description ?? ''),
-                'content' => 'digital-storage-handover.review-detail',
+                'content' => 'digital-storage-handover.review-edition-detail',
                 'plugins' => [
                     'select2',
                     'daterangepicker',
