@@ -517,6 +517,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'LeaderController@destroyData');
         });
 
+        Route::prefix('storage-space')->group(function () {
+            Route::get('/', 'StorageSpaceController@index');
+            Route::get('datatable', 'StorageSpaceController@datatable');
+            Route::post('create-data', 'StorageSpaceController@createData');
+            Route::get('show-data', 'StorageSpaceController@showData');
+            Route::post('update-data', 'StorageSpaceController@updateData');
+            Route::delete('destroy-data', 'StorageSpaceController@destroyData');
+        });
+
         Route::prefix('province')->group(function () {
             Route::get('/', 'ProvinceController@index');
             Route::get('datatable', 'ProvinceController@datatable');
