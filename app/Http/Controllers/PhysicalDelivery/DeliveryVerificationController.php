@@ -284,7 +284,8 @@ class DeliveryVerificationController extends Controller
                 $disable = null;
 
                 QueryAPI::update('letter', $id, [
-                    'is_verification_by' => session('username')
+                    'is_verification_by' => session('username'),
+                    'proses_by' => session('name'),
                 ], false);
 
                 $letter = QueryAPI::get($letterSql, true);
@@ -297,7 +298,8 @@ class DeliveryVerificationController extends Controller
 
                 if ($param == 'cancel') {
                     QueryAPI::update('letter', $id, [
-                        'is_verification_by' => null
+                        'is_verification_by' => null,
+                        'proses_by' => null,
                     ], false);
 
                     $response = [
