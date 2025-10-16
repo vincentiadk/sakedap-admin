@@ -13,76 +13,160 @@
             <h5 class="hstack gap-2 mb-0">Filter Data</h5>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah :</label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
+            <form id="form-filter">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Pelaksana Serah :</label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Jasa Kirim :</label>
-                        <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($deliveryService as $ds)
-                                <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Tujuan :</label>
-                        <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">No Resi :</label>
-                        <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Semua">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Jenis Tanggal :</label>
-                        <select class="form-select" name="date_type" id="date_type">
-                            <option value="accept_date">Diterima</option>
-                            <option value="letter_date">Pengiriman</option>
-                            <option value="createdate">Dibuat</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select" name="status" id="status">
-                            <option value="">Semua</option>
-                            <option value="TERKIRIM">TERKIRIM</option>
-                            <option value="CEK FISIK">CEK FISIK</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label class="form-label">Proses By :</label>
-                        <select class="form-select select2-basic" name="proses_by" id="proses_by" data-placeholder="Semua">
-                            <option value="">Semua</option>
-                            @if($prosesBy)
-                                @foreach($prosesBy as $pb)
-                                    <option value="{{ $pb->PROSES_BY }}">{{ $pb->PROSES_BY }}</option>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Jasa Kirim :</label>
+                            <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
+                                <option value=""></option>
+                                @foreach($deliveryService as $ds)
+                                    <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
                                 @endforeach
-                            @endif
-                        </select>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Tujuan :</label>
+                            <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">No Resi :</label>
+                            <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Semua">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Jenis Tanggal :</label>
+                            <select class="form-select" name="date_type" id="date_type">
+                                <option value="accept_date">Diterima</option>
+                                <option value="letter_date">Pengiriman</option>
+                                <option value="createdate">Dibuat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Tanggal :</label>
+                            <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Status :</label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="">Semua</option>
+                                <option value="TERKIRIM">TERKIRIM</option>
+                                <option value="CEK FISIK">CEK FISIK</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Proses By :</label>
+                            <select class="form-select select2-basic" name="proses_by" id="proses_by" data-placeholder="Semua">
+                                <option value="">Semua</option>
+                                @if($prosesBy)
+                                    @foreach($prosesBy as $pb)
+                                        <option value="{{ $pb->PROSES_BY }}">{{ $pb->PROSES_BY }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <a href="#advance-search" class="fw-semibold" data-bs-toggle="collapse">
+                    <i class="ph-plus-circle me-1"></i>
+                    Pencarian Lanjutan
+                </a>
+                <div class="collapse" id="advance-search">
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Judul :</label>
+                                    <input type="text" class="form-control" name="title" id="title" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Kepeng :</label>
+                                    <input type="text" class="form-control" name="author" id="author" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">ISBN :</label>
+                                    <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Tahun Terbit :</label>
+                                    <input type="number" class="form-control" name="publish_year" id="publish_year" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Edisi Serial :</label>
+                                    <input type="text" class="form-control" name="edition_serial" id="edition_serial" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Kala Terbit :</label>
+                                    <input type="text" class="form-control" name="periodicals" id="periodicals" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Ket FIsik :</label>
+                                    <input type="text" class="form-control" name="physical_description" id="physical_description" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Sinopsis :</label>
+                                    <input type="text" class="form-control" name="sinopsis" id="sinopsis" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Jenis Media :</label>
+                                    <input type="text" class="form-control" name="media_type" id="media_type" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">No Panggil Jilid :</label>
+                                    <input type="text" class="form-control" name="binding" id="binding" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">QRCBN :</label>
+                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Semua">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">ISBD :</label>
+                                    <input type="text" class="form-control" name="isbd" id="isbd" placeholder="Semua">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="card-footer bg-white">
             <div class="text-end">
@@ -154,15 +238,12 @@
             ajax: {
                 url: '{{ url("physical-delivery/delivery-verification/datatable") }}',
                 dataType: 'JSON',
-                data: {
-                    executor_id: $('#executor_id').val(),
-                    delivery_service_id: $('#delivery_service_id').val(),
-                    date: $('#date').val(),
-                    date_type: $('#date_type').val(),
-                    status: $('#status').val(),
-                    receipt_no: $('#receipt_no').val(),
-                    branch_id: $('#branch_id').val(),
-                    proses_by: $('#proses_by').val(),
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');

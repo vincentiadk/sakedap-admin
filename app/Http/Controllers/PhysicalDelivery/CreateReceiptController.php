@@ -320,6 +320,8 @@ class CreateReceiptController extends Controller
                             $physicalDescription = $request->cni_physical_description[$key] ?? null;
                             $executor = $request->cni_executor[$key] ?? ($letterExecutor->NAME ?? null);
                             $binding = $request->cni_binding[$key] ?? null;
+                            $qrcbn = $request->cni_qrcbn[$key] ?? null;
+                            $isbd = $request->cni_isbd[$key] ?? null;
                             $media = strtoupper($request->cni_type[$key] ?? '');
                             $getCollectionMedia = null;
 
@@ -350,6 +352,8 @@ class CreateReceiptController extends Controller
                                 'jenis_media' => $getCollectionMedia->NAME ?? null,
                                 'penerbit_id' => $catalog->PENERBIT_ID ?? null,
                                 'nomorpanggiljilid' => $binding,
+                                'qrcbn' => $qrcbn,
+                                'isbd' => $isbd,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);

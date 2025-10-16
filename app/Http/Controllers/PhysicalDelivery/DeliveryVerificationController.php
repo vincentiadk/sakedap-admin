@@ -96,6 +96,65 @@ class DeliveryVerificationController extends Controller
             $whereCondition[] = "(l.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and l.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
+        if ($request->title) {
+            $filterText = strtoupper($request->title);
+            $whereCondition[] = "upper(ld.title) like '%$filterText%'";
+        }
+
+        if ($request->author) {
+            $filterText = strtoupper($request->author);
+            $whereCondition[] = "upper(ld.author) like '%$filterText%'";
+        }
+
+        if ($request->isbn) {
+            $filterText = str_replace('-', '', $request->isbn);
+            $whereCondition[] = "replace(ld.isbn, '-', '') = '$filterText'";
+        }
+
+        if ($request->publish_year) {
+            $whereCondition[] = "ld.publish_year = '$request->publish_year'";
+        }
+
+        if ($request->edition_serial) {
+            $filterText = strtoupper($request->edition_serial);
+            $whereCondition[] = "upper(ld.edisi_serial) like '%$filterText%'";
+        }
+
+        if ($request->periodicals) {
+            $filterText = strtoupper($request->periodicals);
+            $whereCondition[] = "upper(ld.kala_terbit) like '%$filterText%'";
+        }
+
+        if ($request->physical_description) {
+            $filterText = strtoupper($request->physical_description);
+            $whereCondition[] = "upper(ld.deskripsifisik) like '%$filterText%'";
+        }
+
+        if ($request->sinopsis) {
+            $filterText = strtoupper($request->sinopsis);
+            $whereCondition[] = "upper(ld.sinopsis) like '%$filterText%'";
+        }
+
+        if ($request->media_type) {
+            $filterText = strtoupper($request->media_type);
+            $whereCondition[] = "upper(ld.jenis_media) like '%$filterText%'";
+        }
+
+        if ($request->binding) {
+            $filterText = strtoupper($request->binding);
+            $whereCondition[] = "upper(ld.nomorpanggiljilid) like '%$filterText%'";
+        }
+
+        if ($request->qrcbn) {
+            $filterText = strtoupper($request->qrcbn);
+            $whereCondition[] = "ld.qrcbn = '$filterText'";
+        }
+
+        if ($request->isbd) {
+            $filterText = strtoupper($request->isbd);
+            $whereCondition[] = "ld.isbd = '$filterText'";
+        }
+
         if ($search) {
             $terms = [];
 
@@ -127,7 +186,7 @@ class DeliveryVerificationController extends Controller
 
         $totalFiltered = QueryAPI::get("
             select
-                count(*) as total
+                count(distinct l.letter_id) as total
             from
                 letter l
             left join
@@ -136,6 +195,8 @@ class DeliveryVerificationController extends Controller
                 jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
             left join
                 branchs b on b.id = l.branch_id
+            left join
+                letter_detail ld on ld.letter_id = l.letter_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -188,6 +249,8 @@ class DeliveryVerificationController extends Controller
                                     group by
                                         letter_id
                                 ) td on td.letter_id = l.letter_id
+                            left join
+                                letter_detail ld on ld.letter_id = l.letter_id
                             $whereClause
                             $orderBy
                         ) data

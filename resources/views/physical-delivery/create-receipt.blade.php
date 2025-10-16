@@ -369,6 +369,12 @@
                                         <input type="text" class="form-control" name="cni_year[]">
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <label class="col-form-label col-lg-3">No Jilid</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" class="form-control" name="cni_binding[]">
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="row mb-3">
@@ -380,6 +386,18 @@
                                                 <option value="{{ $m->NAME }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                                             @endforeach
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label class="col-form-label col-lg-3">QRCBN</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" class="form-control" name="cni_qrcbn[]">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label class="col-form-label col-lg-3">ISBD</label>
+                                    <div class="col-lg-9">
+                                        <input type="text" class="form-control" name="cni_isbd[]">
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -396,12 +414,6 @@
                                             <span class="input-group-text">Tolak</span>
                                             <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                         </span>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label class="col-form-label col-lg-3">No Jilid</label>
-                                    <div class="col-lg-9">
-                                        <input type="text" class="form-control" name="cni_binding[]">
                                     </div>
                                 </div>
                                 <div class="row mb-3">
