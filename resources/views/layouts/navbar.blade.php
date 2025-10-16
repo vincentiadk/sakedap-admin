@@ -99,6 +99,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">Verifikasi Pengiriman</a>
+                                                <a href="{{ url('physical-delivery/delivery-to-destination') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-to-destination' ? 'active' : '' }}">Pengiriman Sampai ke Tujuan</a>
                                                 <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">Dalam Pengiriman</a>
                                                 <a href="{{ url('physical-delivery/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
                                                 <a href="{{ url('physical-delivery/create-receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'create-receipt' ? 'active' : '' }}">Tambah Bukti Penerimaan</a>

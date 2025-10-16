@@ -35,7 +35,9 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Tujuan :</label>
-                            <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
+                            <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua">
+                                <option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -216,12 +218,12 @@
                 province_id: '{{ session("province_id") }}',
             });
 
-            select2Serverside('#branch_id', 'branch', {
-                province_id: '{{ session("province_id") }}',
-            });
+            // select2Serverside('#branch_id', 'branch', {
+            //     province_id: '{{ session("province_id") }}',
+            // });
         } else {
             select2Serverside('#executor_id', 'executor');
-            select2Serverside('#branch_id', 'branch');
+            // select2Serverside('#branch_id', 'branch');
         }
 
         loadData();

@@ -85,6 +85,12 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
         });
 
+        Route::prefix('delivery-to-destination')->group(function () {
+            Route::get('/', 'DeliveryToDestinationController@index');
+            Route::get('datatable', 'DeliveryToDestinationController@datatable');
+            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryToDestinationController@detail');
+        });
+
         Route::prefix('in-delivery')->group(function () {
             Route::get('/', 'InDeliveryController@index');
             Route::get('datatable', 'InDeliveryController@datatable');

@@ -512,24 +512,39 @@ class AcceptController extends Controller
 
         $collections = QueryAPI::get("
             select
-                letter_detail.letter_id,
-                letter.accept_date as accept_date_letter,
-                letter_detail.title,
-                letter_detail.jenis_media,
-                letter_detail.isbn,
-                letter_detail.qty_accept,
-                collections.noinduk as noinduk_collection,
-                collections.mark_province as mark_province_collection
+                ld.letter_id,
+                l.accept_date as accept_date_letter,
+                ld.title,
+                ld.jenis_media,
+                ld.isbn,
+                case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept,
+                c.noinduk as noinduk_collection,
+                c.mark_province as mark_province_collection
             from
-                letter_detail
+                letter_detail ld
             left join
-                letter on letter.letter_id = letter_detail.letter_id
+                letter l on l.letter_id = ld.letter_id
+            cross join
+                (select level as lvl from dual connect by level <= 1000) t
             left join
-                collections on collections.id = letter_detail.collection_id
+                collections c on c.id = to_number(
+                    nvl(
+                        trim(
+                            regexp_substr(
+                                ld.collection_id,
+                                '[^,]+',
+                                1,
+                                t.lvl
+                            )
+                        ),
+                        '0'
+                    )
+                )
             where
-                letter.letter_id = $letter->LETTER_ID and
-                letter_detail.qty_accept is not null and
-                letter_detail.qty_accept > 0
+                ld.letter_id = $letter->LETTER_ID
+                and ld.qty_accept is not null
+                and ld.qty_accept > 0
+                and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
         ");
 
         $htmlCollections = '<table border="1" style="font-size:8px">';
