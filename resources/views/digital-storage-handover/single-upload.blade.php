@@ -240,7 +240,7 @@
                         <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
                             <option value=""></option>
                             @foreach($bigClass as $bc)
-                                <option value="{{ $bc->ID }}">{{ $bc->DESCRIPTION }}</option>
+                                <option value="{{ $bc->ID }}">{{ $bc->CLASS }} - {{ $bc->DESCRIPTION }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -257,7 +257,7 @@
                         <select class="form-select select2-basic" name="big_class_id" id="big_class_id" disabled>
                             <option value=""></option>
                             @foreach($bigClass as $bc)
-                                <option value="{{ $bc->ID }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->DESCRIPTION }}</option>
+                                <option value="{{ $bc->ID }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->CLASS }} - {{ $bc->DESCRIPTION }}</option>
                             @endforeach
                         </select>
                     </div>
