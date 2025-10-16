@@ -472,6 +472,15 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'CollectionCategoryController@destroyData');
         });
 
+        Route::prefix('compliance')->group(function () {
+            Route::get('/', 'ComplianceController@index');
+            Route::get('datatable', 'ComplianceController@datatable');
+            Route::post('create-data', 'ComplianceController@createData');
+            Route::get('show-data', 'ComplianceController@showData');
+            Route::post('update-data', 'ComplianceController@updateData');
+            Route::delete('destroy-data', 'ComplianceController@destroyData');
+        });
+
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
             Route::get('datatable', 'ProblemController@datatable');
