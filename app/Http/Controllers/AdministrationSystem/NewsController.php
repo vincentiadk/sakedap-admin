@@ -32,6 +32,7 @@ class NewsController extends Controller
             'e_news.id',
             null,
             'e_news.image',
+            'e_news.pages',
             'e_news_kategori.name',
             'e_news.title',
             'e_news.lampiran_link',
@@ -253,7 +254,7 @@ class NewsController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+               *
             from
                 e_news
             where

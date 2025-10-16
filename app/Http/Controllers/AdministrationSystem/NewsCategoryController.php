@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdministrationSystem;
 
 use App\Helpers\QueryAPI;
+use Faker\Factory as Faker;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -15,6 +16,7 @@ class NewsCategoryController extends Controller
             'data' => [
                 'content' => 'administration-system.news-category',
                 'plugins' => [
+                    'select2',
                     'datatable',
                 ]
             ]
@@ -26,6 +28,7 @@ class NewsCategoryController extends Controller
         $column = [
             'id',
             null,
+            'pages',
             'name',
         ];
 
@@ -89,11 +92,22 @@ class NewsCategoryController extends Controller
                     from
                         (
                             select
-                                *
+                                id,
+                                parent_id,
+                                name,
+                                pages,
+                                level,
+                                rpad(' ', (level - 1) * 2) || name as tree_view,
+                                ltrim(sys_connect_by_path(name, ' > '), ' > ') as tree_path
                             from
                                 e_news_kategori
                             $whereClause
-                            $orderBy
+                            start with
+                                parent_id is null
+                            connect by prior
+                                id = parent_id
+                            order siblings by
+                                name
                         ) data
                 )
             where
@@ -124,7 +138,8 @@ class NewsCategoryController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->NAME,
+                    $val->PAGES == 1 ? '<i class="ph-check text-success"></i>' : '<i class="ph-x text-danger"></i>',
+                    $val->TREE_PATH,
                 ];
 
                 $start++;
@@ -156,6 +171,8 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::create('e_news_kategori', [
                     'name' => $request->name,
+                    'pages' => $request->pages,
+                    'parent_id' => $request->parent_id,
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
@@ -184,12 +201,28 @@ class NewsCategoryController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                *
+                id,
+                parent_id,
+                name,
+                pages,
+                level,
+                rpad(' ', (level - 1) * 2) || name as tree_view,
+                ltrim(sys_connect_by_path(name, ' > '), ' > ') as tree_path
             from
                 e_news_kategori
             where
                 id = $id
+            start with
+                parent_id is null
+            connect by prior
+                id = parent_id
+            order siblings by
+                name
         ", true);
+
+        if ($data) {
+            $data->TREE_PATH = str_replace(' > ' . $data->NAME, '', $data->TREE_PATH);
+        }
 
         return response()->json($data);
     }
@@ -212,6 +245,8 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::update('e_news_kategori', $id, [
                     'name' => $request->name,
+                    'pages' => $request->pages,
+                    'parent_id' => $request->parent_id,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),

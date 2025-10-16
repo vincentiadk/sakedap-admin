@@ -25,6 +25,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Halaman</th>
                         <th class="text-nowrap">Nama</th>
                     </tr>
                 </thead>
@@ -33,7 +34,7 @@
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"></h5>
@@ -47,6 +48,17 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
+                    <div class="form-group">
+                        <label class="form-label">Parent :</label>
+                        <select class="form-select" name="parent_id" id="parent_id" data-dropdown-parent="#modal-form" data-allow-clear="true" data-placeholder="Tidak Ada"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Halaman :</label>
+                        <select class="form-select" name="pages" id="pages">
+                            <option value="">Tidak</option>
+                            <option value="1">Ya</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
@@ -74,6 +86,10 @@
 <script>
     $(function() {
         loadData();
+
+        select2Serverside('#parent_id', 'news-category', {}, {
+            minimumInputLength: 0
+        });
     });
 
     function onReloadTable() {
@@ -88,6 +104,7 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
+        $('#parent_id').val('').change();
     }
 
     function onCreate() {
@@ -137,7 +154,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [],
             ajax: {
                 url: '{{ url("administration-system/news-category/datatable") }}',
                 dataType: 'JSON',
@@ -150,9 +167,10 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -226,6 +244,8 @@
 
                 $('#table_id').val(response.ID);
                 $('#name').val(response.NAME);
+                $('#pages').val(response.PAGES);
+                $('#parent_id').html('<option value="' + response.PARENT_ID + '" selected>' + response.TREE_PATH + '</option>');
             },
             error: function(response) {
                 onLoading('close', '.modal-content');

@@ -55,6 +55,8 @@ Route::middleware('authentication')->group(function () {
         Route::get('catalog', 'Select2ServersideController@catalog');
         Route::get('currency', 'Select2ServersideController@currency');
         Route::get('promotion', 'Select2ServersideController@promotion');
+        Route::get('news-category', 'Select2ServersideController@newsCategory');
+        Route::get('news', 'Select2ServersideController@news');
     });
 
     Route::get('home', function () {
@@ -410,6 +412,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'TutorialController@showData');
             Route::post('update-data', 'TutorialController@updateData');
             Route::delete('destroy-data', 'TutorialController@destroyData');
+        });
+
+        Route::prefix('pages')->group(function () {
+            Route::get('/', 'PagesController@index');
+            Route::post('submitted', 'PagesController@submitted');
         });
 
         Route::prefix('banner')->group(function () {

@@ -548,4 +548,81 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function newsCategory(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $condition[] = "(upper(name) like '%$search%')";
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                parent_id,
+                name,
+                pages,
+                level,
+                rpad(' ', (level - 1) * 2) || name as tree_view,
+                ltrim(sys_connect_by_path(name, ' > '), ' > ') as tree_path
+            from
+                e_news_kategori
+            $whereClause
+            start with
+                parent_id is null
+            connect by prior
+                id = parent_id
+            order siblings by
+                name
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div>' . ($d->TREE_PATH ?? '-') . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->TREE_PATH,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
+
+    public function news(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $condition[] = "upper(title) like '%$search%'";
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                title
+            from
+                e_news
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div>' . ($d->TITLE ?? '-') . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->TITLE,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

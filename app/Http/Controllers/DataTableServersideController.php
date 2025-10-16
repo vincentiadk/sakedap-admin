@@ -20,15 +20,15 @@ class DataTableServersideController extends Controller
     public function catalog(Request $request)
     {
         $column = [
-            'catalogs.id',
+            'c.id',
             null,
-            'catalogs.bibid',
-            'catalogs.title',
-            'catalogs.author',
-            'penerbit.name',
-            'catalogs.publishyear',
-            'catalogs.isbn',
-            'catalogs.callnumber',
+            'c.bibid',
+            'c.title',
+            'c.author',
+            'p.name',
+            'c.publishyear',
+            'c.isbn',
+            'c.callnumber',
             null,
             null,
         ];
@@ -44,10 +44,10 @@ class DataTableServersideController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null) and (catalogs.title is not null)";
+        $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null) and (c.title is not null)";
 
         if (Main::isNotCenterBranch()) {
-            $whereCondition[] = 'kabupaten.propinsiid = ' . session('province_id');
+            $whereCondition[] = 'k.propinsiid = ' . session('province_id');
         }
 
         if ($request->worksheet_id) {
@@ -55,9 +55,9 @@ class DataTableServersideController extends Controller
 
             if (is_array($worksheetId)) {
                 $worksheetId = implode(',', $worksheetId);
-                $whereCondition[] = "catalogs.worksheet_id in ($worksheetId)";
+                $whereCondition[] = "c.worksheet_id in ($worksheetId)";
             } else {
-                $whereCondition[] = "catalogs.worksheet_id = $worksheetId";
+                $whereCondition[] = "c.worksheet_id = $worksheetId";
             }
         }
 
@@ -96,72 +96,82 @@ class DataTableServersideController extends Controller
 
         $totalData = QueryAPI::get("
             select
-                count(*) as total
+                count(c.id) as total
             from
-                catalogs
+                catalogs c
             where
-                (isdelete = 0 or isdelete is null) and
-                (catalogs.title is not null)
+                (c.isdelete = 0 or c.isdelete is null)
+                and c.title is not null
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
-                count(*) as total
+                count(c.id) as total
             from
-                catalogs
+                catalogs c
             left join
-                penerbit on penerbit.id = catalogs.penerbit_id
+                penerbit p on p.id = c.penerbit_id
             left join
-                kabupaten on kabupaten.id = catalogs.city_id
+                kabupaten k on k.id = c.city_id
             left join
-                worksheets on worksheets.id = catalogs.worksheet_id
+                worksheets w on w.id = c.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
         $queryData = QueryAPI::get("
             select
-                *
-            from (
+                rnum,
+                c.id,
+                c.bibid,
+                c.title,
+                c.author,
+                c.publishyear,
+                c.isbn,
+                c.callnumber,
+                p.name as name_penerbit,
+                (
                     select
-                        rownum as rnum,
-                        data.*
+                        count(cl.id)
                     from
-                        (
-                            select
-                                catalogs.id,
-                                catalogs.bibid,
-                                catalogs.title,
-                                catalogs.author,
-                                catalogs.publishyear,
-                                catalogs.isbn,
-                                catalogs.callnumber,
-                                penerbit.name as name_penerbit,
-                                coalesce(count(collections.id), 0) as total_collection
-                            from
-                                catalogs
-                            left join
-                                penerbit on penerbit.id = catalogs.penerbit_id
-                            left join
-                                kabupaten on kabupaten.id = catalogs.city_id
-                            left join
-                                worksheets on worksheets.id = catalogs.worksheet_id
-                            left join
-                                collections on collections.catalog_id = catalogs.id
-                            $whereClause
-                            group by
-                                catalogs.id,
-                                catalogs.bibid,
-                                catalogs.title,
-                                catalogs.author,
-                                catalogs.publishyear,
-                                catalogs.isbn,
-                                catalogs.callnumber,
-                                penerbit.name
-                            $orderBy
-                        ) data
-                )
+                        collections cl
+                    where
+                        cl.catalog_id = c.id
+                ) as total_collection
+            from (
+                select
+                    rownum as rnum,
+                    t.*
+                from (
+                    select
+                        c.id,
+                        c.bibid,
+                        c.title,
+                        c.author,
+                        c.publishyear,
+                        c.isbn,
+                        c.callnumber,
+                        c.penerbit_id,
+                        c.city_id,
+                        c.worksheet_id
+                    from
+                        catalogs c
+                    left join
+                        penerbit p on p.id = c.penerbit_id
+                    left join
+                        kabupaten k on k.id = c.city_id
+                    left join
+                        worksheets w on w.id = c.worksheet_id
+                    $whereClause
+                    $orderBy
+                ) t
+                where
+                    rownum <= $length
+            ) c
+            left join
+                penerbit p on p.id = c.penerbit_id
             where
-                rnum > $start and rnum <= $length
+                c.rnum > $start and c.rnum <= $length
+            $orderBy
         ");
 
         if ($queryData) {
@@ -207,15 +217,15 @@ class DataTableServersideController extends Controller
     public function catalogParent(Request $request)
     {
         $column = [
-            'catalogs.id',
+            'c.id',
             null,
-            'catalogs.bibid',
-            'catalogs.title',
-            'catalogs.author',
-            'penerbit.name',
-            'catalogs.publishyear',
-            'catalogs.isbn',
-            'catalogs.callnumber',
+            'c.bibid',
+            'c.title',
+            'c.author',
+            'p.name',
+            'c.publishyear',
+            'c.isbn',
+            'c.callnumber',
             null,
             null,
         ];
@@ -231,12 +241,12 @@ class DataTableServersideController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $whereCondition[] = "(catalogs.title is not null)";
-        $whereCondition[] = "(catalogs.edeposit_col_id is not null and e_collections.parent_id is not null)";
+        $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null)";
+        $whereCondition[] = "(c.title is not null)";
+        $whereCondition[] = "(c.edeposit_col_id is not null and ec.parent_id is not null)";
 
         if (Main::isNotCenterBranch()) {
-            $whereCondition[] = 'kabupaten.propinsiid = ' . session('province_id');
+            $whereCondition[] = 'k.propinsiid = ' . session('province_id');
         }
 
         if ($request->searchable) {
@@ -274,79 +284,97 @@ class DataTableServersideController extends Controller
 
         $totalData = QueryAPI::get("
             select
-                count(*) as total
+                count(c.id) as total
             from
-                catalogs
-            left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
+                catalogs c
             where
-                (catalogs.isdelete = 0 or catalogs.isdelete is null) and
-                (catalogs.title is not null) and
-                (catalogs.edeposit_col_id is not null and e_collections.parent_id is not null)
+                (c.isdelete = 0 or c.isdelete is null)
+                and c.title is not null
+                and c.edeposit_col_id is not null
+                and exists (
+                    select
+                        1
+                    from
+                        e_collections ec
+                    where
+                        ec.id = c.edeposit_col_id and
+                        ec.parent_id is not null
+                )
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
-                count(*) as total
+                count(c.id) as total
             from
-                catalogs
+                catalogs c
             left join
-                penerbit on penerbit.id = catalogs.penerbit_id
+                penerbit p on p.id = c.penerbit_id
             left join
-                kabupaten on kabupaten.id = catalogs.city_id
+                kabupaten k on k.id = c.city_id
             left join
-                worksheets on worksheets.id = catalogs.worksheet_id
-            left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
+                worksheets w on w.id = c.worksheet_id
+            inner join
+                e_collections ec on ec.id = c.edeposit_col_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
         $queryData = QueryAPI::get("
             select
-                *
-            from (
+                rnum,
+                c.id,
+                c.bibid,
+                c.title,
+                c.author,
+                c.publishyear,
+                c.isbn,
+                c.callnumber,
+                p.name as name_penerbit,
+                (
                     select
-                        rownum as rnum,
-                        data.*
+                        count(cl.id)
                     from
-                        (
-                            select
-                                catalogs.id,
-                                catalogs.bibid,
-                                catalogs.title,
-                                catalogs.author,
-                                catalogs.publishyear,
-                                catalogs.isbn,
-                                catalogs.callnumber,
-                                penerbit.name as name_penerbit,
-                                coalesce(count(collections.id), 0) as total_collection
-                            from
-                                catalogs
-                            left join
-                                penerbit on penerbit.id = catalogs.penerbit_id
-                            left join
-                                kabupaten on kabupaten.id = catalogs.city_id
-                            left join
-                                worksheets on worksheets.id = catalogs.worksheet_id
-                            left join
-                                collections on collections.catalog_id = catalogs.id
-                            left join
-                                e_collections on e_collections.id = catalogs.edeposit_col_id
-                            $whereClause
-                            group by
-                                catalogs.id,
-                                catalogs.bibid,
-                                catalogs.title,
-                                catalogs.author,
-                                catalogs.publishyear,
-                                catalogs.isbn,
-                                catalogs.callnumber,
-                                penerbit.name
-                            $orderBy
-                        ) data
-                )
+                        collections cl
+                    where
+                        cl.catalog_id = c.id
+                ) as total_collection
+            from (
+                select
+                    rownum as rnum,
+                    t.*
+                from (
+                    select
+                        c.id,
+                        c.bibid,
+                        c.title,
+                        c.author,
+                        c.publishyear,
+                        c.isbn,
+                        c.callnumber,
+                        c.penerbit_id,
+                        c.city_id,
+                        c.worksheet_id,
+                        c.edeposit_col_id
+                    from
+                        catalogs c
+                    left join
+                        penerbit p on p.id = c.penerbit_id
+                    left join
+                        kabupaten k on k.id = c.city_id
+                    left join
+                        worksheets w on w.id = c.worksheet_id
+                    inner join
+                        e_collections ec on ec.id = c.edeposit_col_id
+                    $whereClause
+                    $orderBy
+                ) t
+                where
+                    rownum <= $length
+            ) c
+            left join
+                penerbit p on p.id = c.penerbit_id
             where
-                rnum > $start and rnum <= $length
+                c.rnum > $start and c.rnum <= $length
+            $orderBy
         ");
 
         if ($queryData) {

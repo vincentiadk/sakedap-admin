@@ -31,6 +31,7 @@
     @stack('lightbox-js')
 	<script src="{{ asset('plugins/waitMe/waitMe.min.js') }}?v={{ uniqid() }}"></script>
     @stack('ckeditor-js')
+    @stack('dragula-js')
 	<script src="{{ asset('plugins/number/jquery.number.min.js') }}?v={{ uniqid() }}"></script>
     @stack('summernote-js')
     @stack('lookup-js')

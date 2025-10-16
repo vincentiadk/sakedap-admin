@@ -669,15 +669,15 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {
             <div class="input-group">
                 <span class="input-group-text">Cari Berdasarkan</span>
                 <select class="form-select select2-basic" id="lookup-dialog-filter-searchable" data-width="1%" data-dropdown-parent="#lookup-dialog-modal" data-placeholder="Global" multiple>
-                    <option value="catalogs.bibid">BIB ID</option>
-                    <option value="catalogs.title">Judul</option>
-                    <option value="catalogs.author">Kepeng</option>
-                    <option value="penerbit.name">Pelaksana Serah</option>
-                    <option value="catalogs.publishyear">Tahun Terbit</option>
-                    <option value="catalogs.subject">Subjek</option>
-                    <option value="catalogs.isbn">ISBN</option>
-                    <option value="catalogs.callnumber">Nomor Panggil</option>
-                    <option value="worksheets.name">Jenis Bahan</option>
+                    <option value="c.bibid">BIB ID</option>
+                    <option value="c.title">Judul</option>
+                    <option value="c.author">Kepeng</option>
+                    <option value="p.name">Pelaksana Serah</option>
+                    <option value="c.publishyear">Tahun Terbit</option>
+                    <option value="c.subject">Subjek</option>
+                    <option value="c.isbn">ISBN</option>
+                    <option value="c.callnumber">Nomor Panggil</option>
+                    <option value="w.name">Jenis Bahan</option>
                 </select>
             </div>
         `);
@@ -747,15 +747,15 @@ function lookupCatalogParent(selectorInput, selectorId) {
             <div class="input-group">
                 <span class="input-group-text">Cari Berdasarkan</span>
                 <select class="form-select select2-basic" id="lookup-dialog-filter-searchable" data-width="1%" data-dropdown-parent="#lookup-dialog-modal" data-placeholder="Global" multiple>
-                    <option value="catalogs.bibid">BIB ID</option>
-                    <option value="catalogs.title">Judul</option>
-                    <option value="catalogs.author">Kepeng</option>
-                    <option value="penerbit.name">Pelaksana Serah</option>
-                    <option value="catalogs.publishyear">Tahun Terbit</option>
-                    <option value="catalogs.subject">Subjek</option>
-                    <option value="catalogs.isbn">ISBN</option>
-                    <option value="catalogs.callnumber">Nomor Panggil</option>
-                    <option value="worksheets.name">Jenis Bahan</option>
+                    <option value="c.bibid">BIB ID</option>
+                    <option value="c.title">Judul</option>
+                    <option value="c.author">Kepeng</option>
+                    <option value="p.name">Pelaksana Serah</option>
+                    <option value="c.publishyear">Tahun Terbit</option>
+                    <option value="c.subject">Subjek</option>
+                    <option value="c.isbn">ISBN</option>
+                    <option value="c.callnumber">Nomor Panggil</option>
+                    <option value="w.name">Jenis Bahan</option>
                 </select>
             </div>
         `);
