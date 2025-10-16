@@ -26,7 +26,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Gambar</th>
-                        <th class="text-nowrap">Katalog</th>
+                        <th class="text-nowrap">Total Katalog</th>
                         <th class="text-nowrap">Kategori</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Lampiran Link</th>
@@ -64,8 +64,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Katalog :</label>
-                        <input type="hidden" class="form-control" name="catalog_id" id="catalog_id" readonly>
-                        <input type="text" class="form-control" name="catalog_text" id="catalog_text" placeholder="Pilih Katalog" readonly>
+                        <select class="form-select" name="catalog[]" id="catalog" data-placeholder="Pilih Beberapa" data-dropdown-parent="#modal-form" multiple></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
@@ -115,16 +114,12 @@
     </div>
 </div>
 
-<style>
-    body.modal-open div.modal#lookup-dialog-modal {
-        z-index: 9999 !important;
-    }
-</style>
-
 <script>
     $(function() {
         loadData();
-        lookupCatalog('#catalog_text', '#catalog_id');
+        select2Serverside('#catalog', 'catalog', {}, {
+            minimumInputLength: 0
+        });
 
         $('#content').summernote({
             height: 300
@@ -148,6 +143,8 @@
         $('#status').val('PUBLISH');
         $('#category_id').val('').change();
         $('#content').summernote('code', '');
+        $('#catalog').html('');
+        $('#catalog').val('').change();
     }
 
     function onCreate() {
@@ -213,7 +210,7 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -298,8 +295,18 @@
                 $('#status').val(response.STATUS);
                 $('#category_id').val(response.KATEGORI_ID).change();
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
-                $('#catalog_id').val(response.CATALOG_ID);
-                $('#catalog_text').val(response.TITLE_CATALOG);
+
+                if(response.CATALOG) {
+                    var catalog = JSON.parse(response.CATALOG);
+
+                    if(catalog) {
+                        $.each(catalog, function(i, val) {
+                            $('#catalog').append(`
+                                <option value="${ val.id }" selected>${ val.title }</option>
+                            `);
+                        });
+                    }
+                }
 
                 if(response.IMAGE) {
                     var paramFile = {

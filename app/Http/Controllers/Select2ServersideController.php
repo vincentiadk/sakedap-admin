@@ -397,62 +397,89 @@ class Select2ServersideController extends Controller
         $provinceId = $request->province_id;
         $placeholder = $request->placeholder ?? null;
 
-        $condition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $condition[] = "catalogs.isbn is null";
-        $condition[] = "upper(catalogs.title) like '%$search%'";
-        $condition[] = "rownum <= 20";
+        $condition[] = "(c.isdelete = 0 or c.isdelete is null)";
+        $condition[] = "upper(c.title) like '%$search%'";
 
         if ($provinceId) {
-            $condition[] = "propinsi.id = $provinceId";
+            $condition[] = "k.propinsiid = $provinceId";
         }
 
         $whereClause = "where " . implode(' and ', $condition);
 
         $data = QueryAPI::get("
             select
-                catalogs.id,
-                catalogs.title,
-                catalogs.bibid,
-                catalogs.isbn,
-                catalogs.publishyear,
-                catalogs.callnumber,
-                catalogs.author,
-                penerbit.name as name_penerbit
-            from
-                catalogs
+                rnum,
+                c.id,
+                c.bibid,
+                c.title,
+                c.author,
+                c.publishyear,
+                c.isbn,
+                c.callnumber,
+                p.name as name_penerbit,
+                (
+                    select
+                        count(cl.id)
+                    from
+                        collections cl
+                    where
+                        cl.catalog_id = c.id
+                ) as total_collection
+            from (
+                select
+                    rownum as rnum,
+                    t.*
+                from (
+                    select
+                        c.id,
+                        c.bibid,
+                        c.title,
+                        c.author,
+                        c.publishyear,
+                        c.isbn,
+                        c.callnumber,
+                        c.penerbit_id,
+                        c.city_id,
+                        c.worksheet_id
+                    from
+                        catalogs c
+                    left join
+                        penerbit p on p.id = c.penerbit_id
+                    left join
+                        kabupaten k on k.id = c.city_id
+                    left join
+                        worksheets w on w.id = c.worksheet_id
+                    $whereClause
+                ) t
+                where
+                    rownum <= 20
+            ) c
             left join
-                penerbit on penerbit.id = catalogs.penerbit_id
-            left join
-                propinsi on propinsi.id = penerbit.province_id
-            $whereClause
+                penerbit p on p.id = c.penerbit_id
         ");
 
         if ($data) {
             foreach ($data as $d) {
-                $totalCollection = QueryAPI::get("
-                    select
-                        count(id)
-                    from
-                        collections
-                    where
-                        catalog_id = $d->ID
-                ", true)->TOTAL ?? 0;
+                $DTitle = $d->TITLE ?? '-';
+                $cleanedTitle = preg_replace('/[\x00-\x1F\x7F]/', '', $DTitle);
+                $cleanedTitle = str_replace("\u{200B}", '', $cleanedTitle);
+                $title = strip_tags($cleanedTitle);
 
                 $html = '
-                    <div>' . ($d->TITLE ?? '-') . '</div>
+                    <div>' . ($title) . '</div>
                     <div class="fw-light fs-12 text-muted">ID : ' . ($d->ID ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">BIBID : ' . ($d->BIBID ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Kode : ' . ($d->ISBN ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Tahun Terbit : ' . ($d->PUBLISHYEAR ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Nomor Panggil : ' . ($d->CALLNUMBER ?? '-') . '</div>
-                    <div class="fw-light fs-12 text-muted">Jumlah Koleksi : ' . ($totalCollection) . '</div>
+                    <div class="fw-light fs-12 text-muted">Jumlah Koleksi : ' . ($c->TOTAL_COLLECTION ?? 0) . '</div>
                     <div class="fw-light fs-12 text-muted">Pelaksana Serah : ' . ($d->NAME_PENERBIT ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Kepeng : ' . str_replace(';', ', ', ($d->AUTHOR ?? '-')) . '</div>
                 ';
 
                 $response[] = [
                     'id' => $d->ID,
-                    'text' => $placeholder == 'id' ? $d->ID : $d->TITLE,
+                    'text' => $placeholder == 'id' ? $d->ID : $title,
                     'html' => $html,
                 ];
             }

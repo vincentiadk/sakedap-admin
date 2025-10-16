@@ -32,7 +32,7 @@ class EventController extends Controller
             'e_news.id',
             null,
             'e_news.image',
-            'catalogs.title',
+            'e_news.catalog',
             'e_news_kategori.name',
             'e_news.title',
             'e_news.lampiran_link',
@@ -91,8 +91,6 @@ class EventController extends Controller
                 e_news
             left join
                 e_news_kategori on e_news_kategori.id = e_news.kategori_id
-            left join
-                catalogs on catalogs.id = e_news.catalog_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -107,14 +105,11 @@ class EventController extends Controller
                         (
                             select
                                 e_news.*,
-                                e_news_kategori.name as name_e_news_kategori,
-                                catalogs.title as title_catalog
+                                e_news_kategori.name as name_e_news_kategori
                             from
                                 e_news
                             left join
                                 e_news_kategori on e_news_kategori.id = e_news.kategori_id
-                            left join
-                                catalogs on catalogs.id = e_news.catalog_id
                             $whereClause
                             $orderBy
                         ) data
@@ -168,11 +163,18 @@ class EventController extends Controller
                     ';
                 }
 
+                $totalCatalog = 0;
+
+                if ($val->CATALOG ?: null) {
+                    $decode = json_decode($val->CATALOG);
+                    $totalCatalog = count($decode);
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
                     $image,
-                    $val->TITLE_CATALOG,
+                    $totalCatalog,
                     $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
                     $attachmentLink,
@@ -215,6 +217,21 @@ class EventController extends Controller
             ];
         } else {
             try {
+                $catalog = [];
+
+                if ($request->catalog) {
+                    foreach ($request->catalog as $c) {
+                        $getCatalog = QueryAPI::get("select title from catalogs where id = $c", true);
+
+                        if ($getCatalog) {
+                            $catalog[] = [
+                                'id' => $c,
+                                'title' => $getCatalog->TITLE
+                            ];
+                        }
+                    }
+                }
+
                 $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
                     'slug' => Str::slug($request->title, '-'),
@@ -222,7 +239,7 @@ class EventController extends Controller
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
-                    'catalog_id' => $request->catalog_id,
+                    'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
                 ]);
 
@@ -261,14 +278,11 @@ class EventController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
             select
-                e_news.*,
-                catalogs.title as title_catalog
+                *
             from
                 e_news
-            left join
-                catalogs on catalogs.id = e_news.catalog_id
             where
-                e_news.id = $id
+                id = $id
         ", true);
 
         return response()->json($data);
@@ -298,6 +312,21 @@ class EventController extends Controller
             ];
         } else {
             try {
+                $catalog = [];
+
+                if ($request->catalog) {
+                    foreach ($request->catalog as $c) {
+                        $getCatalog = QueryAPI::get("select title from catalogs where id = $c", true);
+
+                        if ($getCatalog) {
+                            $catalog[] = [
+                                'id' => $c,
+                                'title' => $getCatalog->TITLE
+                            ];
+                        }
+                    }
+                }
+
                 $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
                     'slug' => Str::slug($request->title, '-'),
@@ -305,7 +334,7 @@ class EventController extends Controller
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
-                    'catalog_id' => $request->catalog_id,
+                    'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
                 ]);
 
