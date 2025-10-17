@@ -624,16 +624,6 @@ function lookup(options) {
                 }
             },
             columns: dtColumns,
-            initComplete: function (settings, json) {
-                var table = this.api();
-                const searchInput = $('div.dataTables_filter input');
-
-                searchInput.off().unbind();
-
-                searchInput.on('keyup', debounce(function () {
-                    table.search(this.value).draw();
-                }, 500));
-            },
         }).on('draw.dt', function () {
             onLoading('close', '#lookup-dialog-datatable_wrapper');
         });
@@ -661,8 +651,10 @@ function lookup(options) {
 
 function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {}) {
     $(selectorInput).click(function () {
+        var currentSearchableValue = $('#lookup-dialog-filter-searchable').val();
+
         var dataAjax = $.extend({
-            searchable: $('#lookup-dialog-filter-searchable').val()
+            searchable: currentSearchableValue
         }, payload);
 
         $('#lookup-dialog-filter').html(`
@@ -702,6 +694,7 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {
             title: 'Pilih Data Katalog',
             dtAjaxUrl: window.gBaseUrl + 'datatable-serverside/catalog',
             dtAjaxData: function () {
+                dataAjax.searchable = $('#lookup-dialog-filter-searchable').val();
                 return dataAjax;
             },
             dtOrder: [],
@@ -733,6 +726,10 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {
 
         select2Basic();
 
+        if (currentSearchableValue && currentSearchableValue.length > 0) {
+            $('#lookup-dialog-filter-searchable').val(currentSearchableValue).trigger('change');
+        }
+
         $('#lookup-dialog-filter-searchable').change(function (e) {
             if (window.gLookupDialogDataTable) {
                 window.gLookupDialogDataTable.ajax.reload(null, false);
@@ -743,6 +740,8 @@ function lookupCatalog(selectorInput, selectorId, replaceID = false, payload = {
 
 function lookupCatalogParent(selectorInput, selectorId) {
     $(selectorInput).click(function () {
+        var currentSearchableValue = $('#lookup-dialog-filter-searchable').val();
+
         $('#lookup-dialog-filter').html(`
             <div class="input-group">
                 <span class="input-group-text">Cari Berdasarkan</span>
@@ -807,6 +806,10 @@ function lookupCatalogParent(selectorInput, selectorId) {
 
         select2Basic();
 
+        if (currentSearchableValue && currentSearchableValue.length > 0) {
+            $('#lookup-dialog-filter-searchable').val(currentSearchableValue).trigger('change');
+        }
+
         $('#lookup-dialog-filter-searchable').change(function (e) {
             if (window.gLookupDialogDataTable) {
                 window.gLookupDialogDataTable.ajax.reload(null, false);
@@ -816,6 +819,8 @@ function lookupCatalogParent(selectorInput, selectorId) {
 }
 
 function lookupCatalogHistory(table, id) {
+    $('#lookup-dialog-filter').html('');
+
     $('#lookup-dialog-datatable thead').html(`
         <tr>
             <th class="text-nowrap text-center">No</th>

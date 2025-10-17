@@ -44,7 +44,7 @@ class DataTableServersideController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null) and (c.title is not null)";
+        $whereCondition[] = "((c.isdelete = 0 or c.isdelete is null) and (c.title is not null))";
 
         if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'k.propinsiid = ' . session('province_id');
@@ -72,17 +72,11 @@ class DataTableServersideController extends Controller
         } else {
             if ($search) {
                 $terms = [];
-
-                foreach ($column as $c) {
-                    if ($c) {
-                        $terms[] = "upper($c) like '%$search%'";
-                    }
-                }
+                $terms[] = "(upper(c.title) like '%$search%' or upper(p.name) like '%$search%')";
 
                 $whereCondition[] = '(' . implode(' or ', $terms) . ')';
             }
         }
-
 
         if ($whereCondition) {
             $whereClause = "where " . implode(' and ', $whereCondition);
@@ -260,12 +254,7 @@ class DataTableServersideController extends Controller
         } else {
             if ($search) {
                 $terms = [];
-
-                foreach ($column as $c) {
-                    if ($c) {
-                        $terms[] = "upper($c) like '%$search%'";
-                    }
-                }
+                $terms[] = "(upper(c.title) like '%$search%' or upper(p.name) like '%$search%')";
 
                 $whereCondition[] = '(' . implode(' or ', $terms) . ')';
             }
