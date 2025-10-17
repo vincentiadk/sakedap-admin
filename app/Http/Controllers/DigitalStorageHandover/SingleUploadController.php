@@ -175,6 +175,7 @@ class SingleUploadController extends Controller
                         'kelas_besar_id' => $request->big_class_id,
                         'edition' => $request->edition,
                         'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
+                        'qrcbn' => $request->qrcbn,
                     ];
 
                     $createCollection = QueryAPI::create('e_collections', $baseCollectionData);

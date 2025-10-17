@@ -66,6 +66,15 @@ class ReviewController extends Controller
             $whereCondition[] = "(upper(e_collections.title_ori) like '%$title%' or upper(e_collections.title) like '%$title%')";
         }
 
+        if ($request->isbn) {
+            $isbn = str_replace('-', '', $request->isbn);
+            $whereCondition[] = "e_collections.code = '$isbn'";
+        }
+
+        if ($request->qrcbn) {
+            $whereCondition[] = "e_collections.qrcbn = '$request->qrcbn'";
+        }
+
         if ($request->executor_id) {
             $whereCondition[] = "e_collections.penerbit_id = $request->executor_id";
         }
@@ -346,6 +355,7 @@ class ReviewController extends Controller
                         'kelas_besar_id' => $request->big_class_id,
                         'edition' => $request->edition,
                         'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
+                        'qrcbn' => $request->qrcbn,
                     ];
 
                     if ($request->category && is_array($request->category)) {

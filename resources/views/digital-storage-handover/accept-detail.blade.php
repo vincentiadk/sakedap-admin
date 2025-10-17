@@ -122,6 +122,20 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <label class="col-form-label col-md-2">QRCBN</label>
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <label>
+                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('disabled', true) : $('#qrcbn').attr('disabled', false)" @if(empty($collection->QRCBN)) checked @endif disabled>
+                                    Tidak Ada
+                                </label>
+                            </span>
+                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN)) disabled @endif>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-form-label col-md-2">Seri</label>
                     <div class="col-md-10">
                         <div class="input-group">

@@ -14,19 +14,19 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Tanggal :</label>
                         <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Pelaksana Serah :</label>
                         <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Jenis Bahan :</label>
                         <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
@@ -37,13 +37,25 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Judul :</label>
                         <input type="text" class="form-control" name="title" id="title" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">ISBN :</label>
+                        <input type="text" class="form-control" name="isbn" id="isbn" placeholder="....................">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">QRCBN :</label>
+                        <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="....................">
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
                         <select class="form-select" name="province_id" id="province_id">
@@ -53,7 +65,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="form-label">Tahun :</label>
                         <input type="number" class="form-control" name="year" id="year" placeholder="....................">
@@ -134,6 +146,8 @@
                 dataType: 'JSON',
                 data: {
                     title: $('#title').val(),
+                    isbn: $('#isbn').val(),
+                    qrcbn: $('#qrcbn').val(),
                     executor_id: $('#executor_id').val(),
                     province_id: $('#province_id').val(),
                     year: $('#year').val(),
