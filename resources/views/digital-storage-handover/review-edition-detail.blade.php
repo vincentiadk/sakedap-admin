@@ -479,24 +479,26 @@
                         <div id="content-change-status"></div>
                     </div>
                 </div>
-                <div class="card" id="scrollspy-submit">
-                    <div class="card-body">
-                        <div class="text-end">
-                            <button type="button" class="btn btn-danger" onclick="submitted('cancel-review')">
-                                <i class="ph-x me-1"></i>
-                                Batal Tinjau
-                            </button>
-                            <button type="button" class="btn btn-warning" onclick="submitted('save')">
-                                <i class="ph-floppy-disk me-1"></i>
-                                Simpan
-                            </button>
-                            <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
-                                <i class="ph-check me-1"></i>
-                                Simpan & Verifikas
-                            </button>
+                @if($collection->REVIEW_BY == session('username'))
+                    <div class="card" id="scrollspy-submit">
+                        <div class="card-body">
+                            <div class="text-end">
+                                <button type="button" class="btn btn-danger" onclick="submitted('cancel-review')">
+                                    <i class="ph-x me-1"></i>
+                                    Batal Tinjau
+                                </button>
+                                <button type="button" class="btn btn-warning" onclick="submitted('save')">
+                                    <i class="ph-floppy-disk me-1"></i>
+                                    Simpan
+                                </button>
+                                <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
+                                    <i class="ph-check me-1"></i>
+                                    Simpan & Verifikas
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
             <div class="sticky-lg-top order-1 order-lg-2 wmin-lg-200 ms-lg-3 mb-3" id="page_nav">
                 <h6 class="fw-semibold mt-lg-3 mb-3">Anchor Link</h6>
@@ -532,9 +534,11 @@
                     <li class="nav-item">
                         <a href="#scrollspy-status" class="nav-link">Status</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-submit" class="nav-link">Submit</a>
-                    </li>
+                    @if($collection->REVIEW_BY == session('username'))
+                        <li class="nav-item">
+                            <a href="#scrollspy-submit" class="nav-link">Submit</a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

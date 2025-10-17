@@ -178,7 +178,7 @@ class ReviewEditionController extends Controller
                 ';
 
                 if (!empty($val->REVIEW_BY)) {
-                    if ($val->REVIEW_BY != session('username')) {
+                    if ($val->REVIEW_BY != session('username') && Main::isNotSuperAdmin()) {
                         $action = 'Sedang di tinjau oleh ' . $val->REVIEW_BY;
                     }
                 }
@@ -208,7 +208,7 @@ class ReviewEditionController extends Controller
 
     public function detail(Request $request, $id)
     {
-        $collection = QueryAPI::get("
+        $sqlCollection = "
             select
                 e_collections.*,
                 penerbit.id as id_penerbit,
@@ -230,7 +230,9 @@ class ReviewEditionController extends Controller
                 e_collections.id = $id and
                 e_collections.deleted_at is null and
                 e_collections.status = '1'
-        ", true);
+        ";
+
+        $collection = QueryAPI::get($sqlCollection, true);
 
         if (!$collection) {
             abort(404);
@@ -239,7 +241,7 @@ class ReviewEditionController extends Controller
         $reviewBy = $collection->REVIEW_BY ?? null;
 
         if (!empty($reviewBy)) {
-            if ($reviewBy !== session('username')) {
+            if ($reviewBy !== session('username') && Main::isNotSuperAdmin()) {
                 $reviewerName = session('name');
 
                 echo '
@@ -248,12 +250,19 @@ class ReviewEditionController extends Controller
                         window.location.href = "' . url('digital-storage-handover/review') . '";
                     </script>
                 ';
+
                 exit();
             }
         } else {
             QueryAPI::update('e_collections', $collection->ID, [
                 'review_by' => session('username')
             ]);
+
+            $collection = QueryAPI::get($sqlCollection, true);
+        }
+
+        if (!$collection) {
+            abort(404);
         }
 
         if ($request->ajax()) {
