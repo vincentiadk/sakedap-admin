@@ -114,11 +114,11 @@ class AuthController extends Controller
             }
         }
 
-        $data = [
-            'content' => 'change-password'
-        ];
-
-        return view('layouts.index', ['data' => $data]);
+        return view('layouts.index', [
+            'data' => [
+                'content' => 'change-password'
+            ]
+        ]);
     }
 
     public function profile(Request $request)
