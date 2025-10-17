@@ -142,7 +142,6 @@ class SingleUploadController extends Controller
                         'slug' => Str::slug($request->title, '-'),
                         'series' => $request->series,
                         'serial' => $request->serial,
-                        'ddc' => $request->ddc,
                         'code' => $request->code,
                         'code_type' => $request->code_type ?? 0,
                         'publication_month' => date('m', $publishTime),

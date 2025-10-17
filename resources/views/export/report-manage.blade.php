@@ -66,7 +66,6 @@
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Album</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Seri</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Edisi</th>
-            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">DDC</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Volume</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Kode</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Tahun</th>
@@ -88,7 +87,6 @@
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->ALBUM }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->SERIES }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->EDITION }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->DEWEYNO }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->VOLUME }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->ISBN }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->PUBLISHYEAR }}</td>

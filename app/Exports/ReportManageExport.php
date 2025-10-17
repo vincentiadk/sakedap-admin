@@ -84,7 +84,6 @@ class ReportManageExport implements FromView, ShouldAutoSize
                 catalogs.album,
                 catalogs.series,
                 catalogs.edition,
-                catalogs.deweyno,
                 catalogs.volume,
                 catalogs.isbn,
                 catalogs.publishyear,

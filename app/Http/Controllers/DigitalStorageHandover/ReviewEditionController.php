@@ -314,7 +314,6 @@ class ReviewEditionController extends Controller
                         'slug' => Str::slug($request->title, '-'),
                         'series' => $request->series,
                         'serial' => $request->serial,
-                        'ddc' => $request->ddc,
                         'publication_month' => date('m', strtotime($request->publish_time)),
                         'publication_year' => date('Y', strtotime($request->publish_time)),
                         'preview' => $request->preview,

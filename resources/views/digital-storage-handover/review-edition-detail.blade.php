@@ -169,20 +169,6 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-form-label col-md-2">DDC</label>
-                            <div class="col-md-10">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <label>
-                                            <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#ddc').attr('disabled', true) : $('#ddc').attr('disabled', false)"  @if(empty($collection->DDC)) checked @endif>
-                                            Tidak Ada
-                                        </label>
-                                    </span>
-                                    <input type="text" class="form-control" name="ddc" id="ddc" value="{{ $collection->DDC }}" placeholder="...................."  @if(empty($collection->DDC)) disabled @endif>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label class="col-form-label col-md-2">Kala Terbit</label>
                             <div class="col-md-10">
                                 <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada">

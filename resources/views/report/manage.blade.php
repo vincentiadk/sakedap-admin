@@ -98,7 +98,6 @@
                         <th class="text-nowrap">Album</th>
                         <th class="text-nowrap">Seri</th>
                         <th class="text-nowrap">Edisi</th>
-                        <th class="text-nowrap">DDC</th>
                         <th class="text-nowrap">Volume</th>
                         <th class="text-nowrap">Kode</th>
                         <th class="text-nowrap">Tahun</th>
@@ -261,7 +260,6 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },

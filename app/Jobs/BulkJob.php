@@ -117,7 +117,6 @@ class BulkJob implements ShouldQueue
                     $codeType = $d->get('jenis_kode');
                     $code = $d->get('kode');
                     $series = $d->get('seri');
-                    $ddc = $d->get('ddc');
                     $serial = $d->get('kala_terbit');
                     $publishTime = $d->get('waktu_terbit');
                     $currency = $d->get('mata_uang');
@@ -149,7 +148,6 @@ class BulkJob implements ShouldQueue
                     $album = optional($catalog)->ALBUM ?? '';
                     $seriesData = optional($catalog)->SERIES ?? $series ?? '';
                     $serialData = optional($catalog)->SERIAL_E_COLLECTION ?? $serial ?? '';
-                    $ddcData = optional($catalog)->DEWEYNO ?? $ddc ?? '';
                     $codeData = optional($catalog)->ISBN ?? $code ?? '';
                     $codeTypeData = optional($catalog)->CODE_TYPE_E_COLLECTION ?? $codeType ?? '';
                     $publishMonth = optional($catalog)->PUBLISH_MONTH ?: ($finalpublishTime ? date('m', strtotime($finalpublishTime)) : null);
@@ -187,7 +185,6 @@ class BulkJob implements ShouldQueue
                         'slug' => Str::slug($titleOri, '-'),
                         'series' => $seriesData,
                         'serial' => $serialData,
-                        'ddc' => $ddcData,
                         'code' => $codeData,
                         'code_type' => $codeTypeData,
                         'publication_month' => $publishMonth,
