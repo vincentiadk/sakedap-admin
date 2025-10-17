@@ -24,7 +24,7 @@ class CreateReceiptController extends Controller
                 collectionmedias.*
             from
                 collectionmedias
-            left join
+            join
                 worksheets on worksheets.id = collectionmedias.worksheet_id
             where
                 worksheets.category in ('$worksheetAnalog','$worksheetPrinted')
