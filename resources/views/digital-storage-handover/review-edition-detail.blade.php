@@ -490,6 +490,10 @@
     <div class="card">
         <div class="card-body">
             <div class="text-end">
+                <button type="button" class="btn btn-danger" onclick="submitted('cancel-review')">
+                    <i class="ph-x me-1"></i>
+                    Batal Tinjau
+                </button>
                 <button type="button" class="btn btn-warning" onclick="submitted('save')">
                     <i class="ph-floppy-disk me-1"></i>
                     Simpan

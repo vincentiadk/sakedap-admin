@@ -57,7 +57,8 @@ class ReviewController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and e_collections.parent_id is null";
+        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null)";
+        $whereCondition[] = "(e_collections.parent_id is null or e_collections.parent_id = 0)";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -116,11 +117,8 @@ class ReviewController extends Controller
             from
                 e_collections
             where
-                (
-                    status = '1' and
-                    deleted_at is null
-                ) and
-                e_collections.parent_id is null
+                (status = '1' and deleted_at is null) and
+                (parent_id is null or parent_id = 0)
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -176,6 +174,12 @@ class ReviewController extends Controller
                     </a>
                 ';
 
+                if (!empty($val->REVIEW_BY)) {
+                    if ($val->REVIEW_BY != session('username')) {
+                        $action = 'Sedang di tinjau oleh ' . $val->REVIEW_BY;
+                    }
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -228,7 +232,40 @@ class ReviewController extends Controller
             abort(404);
         }
 
+        $reviewBy = $collection->REVIEW_BY ?? null;
+
+        if (!empty($reviewBy)) {
+            if ($reviewBy !== session('username')) {
+                $reviewerName = session('name');
+
+                echo '
+                    <script>
+                        alert("Koleksi sedang di tinjau oleh ' . $reviewerName . '");
+                        window.location.href = "' . url('digital-storage-handover/review') . '";
+                    </script>
+                ';
+                exit();
+            }
+        } else {
+            QueryAPI::update('e_collections', $collection->ID, [
+                'review_by' => session('username')
+            ]);
+        }
+
         if ($request->ajax()) {
+            $param = $request->param;
+
+            if ($request->param == 'cancel-review') {
+                QueryAPI::update('e_collections', $collection->ID, [
+                    'review_by' => null
+                ]);
+
+                return response()->json([
+                    'code' => 200,
+                    'message' => 'Peninjauan berhasil dibatalkan'
+                ]);
+            }
+
             if (in_array($request->status, [3, 5])) {
                 $validation = Validator::make($request->all(), [
                     'status' => 'required',
@@ -265,7 +302,6 @@ class ReviewController extends Controller
                     $sessionId = session('id');
                     $currentDateTime = date('Y-m-d H:i:s');
                     $revisionCount = $collection->REVISION_COUNT ?? 0;
-                    $param = $request->param;
 
                     $updateData = [
                         'city_id' => $request->city_id,

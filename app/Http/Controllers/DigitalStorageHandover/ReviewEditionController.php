@@ -177,6 +177,12 @@ class ReviewEditionController extends Controller
                     </a>
                 ';
 
+                if (!empty($val->REVIEW_BY)) {
+                    if ($val->REVIEW_BY != session('username')) {
+                        $action = 'Sedang di tinjau oleh ' . $val->REVIEW_BY;
+                    }
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -230,7 +236,40 @@ class ReviewEditionController extends Controller
             abort(404);
         }
 
+        $reviewBy = $collection->REVIEW_BY ?? null;
+
+        if (!empty($reviewBy)) {
+            if ($reviewBy !== session('username')) {
+                $reviewerName = session('name');
+
+                echo '
+                    <script>
+                        alert("Koleksi sedang di tinjau oleh ' . $reviewerName . '");
+                        window.location.href = "' . url('digital-storage-handover/review') . '";
+                    </script>
+                ';
+                exit();
+            }
+        } else {
+            QueryAPI::update('e_collections', $collection->ID, [
+                'review_by' => session('username')
+            ]);
+        }
+
         if ($request->ajax()) {
+            $param = $request->param;
+
+            if ($request->param == 'cancel-review') {
+                QueryAPI::update('e_collections', $collection->ID, [
+                    'review_by' => null
+                ]);
+
+                return response()->json([
+                    'code' => 200,
+                    'message' => 'Peninjauan berhasil dibatalkan'
+                ]);
+            }
+
             if (in_array($request->status, [3, 5])) {
                 $validation = Validator::make($request->all(), [
                     'status' => 'required',
@@ -267,7 +306,6 @@ class ReviewEditionController extends Controller
                     $sessionId = session('id');
                     $currentDateTime = date('Y-m-d H:i:s');
                     $revisionCount = $collection->REVISION_COUNT ?? 0;
-                    $param = $request->param;
 
                     $updateData = [
                         'city_id' => $request->city_id,
