@@ -35,6 +35,7 @@ class NewsController extends Controller
             'e_news.pages',
             'e_news_kategori.name',
             'e_news.title',
+            'e_news.lang',
             'e_news.lampiran_link',
             'e_news.status',
         ];
@@ -169,6 +170,7 @@ class NewsController extends Controller
                     $image,
                     $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
+                    $val->LANG,
                     $attachmentLink,
                     $val->STATUS,
                 ];
@@ -217,6 +219,7 @@ class NewsController extends Controller
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
                     'flag' => 'BERITA',
+                    'lang' => $request->lang,
                 ]);
 
                 if ($createData) {
@@ -296,6 +299,7 @@ class NewsController extends Controller
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
                     'flag' => 'BERITA',
+                    'lang' => $request->lang,
                 ]);
 
                 if ($updateData) {

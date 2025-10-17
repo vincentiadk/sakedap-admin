@@ -49,25 +49,11 @@ class PagesController extends Controller
         try {
             if ($request->category) {
                 foreach ($request->category as $c) {
-                    $categoryContent = isset($request->category_content[$c]) ? $request->category_content[$c] : null;
-                    $content = [];
+                    $categoryContent = isset($request->category_content[$c]) ? $request->category_content[$c] : [];
 
                     if ($categoryContent) {
-                        foreach ($categoryContent as $cc) {
-                            $news = QueryAPI::get("select * from e_news where id = $cc", true);
-
-                            if ($news) {
-                                $content[] = [
-                                    'id' => $news->ID,
-                                    'title' => $news->TITLE,
-                                ];
-                            }
-                        }
-                    }
-
-                    if ($content) {
                         QueryAPI::update('e_news_kategori', $c, [
-                            'content' => json_encode($content),
+                            'content' => implode(',', $categoryContent),
                             'updateby' => session('name'),
                             'updatedate' => date('Y-m-d H:i:s'),
                             'updateterminal' => $request->ip(),

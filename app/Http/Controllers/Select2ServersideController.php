@@ -630,7 +630,8 @@ class Select2ServersideController extends Controller
         $data = QueryAPI::get("
             select
                 id,
-                title
+                title,
+                lang
             from
                 e_news
             $whereClause
@@ -640,11 +641,12 @@ class Select2ServersideController extends Controller
             foreach ($data as $d) {
                 $html = '
                     <div>' . ($d->TITLE ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Lang : ' . ($d->LANG ?? '-') . '</div>
                 ';
 
                 $response[] = [
                     'id' => $d->ID,
-                    'text' => $d->TITLE,
+                    'text' => $d->LANG . ' | ' . $d->TITLE,
                     'html' => $html,
                 ];
             }

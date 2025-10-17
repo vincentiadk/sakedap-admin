@@ -35,6 +35,7 @@ class EventController extends Controller
             'e_news.catalog',
             'e_news_kategori.name',
             'e_news.title',
+            'e_news.lang',
             'e_news.lampiran_link',
             'e_news.status',
         ];
@@ -177,6 +178,7 @@ class EventController extends Controller
                     $totalCatalog,
                     $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
+                    $val->LANG,
                     $attachmentLink,
                     $val->STATUS,
                 ];
@@ -241,6 +243,7 @@ class EventController extends Controller
                     'kategori_id' => $request->category_id,
                     'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
+                    'lang' => $request->lang,
                 ]);
 
                 if ($createData) {
@@ -336,6 +339,7 @@ class EventController extends Controller
                     'kategori_id' => $request->category_id,
                     'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
+                    'lang' => $request->lang,
                 ]);
 
                 if ($updateData) {

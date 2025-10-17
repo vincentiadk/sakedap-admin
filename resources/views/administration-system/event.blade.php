@@ -29,6 +29,7 @@
                         <th class="text-nowrap">Total Katalog</th>
                         <th class="text-nowrap">Kategori</th>
                         <th class="text-nowrap">Judul</th>
+                        <th class="text-nowrap">Lang</th>
                         <th class="text-nowrap">Lampiran Link</th>
                         <th class="text-nowrap">Status</th>
                     </tr>
@@ -87,6 +88,13 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Lang :</label>
+                        <select class="form-select" name="lang" id="lang">
+                            <option value="ID">ID</option>
+                            <option value="EN">EN</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Lampiran Link :</label>
                         <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
                     </div>
@@ -141,6 +149,7 @@
         $('#image-preview').attr('href', 'javascript:void(0);');
         $('#image-preview').hide();
         $('#status').val('PUBLISH');
+        $('#lang').val('ID');
         $('#category_id').val('').change();
         $('#content').summernote('code', '');
         $('#catalog').html('');
@@ -211,6 +220,7 @@
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -293,6 +303,7 @@
                 $('#title').val(response.TITLE);
                 $('#content').summernote('code', response.CONTENT);
                 $('#status').val(response.STATUS);
+                $('#lang').val(response.LANG);
                 $('#category_id').val(response.KATEGORI_ID).change();
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
 

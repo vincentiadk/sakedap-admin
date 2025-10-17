@@ -40,8 +40,21 @@
                                 @php
                                     $content = [];
 
-                                    if($c->CONTENT ?: null) {
-                                        $content = json_decode($c->CONTENT);
+                                    if ($c->CONTENT) {
+                                        $contentList = "'" . str_replace(',', "','", $c->CONTENT) . "'";
+
+                                        $content = QueryAPI::get("
+                                            select 
+                                                id, 
+                                                title, 
+                                                lang 
+                                            from 
+                                                e_news 
+                                            where 
+                                                id in ($contentList)
+                                            order by 
+                                                instr(',' || '$c->CONTENT' || ',', ',' || ID || ',')
+                                        ");
                                     }
                                 @endphp
 
@@ -53,7 +66,7 @@
                                             </a>
                                             <div class="flex-fill">
                                                 <select class="form-select category-content" name="category_content[{{ $c->ID }}][]">
-                                                    <option value="{{ $cc->id }}" selected>{{ $cc->title }}</option>
+                                                    <option value="{{ $cc->ID }}" selected>{{ $cc->LANG }} | {{ $cc->TITLE }}</option>
                                                 </select>
                                             </div>
                                             <div class="ms-3">
@@ -91,23 +104,47 @@
     @endif
 </div>
 
+<style>
+    .select2-results__option {
+        white-space: normal !important;
+        word-wrap: break-word; 
+        line-height: 1.5; 
+    }
+</style>
+
 <script>
     $(function() {
         const containers = document.querySelectorAll('.draggable-container');
 
         containers.forEach(function(container) {
-            dragula([container], {
+            const dragulaInstance = dragula([container], {
                 mirrorContainer: document.querySelector('.media-list-container'),
                 moves: function (el, container, handle) {
                     return handle.classList.contains('dragula-handle');
                 }
             });
+
+            dragulaInstance.on('drop', function(el, target, source, sibling) {
+                updateContentOrder($(target)); 
+            });
+            
+            updateContentOrder($(container));
         });
 
         select2Serverside('.category-content', 'news', {}, {
             minimumInputLength: 0
         });
     });
+
+    function updateContentOrder(containerElement) {
+        const categoryId = containerElement.attr('id').replace('content-news-', '');
+
+        containerElement.find('li').each(function(index, item) {
+            const selectElement = $(item).find('select.category-content');
+
+            selectElement.attr('name', `category_content[${categoryId}][${index}]`);
+        });
+    }
 
     function addContent(param, id) {
         $(param).append(`
