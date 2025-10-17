@@ -10,24 +10,28 @@ class HeaderEmailController extends Controller
 {
     public function index(Request $request)
     {
+        $provinceId = session('province_id');
+
         $template = QueryAPI::get("
             select
                 *
             from
                 e_settings
             where
-                slug = 'Header'
+                slug = 'Header' and
+                province_id = $provinceId
         ", true);
 
         if ($request->_token == csrf_token()) {
             if ($template) {
                 QueryAPI::update('e_settings', ($template->ID ?? null), [
-                    'content' => $request->content
+                    'province_id' => $provinceId,
                 ]);
             } else {
                 $template = QueryAPI::create('e_settings', [
                     'content' => $request->content,
-                    'slug' => 'Header'
+                    'slug' => 'Header',
+                    'province_id' => $provinceId,
                 ]);
             }
 

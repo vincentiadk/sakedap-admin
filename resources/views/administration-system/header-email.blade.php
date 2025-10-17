@@ -21,6 +21,14 @@
         @csrf
         <div class="card">
             <div class="card-body">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-text">Provinsi</span>
+                        <select class="form-select" name="province_id" id="province_id" required>
+                            <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                        </select>
+                    </div>
+                </div>
                 <input type="file" name="file" id="file" required>
             </div>
         </div>
@@ -39,11 +47,11 @@
 
 <script>
     $(function() {
-        var hasImage = '{{ $template->CONTENT }}';
+        var hasImage = '{{ $template->CONTENT ?? '' }}';
         var templateId = '{{ $template->ID ?? "" }}';
 
         if(hasImage) {
-            var imageUrl = '{{ url("stream-file") }}?type=gambar_template&id=' + templateId + '&filename={{ $template->CONTENT }}';
+            var imageUrl = '{{ url("stream-file") }}?type=gambar_template&id=' + templateId + '&filename=' + hasImage;
             var previewImage = [imageUrl];
             var previewConfig = [
                 {

@@ -275,7 +275,11 @@ class AuthController extends Controller
                                 from
                                     e_settings
                                 where
-                                    slug in ('GantiPassword','Header','Footer')
+                                    slug = 'GantiPassword' or
+                                    (
+                                        slug in ('Header','Footer') and
+                                        province_id = " . session('province_id') . "
+                                    )
                             ");
 
                             $templateEmailContent = null;
