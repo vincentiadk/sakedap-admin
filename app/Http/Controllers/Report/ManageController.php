@@ -325,15 +325,6 @@ class ManageController extends Controller
                 catalog_id = $catalogId
         ", true);
 
-        $collectionOriginal = QueryAPI::get("
-            select
-                *
-            from
-                catalogfiles
-            where
-                catalog_id = $catalogId
-        ", true);
-
         $collectionPreview = QueryAPI::get("
             select
                 *
@@ -366,7 +357,6 @@ class ManageController extends Controller
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,
                 'collectionCover' => $collectionCover,
-                'collectionOriginal' => $collectionOriginal,
                 'collectionPreview' => $collectionPreview,
                 'collectionWatermark' => $collectionWatermark,
                 'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION_E_COLLECTION ?? ''),

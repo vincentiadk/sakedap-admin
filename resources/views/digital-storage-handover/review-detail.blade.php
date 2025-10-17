@@ -418,7 +418,7 @@
                                 <a href="#nav-tabs-cover" class="nav-link active" data-bs-toggle="tab">File Cover</a>
                             </li>
                             <li class="nav-item">
-                                <a href="#nav-tabs-original" class="nav-link" data-bs-toggle="tab">File Original</a>
+                                <a href="#nav-tabs-watermark" class="nav-link" data-bs-toggle="tab">File Konten</a>
                             </li>
                         </ul>
                         <div class="tab-content flex-lg-fill mt-4">
@@ -439,19 +439,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="nav-tabs-original">
+                            <div class="tab-pane fade" id="nav-tabs-watermark">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="ratio ratio-16x9">
-                                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionOriginal->ID ?? '' }}&filename={{ $collectionOriginal->FILEURL ?? '' }}" frameborder="0"></iframe>
+                                            <iframe src="{{ url('stream-file') }}?type=file_access&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="alert alert-info">
-                                            <div><b>Hash :</b> {{ $collectionOriginal->HASH ?? '' }}</div>
-                                            <div><b>Mime Type :</b> {{ $collectionOriginal->MIME ?? '' }}</div>
-                                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionOriginal->FILE_SIZE ?? 0) }}</div>
-                                            <div><b>Metode :</b> {{ Main::method($collectionOriginal->METHOD ?? 0) }}</div>
+                                            <div><b>Hash :</b> {{ $collectionContent->HASH ?? '' }}</div>
+                                            <div><b>Mime Type :</b> {{ $collectionContent->MIME ?? '' }}</div>
+                                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionContent->FILE_SIZE ?? 0) }}</div>
+                                            <div><b>Metode :</b> {{ Main::method($collectionContent->METHOD ?? 0) }}</div>
                                         </div>
                                     </div>
                                 </div>

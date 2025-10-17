@@ -395,7 +395,7 @@
         dragAndDropFile('#file_content', {
             maxFileCount: 1,
             autoReplace: true,
-            allowedFileExtensions: ['pdf',, 'epub', 'mp3', 'mp4', 'wav'],
+            allowedFileExtensions: ['pdf', 'epub', 'mp3', 'mp4', 'wav'],
             maxFileSize: 204800,
         });
 
