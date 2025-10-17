@@ -591,4 +591,26 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'VillageController@destroyData');
         });
     });
+
+    Route::prefix('request-file')->group(function () {
+        Route::get('/', 'RequestFileController@index');
+        Route::get('datatable', 'RequestFileController@datatable');
+        Route::post('set-status', 'RequestFileController@setStatus');
+    });
+
+    Route::prefix('award')->group(function () {
+        Route::get('/', 'AwardController@index');
+        Route::get('datatable', 'AwardController@datatable');
+        Route::post('create-data', 'AwardController@createData');
+        Route::get('show-data', 'AwardController@showData');
+        Route::post('update-data', 'AwardController@updateData');
+        Route::delete('destroy-data', 'AwardController@destroyData');
+
+        Route::prefix('nomination/{id}')->group(function () {
+            Route::match(['get', 'post'], '/', 'AwardController@nomination');
+            Route::get('datatable', 'AwardController@nominationDatatable');
+            Route::post('add', 'AwardController@nominationAdd');
+            Route::delete('remove', 'AwardController@nominationRemove');
+        });
+    });
 });
