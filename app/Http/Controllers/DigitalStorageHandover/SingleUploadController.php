@@ -24,7 +24,7 @@ class SingleUploadController extends Controller
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'") ?? [],
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
                 'category' => QueryAPI::get("select * from e_categories where deleted_at is null") ?? [],
                 'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'") ?? [],
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'") ?? [],
