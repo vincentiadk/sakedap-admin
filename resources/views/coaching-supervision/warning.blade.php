@@ -183,7 +183,7 @@
     $(function() {
         datePickerSingle('.date-single');
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id, #filter_branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

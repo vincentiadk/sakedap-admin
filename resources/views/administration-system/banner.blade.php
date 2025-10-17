@@ -104,7 +104,7 @@
     $(function() {
         loadData();
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#promotion_id', 'promotion', {
                 province_id: '{{ session("province_id") }}',
             });

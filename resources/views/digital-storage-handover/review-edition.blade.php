@@ -47,7 +47,7 @@
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
                         <select class="form-select" name="province_id" id="province_id">
-                            @if(Main::isNotCenterBranch())
+                            @if(Main::isNotSuperAdmin())
                                 <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                             @endif
                         </select>
@@ -98,7 +98,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',

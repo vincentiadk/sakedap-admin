@@ -59,7 +59,7 @@ class InDeliveryController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('DIKIRIM', 'DALAM PENGIRIMAN')";
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'p.province_id = ' . session('province_id');
         }
 
@@ -372,7 +372,7 @@ class InDeliveryController extends Controller
                 'letterDetail' => $letterDetail,
                 'disabled' => $disable,
                 'content' => 'physical-delivery.in-delivery-detail',
-                'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
+                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'datatable',

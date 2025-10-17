@@ -47,7 +47,7 @@
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
                         <select class="form-select" name="province_id" id="province_id" data-placeholder="Semua">
-                            @if(Main::isNotCenterBranch())
+                            @if(Main::isNotSuperAdmin())
                                 <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                             @endif
                         </select>
@@ -153,7 +153,7 @@
                         <div class="form-group">
                             <label class="form-label">Provinsi :</label>
                             <select class="form-select" name="de_province_id" id="de_province_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
-                                @if(Main::isNotCenterBranch())
+                                @if(Main::isNotSuperAdmin())
                                     <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                                 @endif
                             </select>
@@ -187,7 +187,7 @@
             }
         });
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#province_id, #de_province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',

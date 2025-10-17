@@ -20,7 +20,7 @@ class CreateReceiptController extends Controller
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-delivery.create-receipt',
-                'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
+                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                 'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'") ?? [],
                 'plugins' => [
                     'select2',
@@ -47,7 +47,7 @@ class CreateReceiptController extends Controller
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
         $totalCollection = $collection->TOTAL ?? 0;
         $totalSystem = 0;
-        $maxAccept = Main::isNotCenterBranch() ? 1 : 2;
+        $maxAccept = Main::isNotSuperAdmin() ? 1 : 2;
         $optionAccept = [];
 
         if ($totalLetterDetail > 0) {
@@ -78,7 +78,7 @@ class CreateReceiptController extends Controller
             'optionAccept' => $optionAccept,
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,
-            'totalAccept' => Main::isNotCenterBranch() ? 1 : 2,
+            'totalAccept' => Main::isNotSuperAdmin() ? 1 : 2,
         ]);
     }
 

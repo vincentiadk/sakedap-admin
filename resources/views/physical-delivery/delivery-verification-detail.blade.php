@@ -107,7 +107,7 @@
                                         $totalAccept = 1;
                                         $totalReject -= 1;
                                     } else {
-                                        if (Main::isNotCenterBranch()) {
+                                        if (Main::isNotSuperAdmin()) {
                                             $totalAccept = 1;
                                             $totalReject -= 1;
                                         } else {
@@ -118,7 +118,7 @@
                                 }
 
                                 if($totalSent >= 2) {
-                                    $maxAccept = Main::isNotCenterBranch() ? 1 : 2;
+                                    $maxAccept = Main::isNotSuperAdmin() ? 1 : 2;
                                 } else {
                                     $maxAccept = 1;
                                 }
@@ -160,13 +160,13 @@
                                 </td>
                                 <td>
                                     <select class="form-select" name="letter_detail_remark[][]" multiple {{ $disabled }}>
-                                        @php 
+                                        @php
                                             $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
                                             $remark = [];
-                                            
+
                                             if($ld->REMARK) {
                                                 $remark = explode(';', $ld->REMARK ?? '');
-                                                
+
                                                 if($totalReject > 0) {
                                                     if(!in_array($problemRejectDefault, $remark)) {
                                                         $remark[] = $problemRejectDefault;

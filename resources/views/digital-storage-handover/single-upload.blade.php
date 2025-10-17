@@ -14,6 +14,19 @@
     <form id="form-data">
         <div class="card">
             <div class="card-header">
+                <h5 class="hstack gap-2 mb-0">Jenis Bahan <span class="text-danger fw-bold">*</span></h5>
+            </div>
+            <div class="card-body">
+                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" onchange="chooseWorksheet()">
+                    <option value=""></option>
+                    @foreach($worksheet as $w)
+                        <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="card d-none" id="form-parent">
+            <div class="card-header">
                 <h5 class="hstack gap-2 mb-0">Parent</h5>
                 <small class="text-danger fst-italic">* untuk input tunggal edisi harap memilih parent terlebih dahulu</small>
             </div>
@@ -53,17 +66,6 @@
                         <div class="col-md-10">
                             <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" placeholder="Pilih Tanggal" readonly>
                         </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
-                    <div class="col-md-10">
-                        <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id">
-                            <option value=""></option>
-                            @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
-                            @endforeach
-                        </select>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -371,7 +373,7 @@
     $(function() {
         datePickerSingle('.date-picker-single');
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#city_id', 'location', {
                 for: 'city',
                 province_id: '{{ session("province_id") }}',
@@ -425,68 +427,83 @@
         });
     });
 
-    function catalogParent() {
-        $('#column-edition').removeClass('d-none');
-        $('#btn-cancel-parent').removeClass('d-none');
-        $('#card-edition').hide();
+    function chooseWorksheet() {
+        var worksheetId = $('#worksheet_id').val();
+
+        if(worksheetId == 142) {
+            $('#form-parent').removeClass('d-none');
+            $('#column-edition').removeClass('d-none');
+            $('#card-edition').hide();
+        } else {
+            $('#form-parent').addClass('d-none');
+            $('#btn-cancel-parent').addClass('d-none');
+            $('#card-edition').show();
+        }
+
         $('#card-edition #data-edition').html('');
+    }
 
-        $.ajax({
-            url: '{{ url("digital-storage-handover/single-upload/catalog-parent") }}',
-            type: 'GET',
-            dataType: 'JSON',
-            data: {
-                id: $('#catalog_id').val()
-            },
-            beforeSend: function() {
-                onLoading('show', 'body');
-            },
-            success: function(response) {
-                onLoading('close', 'body');
+    function catalogParent() {
+        $('#btn-cancel-parent').removeClass('d-none');
 
-                $('#executor_id').html(`
-                    <option value="${ response.PENERBIT_ID }" selected>
-                        ${ response.PENERBIT_ID } | ${ response.NAME_PENERBIT }
-                    </option>
-                `);
+        if($('#catalog_id').val()) {
+            $.ajax({
+                url: '{{ url("digital-storage-handover/single-upload/catalog-parent") }}',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {
+                    id: $('#catalog_id').val()
+                },
+                beforeSend: function() {
+                    onLoading('show', 'body');
+                },
+                success: function(response) {
+                    onLoading('close', 'body');
 
-                $('#worksheet_id').val(response.WORKSHEET_ID).change();
-                $('#media_id').val(response.COLLECTIONMEDIA_ID).change();
-                $('#title').val(response.TITLE);
-                $('#code_type').val(response.CODE_TYPE_E_COLLECTION).change();
-                $('#code').val(response.ISBN);
-                $('#series_checkbox').prop('checked', response.SERIES ? false : true).change();
-                $('#series').val(response.SERIES);
-                $('#ddc_checkbox').prop('checked', response.DEWEYNO ? false : true).change();
-                $('#ddc').val(response.DEWEYNO);
-                $('#serial').val(response.SERIAL_E_COLLECTION).change();
-                $('#publish_time').val(response.PUBLISHYEAR + '-' + response.PUBLISH_MONTH);
-                $('#preview').val(response.PREVIEW);
-                $('#currency').html('<option value="' + response.CURRENCY_E_COLLECTION + '" selected>' + response.CURRENCY_E_COLLECTION + '</option>');
-                $('#price').val(response.PRICE_E_COLLECTION);
-                $('#binding').val(response.JILID_E_COLLECTION);
-                $('#content_type').val(response.JENIS_ISI).change();
-                $('#container_type').val(response.JENIS_WADAH).change();
-                $('#media_type').val(response.JENIS_MEDIA).change();
-                $('#big_class_id').val(response.KELAS_BESAR_ID).change();
-                $('input[name="physical_description[paging]"]').val(response.PAGING);
-                $('input[name="physical_description[ill]"]').val(response.ILL);
-                $('input[name="physical_description[sizes]"]').val(response.SIZES);
-                $('#description').val(response.DESCRIPTION_E_COLLECTION).change();
-
-                if(response.NAMAKAB && response.NAMAPROPINSI) {
-                    $('#city_id').html(`
-                        <option value="${ response.CITY_ID }" selected>
-                            ${ response.NAMAPROPINSI } -> ${ response.NAMAKAB }
+                    $('#executor_id').html(`
+                        <option value="${ response.PENERBIT_ID }" selected>
+                            ${ response.PENERBIT_ID } | ${ response.NAME_PENERBIT }
                         </option>
                     `);
+
+                    $('#worksheet_id').val(response.WORKSHEET_ID).change();
+                    $('#media_id').val(response.COLLECTIONMEDIA_ID).change();
+                    $('#title').val(response.TITLE);
+                    $('#code_type').val(response.CODE_TYPE_E_COLLECTION).change();
+                    $('#code').val(response.ISBN);
+                    $('#series_checkbox').prop('checked', response.SERIES ? false : true).change();
+                    $('#series').val(response.SERIES);
+                    $('#ddc_checkbox').prop('checked', response.DEWEYNO ? false : true).change();
+                    $('#ddc').val(response.DEWEYNO);
+                    $('#serial').val(response.SERIAL_E_COLLECTION).change();
+                    $('#publish_time').val(response.PUBLISHYEAR + '-' + response.PUBLISH_MONTH);
+                    $('#preview').val(response.PREVIEW);
+                    $('#currency').html('<option value="' + response.CURRENCY_E_COLLECTION + '" selected>' + response.CURRENCY_E_COLLECTION + '</option>');
+                    $('#price').val(response.PRICE_E_COLLECTION);
+                    $('#binding').val(response.JILID_E_COLLECTION);
+                    $('#content_type').val(response.JENIS_ISI).change();
+                    $('#container_type').val(response.JENIS_WADAH).change();
+                    $('#media_type').val(response.JENIS_MEDIA).change();
+                    $('#big_class_id').val(response.KELAS_BESAR_ID).change();
+                    $('input[name="physical_description[paging]"]').val(response.PAGING);
+                    $('input[name="physical_description[ill]"]').val(response.ILL);
+                    $('input[name="physical_description[sizes]"]').val(response.SIZES);
+                    $('#description').val(response.DESCRIPTION_E_COLLECTION).change();
+
+                    if(response.NAMAKAB && response.NAMAPROPINSI) {
+                        $('#city_id').html(`
+                            <option value="${ response.CITY_ID }" selected>
+                                ${ response.NAMAPROPINSI } -> ${ response.NAMAKAB }
+                            </option>
+                        `);
+                    }
+                },
+                error: function(response) {
+                    onLoading('close', 'body');
+                    responseError(response);
                 }
-            },
-            error: function(response) {
-                onLoading('close', 'body');
-                responseError(response);
-            }
-        });
+            });
+        }
     }
 
     function checkISBNCode() {

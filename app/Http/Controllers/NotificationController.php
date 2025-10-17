@@ -11,7 +11,7 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $provinceId = 'penerbit.province_id = ' . session('id');
         } else {
             $provinceId = 'penerbit.province_id is not null';

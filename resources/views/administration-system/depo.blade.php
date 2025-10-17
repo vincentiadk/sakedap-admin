@@ -100,7 +100,7 @@
         $('#btn-cancel').addClass('d-none');
         $('#branch_id').val('').change();
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

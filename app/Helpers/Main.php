@@ -9,7 +9,7 @@ class Main
     const COLLECTION_DIGITAL = 'KRD';
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
-    const IS_CENTER_BRANCH = 37;
+    const IS_SUPER_ADMIN = 1;
     const CACHE_NAME_CONFIG_APP = 'app_configuration';
     const CONFIG_PARAM = [
         'EPercobaanLogin',
@@ -171,7 +171,7 @@ class Main
         $city = QueryAPI::get("select code_kab as code from kabupaten where id = $cityId", true);
         $seq = 1;
 
-        $cityCode = $branchId == static::IS_CENTER_BRANCH ? substr($city->CODE ?? '', 0, -3) : ($city->CODE ?? '');
+        $cityCode = $branchId == 37 ? substr($city->CODE ?? '', 0, -3) : ($city->CODE ?? '');
         $worksheetCode = $worksheet->CODE ?? '';
         $yearNow = date('Y');
 
@@ -273,13 +273,13 @@ class Main
     }
 
     /**
-     * isNotCenterBranch
+     * isNotSuperAdmin
      *
      * @return void
      */
-    public static function isNotCenterBranch()
+    public static function isNotSuperAdmin()
     {
-        return (int) session('branch_id') !== static::IS_CENTER_BRANCH;
+        return (int) session('role_id') !== static::IS_SUPER_ADMIN;
     }
 
     /**

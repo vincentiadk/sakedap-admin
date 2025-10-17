@@ -101,7 +101,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id">
+                        <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" disabled>
                             <option value=""></option>
                             @foreach($worksheet as $w)
                                 <option value="{{ $w->ID }}" {{ $collection->WORKSHEET_ID == $w->ID ? 'selected' : '' }}>{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
@@ -507,7 +507,7 @@
     $(function() {
         datePickerSingle('#received_at');
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

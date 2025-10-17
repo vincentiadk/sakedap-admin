@@ -107,7 +107,7 @@
                                         $totalAccept = 1;
                                         $totalReject -= 1;
                                     } else {
-                                        if (Main::isNotCenterBranch()) {
+                                        if (Main::isNotSuperAdmin()) {
                                             $totalAccept = 1;
                                             $totalReject -= 1;
                                         } else {
@@ -118,7 +118,7 @@
                                 }
 
                                 if($totalSent >= 2) {
-                                    $maxAccept = Main::isNotCenterBranch() ? 1 : 2;
+                                    $maxAccept = Main::isNotSuperAdmin() ? 1 : 2;
                                 } else {
                                     $maxAccept = 1;
                                 }

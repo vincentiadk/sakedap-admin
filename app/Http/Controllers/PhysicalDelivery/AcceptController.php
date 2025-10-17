@@ -61,7 +61,7 @@ class AcceptController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'p.province_id = ' . session('province_id');
         }
 
@@ -414,7 +414,7 @@ class AcceptController extends Controller
                 'letterDetail' => $letterDetail,
                 'disabled' => $disable,
                 'content' => 'physical-delivery.accept-detail',
-                'acceptDefault' => Main::isNotCenterBranch() ? 1 : 2,
+                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'datatable',
@@ -560,7 +560,7 @@ class AcceptController extends Controller
 
         if ($collections) {
             foreach ($collections as $key => $c) {
-                $trk = Main::isNotCenterBranch() ? $c->MARK_PROVINCE_COLLECTION : $c->NOINDUK_COLLECTION;
+                $trk = Main::isNotSuperAdmin() ? $c->MARK_PROVINCE_COLLECTION : $c->NOINDUK_COLLECTION;
 
                 $htmlCollections .= '<tr>';
                 $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($key + 1) . '</td>';

@@ -21,7 +21,7 @@ class ServiceController extends Controller
             $userKey = "user:$userId:download";
 
             $payload = [
-                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'is_not_center_branch' => Main::isNotSuperAdmin(),
                 'year' => $request->year,
                 'province_id' => session('province_id')
             ];
@@ -46,7 +46,7 @@ class ServiceController extends Controller
         $response = [];
         $conditions = ['penerbit.id is not null'];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $conditions[] = 'propinsi.id = ' . session('province_id');
         }
 

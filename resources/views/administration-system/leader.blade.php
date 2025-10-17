@@ -130,7 +130,7 @@
         $('#signature-preview').attr('href', 'javascript:void(0);');
         $('#signature-preview').hide();
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

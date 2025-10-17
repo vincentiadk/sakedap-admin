@@ -46,7 +46,7 @@
                     <div class="form-group">
                         <label class="form-label">User :</label>
                         <select class="form-select select2-basic" name="action_by" id="action_by" data-placeholder="Semua">
-                            @if(Main::isNotCenterBranch())
+                            @if(Main::isNotSuperAdmin())
                                 <option value="{{ session('username') }}" selected>{{ session('username') }}</option>
                             @else
                                 <option value=""></option>

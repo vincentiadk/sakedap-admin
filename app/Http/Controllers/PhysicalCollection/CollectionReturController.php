@@ -60,7 +60,7 @@ class CollectionReturController extends Controller
         $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
         $whereCondition[] = "letter_detail.qty_retur > 0";
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

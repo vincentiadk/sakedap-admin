@@ -64,7 +64,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isNotCenterBranch() }}') === 1) {
+        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });

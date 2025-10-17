@@ -21,7 +21,7 @@ class PromotionController extends Controller
             $userKey = "user:$userId:download";
 
             $payload = [
-                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'is_not_center_branch' => Main::isNotSuperAdmin(),
                 'province_id' => session('province_id'),
                 'promotion_id' => $request->action_by,
                 'delivery_service_id' => $request->action_by,
@@ -83,7 +83,7 @@ class PromotionController extends Controller
         $whereClause = '';
         $whereCondition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 

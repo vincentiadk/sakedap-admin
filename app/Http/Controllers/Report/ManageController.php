@@ -21,7 +21,7 @@ class ManageController extends Controller
             $userKey = "user:$userId:download";
 
             $payload = [
-                'is_not_center_branch' => Main::isNotCenterBranch(),
+                'is_not_center_branch' => Main::isNotSuperAdmin(),
                 'title' => $request->title,
                 'executor_id' => $request->executor_id,
                 'province_id' => $request->province_id,

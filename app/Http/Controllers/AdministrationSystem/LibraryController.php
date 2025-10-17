@@ -47,7 +47,7 @@ class LibraryController extends Controller
         $whereClause = '';
         $whereCondition[] = '(branchs.isdelete = 0 or branchs.isdelete is null)';
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'propinsi.id = ' . session('province_id');
         }
 

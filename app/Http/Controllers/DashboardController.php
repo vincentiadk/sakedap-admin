@@ -42,7 +42,7 @@ class DashboardController extends Controller
         $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
         $condition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         }
 
@@ -77,7 +77,7 @@ class DashboardController extends Controller
     {
         $condition = ['rownum <= 10'];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $usernameSession = session('username');
             $condition[] = "actionby = '$usernameSession'";
         }
@@ -107,7 +107,7 @@ class DashboardController extends Controller
         $response = [];
         $condition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         } else {
             $condition[] = "propinsi.id is not null";
@@ -157,7 +157,7 @@ class DashboardController extends Controller
         $response = [];
         $condition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         } else {
             $condition[] = "propinsi.id is not null";
@@ -207,7 +207,7 @@ class DashboardController extends Controller
         $response = [];
         $condition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         } else {
             $condition[] = "propinsi.id is not null";
@@ -257,7 +257,7 @@ class DashboardController extends Controller
         $response = [];
         $condition = ["(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)"];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         }
 
@@ -305,7 +305,7 @@ class DashboardController extends Controller
         $response = [];
         $condition = [];
 
-        if (Main::isNotCenterBranch()) {
+        if (Main::isNotSuperAdmin()) {
             $condition[] = "propinsi.id = " . session('province_id');
         } else {
             $condition[] = "propinsi.id is not null";
