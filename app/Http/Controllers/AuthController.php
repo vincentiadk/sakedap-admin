@@ -74,10 +74,13 @@ class AuthController extends Controller
     {
         if ($request->_token == csrf_token()) {
             $validation = Validator::make($request->all(), [
-                'new_password' => 'required',
+                'new_password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d\s]).+$/',
                 'confirm_password' => 'required|same:new_password'
             ], [
                 'new_password.required' => 'Password baru tidak boleh kosong',
+                'new_password.string' => 'Password baru harus text',
+                'new_password.min' => 'Password baru minimal 8 karakter',
+                'new_password.regex' => 'Password baru harus mengandung, 1 huruf besar, 1 huruf kecil, 1 angka, dan 1 simbol',
                 'confirm_password.required' => 'Konfirmasi password tidak boleh kosong',
                 'confirm_password.same' => 'Konfirmasi password harus sama dengan password baru'
             ]);
@@ -241,12 +244,15 @@ class AuthController extends Controller
 
             if ($request->_token == csrf_token()) {
                 $validation = Validator::make($request->all(), [
-                    'new_password' => 'required',
+                    'new_password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d\s]).+$/',
                     'confirm_password' => 'required|same:new_password'
                 ], [
-                    'new_password.required' => 'password baru tidak boleh kosong',
-                    'confirm_password.required' => 'konfirmasi password tidak boleh kosong',
-                    'confirm_password.same' => 'konfirmasi password harus sama dengan password baru'
+                    'new_password.required' => 'Password baru tidak boleh kosong',
+                    'new_password.string' => 'Password baru harus text',
+                    'new_password.min' => 'Password baru minimal 8 karakter',
+                    'new_password.regex' => 'Password baru harus mengandung, 1 huruf besar, 1 huruf kecil, 1 angka, dan 1 simbol',
+                    'confirm_password.required' => 'Konfirmasi password tidak boleh kosong',
+                    'confirm_password.same' => 'Konfirmasi password harus sama dengan password baru'
                 ]);
 
                 if ($validation->fails()) {
