@@ -39,6 +39,7 @@ class ReviewController extends Controller
         $column = [
             'e_collections.id',
             null,
+            'e_collections.review_by',
             'penerbit.name',
             'e_collections.title',
             'worksheets.name',
@@ -167,22 +168,27 @@ class ReviewController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
+                $disabled = '';
+
+                if (Main::isNotSuperAdmin()) {
+                    if (!empty($val->REVIEW_BY)) {
+                        if ($val->REVIEW_BY != session('username') && Main::isNotSuperAdmin()) {
+                            $disabled = 'disabled';
+                        }
+                    }
+                }
+
                 $action = '
-                    <a href="' . url('digital-storage-handover/review/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                    <a href="' . url('digital-storage-handover/review/detail/' . $val->ID) . '" class="btn btn-primary btn-sm" ' . $disabled . '>
                         <i class="ph-check-square-offset me-1"></i>
                         Tinjau
                     </a>
                 ';
 
-                if (!empty($val->REVIEW_BY)) {
-                    if ($val->REVIEW_BY != session('username') && Main::isNotSuperAdmin()) {
-                        $action = 'Sedang di tinjau oleh ' . $val->REVIEW_BY;
-                    }
-                }
-
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->REVIEW_BY,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_WORKSHEET,
@@ -237,17 +243,19 @@ class ReviewController extends Controller
         $reviewBy = $collection->REVIEW_BY ?? null;
 
         if (!empty($reviewBy)) {
-            if ($reviewBy !== session('username') && Main::isNotSuperAdmin()) {
-                $reviewerName = session('name');
+            if (Main::isNotSuperAdmin()) {
+                if ($reviewBy != session('username')) {
+                    $reviewerName = session('name');
 
-                echo '
-                    <script>
-                        alert("Koleksi sedang di tinjau oleh ' . $reviewerName . '");
-                        window.location.href = "' . url('digital-storage-handover/review') . '";
-                    </script>
-                ';
+                    echo '
+                        <script>
+                            alert("Koleksi sedang di tinjau oleh ' . $reviewerName . '");
+                            window.location.href = "' . url('digital-storage-handover/review') . '";
+                        </script>
+                    ';
 
-                exit();
+                    exit();
+                }
             }
         } else {
             QueryAPI::update('e_collections', $collection->ID, [

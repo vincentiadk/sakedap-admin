@@ -262,9 +262,18 @@ class DeliveryVerificationController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
+                $disabled = '';
+
+                if (Main::isNotSuperAdmin()) {
+                    if (!empty($val->IS_VERIFICATION_BY)) {
+                        if ($val->IS_VERIFICATION_BY != session('username')) {
+                            $disabled = 'disabled';
+                        }
+                    }
+                }
 
                 $action = '
-                    <a href="' . url('physical-delivery/delivery-verification/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
+                    <a href="' . url('physical-delivery/delivery-verification/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap" ' . $disabled . '>
                         <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
                         Detail
                     </a>
@@ -326,7 +335,7 @@ class DeliveryVerificationController extends Controller
 
         $disable = 'disabled';
         $currentStatus = $letter->STATUS ?? '';
-        $isUserVerificator = ($letter->IS_VERIFICATION_BY ?? '') === session('username');
+        $isUserVerificator = ($letter->IS_VERIFICATION_BY ?? '') == session('username') || Main::isNotSuperAdmin() == false;
         $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
 
         if ($isBranchMatch && in_array($currentStatus, ['TERKIRIM'])) {

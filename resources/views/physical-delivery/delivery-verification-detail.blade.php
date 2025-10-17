@@ -192,7 +192,7 @@
                 </table>
             </div>
         </div>
-        @if(!$disabled)
+        @if(!$disabled && session('username') == $letter->IS_VERIFICATION_BY)
             <div class="card">
                 <div class="card-body">
                     <div class="justify-content-end d-flex">
