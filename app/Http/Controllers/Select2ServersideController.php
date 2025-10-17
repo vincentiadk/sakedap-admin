@@ -92,14 +92,13 @@ class Select2ServersideController extends Controller
                         penerbit.id,
                         penerbit.name,
                         penerbit.email1,
+                        penerbit.source_db,
                         propinsi.namapropinsi as namapropinsi
                     from
                         penerbit
                     join
                         propinsi on propinsi.id = penerbit.province_id
                     $whereClause
-                    order by
-                        penerbit.name asc
                 )
             where
                 rownum <= 20
@@ -110,6 +109,7 @@ class Select2ServersideController extends Controller
                 $html = '
                     <div>' . $d->NAME . '</div>
                     <div class="fw-light fs-12 text-muted">ID : ' . ($d->ID ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Sumber : ' . ($d->SOURCE_DB ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Email : ' . ($d->EMAIL1 ?? '-') . '</div>
                     <div class="fw-light fs-12 text-muted">Provinsi : ' . ($d->NAMAPROPINSI ?? '-') . '</div>
                 ';
