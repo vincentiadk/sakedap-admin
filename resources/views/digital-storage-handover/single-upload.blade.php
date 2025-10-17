@@ -252,7 +252,12 @@
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">Total Halaman / Durasi</span>
-                            <input type="text" class="form-control" name="physical_description[paging]" id="physical_description[paging]" placeholder="....................">
+                            <input type="number" class="form-control" name="physical_description[paging]" id="physical_description[paging]" placeholder="....................">
+                            <select class="form-select flex-grow-0 w-auto" name="physical_description[paging_flag]" id="physical_description[paging_flag]">
+                                <option value="Halaman" selected>Halaman</option>
+                                <option value="Menit">Menit</option>
+                                <option value="Jam">Jam</option>
+                            </select>
                             <span class="input-group-text">Ilustrasi</span>
                             <input type="text" class="form-control" name="physical_description[ill]" list="suggestion-physical-description-ill" id="physical_description[ill]" placeholder="...................." autocomplete="off">
                             <datalist id="suggestion-physical-description-ill">
@@ -416,15 +421,6 @@
 
         lookupCatalogParent('#catalog_title', '#catalog_id');
         codeType();
-
-        $('input[name="physical_description[paging]"]').focus(function() {
-            new bootstrap.Tooltip($(this), {
-                trigger: 'focus',
-                html: true,
-                title: '<div class="text-start">Cth durasi : 1.5 jam</div><div class="text-start">Cth halaman : 1 halaman</div>',
-                placement: 'left'
-            });
-        });
     });
 
     function chooseWorksheet() {

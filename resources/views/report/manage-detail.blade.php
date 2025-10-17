@@ -267,7 +267,12 @@
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">Total Halaman / Durasi</span>
-                            <input type="text" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($collection->PAGING) ? $collection->PAGING : '' }}" placeholder="...................." disabled>
+                            <input type="number" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($collection->PAGING) ? $collection->PAGING : '' }}" placeholder="...................." disabled>
+                            <select class="form-select flex-grow-0 w-auto" name="physical_description[paging_flag]" id="physical_description[paging_flag]">
+                                <option value="Halaman" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Halaman' ? 'selected' : '') : '' }}>Halaman</option>
+                                <option value="Menit" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Menit' ? 'selected' : '') : '' }}>Menit</option>
+                                <option value="Jam" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Jam' ? 'selected' : '') : '' }}>Jam</option>
+                            </select>
                             <span class="input-group-text">Ilustrasi</span>
                             <input type="text" class="form-control" name="physical_description[ill]" id="physical_description[ill]" value="{{ isset($collection->ILL) ? $collection->ILL : '' }}" placeholder="...................." disabled>
                             <span class="input-group-text">Ukuran / Dimensi</span>

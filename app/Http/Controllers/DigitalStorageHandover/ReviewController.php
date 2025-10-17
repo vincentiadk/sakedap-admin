@@ -492,7 +492,7 @@ class ReviewController extends Controller
                 'collectionCover' => $collectionCover,
                 'collectionContent' => $collectionContent,
                 'collectionProblemHistory' => $collectionProblemHistory,
-                'physicalDescription' => json_decode($collection->physical_description ?? ''),
+                'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION ?? ''),
                 'content' => 'digital-storage-handover.review-detail',
                 'plugins' => [
                     'select2',

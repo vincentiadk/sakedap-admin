@@ -268,6 +268,7 @@ class ManageController extends Controller
                 e_collections.jenis_media as jenis_media_e_collection,
                 e_collections.currency as currency_e_collection,
                 e_collections.jumlah_eks as jumlah_eks_e_collection,
+                e_collections.physical_description as physical_description_e_collection,
                 parents.title as title_parent
             from
                 catalogs
@@ -371,6 +372,7 @@ class ManageController extends Controller
                 'collectionOriginal' => $collectionOriginal,
                 'collectionPreview' => $collectionPreview,
                 'collectionWatermark' => $collectionWatermark,
+                'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION_E_COLLECTION ?? ''),
                 'content' => 'report.manage-detail',
                 'plugins' => [
                     'select2',
