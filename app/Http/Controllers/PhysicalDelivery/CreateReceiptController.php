@@ -16,12 +16,26 @@ class CreateReceiptController extends Controller
 {
     public function index()
     {
+        $worksheetAnalog = Main::COLLECTION_ANALOG;
+        $worksheetPrinted = Main::COLLECTION_PRINTED;
+
+        $media = QueryAPI::get("
+            select
+                collectionmedias.*
+            from
+                collectionmedias
+            left join
+                worksheets on worksheets.id = collectionmedias.worksheet_id
+            where
+                worksheets.category in ('$worksheetAnalog','$worksheetPrinted')
+        ");
+
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-delivery.create-receipt',
                 'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and upper(depositformat_code) like 'R%'") ?? [],
+                'media' => $media ?? [],
                 'plugins' => [
                     'select2',
                     'datatable',
