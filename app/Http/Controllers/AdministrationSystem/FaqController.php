@@ -27,6 +27,7 @@ class FaqController extends Controller
         $column = [
             'id',
             null,
+            'lang',
             'sequence',
             'publish',
             'question',
@@ -129,6 +130,7 @@ class FaqController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->LANG,
                     $val->SEQUENCE,
                     $val->PUBLISH == 1 ? '<i class="ph-check text-success fw-bold"></i>' : '<i class="ph-x text-danger fw-bold"></i>',
                     $val->QUESTION,
@@ -171,6 +173,7 @@ class FaqController extends Controller
                     'publish' => $request->publish,
                     'sequence' => $request->sequence,
                     'category' => $request->category,
+                    'lang' => $request->lang,
                 ]);
 
                 $response = [
@@ -227,6 +230,7 @@ class FaqController extends Controller
                     'publish' => $request->publish,
                     'sequence' => $request->sequence,
                     'category' => $request->category,
+                    'lang' => $request->lang,
                 ]);
 
                 $response = [

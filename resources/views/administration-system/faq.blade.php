@@ -25,6 +25,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
+                        <th class="text-nowrap">Lang</th>
                         <th class="text-nowrap">Urutan</th>
                         <th class="text-nowrap">Publish</th>
                         <th class="text-nowrap">Pertanyaan</th>
@@ -72,6 +73,13 @@
                                 <label class="form-label">Kategori :</label>
                                 <input type="text" class="form-control" name="category" id="category" placeholder="....................">
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lang :</label>
+                            <select class="form-select" name="lang" id="lang">
+                                <option value="ID">ID</option>
+                                <option value="EN">EN</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -133,6 +141,7 @@
         $('#btn-cancel').addClass('d-none');
         $('#sequence').val(0);
         $('#publish').val(1);
+        $('#lang').val('ID');
         $('#question').summernote('code', '');
         $('#answer').summernote('code', '');
     }
@@ -199,6 +208,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -281,6 +291,7 @@
                 $('#question').summernote('code', response.QUESTION);
                 $('#answer').summernote('code', response.ANSWER);
                 $('#category').val(response.CATEGORY);
+                $('#lang').val(response.LANG);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
