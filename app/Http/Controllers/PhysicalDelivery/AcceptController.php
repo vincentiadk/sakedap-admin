@@ -451,7 +451,7 @@ class AcceptController extends Controller
             from
                 e_settings
             where
-                slug = 'GantiPassword' or
+                slug = 'ResiPenerimaan' or
                 (
                     slug in ('Header','Footer') and
                     province_id = " . session('province_id') . "
@@ -474,8 +474,37 @@ class AcceptController extends Controller
             }
         }
 
-        if (!$templateEmailContent || !$templateEmailHeader || !$templateEmailFooter) {
-            return redirect('physical-delivery/accept');
+        if (!$templateEmailContent) {
+            echo '
+                <script>
+                    alert("Template email tidak ditemukan");
+                    window.location.href = "' . url('physical-delivery/accept') . '";
+                </script>
+            ';
+
+            exit();
+        }
+
+        if (!$templateEmailHeader) {
+            echo '
+                <script>
+                    alert("Header email tidak ditemukan");
+                    window.location.href = "' . url('physical-delivery/accept') . '";
+                </script>
+            ';
+
+            exit();
+        }
+
+        if (!$templateEmailFooter) {
+            echo '
+                <script>
+                    alert("Footer email tidak ditemukan");
+                    window.location.href = "' . url('physical-delivery/accept') . '";
+                </script>
+            ';
+
+            exit();
         }
 
         $branchId = session('branch_id');

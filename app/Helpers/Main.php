@@ -356,11 +356,11 @@ class Main
                     'username' => $user->USERNAME,
                     'name' => $user->FULLNAME,
                     'email' => $user->EMAILADDRESS,
-                    'province_id' => $user->PROVINCE_ID,
-                    'province_name' => $user->NAMAPROPINSI,
-                    'branch_id' => $user->BRANCH_ID,
-                    'branch_name' => $user->NAME_BRANCH,
-                    'role_id' => $user->ROLE_ID,
+                    'province_id' => $user->PROVINCE_ID ?: 31,
+                    'province_name' => $user->NAMAPROPINSI ?: 'DKI Jakarta',
+                    'branch_id' => $user->BRANCH_ID ?: 37,
+                    'branch_name' => $user->NAME_BRANCH ?: 'Perpustakaan Nasional',
+                    'role_id' => $user->ROLE_ID ?: 1,
                 ]);
 
                 $response = true;
