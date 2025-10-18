@@ -131,7 +131,7 @@
                                 <td class="text-center">
                                     <center>
                                         <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
-                                        <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }}>
+                                        <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }} {{ $disabled }}>
                                     </center>
                                 </td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
@@ -145,14 +145,14 @@
                                     <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->COPY }}" readonly>
                                 </td>
                                 <td>
-                                    <select class="form-select" name="letter_detail_qty_accept[]" onchange="calculateQty(this, 'accept')">
+                                    <select class="form-select" name="letter_detail_qty_accept[]" onchange="calculateQty(this, 'accept')" {{ $disabled }}>
                                         @for($i = 0; $i <= $maxAccept; $i++)
                                             <option value="{{ $i }}" {{ ($totalAccept) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-select" name="letter_detail_qty_reject[]" onchange="calculateQty(this, 'reject')">
+                                    <select class="form-select" name="letter_detail_qty_reject[]" onchange="calculateQty(this, 'reject')" {{ $disabled }}>
                                         @for($i = 0; $i <= $totalSent; $i++)
                                             <option value="{{ $i }}" {{ ($totalReject) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
@@ -170,7 +170,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" name="letter_detail_note[]" value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="....................">
+                                    <input type="text" class="form-control" name="letter_detail_note[]" value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="...................." {{ $disabled }}>
                                 </td>
                             </tr>
                         @endforeach

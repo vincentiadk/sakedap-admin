@@ -302,34 +302,6 @@ class AcceptController extends Controller
         ");
 
         $disable = 'disabled';
-        $currentStatus = $letter->STATUS ?? '';
-        $isUserVerificator = ($letter->IS_VERIFICATION_BY ?? '') === session('username');
-        $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
-
-        if ($isBranchMatch && in_array($currentStatus, ['TERKIRIM'])) {
-            QueryAPI::update('letter', $id, [
-                'status' => 'CEK FISIK'
-            ], false);
-
-            $letter = QueryAPI::get($letterSql, true);
-            $currentStatus = $letter->STATUS ?? '';
-        }
-
-        if ($isUserVerificator) {
-            $disable = null;
-        } else {
-            $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
-
-            if ($isVerifiableNow && empty($letter->IS_VERIFICATION_BY)) {
-                $disable = null;
-
-                QueryAPI::update('letter', $id, [
-                    'is_verification_by' => session('username')
-                ], false);
-
-                $letter = QueryAPI::get($letterSql, true);
-            }
-        }
 
         if ($request->ajax()) {
             try {

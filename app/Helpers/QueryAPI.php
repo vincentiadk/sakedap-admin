@@ -264,7 +264,7 @@ class QueryAPI
 
         if (isset($payload['filename'])) {
             $filename = $payload['filename'];
-        } elseif (is_object($fileInput) && method_exists($fileInput, 'getClientOriginalName')) {
+        } else if (is_object($fileInput) && method_exists($fileInput, 'getClientOriginalName')) {
             $filename = $fileInput->getClientOriginalName();
         }
 

@@ -263,20 +263,26 @@ class DeliveryVerificationController extends Controller
             foreach ($queryData as $val) {
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
                 $disabled = '';
+                $isSuperAdmin = !Main::isNotSuperAdmin();
 
-                if (Main::isNotSuperAdmin()) {
-                    if (!empty($val->IS_VERIFICATION_BY)) {
-                        if ($val->IS_VERIFICATION_BY != session('username')) {
+                if (!$isSuperAdmin) {
+                    $isVerificationAssigned = !empty($val->IS_VERIFICATION_BY);
+
+                    if ($isVerificationAssigned) {
+                        $currentUserIsNotAssigned = ($val->IS_VERIFICATION_BY != session('username'));
+
+                        if ($currentUserIsNotAssigned) {
                             $disabled = 'disabled';
                         }
                     }
                 }
 
+                $iconClass = in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check';
+                $buttonText = 'Detail';
+                $detailUrl = url('physical-delivery/delivery-verification/detail/' . $val->LETTER_ID);
+
                 $action = '
-                    <a href="' . url('physical-delivery/delivery-verification/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap" ' . $disabled . '>
-                        <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
-                        Detail
-                    </a>
+                    <button type="button" class="btn btn-primary btn-sm text-nowrap" data-url="' . $detailUrl . '" ' . $disabled . ' onclick="if (!this.disabled) { window.location.href = this.getAttribute(\'data-url\'); }"><i class="' . $iconClass . ' me-1"></i>' . $buttonText . '</button>
                 ';
 
                 $data[] = [
@@ -333,10 +339,13 @@ class DeliveryVerificationController extends Controller
                 letter_id = $id
         ");
 
-        $disable = 'disabled';
+        $disable = null;
         $currentStatus = $letter->STATUS ?? '';
-        $isUserVerificator = ($letter->IS_VERIFICATION_BY ?? '') == session('username') || Main::isNotSuperAdmin() == false;
+        $isSuperAdmin = !Main::isNotSuperAdmin();
         $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
+        $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
+        $currentUser = session('username');
+        $id = $letter->ID ?? null;
 
         if ($isBranchMatch && in_array($currentStatus, ['TERKIRIM'])) {
             QueryAPI::update('letter', $id, [
@@ -345,23 +354,38 @@ class DeliveryVerificationController extends Controller
 
             $letter = QueryAPI::get($letterSql, true);
             $currentStatus = $letter->STATUS ?? '';
+            $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
         }
 
-        if ($isUserVerificator) {
-            $disable = null;
-        } else {
-            $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
+        $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
 
-            if ($isVerifiableNow && empty($letter->IS_VERIFICATION_BY)) {
-                $disable = null;
-
+        if (!empty($verificatorUsername) && $verificatorUsername !== $currentUser && !$isSuperAdmin) {
+            echo '
+                <script>
+                    alert("Sedang diverifikasi oleh ' . $verificatorUsername . '");
+                    window.location.href = "' . url('physical-delivery/delivery-verification') . '";
+                </script>
+            ';
+        } else if ($isVerifiableNow && empty($verificatorUsername)) {
+            if (!$isSuperAdmin) {
                 QueryAPI::update('letter', $id, [
-                    'is_verification_by' => session('username'),
+                    'is_verification_by' => $currentUser,
                     'proses_by' => session('name'),
                 ], false);
 
                 $letter = QueryAPI::get($letterSql, true);
+                $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
             }
+
+            $disable = null;
+        } else if (!empty($verificatorUsername)) {
+            if ($isSuperAdmin && $verificatorUsername !== $currentUser) {
+                $disable = 'disabled';
+            } else {
+                $disable = null;
+            }
+        } else {
+            $disable = 'disabled';
         }
 
         if ($request->ajax()) {
