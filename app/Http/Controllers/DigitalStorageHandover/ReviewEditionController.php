@@ -184,14 +184,14 @@ class ReviewEditionController extends Controller
 
                 if (Main::isNotSuperAdmin()) {
                     if (!empty($val->REVIEW_BY)) {
-                        if ($val->REVIEW_BY != session('username') && Main::isNotSuperAdmin()) {
+                        if ($val->REVIEW_BY !== session('username')) {
                             $disabled = 'disabled';
                         }
                     }
                 }
 
                 $action = '
-                    <a href="' . url('digital-storage-handover/review-edition/detail/' . $val->ID) . '" class="btn btn-primary btn-sm" ' . $disabled . '>
+                    <a href="' . url('digital-storage-handover/review-edition/detail/' . $val->ID) . '" class="btn btn-primary btn-sm ' . $disabled . '">
                         <i class="ph-check-square-offset me-1"></i>
                         Tinjau
                     </a>
@@ -258,11 +258,9 @@ class ReviewEditionController extends Controller
         if (!empty($reviewBy)) {
             if (Main::isNotSuperAdmin()) {
                 if ($reviewBy !== session('username')) {
-                    $reviewerName = session('name');
-
                     echo '
                         <script>
-                            alert("Koleksi sedang di tinjau oleh ' . $reviewerName . '");
+                            alert("Koleksi sedang di tinjau oleh ' . $reviewBy . '");
                             window.location.href = "' . url('digital-storage-handover/review') . '";
                         </script>
                     ';
