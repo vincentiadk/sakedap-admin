@@ -27,7 +27,8 @@ class CreateReceiptController extends Controller
             join
                 worksheets on worksheets.id = collectionmedias.worksheet_id
             where
-                worksheets.category in ('$worksheetAnalog','$worksheetPrinted')
+                worksheets.category in ('$worksheetAnalog','$worksheetPrinted') and
+                collectionmedias.depositformat_code is not null
         ");
 
         return view('layouts.index', [
