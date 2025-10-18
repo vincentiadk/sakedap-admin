@@ -8,6 +8,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
@@ -336,6 +337,15 @@ class AuthController extends Controller
 
     public function logout()
     {
+        Http::timeout(120)
+            ->withOptions([
+                'verify' => false,
+            ])
+            ->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Hit-Script by Edeposit)'
+            ])
+            ->get('https://digitlib.site/inlis-ent-2025/Logout.aspx');
+
         session()->flush();
 
         return redirect('/');
