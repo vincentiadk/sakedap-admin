@@ -103,7 +103,6 @@ class SingleUploadController extends Controller
                 'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
                 'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
                 'city_id.required' => 'Kota tidak boleh kosong',
-                'city_id.required' => 'Perpustakaan tidak boleh kosong',
                 'title.required' => 'Judul tidak boleh kosong',
                 'collection_media_id.required' => 'Media tidak boleh kosong',
                 'received_at.required' => 'Tanggal terima tidak boleh kosong',

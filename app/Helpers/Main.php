@@ -413,6 +413,7 @@ class Main
      */
     public static function formatFileSize($bytes, $precision = 2)
     {
+        $bytes = (int) $bytes;
         $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
 
         if ($bytes == 0) {
