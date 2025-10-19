@@ -155,7 +155,7 @@ class TemplateEmailController extends Controller
 
         try {
             QueryAPI::update('e_settings', $id, [
-                'content' => $request->content,
+                '!content' => $request->content,
             ]);
 
             $response = [

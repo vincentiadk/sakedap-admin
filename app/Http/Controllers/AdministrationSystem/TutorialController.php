@@ -213,7 +213,7 @@ class TutorialController extends Controller
                 $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
                     'slug' => Str::slug($request->title, '-'),
-                    'content' => $request->content,
+                    '!content' => $request->content,
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,
@@ -293,7 +293,7 @@ class TutorialController extends Controller
                 $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
                     'slug' => Str::slug($request->title, '-'),
-                    'content' => $request->content,
+                    '!content' => $request->content,
                     'status' => $request->status,
                     'lampiran_link' => $request->attachment_link,
                     'kategori_id' => $request->category_id,

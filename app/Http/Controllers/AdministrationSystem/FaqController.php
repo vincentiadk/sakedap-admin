@@ -168,8 +168,8 @@ class FaqController extends Controller
         } else {
             try {
                 QueryAPI::create('e_faq', [
-                    'question' => $request->question,
-                    'answer' => $request->answer,
+                    '!question' => $request->question,
+                    '!answer' => $request->answer,
                     'publish' => $request->publish,
                     'sequence' => $request->sequence,
                     'category' => $request->category,
@@ -225,8 +225,8 @@ class FaqController extends Controller
         } else {
             try {
                 QueryAPI::update('e_faq', $id, [
-                    'question' => $request->question,
-                    'answer' => $request->answer,
+                    '!question' => $request->question,
+                    '!answer' => $request->answer,
                     'publish' => $request->publish,
                     'sequence' => $request->sequence,
                     'category' => $request->category,

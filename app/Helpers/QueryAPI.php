@@ -127,14 +127,14 @@ class QueryAPI
         $data = [];
         $query = Http::connectTimeout(60)
             ->timeout(120)
-            ->withQueryParameters([
+            ->asForm()
+            ->post(static::$baseUrl, [
                 'token' => static::$token,
                 'op' => 'add',
                 'table' => $table,
                 'issavehistory' => 1,
                 'ListAddItem' => json_encode($bodyJson)
-            ])
-            ->post(static::$baseUrl);
+            ]);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -182,15 +182,15 @@ class QueryAPI
         $data = false;
         $query = Http::connectTimeout(60)
             ->timeout(120)
-            ->withQueryParameters([
+            ->asForm()
+            ->post(static::$baseUrl, [
                 'token' => static::$token,
                 'op' => 'update',
                 'table' => $table,
                 'id' => $id,
                 'issavehistory' => 1,
                 'ListUpdateItem' => json_encode($bodyJson)
-            ])
-            ->post(static::$baseUrl);
+            ]);
 
         if ($query->status() == 200) {
             $response = $query->object();
