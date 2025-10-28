@@ -344,7 +344,7 @@ class AuthController extends Controller
             ->withHeaders([
                 'User-Agent' => 'Mozilla/5.0 (Hit-Script by Edeposit)'
             ])
-            ->get('https://digitlib.site/inlis-ent-2025/Logout.aspx');
+            ->get(config('inlis.base_url') . '/Logout.aspx');
 
         session()->flush();
 

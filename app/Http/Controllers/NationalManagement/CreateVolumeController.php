@@ -10,7 +10,7 @@ class CreateVolumeController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/inlis-ent-2025/KoleksiJilidAdd.aspx?i=1&deposit=1&l=' . $credentialInlis;
+        $framing = config('inlis.base_url') . '/KoleksiJilidAdd.aspx?i=1&deposit=1&l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

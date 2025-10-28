@@ -10,7 +10,7 @@ class DeliveryToProcessingListController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/inlis-ent-2025/DataPengirimanBahanPustakaUserPengolahan.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.base_url') . '/DataPengirimanBahanPustakaUserPengolahan.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

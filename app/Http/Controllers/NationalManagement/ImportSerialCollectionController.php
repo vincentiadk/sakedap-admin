@@ -10,7 +10,7 @@ class ImportSerialCollectionController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/inlis-ent-2025/KoleksiImportSerialDeposit.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.base_url') . '/KoleksiImportSerialDeposit.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

@@ -19,7 +19,7 @@ class QueryAPI
     public static function initialize()
     {
         static::$token = config('inlis.token');
-        static::$baseUrl = config('inlis.base_url');
+        static::$baseUrl = config('inlis.base_url') . '/' . config('inlis.api_url');
     }
 
     /**
