@@ -482,9 +482,9 @@ class ReviewController extends Controller
             select
                 *
             from
-                e_file_access
+                catalogfiles
             where
-                e_collection_id = $id
+                e_col_id = $id
         ", true);
 
         $collectionProblemHistory = QueryAPI::get("
