@@ -10,7 +10,7 @@ class AssetController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/deposit/Report/rvAsset?l=' . $credentialInlis;
+        $framing = config('inlis.domain') . '/deposit/Report/rvAsset?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

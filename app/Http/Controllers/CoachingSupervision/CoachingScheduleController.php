@@ -10,7 +10,7 @@ class CoachingScheduleController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.domain') . '/Sakedap_Monitoring/DataJadwalPembinaanList.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

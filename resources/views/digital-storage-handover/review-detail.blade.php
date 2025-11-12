@@ -103,7 +103,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" disabled>
+                                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" readonly>
                                     <option value=""></option>
                                     @foreach($worksheet as $w)
                                         <option value="{{ $w->ID }}" {{ $collection->WORKSHEET_ID == $w->ID ? 'selected' : '' }}>{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
@@ -220,7 +220,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Akses</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" disabled>
+                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" readonly>
                                     <option value=""></option>
                                     <option value="1" {{ $collection->AKSES == 1 ? 'selected' : '' }}>Akses full file berwatermak secara online</option>
                                     <option value="2" {{ $collection->AKSES == 2 ? 'selected' : '' }}>Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN</option>

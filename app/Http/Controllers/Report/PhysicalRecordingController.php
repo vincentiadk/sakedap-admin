@@ -10,7 +10,7 @@ class PhysicalRecordingController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = 'https://digitlib.site/deposit/Report/rvRegisterDeposit?l=' . $credentialInlis;
+        $framing = config('inlis.domain') . '/deposit/Report/rvRegisterDeposit?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [
