@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Laporan <span class="fw-normal">Pendayahgunaan Fisik</span>
+                Laporan <span class="fw-normal">Pendayagunaan Fisik</span>
             </h4>
         </div>
     </div>
