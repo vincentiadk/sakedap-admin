@@ -200,16 +200,12 @@ class EventController extends Controller
         $validation = Validator::make($request->all(), [
             'image' => 'required|image|mimes:png,jpg,jpeg|max:500',
             'title' => 'required',
-            'content' => 'required',
-            'category_id' => 'required',
         ], [
             'image.required' => 'Gambar tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
             'image.mimes' => 'Gambar maksimal 500 KB',
             'title.required' => 'Judul tidak boleh kosong',
-            'content.required' => 'Konten tidak boleh kosong',
-            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -297,15 +293,11 @@ class EventController extends Controller
         $validation = Validator::make($request->all(), [
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:500',
             'title' => 'required',
-            'content' => 'required',
-            'category_id' => 'required',
         ], [
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
             'image.mimes' => 'Gambar maksimal 500 KB',
             'title.required' => 'Judul tidak boleh kosong',
-            'content.required' => 'Konten tidak boleh kosong',
-            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
