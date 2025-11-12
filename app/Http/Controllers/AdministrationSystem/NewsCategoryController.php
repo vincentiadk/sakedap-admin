@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AdministrationSystem;
 
 use App\Helpers\QueryAPI;
 use Faker\Factory as Faker;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -171,6 +172,7 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::create('e_news_kategori', [
                     'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,
                     'createby' => session('name'),
@@ -245,6 +247,7 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::update('e_news_kategori', $id, [
                     'name' => $request->name,
+                    'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,
                     'updateby' => session('name'),
