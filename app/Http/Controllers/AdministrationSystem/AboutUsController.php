@@ -22,14 +22,14 @@ class AboutUsController extends Controller
         if ($request->_token == csrf_token()) {
             if ($template) {
                 QueryAPI::update('settingparameters', ($template->ID ?? null), [
-                    '!value' => $request->content,
+                    '!value_lob' => $request->content,
                     'updateby' => session('name'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
             } else {
                 QueryAPI::create('settingparameters', [
-                    '!value' => $request->content,
+                    '!value_lob' => $request->content,
                     'name' => 'TentangKamiEdeposit',
                     'createby' => session('name'),
                     'createdate' => date('Y-m-d H:i:s'),

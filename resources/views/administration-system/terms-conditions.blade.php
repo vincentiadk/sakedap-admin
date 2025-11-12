@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-body">
                 <textarea name="content" class="form-control content" id="content">
-                    {!! $template->VALUE ?? '' !!}
+                    {!! $template->VALUE_LOB ?? '' !!}
                 </textarea>
             </div>
         </div>
