@@ -438,12 +438,12 @@
                         <div class="tab-content flex-lg-fill mt-4">
                             <div class="tab-pane fade show active" id="nav-tabs-cover">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <div class="ratio ratio-16x9">
                                             <img src="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="img-fluid object-fit-cover">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="alert alert-info">
                                             <div><b>Hash :</b> {{ $collectionCover->HASH ?? '' }}</div>
                                             <div><b>Mime Type :</b> {{ $collectionCover->MIME ?? '' }}</div>
@@ -455,12 +455,12 @@
                             </div>
                             <div class="tab-pane fade" id="nav-tabs-original">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <div class="ratio ratio-16x9">
                                             <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="alert alert-info">
                                             <div><b>Hash :</b> {{ $collectionContent->HASH ?? '' }}</div>
                                             <div><b>Mime Type :</b> {{ $collectionContent->MIME ?? '' }}</div>

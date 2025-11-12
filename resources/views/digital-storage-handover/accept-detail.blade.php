@@ -403,12 +403,12 @@
                 <div class="tab-content flex-lg-fill mt-4">
                     <div class="tab-pane fade show active" id="nav-tabs-cover">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <div class="ratio ratio-16x9">
                                     <img src="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="img-fluid object-fit-cover">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="alert alert-info">
                                     <div><b>Hash :</b> {{ $collectionCover->HASH ?? '' }}</div>
                                     <div><b>Mime Type :</b> {{ $collectionCover->MIME ?? '' }}</div>
@@ -420,12 +420,12 @@
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-preview">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <div class="ratio ratio-16x9">
                                     <iframe src="{{ url('stream-file') }}?type=file_preview&id={{ $collectionPreview->ID ?? '' }}&filename={{ $collectionPreview->FILEURL ?? '' }}" frameborder="0"></iframe>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="alert alert-info">
                                     <div><b>Hash :</b> {{ $collectionPreview->HASH ?? '' }}</div>
                                     <div><b>Mime Type :</b> {{ $collectionPreview->MIME ?? '' }}</div>
@@ -437,12 +437,12 @@
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-watermark">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <div class="ratio ratio-16x9">
                                     <iframe src="{{ url('stream-file') }}?type=file_access&id={{ $collectionWatermark->ID ?? '' }}&filename={{ $collectionWatermark->FILEURL ?? '' }}" frameborder="0"></iframe>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="alert alert-info">
                                     <div><b>Hash :</b> {{ $collectionWatermark->HASH ?? '' }}</div>
                                     <div><b>Mime Type :</b> {{ $collectionWatermark->MIME ?? '' }}</div>
