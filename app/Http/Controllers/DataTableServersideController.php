@@ -422,7 +422,7 @@ class DataTableServersideController extends Controller
         $length = $start + intval($request->length ?? 0);
 
         $data = [];
-        $tableName = $request->table;
+        $tableName = strtoupper($request->table);
         $idRef = $request->id;
         $search = strtoupper($request->search['value']);
 
@@ -430,7 +430,7 @@ class DataTableServersideController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(historydata.tablename = '$tableName' and historydata.idref = '$idRef')";
+        $whereCondition[] = "(UPPER(historydata.tablename) = '$tableName' and historydata.idref = '$idRef')";
 
         if ($search) {
             $terms = [];
@@ -460,7 +460,7 @@ class DataTableServersideController extends Controller
             from
                 historydata
             where
-                (tablename = '$tableName' and idref = '$idRef')
+                (UPPER(tablename) = '$tableName' and idref = '$idRef')
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
