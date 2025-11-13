@@ -172,6 +172,7 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::create('e_news_kategori', [
                     'name' => $request->name,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,
@@ -208,6 +209,7 @@ class NewsCategoryController extends Controller
                 name,
                 pages,
                 level,
+                ringkasan,
                 rpad(' ', (level - 1) * 2) || name as tree_view,
                 ltrim(sys_connect_by_path(name, ' > '), ' > ') as tree_path
             from
@@ -247,6 +249,7 @@ class NewsCategoryController extends Controller
             try {
                 QueryAPI::update('e_news_kategori', $id, [
                     'name' => $request->name,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,

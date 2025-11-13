@@ -213,6 +213,7 @@ class NewsController extends Controller
             try {
                 $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,
@@ -293,6 +294,7 @@ class NewsController extends Controller
             try {
                 $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,

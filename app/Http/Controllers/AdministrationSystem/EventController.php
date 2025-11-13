@@ -232,6 +232,7 @@ class EventController extends Controller
 
                 $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,
@@ -324,6 +325,7 @@ class EventController extends Controller
 
                 $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,

@@ -212,6 +212,7 @@ class TutorialController extends Controller
             try {
                 $createData = QueryAPI::create('e_news', [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,
@@ -292,6 +293,7 @@ class TutorialController extends Controller
             try {
                 $updateData = QueryAPI::update('e_news', $id, [
                     'title' => $request->title,
+                    'ringkasan' => $request->summary,
                     'slug' => Str::slug($request->title, '-'),
                     '!content' => $request->content,
                     'status' => $request->status,

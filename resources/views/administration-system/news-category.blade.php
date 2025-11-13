@@ -63,6 +63,10 @@
                         <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Ringkasan :</label>
+                        <textarea class="form-control" name="summary" id="summary" rows="5" placeholder="...................."></textarea>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer justify-content-end">
@@ -245,6 +249,7 @@
                 $('#table_id').val(response.ID);
                 $('#name').val(response.NAME);
                 $('#pages').val(response.PAGES);
+                $('#summary').val(response.RINGKASAN);
                 $('#parent_id').html('<option value="' + response.PARENT_ID + '" selected>' + response.TREE_PATH + '</option>');
             },
             error: function(response) {

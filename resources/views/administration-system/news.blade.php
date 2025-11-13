@@ -94,6 +94,10 @@
                         <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Ringkasan :</label>
+                        <textarea class="form-control" name="summary" id="summary" rows="5" placeholder="...................."></textarea>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Konten :</label>
                         <textarea class="form-control" name="content" id="content" placeholder="...................."></textarea>
                     </div>
@@ -295,6 +299,7 @@
                 $('#lang').val(response.LANG);
                 $('#category_id').val(response.KATEGORI_ID).change();
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
+                $('#summary').val(response.RINGKASAN);
 
                 if(response.IMAGE) {
                     var paramFile = {
