@@ -2,7 +2,7 @@
                     <div class="container-fluid">
                         <span>
                             &copy; {{ date('Y') }}
-                            <a href="https://edeposit.perpusnas.go.id" target="_blank" class="text-primary">E-Deposit 5.0</a>
+                            <a href="https://edeposit.perpusnas.go.id" target="_blank" class="text-primary">SAKEDAP</a>
                         </span>
                         <ul class="nav">
                             <li class="nav-item">

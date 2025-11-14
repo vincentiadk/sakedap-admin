@@ -4,7 +4,7 @@
 			<div class="navbar-brand flex-1">
 				<a href="{{ url('home') }}" class="d-inline-flex align-items-center">
 					<img src="{{ asset('assets/icon.png') }}" alt="Logo">
-                    <span class="ms-2 fs-4 pt-1 text-dark fw-bold">E-DEPOSIT 5.0</span>
+                    <span class="ms-2 fs-4 pt-1 text-dark fw-bold">SAKEDAP</span>
 				</a>
 			</div>
 			<div class="d-flex w-100 w-xl-auto overflow-auto overflow-xl-visible scrollbar-hidden border-top border-top-xl-0 order-1 order-xl-0 pt-2 pt-xl-0 mt-2 mt-xl-0">
