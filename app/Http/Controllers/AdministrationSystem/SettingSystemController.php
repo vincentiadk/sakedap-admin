@@ -20,15 +20,15 @@ class SettingSystemController extends Controller
             $configParam = array_map(fn($name) => "'$name'", Main::CONFIG_PARAM);
             $settingParameterName = implode(',', $configParam);
 
-            return QueryAPI::get("SELECT * FROM settingparameters WHERE name IN ($settingParameterName)") ?? [];
+            return QueryAPI::get("select * from settingparameters where name in ($settingParameterName)") ?? [];
         });
 
         $mail = Cache::remember('mail_config_edeposit', self::CACHE_TTL, function () {
-            return QueryAPI::get("SELECT * FROM mailserver WHERE modul = 'EDEPOSIT'", true);
+            return QueryAPI::get("select * from mailserver where modul = 'EDEPOSIT'", true);
         });
 
         $obedient = Cache::remember('obedient_kckr', self::CACHE_TTL, function () {
-            return QueryAPI::get("SELECT * FROM e_kepatuhan_kckr") ?? [];
+            return QueryAPI::get("select * from e_kepatuhan_kckr") ?? [];
         });
 
         return view('layouts.index', [
@@ -159,7 +159,7 @@ class SettingSystemController extends Controller
         $parameters = $this->buildSettingParameters($request);
         $names = array_column($parameters, 'name');
         $namesList = implode("','", $names);
-        $existingRecords = QueryAPI::get("SELECT * FROM settingparameters WHERE name IN ('$namesList')") ?? [];
+        $existingRecords = QueryAPI::get("select * from settingparameters where name in ('$namesList')") ?? [];
         $existingMap = [];
 
         foreach ($existingRecords as $record) {
@@ -206,7 +206,7 @@ class SettingSystemController extends Controller
             'isactive' => 1,
         ];
 
-        $existing = QueryAPI::get("SELECT * FROM mailserver WHERE modul = 'EDEPOSIT'", true);
+        $existing = QueryAPI::get("select * from mailserver where modul = 'EDEPOSIT'", true);
 
         if ($existing) {
             $id = $existing->ID ?? $existing->id ?? $existing->Id ?? null;
@@ -228,8 +228,10 @@ class SettingSystemController extends Controller
     private function buildObedientParameters(Request $request)
     {
         return [
+            ['name' => 'Sangat Patuh', 'persen' => $request->catalog_very_obedient],
             ['name' => 'Patuh', 'persen' => $request->catalog_obedient],
-            ['name' => 'Sebagian Patuh', 'persen' => $request->catalog_some_obey],
+            ['name' => 'Cukup Patuh', 'persen' => $request->catalog_quite_obidient],
+            ['name' => 'Kurang Patuh', 'persen' => $request->catalog_less_obidient],
             ['name' => 'Tidak Patuh', 'persen' => $request->catalog_not_obey],
         ];
     }
@@ -239,7 +241,7 @@ class SettingSystemController extends Controller
         $obedients = $this->buildObedientParameters($request);
         $names = array_column($obedients, 'name');
         $namesList = implode("','", $names);
-        $existingRecords = QueryAPI::get("SELECT ID, name FROM e_kepatuhan_kckr WHERE name IN ('$namesList')") ?? [];
+        $existingRecords = QueryAPI::get("select * from e_kepatuhan_kckr where name in ('$namesList')") ?? [];
         $existingMap = [];
 
         foreach ($existingRecords as $record) {

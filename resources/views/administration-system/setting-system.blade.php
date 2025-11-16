@@ -248,10 +248,14 @@
                             <label class="col-form-label col-md-2">Kepatuhan</label>
                             <div class="col-md-10">
                                 <div class="input-group">
+                                    <span class="input-group-text">Sangat Patuh (%)</span>
+                                    <input type="number" class="form-control" name="catalog_very_obedient" id="catalog_very_obedient" max="100" value="{{ $obedient->firstWhere('NAME', 'Sangat Patuh')->PERSEN ?? '' }}" placeholder="....................">
                                     <span class="input-group-text">Patuh (%)</span>
                                     <input type="number" class="form-control" name="catalog_obedient" id="catalog_obedient" max="100" value="{{ $obedient->firstWhere('NAME', 'Patuh')->PERSEN ?? '' }}" placeholder="....................">
-                                    <span class="input-group-text">Sebagian Patuh (%)</span>
-                                    <input type="number" class="form-control" name="catalog_some_obey" id="catalog_some_obey" max="100" value="{{ $obedient->firstWhere('NAME', 'Sebagian Patuh')->PERSEN ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Cukup Patuh (%)</span>
+                                    <input type="number" class="form-control" name="catalog_quite_obidient" id="catalog_quite_obidient" max="100" value="{{ $obedient->firstWhere('NAME', 'Cukup Patuh')->PERSEN ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Kurang Patuh (%)</span>
+                                    <input type="number" class="form-control" name="catalog_less_obidient" id="catalog_less_obidient" max="100" value="{{ $obedient->firstWhere('NAME', 'Kurang Patuh')->PERSEN ?? '' }}" placeholder="....................">
                                     <span class="input-group-text">Tidak Patuh (%)</span>
                                     <input type="number" class="form-control" name="catalog_not_obey" id="catalog_not_obey" max="100" value="{{ $obedient->firstWhere('NAME', 'Tidak Patuh')->PERSEN ?? '' }}" placeholder="....................">
                                 </div>
