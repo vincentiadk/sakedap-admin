@@ -15,4 +15,6 @@ return [
     'limit_retur' => 3,
     'time_printed_work' => 90,
     'time_recording_work' => 365,
+    'executor_start_date' => date('Y-m-d'),
+    'max_coaching' => 10,
 ];

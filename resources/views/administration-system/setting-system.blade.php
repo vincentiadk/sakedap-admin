@@ -112,6 +112,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Tgl Mulai Kepatuhan Penerbit</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control datepicker-single" name="executor_start_date" id="executor_start_date" value="{{ $settingParameter->firstWhere('NAME', 'ETglKepatuhanPenerbit')->VALUE ?? '' }}" placeholder="Pilih Tanggal" readonly>
+                            </div>
+                        </div>
                         <div class="fw-bold border-bottom pb-2 mb-3">Redis</div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Client</label>
@@ -289,6 +295,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Maks Jumlah Pembinaan</label>
+                            <div class="col-md-10">
+                                <input type="number" class="form-control" name="max_coaching" id="max_coaching" value="{{ $settingParameter->firstWhere('NAME', 'EMaksJumlahPembinaan')->VALUE ?? '' }}" placeholder="....................">
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-captcha">
                         <div class="form-group row">
@@ -352,6 +364,10 @@
 </div>
 
 <script>
+    $(function() {
+        datePickerSingle('.datepicker-single');
+    });
+
     function testSendEmail() {
         $.ajax({
             url: '{{ url("administration-system/setting-system/test-send-email") }}',

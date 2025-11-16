@@ -36,7 +36,10 @@ class SettingSystemController extends Controller
                 'settingParameter' => collect($settingParameter),
                 'obedient' => collect($obedient),
                 'mail' => $mail,
-                'content' => 'administration-system.setting-system'
+                'content' => 'administration-system.setting-system',
+                'plugins' => [
+                    'daterangepicker',
+                ]
             ]
         ]);
     }
@@ -97,7 +100,7 @@ class SettingSystemController extends Controller
         }
     }
 
-    private function getAuditData(Request $request): array
+    private function getAuditData(Request $request)
     {
         $currentDate = date('Y-m-d H:i:s');
         $userName = session('name', 'system');
@@ -113,7 +116,7 @@ class SettingSystemController extends Controller
         ];
     }
 
-    private function buildSettingParameters(Request $request): array
+    private function buildSettingParameters(Request $request)
     {
         return [
             ['name' => 'EPercobaanLogin', 'value' => $request->system_rate_limiter],
@@ -125,6 +128,7 @@ class SettingSystemController extends Controller
             ['name' => 'EIFrameDomain', 'value' => $request->system_allow_iframe_domain],
             ['name' => 'EBatasResetPassword', 'value' => $request->system_limit_reset_password],
             ['name' => 'EBatasFileOriginal', 'value' => $request->system_limit_file_original],
+            ['name' => 'ETglKepatuhanPenerbit', 'value' => $request->executor_start_date],
             ['name' => 'ERedisClient', 'value' => $request->system_redis_client],
             ['name' => 'ERedisHost', 'value' => $request->system_redis_host],
             ['name' => 'ERedisUsername', 'value' => $request->system_redis_username],
@@ -140,6 +144,7 @@ class SettingSystemController extends Controller
             ['name' => 'EBatasPengambilan', 'value' => $request->catalog_limit_retur],
             ['name' => 'EWaktuWajibKaryaCetak', 'value' => $request->printed_work],
             ['name' => 'EWaktuWajibKaryaRekam', 'value' => $request->recording_work],
+            ['name' => 'EMaksJumlahPembinaan', 'value' => $request->max_coaching],
             ['name' => 'ECaptchaSecret', 'value' => $request->captcha_secret_key],
             ['name' => 'ECaptchaSite', 'value' => $request->captcha_site_key],
             ['name' => 'EAPIISBNToken', 'value' => $request->isbn_token],
@@ -149,7 +154,7 @@ class SettingSystemController extends Controller
         ];
     }
 
-    private function upsertSettingParameters(Request $request, array $auditData): void
+    private function upsertSettingParameters(Request $request, array $auditData)
     {
         $parameters = $this->buildSettingParameters($request);
         $names = array_column($parameters, 'name');
@@ -187,7 +192,7 @@ class SettingSystemController extends Controller
         }
     }
 
-    private function upsertMailConfiguration(Request $request, array $auditData): void
+    private function upsertMailConfiguration(Request $request, array $auditData)
     {
         $payload = [
             'modul' => 'EDEPOSIT',
@@ -220,7 +225,7 @@ class SettingSystemController extends Controller
         }
     }
 
-    private function buildObedientParameters(Request $request): array
+    private function buildObedientParameters(Request $request)
     {
         return [
             ['name' => 'Patuh', 'persen' => $request->catalog_obedient],
@@ -229,7 +234,7 @@ class SettingSystemController extends Controller
         ];
     }
 
-    private function upsertObedientConfiguration(Request $request, array $auditData): void
+    private function upsertObedientConfiguration(Request $request, array $auditData)
     {
         $obedients = $this->buildObedientParameters($request);
         $names = array_column($obedients, 'name');
@@ -267,7 +272,7 @@ class SettingSystemController extends Controller
         }
     }
 
-    private function clearConfigurationCache(): void
+    private function clearConfigurationCache()
     {
         Cache::forget('settings_params');
         Cache::forget('mail_config_edeposit');
