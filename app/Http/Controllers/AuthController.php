@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -337,17 +338,26 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Http::timeout(120)
-            ->withOptions([
-                'verify' => false,
-            ])
-            ->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Hit-Script by Edeposit)'
-            ])
-            ->get(config('inlis.base_url') . '/Logout.aspx');
+        try {
+            Http::timeout(10)
+                ->withOptions([
+                    'verify' => false,
+                ])
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Hit-Script by Edeposit)'
+                ])
+                ->acceptJson()
+                ->get(config('inlis.base_url') . '/Logout.aspx');
+        } catch (\Exception $e) {
+            Log::warning('External logout failed', [
+                'error' => $e->getMessage(),
+                'user_id' => session('id')
+            ]);
+        }
 
         session()->flush();
+        session()->regenerate();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Anda telah berhasil logout');
     }
 }
