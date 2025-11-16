@@ -299,7 +299,7 @@
                             swalInit.fire('Oops ...', 'Mohon pilih pelaksana serah atas nama ' + response.data?.nama_penerbit, 'warning');
                         }
                     } else {
-                        swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web E-Deposit', 'warning');
+                        swalInit.fire('Oops ...', 'ISBN bukan merupakan ISBN cetak, silahkan silahkan unggah karya digital pada web SAKEDAP', 'warning');
                     }
                 } else {
                     swalInit.fire('Oops ...', 'Data isbn tidak ditemukan', 'info');

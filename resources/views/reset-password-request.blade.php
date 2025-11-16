@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>E-Deposit 5.0 | Admin Panel</title>
+	<title>SAKEDAP | Admin Panel</title>
     <link rel="shortcut icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
 	<link href="{{ asset('themes/fonts/inter/inter.css') }}?v={{ uniqid() }}" rel="stylesheet">

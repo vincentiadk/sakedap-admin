@@ -12,7 +12,7 @@
                         <i class="ph-file-zip me-1"></i>
                         Contoh Upload
                     </a>
-                    <a href="{{ url('download/from-public') }}?path=assets/PANDUAN BULK UPLOAD EDEPOSIT.pdf" target="_blank" class="btn btn-info me-2">
+                    <a href="{{ url('download/from-public') }}?path=assets/PANDUAN BULK UPLOAD SAKEDAP.pdf" target="_blank" class="btn btn-info me-2">
                         <i class="ph-file-pdf me-1"></i>
                         Panduan Bulk Upload
                     </a>
