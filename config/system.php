@@ -13,4 +13,6 @@ return [
     'limit_submission_kckr' => 3,
     'limit_grant' => 3,
     'limit_retur' => 3,
+    'time_printed_work' => 90,
+    'time_recording_work' => 365,
 ];

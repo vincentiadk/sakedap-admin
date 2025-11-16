@@ -63,6 +63,8 @@ class ConfigurationProvider extends ServiceProvider
                 $collectedSettings['system.limit_submission_kckr'] = (int) ($sp->firstWhere('NAME', 'EBatasSerahKCKR')->VALUE ?? 3);
                 $collectedSettings['system.limit_grant'] = (int) ($sp->firstWhere('NAME', 'EBatasHibah')->VALUE ?? 3);
                 $collectedSettings['system.limit_retur'] = (int) ($sp->firstWhere('NAME', 'EBatasPengambilan')->VALUE ?? 3);
+                $collectedSettings['system.time_printed_work'] = (int) ($sp->firstWhere('NAME', 'EWaktuWajibKaryaCetak')->VALUE ?? 3);
+                $collectedSettings['system.time_recording_work'] = (int) ($sp->firstWhere('NAME', 'EWaktuWajibKaryaRekam')->VALUE ?? 3);
 
                 $collectedSettings['isbn.token'] = $sp->firstWhere('NAME', 'EAPIISBNToken')->VALUE ?? null;
                 $collectedSettings['isbn.base_url'] = $sp->firstWhere('NAME', 'EAPIISBNBaseUrl')->VALUE ?? null;

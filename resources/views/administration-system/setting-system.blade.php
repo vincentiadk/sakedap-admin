@@ -278,6 +278,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Waktu Wajib KCKR</label>
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <span class="input-group-text">Karya Cetak (Hari)</span>
+                                    <input type="number" class="form-control" name="printed_work" id="printed_work" value="{{ $settingParameter->firstWhere('NAME', 'EWaktuWajibKaryaCetak')->VALUE ?? '' }}" placeholder="....................">
+                                    <span class="input-group-text">Karya Rekam (Hari)</span>
+                                    <input type="number" class="form-control" name="recording_work" id="recording_work" value="{{ $settingParameter->firstWhere('NAME', 'EWaktuWajibKaryaRekam')->VALUE ?? '' }}" placeholder="....................">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-captcha">
                         <div class="form-group row">

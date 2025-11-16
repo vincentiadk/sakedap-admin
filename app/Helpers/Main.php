@@ -34,6 +34,8 @@ class Main
         'EBatasSerahKCKR',
         'EBatasHibah',
         'EBatasPengambilan',
+        'EWaktuWajibKaryaCetak',
+        'EWaktuWajibKaryaRekam',
         'ECaptchaSecret',
         'ECaptchaSite',
         'EAPIISBNToken',
