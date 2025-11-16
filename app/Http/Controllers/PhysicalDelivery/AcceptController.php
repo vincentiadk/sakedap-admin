@@ -62,7 +62,7 @@ class AcceptController extends Controller
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
 
         if (Main::isNotSuperAdmin()) {
-            $whereCondition[] = 'p.province_id = ' . session('province_id');
+            $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
         if ($request->proses_by) {

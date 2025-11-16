@@ -108,9 +108,9 @@ class DashboardController extends Controller
         $condition = [];
 
         if (Main::isNotSuperAdmin()) {
-            $condition[] = "propinsi.id = " . session('province_id');
+            $condition[] = "branchs.province_id = " . session('province_id');
         } else {
-            $condition[] = "propinsi.id is not null";
+            $condition[] = "branchs.province_id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -158,9 +158,9 @@ class DashboardController extends Controller
         $condition = [];
 
         if (Main::isNotSuperAdmin()) {
-            $condition[] = "propinsi.id = " . session('province_id');
+            $condition[] = "branchs.province_id = " . session('province_id');
         } else {
-            $condition[] = "propinsi.id is not null";
+            $condition[] = "branchs.province_id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -208,9 +208,9 @@ class DashboardController extends Controller
         $condition = [];
 
         if (Main::isNotSuperAdmin()) {
-            $condition[] = "propinsi.id = " . session('province_id');
+            $condition[] = "branchs.province_id = " . session('province_id');
         } else {
-            $condition[] = "propinsi.id is not null";
+            $condition[] = "branchs.province_id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';
@@ -258,7 +258,7 @@ class DashboardController extends Controller
         $condition = ["(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)"];
 
         if (Main::isNotSuperAdmin()) {
-            $condition[] = "propinsi.id = " . session('province_id');
+            $condition[] = "branchs.province_id = " . session('province_id');
         }
 
         $whereClause = !empty($condition) ? "where " . implode(' and ', $condition) : '';
@@ -306,9 +306,9 @@ class DashboardController extends Controller
         $condition = [];
 
         if (Main::isNotSuperAdmin()) {
-            $condition[] = "propinsi.id = " . session('province_id');
+            $condition[] = "branchs.province_id = " . session('province_id');
         } else {
-            $condition[] = "propinsi.id is not null";
+            $condition[] = "branchs.province_id is not null";
         }
 
         $whereClause = !empty($condition) ? implode(' and ', $condition) : '';

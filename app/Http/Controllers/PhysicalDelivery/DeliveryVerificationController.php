@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class DeliveryVerificationController extends Controller
@@ -60,7 +61,7 @@ class DeliveryVerificationController extends Controller
         $whereCondition[] = "l.status in ('TERKIRIM', 'CEK FISIK')";
 
         if (Main::isNotSuperAdmin()) {
-            $whereCondition[] = 'p.province_id = ' . session('province_id');
+            $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
         if ($request->proses_by) {
@@ -264,17 +265,11 @@ class DeliveryVerificationController extends Controller
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
                 $disabled = '';
                 $isSuperAdmin = !Main::isNotSuperAdmin();
+                $currentUsername = session('username');
+                $verificatorUsername = $val->IS_VERIFICATION_BY ?? '';
 
-                if (!$isSuperAdmin) {
-                    $isVerificationAssigned = !empty($val->IS_VERIFICATION_BY);
-
-                    if ($isVerificationAssigned) {
-                        $currentUserIsNotAssigned = ($val->IS_VERIFICATION_BY != session('username'));
-
-                        if ($currentUserIsNotAssigned) {
-                            $disabled = 'disabled';
-                        }
-                    }
+                if (!$isSuperAdmin && !empty($verificatorUsername) && $verificatorUsername !== $currentUsername) {
+                    $disabled = 'disabled';
                 }
 
                 $iconClass = in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check';
@@ -313,171 +308,199 @@ class DeliveryVerificationController extends Controller
 
     public function detail(Request $request, $id)
     {
-        $letterSql = "
-            select
-                letter.*,
-                jasa_pengiriman.name as name_jasa_pengiriman,
-                penerbit.name as name_penerbit
-            from
-                letter
-            left join
-                penerbit on penerbit.id = letter.penerbit_id
-            left join
-                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
-            where
-                letter.letter_id = $id
-        ";
-
-        $letter = QueryAPI::get($letterSql, true);
-
-        $letterDetail = QueryAPI::get("
-            select
-                *
-            from
-                letter_detail
-            where
-                letter_id = $id
-        ");
-
-        $disable = null;
-        $currentStatus = $letter->STATUS ?? '';
-        $isSuperAdmin = !Main::isNotSuperAdmin();
-        $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
-        $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
-        $currentUser = session('username');
-        $id = $letter->ID ?? null;
-
-        if ($isBranchMatch && in_array($currentStatus, ['TERKIRIM'])) {
-            QueryAPI::update('letter', $id, [
-                'status' => 'CEK FISIK'
-            ], false);
-
-            $letter = QueryAPI::get($letterSql, true);
-            $currentStatus = $letter->STATUS ?? '';
-            $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
+        if (!is_numeric($id)) {
+            abort(404, 'Invalid letter ID');
         }
 
-        $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
+        try {
+            $letterSql = "
+                select
+                    l.*,
+                    jp.name as name_jasa_pengiriman,
+                    p.name as name_penerbit
+                from
+                    letter l
+                left join
+                    penerbit p on p.id = l.penerbit_id
+                left join
+                    jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
+                where
+                    l.letter_id = $id
+            ";
 
-        if (!empty($verificatorUsername) && $verificatorUsername !== $currentUser && !$isSuperAdmin) {
-            echo '
-                <script>
-                    alert("Sedang diverifikasi oleh ' . $verificatorUsername . '");
-                    window.location.href = "' . url('physical-delivery/delivery-verification') . '";
-                </script>
-            ';
-        } else if ($isVerifiableNow && empty($verificatorUsername)) {
-            if (!$isSuperAdmin) {
-                QueryAPI::update('letter', $id, [
-                    'is_verification_by' => $currentUser,
-                    'proses_by' => session('name'),
+            $letter = QueryAPI::get($letterSql, true);
+
+            if (!$letter) {
+                abort(404, 'Letter not found');
+            }
+
+            $letterDetail = QueryAPI::get("
+                select
+                    *
+                from
+                    letter_detail
+                where
+                    letter_id = $id
+            ", false);
+
+            $currentStatus = $letter->STATUS ?? '';
+            $isSuperAdmin = !Main::isNotSuperAdmin();
+            $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
+            $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
+            $currentUser = session('username');
+            $letterId = $letter->LETTER_ID ?? null;
+
+            if ($isBranchMatch && $currentStatus === 'TERKIRIM') {
+                QueryAPI::update('letter', $letterId, [
+                    'status' => 'CEK FISIK'
                 ], false);
 
                 $letter = QueryAPI::get($letterSql, true);
+                $currentStatus = $letter->STATUS ?? '';
                 $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
             }
 
-            $disable = null;
-        } else if (!empty($verificatorUsername)) {
-            if ($isSuperAdmin && $verificatorUsername !== $currentUser) {
-                $disable = 'disabled';
-            } else {
-                $disable = null;
+            $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
+
+            if (!empty($verificatorUsername) && $verificatorUsername !== $currentUser && !$isSuperAdmin) {
+                echo '
+                    <script>
+                        alert("Sedang diverifikasi oleh ' . $verificatorUsername . '");
+                        window.location.href = "' . url('physical-delivery/delivery-verification') . '";
+                    </script>
+                ';
+
+                exit;
             }
-        } else {
-            $disable = 'disabled';
-        }
 
-        if ($request->ajax()) {
-            try {
-                $param = $request->param;
-
-                if ($param == 'cancel') {
-                    QueryAPI::update('letter', $id, [
-                        'is_verification_by' => null,
-                        'proses_by' => null,
+            if ($isVerifiableNow && empty($verificatorUsername)) {
+                if (!$isSuperAdmin) {
+                    QueryAPI::update('letter', $letterId, [
+                        'is_verification_by' => $currentUser,
+                        'proses_by' => session('name'),
                     ], false);
 
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Verifikasi telah dibatalkan'
-                    ];
+                    $letter = QueryAPI::get($letterSql, true);
+                    $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
+                }
+
+                $disable = null;
+            } else if (!empty($verificatorUsername)) {
+                if ($isSuperAdmin && $verificatorUsername !== $currentUser) {
+                    $disable = 'disabled';
                 } else {
-                    $letterDetailIds = $request->collect('letter_detail_id');
-                    $quantities = $request->collect('letter_detail_quantity');
-                    $qtyAccepts = $request->collect('letter_detail_qty_accept');
-                    $qtyRejects = $request->collect('letter_detail_qty_reject');
-                    $remarks = $request->collect('letter_detail_remark');
-                    $checkeds = $request->collect('letter_detail_checked');
-                    $notes = $request->collect('letter_detail_note');
+                    $disable = null;
+                }
+            } else {
+                $disable = 'disabled';
+            }
+
+            if ($request->ajax()) {
+                try {
+                    $param = $request->input('param');
+
+                    if ($param === 'cancel') {
+                        QueryAPI::update('letter', $letterId, [
+                            'is_verification_by' => null,
+                            'proses_by' => null,
+                        ], false);
+
+                        return response()->json([
+                            'code' => 200,
+                            'message' => 'Verifikasi telah dibatalkan'
+                        ]);
+                    }
+
+                    $letterDetailIds = $request->input('letter_detail_id', []);
+                    $quantities = $request->input('letter_detail_quantity', []);
+                    $qtyAccepts = $request->input('letter_detail_qty_accept', []);
+                    $qtyRejects = $request->input('letter_detail_qty_reject', []);
+                    $remarks = $request->input('letter_detail_remark', []);
+                    $checkeds = $request->input('letter_detail_checked', []);
+                    $notes = $request->input('letter_detail_note', []);
                     $status = 'DITERIMA PENUH';
-                    $letterDetailsToUpdate = [];
 
-                    foreach ($letterDetailIds as $key => $ldi) {
-                        $qtyAccept = $qtyAccepts->get($key, 0);
-                        $qtyReject = $qtyRejects->get($key, 0);
-                        $remark = $remarks->get($key, []);
-                        $quantity = $quantities->get($key, 0);
-                        $checked = $checkeds->get($key, 0);
-                        $note = $notes->get($key, 0);
+                    foreach ($letterDetailIds as $key => $detailId) {
+                        $qtyAccept = $qtyAccepts[$key] ?? 0;
+                        $qtyReject = $qtyRejects[$key] ?? 0;
+                        $remark = $remarks[$key] ?? [];
+                        $quantity = $quantities[$key] ?? 0;
+                        $checked = $checkeds[$key] ?? 0;
+                        $note = $notes[$key] ?? '';
 
-                        $letterDetailsToUpdate[] = [
-                            'id' => $ldi,
+                        QueryAPI::update('letter_detail', $detailId, [
                             'qty_accept' => $qtyAccept,
                             'qty_reject' => $qtyReject,
                             'remark' => is_array($remark) ? implode(';', $remark) : $remark,
                             'checked' => $checked,
                             'isbn_status' => $note,
-                        ];
+                        ], false);
 
                         if ($qtyAccept < $quantity) {
                             $status = 'DITERIMA PARSIAL';
                         }
                     }
 
-                    foreach ($letterDetailsToUpdate as $updateData) {
-                        $letterId = $updateData['id'];
+                    $requestStatus = $request->input('status');
+                    $letterUpdateData = [
+                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
+                    ];
 
-                        unset($updateData['id']);
-
-                        QueryAPI::update('letter_detail', $letterId, $updateData, false);
+                    if ($param === 'save-verification') {
+                        $letterUpdateData['accept_date'] = date('Y-m-d H:i:s');
                     }
 
-                    $requestStatus = $request->status;
+                    if (in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL'])) {
+                        $letterUpdateData['proses_by'] = session('name');
+                    }
 
-                    QueryAPI::update('letter', $id, [
-                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
-                        'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('name') : null,
-                    ], false);
+                    QueryAPI::update('letter', $letterId, $letterUpdateData, false);
 
-                    $response = [
+                    return response()->json([
                         'code' => 200,
                         'message' => 'Data telah disimpan'
-                    ];
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error in AJAX request: ' . $e->getMessage(), [
+                        'letter_id' => $letterId,
+                        'param' => $request->input('param'),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+
+                    return response()->json([
+                        'code' => 500,
+                        'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                    ], 500);
                 }
-            } catch (\Exception $e) {
-                $response = [
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ];
             }
 
-            return response()->json($response);
-        }
-
-        return view('layouts.index', [
-            'data' => [
-                'letter' => $letter,
-                'letterDetail' => $letterDetail,
-                'disabled' => $disable,
-                'content' => 'physical-delivery.delivery-verification-detail',
-                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
-                'plugins' => [
-                    'select2',
-                    'datatable',
+            return view('layouts.index', [
+                'data' => [
+                    'letter' => $letter,
+                    'letterDetail' => $letterDetail,
+                    'disabled' => $disable,
+                    'content' => 'physical-delivery.delivery-verification-detail',
+                    'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
+                    'plugins' => [
+                        'select2',
+                        'datatable',
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in detail function: ' . $e->getMessage(), [
+                'letter_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.'
+                ], 500);
+            }
+
+            abort(500, 'Terjadi kesalahan sistem');
+        }
     }
 }

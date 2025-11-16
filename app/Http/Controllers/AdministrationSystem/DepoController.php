@@ -47,7 +47,7 @@ class DepoController extends Controller
         $whereCondition[] = '(location_library.isdelete = 0 or location_library.isdelete is null)';
 
         if (Main::isNotSuperAdmin()) {
-            $whereCondition[] = 'propinsi.id = ' . session('province_id');
+            $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 
         if ($search) {
