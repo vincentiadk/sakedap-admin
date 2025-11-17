@@ -208,8 +208,7 @@ class RequestFileController extends Controller
                 penerbit.name AS name_penerbit,
                 penerbit.email1 AS email_penerbit,
                 catalogs.title AS title_catalog,
-                catalogfiles.id AS catalogfile_id,
-                catalogfiles.name AS catalogfile_name
+                catalogfiles.id AS catalogfile_id
             from
                 e_collection_requests
             join
