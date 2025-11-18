@@ -237,7 +237,7 @@ class DataTableServersideController extends Controller
         $whereClause = '';
         $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null)";
         $whereCondition[] = "(c.title is not null)";
-        $whereCondition[] = "(c.edeposit_col_id is not null and ec.parent_id is not null)";
+        $whereCondition[] = "(c.edeposit_col_id is not null and c.worksheet_id = 142)";
 
         if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'k.propinsiid = ' . session('province_id');
@@ -280,14 +280,14 @@ class DataTableServersideController extends Controller
                 (c.isdelete = 0 or c.isdelete is null)
                 and c.title is not null
                 and c.edeposit_col_id is not null
+                and c.worksheet_id = 142
                 and exists (
                     select
                         1
                     from
                         e_collections ec
                     where
-                        ec.id = c.edeposit_col_id and
-                        ec.parent_id is not null
+                        ec.id = c.edeposit_col_id
                 )
         ", true)->TOTAL ?? 0;
 

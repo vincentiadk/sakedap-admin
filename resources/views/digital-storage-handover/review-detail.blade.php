@@ -63,16 +63,6 @@
                         </table>
                     </div>
                 </div>
-                @if($collection->TITLE_PARENT)
-                    <div class="card" id="scrollspy-parent">
-                        <div class="card-header">
-                            <h5 class="hstack gap-2 mb-0">Parent</h5>
-                        </div>
-                        <div class="card-body">
-                            {{ $collection->TITLE_PARENT }}
-                        </div>
-                    </div>
-                @endif
                 <div class="card" id="scrollspy-executor">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
@@ -86,20 +76,6 @@
                         <h5 class="hstack gap-2 mb-0">Meta Data</h5>
                     </div>
                     <div class="card-body">
-                        @if($collection->TITLE_PARENT)
-                            <div class="form-group row">
-                                <label class="col-form-label col-md-2">Edisi</label>
-                                <div class="col-md-10">
-                                    <input type="text" class="form-control" name="edition" id="edition" value="{{ $collection->EDITION ?? $collection->EDITION }}" placeholder="....................">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-form-label col-md-2">Tanggal Terbit Edisi <span class="text-danger fw-bold">*</span></label>
-                                <div class="col-md-10">
-                                    <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" value="{{ Carbon::parse($collection->EDITION_DATE)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
-                                </div>
-                            </div>
-                        @endif
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
@@ -180,23 +156,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="series" id="series" value="{{ $collection->SERIES }}" placeholder="...................." @if(empty($collection->SERIES)) disabled @endif>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-form-label col-md-2">Kala Terbit</label>
-                            <div class="col-md-10">
-                                <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada">
-                                    <option value=""></option>
-                                    <option value="1" {{ $collection->SERIAL == 1 ? 'selected' : '' }}>Harian</option>
-                                    <option value="2" {{ $collection->SERIAL == 2 ? 'selected' : '' }}>Mingguan</option>
-                                    <option value="3" {{ $collection->SERIAL == 3 ? 'selected' : '' }}>Bulanan</option>
-                                    <option value="4" {{ $collection->SERIAL == 4 ? 'selected' : '' }}>3 Bulan Sekali</option>
-                                    <option value="5" {{ $collection->SERIAL == 5 ? 'selected' : '' }}>4 Bulan Sekali</option>
-                                    <option value="6" {{ $collection->SERIAL == 6 ? 'selected' : '' }}>6 Bulan Sekali</option>
-                                    <option value="7" {{ $collection->SERIAL == 7 ? 'selected' : '' }}>Tahunan</option>
-                                    <option value="8" {{ $collection->SERIAL == 8 ? 'selected' : '' }}>2 Tahun Sekali</option>
-                                    <option value="9" {{ $collection->SERIAL == 9 ? 'selected' : '' }}>3 Tahun Sekali</option>
-                                </select>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -351,80 +310,6 @@
                         </select>
                     </div>
                 </div>
-                @if(!$collection->TITLE_PARENT)
-                    <div class="card" id="scrollspy-edition-serial">
-                        <div class="card-header">
-                            <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Edisi / Volume</th>
-                                            <th>Tgl Terbit</th>
-                                            <th>Cover</th>
-                                            <th>Konten</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if($collectionCopy)
-                                            @foreach($collectionCopy as $key => $cc)
-                                                @php
-                                                    $cover = QueryAPI::get("
-                                                        select
-                                                            *
-                                                        from
-                                                            catalogcovers
-                                                        where
-                                                            e_col_id = $cc->ID
-                                                    ", true);
-
-                                                    $content = QueryAPI::get("
-                                                        select
-                                                            *
-                                                        from
-                                                            catalogfiles
-                                                        where
-                                                            e_col_id = $cc->ID
-                                                    ", true);
-                                                @endphp
-                                                <tr>
-                                                    <td>{{ $cc->EDITION }}</td>
-                                                    <td>{{ $cc->EDITION_DATE ? Carbon::parse($cc->EDITION_DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
-                                                    <td>
-                                                        @if($cover)
-                                                            <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
-                                                                <i class="ph-image me-1"></i>
-                                                                Lihat
-                                                            </a>
-                                                        @else
-                                                            Tidak ada cover
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($content)
-                                                            <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
-                                                                <i class="ph-file me-1"></i>
-                                                                Lihat
-                                                            </a>
-                                                        @else
-                                                            Tidak ada konten
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="4">Tidak ada data</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                @endif
                 <div class="card" id="scrollspy-file">
                     <div class="card-body">
                         <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
@@ -520,11 +405,6 @@
                     <li class="nav-item">
                         <a href="#scrollspy-history-problem" class="nav-link">Histori Masalah</a>
                     </li>
-                    @if($collection->TITLE_PARENT)
-                        <li class="nav-item">
-                            <a href="#scrollspy-parent" class="nav-link">Parent</a>
-                        </li>
-                    @endif
                     <li class="nav-item">
                         <a href="#scrollspy-executor" class="nav-link">Pelaksana Serah</a>
                     </li>
@@ -537,11 +417,6 @@
                     <li class="nav-item">
                         <a href="#scrollspy-author" class="nav-link">Kontributor</a>
                     </li>
-                    @if($collection->TITLE_PARENT)
-                        <li class="nav-item">
-                            <a href="#scrollspy-edition-serial" class="nav-link">Edisi Serial</a>
-                        </li>
-                    @endif
                     <li class="nav-item">
                         <a href="#scrollspy-file" class="nav-link">File</a>
                     </li>

@@ -59,7 +59,7 @@ class ReviewEditionController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and e_collections.parent_id is not null";
+        $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null) and e_collections.worksheet_id = 142";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -131,7 +131,7 @@ class ReviewEditionController extends Controller
                     status = '1' and
                     deleted_at is null
                 ) and
-                e_collections.parent_id is not null
+                worksheet_id = 142
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -244,7 +244,8 @@ class ReviewEditionController extends Controller
             where
                 e_collections.id = $id and
                 e_collections.deleted_at is null and
-                e_collections.status = '1'
+                e_collections.status = '1' and
+                e_collections.worksheet_id = 142
         ";
 
         $collection = QueryAPI::get($sqlCollection, true);

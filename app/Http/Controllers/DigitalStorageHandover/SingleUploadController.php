@@ -97,8 +97,8 @@ class SingleUploadController extends Controller
                 'collection_media_id' => 'required',
                 'received_at' => 'required',
                 'access' => 'required',
-                'file_cover' => 'required|image|mimes:png,jpg,jpeg|max:' . config('system.catalog_cover_max_upload'),
-                'file_content' => 'required|file|mimes:pdf,epub,mp3,mp4,wav|max:' . config('system.catalog_content_max_upload'),
+                'file_cover' => 'nullable|image|mimes:png,jpg,jpeg|max:' . config('system.catalog_cover_max_upload'),
+                'file_content' => 'nullable|file|mimes:pdf,epub,mp3,mp4,wav|max:' . config('system.catalog_content_max_upload'),
             ], [
                 'executor_id.required' => 'Pelaksana serah tidak boleh kosong',
                 'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
@@ -107,11 +107,9 @@ class SingleUploadController extends Controller
                 'collection_media_id.required' => 'Media tidak boleh kosong',
                 'received_at.required' => 'Tanggal terima tidak boleh kosong',
                 'access.required' => 'Akses tidak boleh kosong',
-                'file_cover.required' => 'File cover tidak boleh kosong',
                 'file_cover.image' => 'File cover tidak valid',
                 'file_cover.mimes' => 'File cover harus png, jpg, jpeg',
                 'file_cover.max' => 'File cover maksimal ' . Main::formatFileSize((int) config('system.catalog_cover_max_upload')),
-                'file_content.required' => 'File konten tidak boleh kosong',
                 'file_content.file' => 'File konten tidak valid',
                 'file_content.mimes' => 'File konten harus pdf, epub, mp3, mp4, wav',
                 'file_content.max' => 'File konten maksimal ' . Main::formatFileSize((int) config('system.catalog_content_max_upload')),
@@ -273,7 +271,7 @@ class SingleUploadController extends Controller
                     $fileCover = $request->file('file_cover');
                     $fileContent = $request->file('file_content');
 
-                    if ($fileCover && $fileContent) {
+                    if ($fileCover) {
                         QueryAPI::uploadFile([
                             'type' => 'cover',
                             'id' => $createCollection->ID,
@@ -285,7 +283,9 @@ class SingleUploadController extends Controller
                             'iszip' => false,
                             'file' => $fileCover,
                         ]);
+                    }
 
+                    if ($fileContent) {
                         QueryAPI::uploadFile([
                             'type' => 'konten_digital',
                             'id' => $createCollection->ID,

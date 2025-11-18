@@ -28,12 +28,11 @@
         <div class="card d-none" id="form-parent">
             <div class="card-header">
                 <h5 class="hstack gap-2 mb-0">Parent</h5>
-                <small class="text-danger fst-italic">* untuk input tunggal edisi harap memilih parent terlebih dahulu</small>
             </div>
             <div class="card-body">
                 <div class="input-group">
                     <input type="hidden" name="catalog_id" id="catalog_id">
-                    <input type="text" class="form-control" name="catalog_title" id="catalog_title" placeholder="Pilih Parent" onchange="catalogParent()" readonly>
+                    <input type="text" class="form-control" name="catalog_title" id="catalog_title" placeholder="Tidak Ada" onchange="catalogParent()" readonly>
                     <button type="button" class="btn btn-danger d-none" onclick="onLoading('show', 'body'); location.reload(true);" id="btn-cancel-parent">
                         <i class="ph-x me-1"></i>
                         Batalkan
@@ -340,7 +339,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" id="section-file-cover">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">File Cover <span class="text-danger fw-bold">*</span></h5>
@@ -350,7 +349,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" id="section-file-content">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">File Konten <span class="text-danger fw-bold">*</span></h5>
@@ -421,6 +420,7 @@
 
         lookupCatalogParent('#catalog_title', '#catalog_id');
         codeType();
+        chooseWorksheet();
     });
 
     function chooseWorksheet() {
@@ -429,11 +429,15 @@
         if(worksheetId == 142) {
             $('#form-parent').removeClass('d-none');
             $('#column-edition').removeClass('d-none');
-            $('#card-edition').hide();
+            $('#card-edition').removeClass('d-none');
+            $('#section-file-cover').removeClass('d-none');
+            $('#section-file-content').addClass('d-none');
         } else {
             $('#form-parent').addClass('d-none');
             $('#btn-cancel-parent').addClass('d-none');
-            $('#card-edition').show();
+            $('#card-edition').addClass('d-none');
+            $('#section-file-cover').removeClass('d-none');
+            $('#section-file-content').removeClass('d-none');
         }
 
         $('#card-edition #data-edition').html('');
@@ -441,6 +445,7 @@
 
     function catalogParent() {
         $('#btn-cancel-parent').removeClass('d-none');
+        $('#section-file-cover').addClass('d-none');
 
         if($('#catalog_id').val()) {
             $.ajax({
