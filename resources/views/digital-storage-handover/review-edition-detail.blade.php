@@ -202,7 +202,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Waktu Terbit</label>
                             <div class="col-md-10">
-                                <input type="month" class="form-control" name="publish_time" id="publish_time" value="{{ $collection->PUBLICATION_YEAR . '-' . $collection->PUBLICATION_MONTH }}">
+                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal" readonly>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -561,7 +561,7 @@
 
 <script>
     $(function() {
-        datePickerSingle('#received_at');
+        datePickerSingle('#received_at,#publish_time');
 
         if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id', 'branch', {

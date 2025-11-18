@@ -340,6 +340,7 @@ class ReviewEditionController extends Controller
                         'serial' => $request->serial,
                         'publication_month' => date('m', strtotime($request->publish_time)),
                         'publication_year' => date('Y', strtotime($request->publish_time)),
+                        'publication_day' => date('d', strtotime($request->publish_time)),
                         'preview' => $request->preview,
                         'physical_description' => json_encode($request->physical_description),
                         'price' => str_replace([',', '.'], '', $request->price),

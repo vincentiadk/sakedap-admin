@@ -156,7 +156,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Waktu Terbit</label>
                     <div class="col-md-10">
-                        <input type="month" class="form-control" name="publish_time" id="publish_time">
+                        <input type="text" class="form-control date-picker-single" name="publish_time" id="publish_time" placeholder="Pilih Tanggal" readonly>
                     </div>
                 </div>
                 <div class="form-group row">

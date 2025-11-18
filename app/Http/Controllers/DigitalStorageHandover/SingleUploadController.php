@@ -145,6 +145,7 @@ class SingleUploadController extends Controller
                         'code_type' => $request->code_type ?? 0,
                         'publication_month' => date('m', $publishTime),
                         'publication_year' => date('Y', $publishTime),
+                        'publication_day' => date('d', $publishTime),
                         'preview' => $request->preview,
                         'physical_description' => json_encode($request->physical_description),
                         'sync' => 0,
@@ -221,6 +222,7 @@ class SingleUploadController extends Controller
                                 $editionData['edition_date'] = $editionDate;
                                 $editionData['publication_month'] = date('m', strtotime($editionDate));
                                 $editionData['publication_year'] = date('Y', strtotime($editionDate));
+                                $editionData['publication_day'] = date('d', strtotime($editionDate));
                                 $createEdition = QueryAPI::create('e_collections', $editionData);
 
                                 if ($createEdition) {
