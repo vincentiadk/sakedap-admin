@@ -152,6 +152,7 @@ class BulkJob implements ShouldQueue
                     $codeTypeData = optional($catalog)->CODE_TYPE_E_COLLECTION ?? $codeType ?? '';
                     $publishMonth = optional($catalog)->PUBLISH_MONTH ?: ($finalpublishTime ? date('m', strtotime($finalpublishTime)) : null);
                     $publishYear = optional($catalog)->PUBLISHYEAR ?: ($finalpublishTime ? date('Y', strtotime($finalpublishTime)) : null);
+                    $publishDay = optional($catalog)->PUBLISH_DAY ?: ($finalpublishTime ? date('d', strtotime($finalpublishTime)) : null);
 
                     $physicalDescription = [
                         'paging' => $d->get('paging'),
@@ -189,6 +190,7 @@ class BulkJob implements ShouldQueue
                         'code_type' => $codeTypeData,
                         'publication_month' => $publishMonth,
                         'publication_year' => $publishYear,
+                        'publication_day' => $publishDay,
                         'preview' => $preview,
                         'physical_description' => json_encode($physicalDescription),
                         'sync' => 0,
