@@ -16,6 +16,7 @@
         "opcodesio/log-viewer": "*",
         "predis/predis": "^3.2",
         "tecnickcom/tcpdf": "^6.10",
+        "twilio/sdk": "*",
         "zanysoft/laravel-zip": "^3.0"
     },
     "require-dev": {

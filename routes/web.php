@@ -369,6 +369,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'SettingSystemController@index');
             Route::post('submitted', 'SettingSystemController@submitted');
             Route::post('test-send-email', 'SettingSystemController@testSendEmail');
+            Route::post('test-send-whatsapp', 'SettingSystemController@testSendWhatsapp');
         });
 
         Route::prefix('promotion')->group(function () {

@@ -54,24 +54,35 @@ return [
         'raja-ongkir-api' => [
             'driver' => 'daily',
             'path' => storage_path('logs/raja-ongkir-api.log'),
+            'days' => 7,
             'level' => 'debug',
         ],
 
         'isbn-api' => [
             'driver' => 'daily',
             'path' => storage_path('logs/isbn-api.log'),
+            'days' => 7,
             'level' => 'debug',
         ],
 
         'sakedap-api' => [
             'driver' => 'daily',
             'path' => storage_path('logs/sakedap-api.log'),
+            'days' => 7,
             'level' => 'debug',
         ],
 
         'report' => [
             'driver' => 'daily',
             'path' => storage_path('logs/report.log'),
+            'days' => 7,
+            'level' => 'debug',
+        ],
+
+        'twilio' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/twilio.log'),
+            'days' => 7,
             'level' => 'debug',
         ],
 

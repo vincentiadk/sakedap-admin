@@ -352,24 +352,60 @@ class QueryAPI
             'op' => 'getfile',
         ]);
 
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
-            ->withQueryParameters($param)
-            ->withOptions(['stream' => true])
-            ->post(static::$baseUrl);
+        try {
+            $query = Http::connectTimeout(60)
+                ->timeout(120)
+                ->withQueryParameters($param)
+                ->withOptions(['stream' => true])
+                ->post(static::$baseUrl);
 
-        if ($query->status() == 200) {
-            $result = $query->getBody();
+            if ($query->status() == 200) {
+                $contentType = $query->header('Content-Type');
 
-            return response()->stream(function () use ($result) {
-                while (!$result->eof()) {
-                    echo $result->read(1024);
+                if (str_contains($contentType, 'application/json') || str_contains($contentType, 'text/plain')) {
+                    $errorBody = $query->body();
 
-                    flush();
+                    Log::channel('sakedap-api')->error('GetFile 200 OK but response is JSON/Text (Logic Error)', [
+                        'content_type' => $contentType,
+                        'response_body' => $errorBody,
+                        'payload' => $payload
+                    ]);
+
+                    return false;
                 }
-            }, 200, [
-                'Content-Type' => Main::contentTypeFile($payload['filename']),
-                'Content-Disposition' => 'inline; filename="' . $payload['filename'] . '"',
+
+                $contentLength = $query->header('Content-Length');
+
+                if ($contentLength === '0') {
+                    Log::channel('sakedap-api')->error('GetFile 200 OK but Content-Length is 0', [
+                        'payload' => $payload
+                    ]);
+
+                    return false;
+                }
+
+                $result = $query->toPsrResponse()->getBody();
+
+                return response()->stream(function () use ($result) {
+                    while (!$result->eof()) {
+                        echo $result->read(1024);
+
+                        flush();
+                    }
+                }, 200, [
+                    'Content-Type' => Main::contentTypeFile($payload['filename'] ?? 'unknown'),
+                    'Content-Disposition' => 'inline; filename="' . ($payload['filename'] ?? 'file') . '"',
+                ]);
+            } else {
+                Log::channel('sakedap-api')->error('GetFile API Error: Status Code bukan 200', [
+                    'status' => $query->status(),
+                    'url' => static::$baseUrl
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::channel('sakedap-api')->error('GetFile Exception', [
+                'message' => $e->getMessage(),
+                'payload' => $payload
             ]);
         }
 

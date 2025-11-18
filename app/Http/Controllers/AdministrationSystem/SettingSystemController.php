@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdministrationSystem;
 
 use App\Helpers\Main;
+use App\Helpers\Twilio;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -64,39 +65,6 @@ class SettingSystemController extends Controller
             ]);
 
             return redirect($redirectUrl)->with('failed', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    public function testSendEmail(Request $request)
-    {
-        try {
-            $email = $request->email ?? 'admin@gmail.com';
-            $from = config('mail.from.address');
-            $name = config('mail.from.name');
-
-            Mail::send([], [], function ($message) use ($email, $from, $name) {
-                $message->to($email)
-                    ->subject('Tes Kirim Email')
-                    ->from($from, $name)
-                    ->html('<h2>Test Email</h2><p>Email berhasil terkirim dari sistem SAKEDAP.</p><p>Timestamp: ' . now()->format('d-m-Y H:i:s') . '</p>', 'text/html');
-            });
-
-            return response()->json([
-                'code' => 200,
-                'success' => true,
-                'message' => 'Email berhasil dikirim ke ' . $email,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Test email failed', [
-                'email' => $request->email ?? 'unknown',
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'code' => 500,
-                'success' => false,
-                'message' => 'Gagal mengirim email: ' . $e->getMessage(),
-            ], 500);
         }
     }
 
@@ -280,5 +248,47 @@ class SettingSystemController extends Controller
         Cache::forget('mail_config_edeposit');
         Cache::forget('obedient_kckr');
         Cache::forget(Main::CACHE_NAME_CONFIG_APP);
+    }
+
+    public function testSendEmail(Request $request)
+    {
+        try {
+            $email = $request->email ?? 'admin@gmail.com';
+            $from = config('mail.from.address');
+            $name = config('mail.from.name');
+
+            Mail::send([], [], function ($message) use ($email, $from, $name) {
+                $message->to($email)
+                    ->subject('Tes Kirim Email')
+                    ->from($from, $name)
+                    ->html('<h2>Test Email</h2><p>Email berhasil terkirim dari sistem SAKEDAP.</p><p>Timestamp: ' . now()->format('d-m-Y H:i:s') . '</p>', 'text/html');
+            });
+
+            return response()->json([
+                'code' => 200,
+                'success' => true,
+                'message' => 'Email berhasil dikirim ke ' . $email,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Test email failed', [
+                'email' => $request->email ?? 'unknown',
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'code' => 500,
+                'success' => false,
+                'message' => 'Gagal mengirim email: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function testSendWhatsapp(Request $request)
+    {
+        $target = $request->target;
+        $message = $request->body;
+        $send = Twilio::send($target, $message);
+
+        return response()->json($send);
     }
 }

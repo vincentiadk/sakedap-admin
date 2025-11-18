@@ -321,7 +321,38 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-whatsapp">
-                        Belum Tersedia
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Dari :</label>
+                                    <input type="text" class="form-control" value="{{ config('twilio.from') }}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Target :</label>
+                                    <input type="text" class="form-control" name="whatsapp_target" id="whatsapp_target" placeholder="....................">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Pesan :</label>
+                                    <textarea name="whatsapp_body" id="whatsapp_body" class="form-control" style="resize:none;" placeholder="...................."></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="hstack gap-2 mb-0">Response</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <code class="language-json" id="response-whatsapp"></code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light" onclick="testSendWhatsapp()">
+                                <i class="ph-paper-plane-right me-1"></i>
+                                Tes Kirim
+                            </butt>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-api-isbn">
                         <div class="form-group row">
@@ -404,6 +435,48 @@
                         showCloseButton: false
                     });
                 }
+            },
+            error: function(response) {
+                onLoading('close', 'body');
+                responseError(response);
+            }
+        });
+    }
+
+    function testSendWhatsapp() {
+        var target = $('#whatsapp_target').val();
+        var body = $('#whatsapp_body').val();
+
+        if(target == '' || body == '') {
+            swalInit.fire({
+                title: 'Oops ...',
+                text: 'Mohon mengisi target dan pesan',
+                icon: 'info'
+            });
+
+            return;
+        }
+
+        $.ajax({
+            url: '{{ url("administration-system/setting-system/test-send-whatsapp") }}',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                target: $('#whatsapp_target').val(),
+                body: $('#whatsapp_body').val(),
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            beforeSend: function() {
+                onLoading('show', 'body');
+
+                $('#response-whatsapp').text('');
+            },
+            success: function(response) {
+                onLoading('close', 'body');
+
+                $('#response-whatsapp').text(JSON.stringify(response, null, 4));
             },
             error: function(response) {
                 onLoading('close', 'body');
