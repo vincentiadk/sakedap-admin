@@ -329,10 +329,6 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label">Dari :</label>
-                                    <input type="text" class="form-control" value="{{ config('twilio.from') }}" disabled>
-                                </div>
-                                <div class="form-group">
                                     <label class="form-label">Target :</label>
                                     <input type="text" class="form-control" name="whatsapp_target" id="whatsapp_target" placeholder="....................">
                                 </div>

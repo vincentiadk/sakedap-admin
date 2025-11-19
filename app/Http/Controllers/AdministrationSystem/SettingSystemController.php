@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\AdministrationSystem;
 
 use App\Helpers\Main;
-use App\Helpers\Twilio;
+use App\Helpers\Fonnte;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -287,7 +287,7 @@ class SettingSystemController extends Controller
     {
         $target = $request->target;
         $message = $request->body;
-        $send = Twilio::send($target, $message);
+        $send = Fonnte::send($target, $message);
 
         return response()->json($send);
     }
