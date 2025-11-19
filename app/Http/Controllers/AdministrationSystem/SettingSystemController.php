@@ -196,11 +196,11 @@ class SettingSystemController extends Controller
     private function buildObedientParameters(Request $request)
     {
         return [
-            ['name' => 'Sangat Patuh', 'persen' => $request->catalog_very_obedient],
-            ['name' => 'Patuh', 'persen' => $request->catalog_obedient],
-            ['name' => 'Cukup Patuh', 'persen' => $request->catalog_quite_obidient],
-            ['name' => 'Kurang Patuh', 'persen' => $request->catalog_less_obidient],
-            ['name' => 'Tidak Patuh', 'persen' => $request->catalog_not_obey],
+            ['name' => 'Sangat Patuh', 'persen' => $request->catalog_very_obedient, 'warna' => $request->catalog_very_obedient_color],
+            ['name' => 'Patuh', 'persen' => $request->catalog_obedient, 'warna' => $request->catalog_obedient_color],
+            ['name' => 'Cukup Patuh', 'persen' => $request->catalog_quite_obidient, 'warna' => $request->catalog_quite_obidient_color],
+            ['name' => 'Kurang Patuh', 'persen' => $request->catalog_less_obidient, 'warna' => $request->catalog_less_obidient_color],
+            ['name' => 'Tidak Patuh', 'persen' => $request->catalog_not_obey, 'warna' => $request->catalog_not_obey_color],
         ];
     }
 

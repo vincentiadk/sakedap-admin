@@ -248,15 +248,20 @@
                             <label class="col-form-label col-md-2">Kepatuhan</label>
                             <div class="col-md-10">
                                 <div class="input-group">
-                                    <span class="input-group-text">Sangat Patuh (%)</span>
+                                    <span class="input-group-text">S. Patuh (%)</span>
+                                    <input type="color" class="form-control h-auto" name="catalog_very_obedient_color" id="catalog_very_obedient_color" value="{{ $obedient->firstWhere('NAME', 'Sangat Patuh')->WARNA ?? '' }}">
                                     <input type="number" class="form-control" name="catalog_very_obedient" id="catalog_very_obedient" max="100" value="{{ $obedient->firstWhere('NAME', 'Sangat Patuh')->PERSEN ?? '' }}" placeholder="....................">
                                     <span class="input-group-text">Patuh (%)</span>
+                                    <input type="color" class="form-control h-auto" name="catalog_obedient_color" id="catalog_obedient_color" value="{{ $obedient->firstWhere('NAME', 'Patuh')->WARNA ?? '' }}">
                                     <input type="number" class="form-control" name="catalog_obedient" id="catalog_obedient" max="100" value="{{ $obedient->firstWhere('NAME', 'Patuh')->PERSEN ?? '' }}" placeholder="....................">
-                                    <span class="input-group-text">Cukup Patuh (%)</span>
+                                    <span class="input-group-text">C. Patuh (%)</span>
+                                    <input type="color" class="form-control h-auto" name="catalog_quite_obidient_color" id="catalog_quite_obidient_color" value="{{ $obedient->firstWhere('NAME', 'Cukup Patuh')->WARNA ?? '' }}">
                                     <input type="number" class="form-control" name="catalog_quite_obidient" id="catalog_quite_obidient" max="100" value="{{ $obedient->firstWhere('NAME', 'Cukup Patuh')->PERSEN ?? '' }}" placeholder="....................">
-                                    <span class="input-group-text">Kurang Patuh (%)</span>
+                                    <span class="input-group-text">K. Patuh (%)</span>
+                                    <input type="color" class="form-control h-auto" name="catalog_less_obidient_color" id="catalog_less_obidient_color" value="{{ $obedient->firstWhere('NAME', 'Kurang Patuh')->WARNA ?? '' }}">
                                     <input type="number" class="form-control" name="catalog_less_obidient" id="catalog_less_obidient" max="100" value="{{ $obedient->firstWhere('NAME', 'Kurang Patuh')->PERSEN ?? '' }}" placeholder="....................">
-                                    <span class="input-group-text">Tidak Patuh (%)</span>
+                                    <span class="input-group-text">T. Patuh (%)</span>
+                                    <input type="color" class="form-control h-auto" name="catalog_not_obey_color" id="catalog_not_obey_color" value="{{ $obedient->firstWhere('NAME', 'Tidak Patuh')->WARNA ?? '' }}">
                                     <input type="number" class="form-control" name="catalog_not_obey" id="catalog_not_obey" max="100" value="{{ $obedient->firstWhere('NAME', 'Tidak Patuh')->PERSEN ?? '' }}" placeholder="....................">
                                 </div>
                             </div>
