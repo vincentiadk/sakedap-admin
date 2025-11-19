@@ -302,6 +302,15 @@ Route::middleware('authentication')->group(function () {
             Route::post('lockable', 'WarningController@lockable');
             Route::delete('destroy-data', 'WarningController@destroyData');
         });
+
+        Route::prefix('executor-group')->group(function () {
+            Route::get('/', 'ExecutorGroupController@index');
+            Route::get('datatable', 'ExecutorGroupController@datatable');
+            Route::post('create-data', 'ExecutorGroupController@createData');
+            Route::get('show-data', 'ExecutorGroupController@showData');
+            Route::post('update-data', 'ExecutorGroupController@updateData');
+            Route::delete('destroy-data', 'ExecutorGroupController@destroyData');
+        });
     });
 
     Route::prefix('report')->namespace('Report')->group(function () {
