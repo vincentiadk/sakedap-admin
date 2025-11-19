@@ -311,6 +311,15 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'ExecutorGroupController@updateData');
             Route::delete('destroy-data', 'ExecutorGroupController@destroyData');
         });
+
+        Route::prefix('executor-access')->group(function () {
+            Route::get('/', 'ExecutorAccessController@index');
+            Route::get('datatable', 'ExecutorAccessController@datatable');
+            Route::post('create-data', 'ExecutorAccessController@createData');
+            Route::get('show-data', 'ExecutorAccessController@showData');
+            Route::post('update-data', 'ExecutorAccessController@updateData');
+            Route::delete('destroy-data', 'ExecutorAccessController@destroyData');
+        });
     });
 
     Route::prefix('report')->namespace('Report')->group(function () {

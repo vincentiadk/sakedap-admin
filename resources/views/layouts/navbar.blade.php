@@ -174,6 +174,7 @@
                                                 <a href="{{ url('coaching-supervision/monitoring') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'monitoring' ? 'active' : '' }}">Pemantauan</a>
                                                 <a href="{{ url('coaching-supervision/warning') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'warning' ? 'active' : '' }}">Teguran</a>
                                                 <a href="{{ url('coaching-supervision/executor-group') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'executor-group' ? 'active' : '' }}">Grup Pelaksana Serah</a>
+                                                <a href="{{ url('coaching-supervision/executor-access') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'coaching-supervision' && Request::segment(2) == 'executor-access' ? 'active' : '' }}">Akses Pelaksana Serah</a>
                                             </div>
                                         </div>
                                     </div>
