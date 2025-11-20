@@ -343,11 +343,7 @@ class AuthController extends Controller
                 ->withOptions([
                     'verify' => false,
                 ])
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Hit-Script by Edeposit)'
-                ])
-                ->acceptJson()
-                ->get(config('inlis.base_url') . '/Logout.aspx');
+                ->get(config('inlis.base_url') . '/Sakedap_Monitoring/Logout.aspx');
         } catch (\Exception $e) {
             Log::warning('External logout failed', [
                 'error' => $e->getMessage(),
