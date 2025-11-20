@@ -26,9 +26,10 @@ class Fonnte
      *
      * @param  mixed $target
      * @param  mixed $message
+     * @param  mixed $attachment
      * @return void
      */
-    public static function send($target, $message)
+    public static function send($target, $message, $attachment = null)
     {
         static::initialize();
 
@@ -42,49 +43,63 @@ class Fonnte
             } elseif (substr($target, 0, 2) === '62') {
                 $target = '+' . $target;
             } else if (substr($target, 0, 3) !== '+62') {
-                Log::channel('fonnte')->info('Format nomor tidak valid. Gunakan 08xxxxx atau 62xxxxx', [
-                    'nomor' => $target,
-                    'pesan' => $message
-                ]);
+                Log::channel('fonnte')->info("Format nomor salah: $target");
 
                 return (object) [
                     'code' => 401,
-                    'message' => 'Format nomor tidak valid. Gunakan 08xxxxx atau 62xxxxx',
-                    'data' => (object) [
-                        'target' => $target,
-                        'message' => $message
-                    ]
+                    'message' => 'Format nomor invalid',
+                    'data' => null
                 ];
             }
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-            ])->post($baseUrl, [
+            $postData = [
                 'target' => $target,
                 'message' => $message,
                 'countryCode' => '62',
+            ];
+
+            $http = Http::withHeaders([
+                'Authorization' => $token,
             ]);
+
+            $hasFile = false;
+            $filePath = null;
+
+            if (is_string($attachment) && file_exists($attachment)) {
+                $hasFile = true;
+                $filePath = $attachment;
+            } else if (is_array($attachment) && isset($attachment['path']) && file_exists($attachment['path'])) {
+                $hasFile = true;
+                $filePath = $attachment['path'];
+            } else if ((is_string($attachment) && filter_var($attachment, FILTER_VALIDATE_URL)) || (is_array($attachment) && isset($attachment['url']))) {
+                $url = is_array($attachment) ? $attachment['url'] : $attachment;
+                $postData['url'] = $url;
+            }
+
+            if ($hasFile) {
+                $fileStream = fopen($filePath, 'r');
+                $fileName = basename($filePath);
+
+                $response = $http->attach('file', $fileStream, $fileName)->post($baseUrl, $postData);
+            } else {
+                $response = $http->post($baseUrl, $postData);
+            }
 
             return (object) [
                 'code' => 201,
-                'message' => 'Pesan berhasil dikirim',
+                'message' => 'Pesan terkirim',
                 'data' => $response->object()
             ];
         } catch (\Exception $e) {
             Log::channel('fonnte')->error('Gagal mengirim pesan', [
                 'error' => $e->getMessage(),
-                'target' => $targetFormatted ?? null,
-                'body' => $message
+                'target' => $target ?? null,
             ]);
 
             return (object) [
-                'code' => $e->getCode() ?? 500,
-                'message' => 'Gagal mengirim pesan',
-                'data' => (object) [
-                    'error' => $e->getMessage(),
-                    'target' => $targetFormatted ?? null,
-                    'body' => $message
-                ]
+                'code' => 500,
+                'message' => 'Gagal mengirim pesan: ' . $e->getMessage(),
+                'data' => null
             ];
         }
     }

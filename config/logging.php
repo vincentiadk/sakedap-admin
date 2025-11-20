@@ -79,6 +79,13 @@ return [
             'level' => 'debug',
         ],
 
+        'fonnte' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/fonnte.log'),
+            'days' => 7,
+            'level' => 'debug',
+        ],
+
         'twilio' => [
             'driver' => 'daily',
             'path' => storage_path('logs/twilio.log'),

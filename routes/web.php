@@ -103,6 +103,7 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], 'detail/{id}', 'AcceptController@detail');
             Route::get('print/{id}', 'AcceptController@print');
             Route::post('send-email', 'AcceptController@sendEmail');
+            Route::post('send-whatsapp', 'AcceptController@sendWhatsapp');
         });
 
         Route::prefix('create-receipt')->group(function () {
