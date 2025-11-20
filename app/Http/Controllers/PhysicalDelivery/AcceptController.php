@@ -572,7 +572,7 @@ class AcceptController extends Controller
         }
 
         $dateNow = date('Y-m-d');
-        $targetNumber = '088999157717';
+        $targetNumber = $letter->KONTAK_PENERBIT;
         $acceptDate = $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->isoFormat('D MMMM Y') : '';
         $branchId = $letter->BRANCH_ID ?? 0;
 

@@ -302,6 +302,8 @@ Route::middleware('authentication')->group(function () {
             Route::post('update-data', 'WarningController@updateData');
             Route::post('lockable', 'WarningController@lockable');
             Route::delete('destroy-data', 'WarningController@destroyData');
+            Route::post('send-email', 'WarningController@sendEmail');
+            Route::post('send-whatsapp', 'WarningController@sendWhatsapp');
         });
 
         Route::prefix('executor-group')->group(function () {

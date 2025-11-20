@@ -86,6 +86,13 @@ return [
             'level' => 'debug',
         ],
 
+        'rajaongkir' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/rajaongkir.log'),
+            'days' => 7,
+            'level' => 'debug',
+        ],
+
         'twilio' => [
             'driver' => 'daily',
             'path' => storage_path('logs/twilio.log'),

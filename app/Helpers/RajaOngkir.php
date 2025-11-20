@@ -3,11 +3,13 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class RajaOngkir
 {
     private static $token;
     private static $baseUrl;
+    private static $cacheTime = 60 * 60;
 
     /**
      * initialize
@@ -29,6 +31,12 @@ class RajaOngkir
      */
     public static function get($endpoint, $payload = [])
     {
+        $cacheKey = 'rajaongkir_get_' . $endpoint . '_' . md5(json_encode($payload));
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
         static::initialize();
 
         $query = Http::baseUrl(static::$baseUrl)
@@ -40,7 +48,11 @@ class RajaOngkir
 
         $response = $query->object();
 
-        return $response->data;
+        if ($query->successful() && isset($response->data)) {
+            Cache::put($cacheKey, $response->data, static::$cacheTime);
+        }
+
+        return $response->data ?? null;
     }
 
     /**
@@ -52,6 +64,12 @@ class RajaOngkir
      */
     public static function post($endpoint, $payload = [])
     {
+        $cacheKey = 'rajaongkir_post_' . $endpoint . '_' . md5(json_encode($payload));
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
         static::initialize();
 
         $query = Http::baseUrl(static::$baseUrl)
@@ -63,6 +81,10 @@ class RajaOngkir
 
         $response = $query->object();
 
-        return $response->data;
+        if ($query->successful() && isset($response->data)) {
+            Cache::put($cacheKey, $response->data, static::$cacheTime);
+        }
+
+        return $response->data ?? null;
     }
 }

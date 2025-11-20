@@ -4,11 +4,13 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class ISBN
 {
     private static $token;
     private static $baseUrl;
+    private static $cacheTime = 60 * 60 * 24;
 
     /**
      * initialize
@@ -31,6 +33,12 @@ class ISBN
      */
     public static function get($endpoint, $payload = [], $single = false)
     {
+        $cacheKey = 'isbn_get_' . $endpoint . '_' . $single . '_' . md5(json_encode($payload));
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
         static::initialize();
 
         $data = null;
@@ -47,6 +55,8 @@ class ISBN
                 } else {
                     $data = $response;
                 }
+
+                Cache::put($cacheKey, $data, static::$cacheTime);
             }
         } else {
             Log::channel('isbn-api')->error('Gagal get endpoint', $query->json());

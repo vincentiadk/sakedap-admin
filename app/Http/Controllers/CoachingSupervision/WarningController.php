@@ -5,9 +5,13 @@ namespace App\Http\Controllers\CoachingSupervision;
 use Carbon\Carbon;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
+use App\Helpers\Fonnte;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class WarningController extends Controller
@@ -35,9 +39,11 @@ class WarningController extends Controller
             'penerbit.id',
             'penerbit.name',
             'branchs.name',
-            'e_publisher_warnings.warning_date',
             'e_publisher_warnings.tagihan_koleksi',
             'e_publisher_warnings.status',
+            'e_publisher_warnings.warning_date',
+            'e_publisher_warnings.warning_date_2',
+            'e_publisher_warnings.warning_date_3',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -191,12 +197,12 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate2 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate1)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate1)->addDays(40)->isoFormat('dddd, D MMMM Y');
+                    $dateNext = Carbon::parse($warningDate1)->addDays(40)->isoFormat('D MMM Y');
 
                     if ($dateLimit >= 40) {
-                        $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-danger">' . $dateLimit . ' Hari</span>';
                     } else {
-                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-success">' . $dateLimit . ' Hari</span>';
                     }
 
                     $totalCollection = ISBN::get('search', [
@@ -219,11 +225,22 @@ class WarningController extends Controller
                     }
 
                     $warningDate1HTML = '
-                        <div class="fw-bold"><small>TEGURAN 1 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate1)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
+                        <div class="fw-bold"><small>' . $mark . '</small></div>
+                        <div><small class="text-muted">Tgl : ' . Carbon::parse($warningDate1)->isoFormat('D MMM Y') . '</small></div>
+                        <div><small class="text-muted">Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
-                        <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
+                        <div><small class="text-muted">Berikutnya : ' . $dateNext . '</small></div>
+                        <div>
+                            <small class="text-muted">
+                                Kirim Pesan :
+                                <a href="javascript:void(0);" class="text-danger" onclick="sendEmail(' . $val->ID . ', 1)">
+                                    <i class="ph-envelope-open"></i>
+                                </a>
+                                <a href="javascript:void(0);" class="text-teal" onclick="sendWhatsapp(' . $val->ID . ', 1)">
+                                    <i class="ph-whatsapp-logo"></i>
+                                </a>
+                            </small>
+                        </div>
                     ';
                 }
 
@@ -232,12 +249,12 @@ class WarningController extends Controller
                     $dateLimitEnd = Carbon::parse($warningDate3 ?? now())->format('Y-m-d');
                     $dateLimit = Carbon::parse($dateStart)->diffInDays($dateLimitEnd);
                     $dateEnd = Carbon::parse($warningDate2)->addDays(40)->format('Y-m-d');
-                    $dateNext = Carbon::parse($warningDate2)->addDays(40)->isoFormat('dddd, D MMMM Y');
+                    $dateNext = Carbon::parse($warningDate2)->addDays(40)->isoFormat('D MMM Y');
 
                     if ($dateLimit >= 40) {
-                        $mark = '<span class="text-danger">(' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-danger">' . $dateLimit . ' Hari</span>';
                     } else {
-                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-success">' . $dateLimit . ' Hari</span>';
                     }
 
                     $totalCollection = ISBN::get('search', [
@@ -260,11 +277,22 @@ class WarningController extends Controller
                     }
 
                     $warningDate2HTML = '
-                        <div class="fw-bold"><small>TEGURAN 2 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate2)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
+                        <div class="fw-bold"><small>' . $mark . '</small></div>
+                        <div><small class="text-muted">Tgl : ' . Carbon::parse($warningDate2)->isoFormat('D MMM Y') . '</small></div>
+                        <div><small class="text-muted">Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
-                        <div><small class="text-muted">Teguran Berikutnya : ' . $dateNext . '</small></div>
+                        <div><small class="text-muted">Berikutnya : ' . $dateNext . '</small></div>
+                        <div>
+                            <small class="text-muted">
+                                Kirim Pesan :
+                                <a href="javascript:void(0);" class="text-danger" onclick="sendEmail(' . $val->ID . ', 2)">
+                                    <i class="ph-envelope-open"></i>
+                                </a>
+                                <a href="javascript:void(0);" class="text-teal" onclick="sendWhatsapp(' . $val->ID . ', 2)">
+                                    <i class="ph-whatsapp-logo"></i>
+                                </a>
+                            </small>
+                        </div>
                     ';
                 }
 
@@ -274,9 +302,9 @@ class WarningController extends Controller
                     $dateEnd = Carbon::parse($warningDate3)->addDays(40)->format('Y-m-d');
 
                     if ($dateLimit >= 40) {
-                        $mark = '<span class="text-danger">(>= ' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-danger">' . $dateLimit . ' Hari</span>';
                     } else {
-                        $mark = '<span class="text-success">(' . $dateLimit . ' Hari)</span>';
+                        $mark = '<span class="text-success">' . $dateLimit . ' Hari</span>';
                     }
 
                     $totalCollection = ISBN::get('search', [
@@ -299,14 +327,23 @@ class WarningController extends Controller
                     }
 
                     $warningDate3HTML = '
-                        <div class="fw-bold"><small>TEGURAN 3 ' . $mark . '</small></div>
-                        <div><small class="text-muted">Tanggal : ' . Carbon::parse($warningDate3)->isoFormat('dddd, D MMMM Y') . '</small></div>
-                        <div><small class="text-muted">Koleksi Diterima : ' . $totalCollection . '</small></div>
+                        <div class="fw-bold"><small>' . $mark . '</small></div>
+                        <div><small class="text-muted">Tgl : ' . Carbon::parse($warningDate3)->isoFormat('D MMM Y') . '</small></div>
+                        <div><small class="text-muted">Diterima : ' . $totalCollection . '</small></div>
                         <div><small class="text-muted">File : ' . $file . '</small></div>
+                        <div>
+                            <small class="text-muted">
+                                Kirim Pesan :
+                                <a href="javascript:void(0);" class="text-danger" onclick="sendEmail(' . $val->ID . ', 3)">
+                                    <i class="ph-envelope-open"></i>
+                                </a>
+                                <a href="javascript:void(0);" class="text-teal" onclick="sendWhatsapp(' . $val->ID . ', 3)">
+                                    <i class="ph-whatsapp-logo"></i>
+                                </a>
+                            </small>
+                        </div>
                     ';
                 }
-
-                $warningDateHTML = $warningDate1HTML . $warningDate2HTML . $warningDate3HTML;
 
                 $data[] = [
                     $start + 1,
@@ -314,7 +351,9 @@ class WarningController extends Controller
                     $val->ID_PENERBIT,
                     $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
-                    $warningDateHTML,
+                    $warningDate1HTML,
+                    $warningDate2HTML,
+                    $warningDate3HTML,
                     $val->TAGIHAN_KOLEKSI ?? 0,
                     $val->STATUS,
                 ];
@@ -610,5 +649,417 @@ class WarningController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $id = $request->id;
+        $warningTarget = $request->target;
+        $warning = QueryAPI::get("
+            select
+                e_publisher_warnings.*,
+                penerbit.name as name_penerbit,
+                penerbit.email1 as email_penerbit
+            from
+                e_publisher_warnings
+            left join
+                penerbit on penerbit.id = e_publisher_warnings.publisher_id
+            where
+                e_publisher_warnings.id = $id
+        ", true);
+
+        if ($warning) {
+            $email = $warning->EMAIL_PENERBIT;
+            $totalCollection = 0;
+            $linkFile = null;
+            $fileType = '';
+
+            if ($email) {
+                if ($warningTarget == 3) {
+                    $linkFile = $warning->LINK_FILE_3;
+                    $fileType = 'publisher_warning_3';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_3)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_3)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                } else if ($warningTarget == 2) {
+                    $linkFile = $warning->LINK_FILE_2;
+                    $fileType = 'publisher_warning_2';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_2)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_2)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                } else if ($warningTarget == 1) {
+                    $linkFile = $warning->LINK_FILE;
+                    $fileType = 'publisher_warning';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_2)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_2)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                }
+
+                $arrears = $warning->TAGIHAN_KOLEKSI - $totalCollection;
+                $dataSend = $this->buildSendData('email', $warning, $warningTarget, $totalCollection, $arrears);
+
+                try {
+                    Mail::send([], [], function ($message) use ($warning, $dataSend, $linkFile, $fileType) {
+                        $message->to($warning->EMAIL_PENERBIT ?? '', $warning->NAME_PENERBIT)
+                            ->subject('Surat Teguran')
+                            ->from(config('mail.from.address'), config('mail.from.name'))
+                            ->html($dataSend, 'text/html');
+
+                        if ($linkFile) {
+                            $file = url('stream-file?type=' . $fileType . '&id=' . ($warning->ID ?? '') . '&filename=' . $linkFile);
+                            $response = Http::get($file);
+
+                            if ($response->successful()) {
+                                $fileContent = $response->body();
+
+                                $message->attachData($fileContent, 'Surat Teguran.pdf');
+                            }
+                        }
+                    });
+
+                    $response = [
+                        'code' => 200,
+                        'message' => 'Berhasil dikirim ke email pelaksana serah'
+                    ];
+                } catch (\Exception $e) {
+                    $response = [
+                        'code' => 500,
+                        'message' => $e->getMessage()
+                    ];
+                }
+            } else {
+                $response = [
+                    'code' => 500,
+                    'message' => 'Email pelaksana serah kosong'
+                ];
+            }
+        } else {
+            $response = [
+                'code' => 500,
+                'message' => 'Data teguran tidak ditemukan'
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function sendWhatsapp(Request $request)
+    {
+        $id = $request->id;
+        $warningTarget = 1;
+        $warning = QueryAPI::get("
+            select
+                e_publisher_warnings.*,
+                penerbit.name as name_penerbit,
+                penerbit.kontak1 as kontak_penerbit
+            from
+                e_publisher_warnings
+            left join
+                penerbit on penerbit.id = e_publisher_warnings.publisher_id
+            where
+                e_publisher_warnings.id = $id
+        ", true);
+
+        if ($warning) {
+            $noTelp = $warning->KONTAK_PENERBIT;
+            $totalCollection = 0;
+            $linkFile = null;
+            $fileType = '';
+
+            if ($noTelp) {
+                if ($warningTarget == 3) {
+                    $linkFile = $warning->LINK_FILE_3;
+                    $fileType = 'publisher_warning_3';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_3)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_3)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                } else if ($warningTarget == 2) {
+                    $linkFile = $warning->LINK_FILE_2;
+                    $fileType = 'publisher_warning_2';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_2)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_2)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                } else if ($warningTarget == 1) {
+                    $linkFile = $warning->LINK_FILE;
+                    $fileType = 'publisher_warning';
+                    $dateStart = Carbon::parse($warning->WARNING_DATE_2)->format('Y-m-d');
+                    $dateEnd = Carbon::parse($warning->WARNING_DATE_2)->addDays(40)->format('Y-m-d');
+
+                    $totalCollection = ISBN::get('search', [
+                        'received_date_kckr_from' => $dateStart,
+                        'received_date_kckr_to' => $dateEnd,
+                    ])->recordsFiltered ?? 0;
+                }
+
+                $arrears = $warning->TAGIHAN_KOLEKSI - $totalCollection;
+                $dataSend = $this->buildSendData('whatsapp', $warning, $warningTarget, $totalCollection, $arrears);
+                $fileData = null;
+
+                if ($linkFile) {
+                    try {
+                        $streamUrl = url('stream-file?type=' . $fileType . '&id=' . ($warning->ID ?? '') . '&filename=' . $linkFile);
+                        $responseStream = Http::withCookies($request->cookies->all(), config('session.cookie'))
+                            ->timeout(60)
+                            ->get($streamUrl);
+
+                        if ($responseStream->successful()) {
+                            $binaryContent = $responseStream->body();
+
+                            $fileData = [
+                                'binary' => $binaryContent,
+                                'filename' => $linkFile ?? 'Surat Teguran.pdf'
+                            ];
+                        } else {
+                            Log::channel('fonnte')->error("Gagal mengambil stream file. Status: " . $responseStream->status());
+                        }
+                    } catch (\Exception $e) {
+                        Log::channel('fonnte')->error("Error saat fetch stream: " . $e->getMessage());
+                    }
+                }
+
+                $send = Fonnte::send($noTelp, $dataSend, $fileData);
+                $response = $send;
+            } else {
+                $response = [
+                    'code' => 500,
+                    'message' => 'No Telp pelaksana serah kosong'
+                ];
+            }
+        } else {
+            $response = [
+                'code' => 500,
+                'message' => 'Data teguran tidak ditemukan'
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    private function buildSendData($type, $data, $warningTarget, $totalCollection, $arrears)
+    {
+        $result = '';
+
+        if ($type == 'whatsapp') {
+            switch ($warningTarget) {
+                case '1':
+                    $result = "";
+                    $result .= "*PEMBERITAHUAN – TEGURAN 1*\n\n";
+                    $result .= "Kepada Yth. Pelaksana Serah:\n";
+                    $result .= "*$data->NAME_PENERBIT*:\n\n";
+                    $result .= "Sistem mencatat masih terdapat kewajiban serah simpan karya yang belum dipenuhi sesuai *UU No. 13 Tahun 2018*.\n\n";
+                    $result .= "📊 *Rekap Tagihan Saat Ini:*\n";
+                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
+                    $result .= "📚 Total Diterima: *$totalCollection*\n";
+                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
+                    $result .= "Mohon segera selesaikan kewajiban Anda melalui portal SAKEDAP:\n";
+                    $result .= "🌐 https://sakedap.perpusnas.go.id\n\n";
+                    $result .= "📄 *Dokumen Surat Teguran 1 resmi telah kami lampirkan bersama pesan ini.*\n\n";
+                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
+
+                    break;
+                case '2':
+                    $result = "";
+                    $result .= "*PERINGATAN – TEGURAN 2*\n\n";
+                    $result .= "Kepada Yth. Pelaksana Serah:\n";
+                    $result .= "*$data->NAME_PENERBIT*:\n\n";
+                    $result .= "Menindaklanjuti surat sebelumnya, kami belum menerima penyelesaian kewajiban serah simpan karya sesuai *UU No. 13 Tahun 2018*.\n\n";
+                    $result .= "📊 *Status Tunggakan:*\n";
+                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
+                    $result .= "📚 Total Diterima: *$totalCollection*\n";
+                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
+                    $result .= "Kami mohon kerja sama Saudara untuk segera memenuhi kewajiban ini guna menghindari sanksi administratif.\n\n";
+                    $result .= "🌐 Akses Portal: https://sakedap.perpusnas.go.id\n\n";
+                    $result .= "📄 *Dokumen Surat Teguran 2 resmi telah kami lampirkan bersama pesan ini.*\n\n";
+                    $result .= "Terima kasih atas kerja samanya.\n\n";
+                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
+
+                    break;
+                case '3':
+                    $result = "";
+                    $result .= "*PERINGATAN – TEGURAN 3 (TERAKHIR)*\n\n";
+                    $result .= "Kepada Yth. Pelaksana Serah:\n";
+                    $result .= "*$data->NAME_PENERBIT*:\n\n";
+                    $result .= "Ini adalah *Peringatan Terakhir*. Sampai saat ini kewajiban serah simpan karya Saudara belum terpenuhi.\n\n";
+                    $result .= "📊 *Total Kewajiban Tertunggak:*\n";
+                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
+                    $result .= "📚 Total Diterima: *$totalCollection*\n";
+                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
+                    $result .= "Sesuai *UU No. 13 Tahun 2018*, mohon segera melakukan serah simpan sebelum dilakukan tindakan lebih lanjut sesuai ketentuan perundang-undangan.\n\n";
+                    $result .= "👉 Segera proses di: https://sakedap.perpusnas.go.id\n\n";
+                    $result .= "📄 *Dokumen Surat Teguran 3 resmi telah kami lampirkan bersama pesan ini.*\n\n";
+                    $result .= "Harap menjadi perhatian serius.\n\n";
+                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
+
+                    break;
+                default:
+                    $result = '';
+
+                    break;
+            }
+        } else {
+            $result = '
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            font-family: `Helvetica Neue`, Helvetica, Arial, sans-serif;
+                            background-color: #f4f4f4;
+                            margin: 0;
+                            padding: 0;
+                            color: #333;
+                        }
+
+                        .container {
+                            max-width: 600px;
+                            margin: 30px auto;
+                            background: #ffffff;
+                            padding: 30px;
+                            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        }
+
+                        .header {
+                            text-align: center;
+                            border-bottom: 2px solid #0056b3;
+                            padding-bottom: 20px; margin-bottom: 25px;
+                        }
+
+                        .header h2 {
+                            margin: 0; color: #0056b3;
+                            font-size: 24px;
+                        }
+
+                        .badge {
+                            display: inline-block;
+                            padding: 8px 12px;
+                            margin-top: 10px;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+
+                        .badge-warning {
+                            background-color: #fff3cd;
+                            color: #856404;
+                            border: 1px solid #ffeeba;
+                        }
+
+                        .badge-danger {
+                            background-color: #f8d7da;
+                            color: #721c24;
+                            border: 1px solid #f5c6cb;
+                        }
+
+                        .content {
+                            line-height: 1.6;
+                            font-size: 16px;
+                        }
+
+                        .table-data {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                            background-color: #fafafa;
+                        }
+
+                        .table-data th, .table-data td {
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }
+
+                        .table-data th {
+                            background-color: #e9ecef;
+                            color: #495057;
+                        }
+
+                        .btn-action {
+                            display: block;
+                            width: fit-content;
+                            margin: 25px auto;
+                            background-color: #0056b3;
+                            color: #ffffff !important;
+                            text-decoration: none;
+                            padding: 12px 30px;
+                            border-radius: 50px;
+                            font-weight: bold;
+                            text-align: center;
+                        }
+
+                        .footer {
+                            margin-top: 30px;
+                            border-top: 1px solid #eee;
+                            padding-top: 20px;
+                            font-size: 12px;
+                            color: #777;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h2>Perpustakaan Nasional Republik Indonesia</h2>
+                            <span class="badge badge-warning">PEMBERITAHUAN TEGURAN KE-' . $warningTarget . '</span>
+                        </div>
+                        <div class="content">
+                            <p>Yth. Pelaksana Serah,<br><strong>' . $data->NAME_PENERBIT . '</strong></p>
+                            <p>Sistem mencatat masih terdapat kewajiban serah simpan karya yang belum dipenuhi sesuai <b>UU No. 13 Tahun 2018</b>.</p>
+                            <p>Berikut adalah rekapitulasi kewajiban serah simpan yang tertunggak:</p>
+                            <table class="table-data">
+                                <tr>
+                                    <td>Total Tertagih</td>
+                                    <td><strong>' . $data->TAGIHAN_KOLEKSI . '</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Diterima</td>
+                                    <td><strong>' . $totalCollection . '</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Tertunggak</td>
+                                    <td><strong>' . $arrears . '</strong></td>
+                                </tr>
+                            </table>
+                            <p>Mohon segera melakukan pengiriman koleksi fisik atau unggah koleksi digital melalui portal resmi kami.</p>
+                            <a href="https://sakedap.perpusnas.go.id" class="btn-action">Akses Portal SAKEDAP</a>
+                            <p style="font-size: 0.9em; color: #555; text-align: center;">
+                                <em>*Surat Teguran Resmi (PDF) telah kami lampirkan pada email ini.</em>
+                            </p>
+                        </div>
+                        <div class="footer">
+                            <p>Terima kasih atas perhatian dan kerja sama Anda.</p>
+                            <p><strong>Perpustakaan Nasional RI</strong><br>"Perpustakaan Hadir Demi Martabat Bangsa"</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            ';
+        }
+
+        return $result;
     }
 }

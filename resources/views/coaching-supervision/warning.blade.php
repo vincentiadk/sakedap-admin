@@ -67,7 +67,9 @@
                         <th class="text-nowrap">ID</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Dari</th>
-                        <th class="text-nowrap">Tgl Teguran</th>
+                        <th class="text-nowrap">Teguran 1</th>
+                        <th class="text-nowrap">Teguran 2</th>
+                        <th class="text-nowrap">Teguran 3</th>
                         <th class="text-nowrap">Tagihan Koleksi</th>
                         <th class="text-nowrap">Status</th>
                     </tr>
@@ -294,6 +296,8 @@
                 { orderable: true, className: 'align-top' },
                 { orderable: true, className: 'align-top text-wrap' },
                 { orderable: true, className: 'align-top text-wrap' },
+                { orderable: true, className: 'align-top' },
+                { orderable: true, className: 'align-top' },
                 { orderable: true, className: 'align-top' },
                 { orderable: true, className: 'align-top' },
                 { orderable: true, className: 'align-top text-wrap' },
@@ -556,6 +560,122 @@
                                 notyConfirm.close();
                                 onReloadTable();
                                 notification('success', response.message);
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
+    function sendEmail(id, target) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Kirim Email?</h5><span class="text-muted">Anda yakin ingin mengirim email?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Kirim', 'btn btn-danger ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("coaching-supervision/warning/send-email") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id,
+                            target: target,
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
+    function sendWhatsapp(id, target) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Kirim Whatsapp?</h5><span class="text-muted">Anda yakin ingin mengirim whatsapp?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Kirim', 'btn btn-teal ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("coaching-supervision/warning/send-whatsapp") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id,
+                            target: target,
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 201) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
                             } else {
                                 swalInit.fire({
                                     title: 'Error',
