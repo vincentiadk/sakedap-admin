@@ -311,46 +311,77 @@
                     </div>
                 </div>
                 <div class="card" id="scrollspy-file">
+                    <div class="card-header">
+                        <h5 class="hstack gap-2 mb-0">File</h5>
+                    </div>
                     <div class="card-body">
-                        <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
-                            <li class="nav-item">
-                                <a href="#nav-tabs-cover" class="nav-link active" data-bs-toggle="tab">File Cover</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#nav-tabs-original" class="nav-link" data-bs-toggle="tab">File Konten</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content flex-lg-fill mt-4">
-                            <div class="tab-pane fade show active" id="nav-tabs-cover">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="ratio ratio-16x9">
-                                            <img src="{{ url('stream-file') }}?type=cover&id={{ $collectionCover->ID ?? '' }}&filename={{ $collectionCover->FILEURL ?? '' }}" class="img-fluid object-fit-cover">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="alert alert-info">
-                                            <div><b>Hash :</b> {{ $collectionCover->HASH ?? '' }}</div>
-                                            <div><b>Mime Type :</b> {{ $collectionCover->MIME ?? '' }}</div>
-                                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionCover->FILE_SIZE ?? 0) }}</div>
-                                            <div><b>Metode :</b> {{ Main::method($collectionCover->METHOD ?? 0) }}</div>
-                                        </div>
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="fw-bold border-bottom pb-2 mb-2">Cover</div>
+                                <div class="alert alert-info mb-2">
+                                    <div><b>Hash :</b> {{ $collection->HASH_CATALOGCOVERS ?? '' }}</div>
+                                    <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGCOVERS ?? '' }}</div>
+                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGCOVERS ?? 0) }}</div>
+                                    <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGCOVERS ?? 0) }}</div>
                                 </div>
+                                <img src="{{ url('stream-file') }}?type=cover&id={{ $collection->ID_CATALOGCOVERS ?? '' }}&filename={{ $collection->FILEURL_CATALOGCOVERS ?? '' }}" class="img-fluid w-100" style="object-fit: contain; max-height: 600px;" alt="Cover Catalog">
                             </div>
-                            <div class="tab-pane fade" id="nav-tabs-original">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="ratio ratio-16x9">
-                                            <iframe src="{{ url('stream-file') }}?type=konten_digital&id={{ $collectionContent->ID ?? '' }}&filename={{ $collectionContent->FILEURL ?? '' }}" frameborder="0"></iframe>
+                            <div class="col-md-6">
+                                <div class="fw-bold border-bottom pb-2 mb-2">Konten</div>
+                                <div class="alert alert-info mb-2">
+                                    <div><b>Hash :</b> {{ $collection->HASH_CATALOGFILES ?? '' }}</div>
+                                    <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGFILES ?? '' }}</div>
+                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGFILES ?? 0) }}</div>
+                                    <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGFILES ?? 0) }}</div>
+                                </div>
+                                <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
+                                    <div id="viewer-content" style="width: 100%; height: 100%;">
+                                        <div id="pdf-viewer-container" style="overflow: auto; max-height: 600px; background: #525659; padding: 20px 0; display: none;"></div>
+                                        <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
+                                        <div id="epub-container" style="display: none; height: 600px; width: 100%; background: white;"></div>
+                                        <div id="epub-controls" style="display: none; position: absolute; top: 50%; left: 0; width: 100%; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 10000; transform: translateY(-50%);">
+                                            <button type="button" id="prev-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ph-caret-left" style="font-size: 20px;"></i>
+                                            </button>
+                                            <button type="button" id="next-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ph-caret-right" style="font-size: 20px;"></i>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="alert alert-info">
-                                            <div><b>Hash :</b> {{ $collectionContent->HASH ?? '' }}</div>
-                                            <div><b>Mime Type :</b> {{ $collectionContent->MIME ?? '' }}</div>
-                                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collectionContent->FILE_SIZE ?? 0) }}</div>
-                                            <div><b>Metode :</b> {{ Main::method($collectionContent->METHOD ?? 0) }}</div>
+                                        <div id="audio-wrapper" style="display: none; height: 600px; width: 100%; position: relative; overflow: hidden; border-radius: 8px; background: #000;">
+                                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #023BAD 0%, #06732A 100%); z-index: 1;"></div>
+                                            <canvas id="wave-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0.6;"></canvas>
+                                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; padding: 30px;">
+                                                <div class="d-flex justify-content-between text-white align-items-center" style="font-family: sans-serif;">
+                                                    <span id="timer-current" style="font-variant-numeric: tabular-nums;">0:00</span>
+                                                    <span class="fw-bold text-uppercase" style="opacity: 0.8; font-size: 14px;">Now Playing</span>
+                                                    <span id="timer-duration" style="font-variant-numeric: tabular-nums;">--:--</span>
+                                                </div>
+                                                <div class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
+                                                    <h3 id="audio-title-display" class="text-white fw-light" style="text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                                        Menyiapkan Audio...
+                                                    </h3>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center gap-4 pb-4" style="position: relative; z-index: 20;">
+                                                    <button type="button" class="btn btn-link text-white p-0" id="btn-rewind" title="-10 Detik">
+                                                        <i class="ph-rewind" style="font-size: 32px;"></i>
+                                                    </button>
+                                                    <div id="play-pause-wrapper" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border-radius: 50%; backdrop-filter: blur(5px); border: 2px solid rgba(255,255,255,0.5); cursor: pointer;transition: transform 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                        <i id="icon-play" class="ph-play text-white" style="font-size: 40px; margin-left: 4px;"></i>
+                                                        <i id="icon-pause" class="ph-pause text-white" style="font-size: 40px; display: none;"></i>
+                                                    </div>
+                                                    <button type="button" class="btn btn-link text-white p-0" id="btn-forward" title="+10 Detik">
+                                                        <i class="ph-fast-forward" style="font-size: 32px;"></i>
+                                                    </button>
+                                                </div>
+                                                <div style="position: absolute; bottom: 30px; right: 30px;">
+                                                    <button type="button" id="btn-mute" class="btn btn-link text-white p-0" style="opacity: 0.6;">
+                                                        <i class="ph-speaker-high" id="icon-vol" style="font-size: 24px;"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="default-message" style="display: flex; height: 600px; align-items: center; justify-content: center;">
+                                            <span class="text-muted">Memuat file...</span>
                                         </div>
                                     </div>
                                 </div>
@@ -435,6 +466,11 @@
 </div>
 
 <script>
+    let currentSound = null;
+    let watermarkSound = null;
+    let animationFrameId = null;
+    let audioAnimFrame = null;
+
     $(function() {
         datePickerSingle('#received_at,#publish_time');
 
@@ -467,6 +503,513 @@
             tokenSeparators: [';']
         });
     });
+
+    $(document).ready(function() {
+        const fileUrl = "{{ url('stream-file') }}?type=konten_digital&id={{ $collection->ID_CATALOGFILES ?? '' }}&filename={{ $collection->FILEURL_CATALOGFILES ?? '' }}";
+        const rawFilename = "{{ $collection->FILEURL_CATALOGFILES ?? '' }}";
+        const fileExtension = rawFilename.split('.').pop().toLowerCase();
+
+        if(rawFilename) {
+            loadUniversalViewer(fileUrl, fileExtension);
+        } else {
+            $('#default-message span').text('File konten tidak tersedia.');
+        }
+    });
+
+    function loadUniversalViewer(url, ext) {
+        if (typeof audioAnimFrame !== 'undefined' && audioAnimFrame) {
+            cancelAnimationFrame(audioAnimFrame);
+        }
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);    
+        }
+
+        if (currentSound) {
+            currentSound.stop();
+            currentSound.unload();
+            
+            currentSound = null;
+        }
+
+        if (watermarkSound) { 
+            watermarkSound.unload(); 
+
+            watermarkSound = null; 
+        }
+
+        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
+        $('#video-player').hide();
+        $('#watermark-overlay').css('display', 'flex');
+
+        switch (ext) {
+            case 'pdf':
+                renderPdf(url);
+
+                break;
+            case 'mp4': 
+                renderVideo(url, ext);
+
+                break;
+            case 'webm':
+                renderVideo(url, ext);
+
+                break;
+            case 'ogg':
+                renderAudio(url, ext);
+
+                break;
+            case 'epub':
+                renderEpub(url);
+
+                break;
+            case 'mp3':
+                renderAudio(url, ext);
+
+                break;
+            case 'wav':
+                renderAudio(url, ext);
+
+                break;
+            default:
+                $('#default-message').show().find('span').text('Preview tidak didukung untuk format: .' + ext);
+                $('#watermark-overlay').hide();
+
+                break;
+        }
+    }
+
+    function renderPdf(url) {
+        const $container = $('#pdf-viewer-container');
+
+        $container.css({
+            'display': 'block',
+            'width': '100%',
+            'height': '600px',
+            'max-height': '600px',
+            'overflow-y': 'auto',
+            'overflow-x': 'hidden',
+            'padding': '20px 0',
+            'background': '#525659',
+            'box-sizing': 'border-box'
+        }).empty();
+
+        $('#video-player, #epub-container, #audio-wrapper, #default-message').hide();
+        $('#watermark-overlay').hide();
+
+        const checkPdfLib = setInterval(function() {
+            if (window.pdfjsLib) {
+                clearInterval(checkPdfLib);
+
+                window.pdfjsLib.getDocument(url).promise.then(function(pdf) {
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        renderPage(pdf, pageNum, $container);
+                    }
+                }).catch(function(error) {
+                    $('#default-message').show().find('span').text('Gagal memuat PDF.');
+
+                    $container.hide();
+                });
+            }
+        }, 100);
+    }
+
+    function renderPage(pdf, pageNumber, $container) {
+        pdf.getPage(pageNumber).then(function(page) {
+            let availableWidth = ($container[0].clientWidth || 800) - 40;
+
+            if (availableWidth < 300) availableWidth = 300;
+
+            var unscaledViewport = page.getViewport({ scale: 1 });
+            var scale = availableWidth / unscaledViewport.width;
+            const viewport = page.getViewport({ scale: scale });
+
+            const $pageWrapper = $('<div/>', {
+                class: 'pdf-page-wrapper',
+                style: `
+                    position: relative;
+                    margin: 0 auto 20px auto;
+                    display: block;
+                    overflow: hidden;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+                    width: ${viewport.width}px;
+                    height: ${viewport.height}px;
+                    background-color: white;
+                `
+            });
+
+            const canvasId = 'pdf-page-' + pageNumber;
+            const $canvas = $('<canvas/>', { id: canvasId });
+            const canvas = $canvas[0];
+            const context = canvas.getContext('2d');
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const watermarkHtml = `
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;">
+                    <div style="position: absolute; bottom: 10px; left: 63px;  transform: rotate(-90deg); transform-origin: bottom left; width: ${viewport.height - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 13px;  line-height: 1.5;">
+                        <div style="font-weight: bold; text-transform: uppercase;">
+                            Pelaksanaan Undang - Undang Nomor 13 Tahun 2018.
+                        </div>
+                        <div style="font-weight: bold; text-transform: uppercase;">
+                            Tentang Serah Simpan Karya Cetak dan Karya Rekam
+                        </div>
+                        <div style="color: #d9534f; font-weight: bold; display: inline-block;">
+                            Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $pageWrapper.append($canvas);
+            $pageWrapper.append(watermarkHtml);
+            $container.append($pageWrapper);
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            page.render(renderContext);
+        });
+    }
+
+    function renderVideo(url, ext) {
+        Howler.unload();
+
+        if (typeof audioAnimFrame !== 'undefined' && audioAnimFrame)  {
+            cancelAnimationFrame(audioAnimFrame);
+        }
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        } 
+
+        const watermarkSrc = "{{ asset('assets/audio-wm.mp3') }}";
+
+        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
+
+        const $videoEl = $('#video-player');
+        
+        $videoEl.show().css({ 'width': '100%', 'height': '600px' });
+        
+        $('#video-watermark-layer').remove();
+
+        watermarkSound = new Howl({
+            src: [watermarkSrc],
+            html5: true,  
+            loop: true,
+            volume: 0.2,
+            preload: true
+        });
+
+        const syncVideoWatermark = () => {
+            if (!watermarkSound || !window.player) return;
+            
+            const wmDur = watermarkSound.duration();
+
+            if (wmDur > 0) {
+                const currentTime = window.player.currentTime();
+                const targetPos = currentTime % wmDur;
+                
+                if (Math.abs(watermarkSound.seek() - targetPos) > 0.5) {
+                    watermarkSound.seek(targetPos);
+                }
+
+                if (!window.player.paused() && !watermarkSound.playing()) {
+                    watermarkSound.play();
+                }
+            }
+        };
+
+        if (window.player) {
+            window.player.dispose();
+        }
+
+        window.player = videojs('video-player', {
+            controls: true,
+            preload: 'auto',
+            fluid: false,
+            height: 600, 
+            width: '100%',
+            sources: [
+                {
+                    src: url,
+                    type: 'video/' + (ext === 'mov' ? 'mp4' : ext)
+                }
+            ]
+        });
+
+        window.player.ready(function() {
+            window.player.addClass('vjs-matrix');
+
+            const watermarkHtml = `
+                <div id="video-watermark-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; overflow: hidden;">
+                    <div style="position: absolute; bottom: 30px; left: 65px; width: 600px; transform: rotate(-90deg); transform-origin: bottom left; text-align: left;">
+                        <div style="font-family: 'Arial', sans-serif; font-size: 11px; line-height: 1.5; color: #fff; opacity: 0.7; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); white-space: nowrap;">
+                            <span style="font-weight: bold; text-transform: uppercase;">
+                                Pelaksanaan Undang - Undang Nomor 13 Tahun 2018
+                            </span><br>
+                            <span style="font-weight: bold; text-transform: uppercase;">
+                                Tentang Serah Simpan Karya Cetak dan Karya Rekam
+                            </span><br>
+                            <span style="color: #ff6b6b; font-weight: bold; text-shadow: 1px 1px 2px #000;">
+                                Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $(window.player.el()).append(watermarkHtml);
+        });
+
+        window.player.on('play', function() {
+            watermarkSound.play();
+
+            syncVideoWatermark();
+        });
+        
+        window.player.on('pause', function() { watermarkSound.pause(); });
+        window.player.on('ended', function() { watermarkSound.stop(); });
+        window.player.on('seeking', function() { syncVideoWatermark(); });
+
+        $('#video-player').on('contextmenu', () => false);
+    }
+
+    function renderEpub(url) {
+        const $container = $('#epub-container');
+        
+        $container
+            .show()
+            .css({
+                'display': 'block',
+                'overflow-y': 'hidden',
+                'position': 'relative' 
+            })
+            .empty();
+
+        $('#watermark-overlay').css('display', 'flex'); 
+        $('#epub-controls').css('display', 'none');
+        $('#epub-watermark-layer').remove();
+
+        if (window.ePub) {
+            const book = window.ePub(url);
+
+            const rendition = book.renderTo("epub-container", {
+                width: '100%',
+                height: '100%',
+                flow: 'scrolled-doc',
+                allowScriptedContent: true
+            });
+
+            rendition.display().then(() => {
+                $('#epub-controls').css('display', 'flex');
+                $('#watermark-overlay').hide();
+
+                const containerHeight = $container.height();
+                
+                const watermarkHtml = `
+                    <div id="epub-watermark-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;">
+                        <div style="position: absolute; bottom: 10px; left: 60px; transform: rotate(-90deg); transform-origin: bottom left; width: ${containerHeight - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.5;">
+                            <div style="font-weight: bold; text-transform: uppercase;">
+                                Pelaksanaan Undang - Undang Nomor 13 Tahun 2018
+                            </div>
+                            <div style="font-weight: bold; text-transform: uppercase;">
+                                Tentang Serah Simpan Karya Cetak dan Karya Rekam
+                            </div>
+                            <div style="color: #d9534f; font-weight: bold; display: inline-block;">
+                                Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $container.append(watermarkHtml);
+                
+            });
+
+            rendition.themes.default({
+                'img': { 'max-width': '100% !important', 'height': 'auto !important' },
+                'table': { 'max-width': '100% !important' },
+                'p': {
+                    'font-family': 'Helvetica, sans-serif',
+                    'font-size': '1.1em',
+                    'line-height': '1.6',
+                    'text-align': 'justify'
+                },
+                'body': { 'padding': '0 15px !important', 'box-sizing': 'border-box' }
+            });
+            
+            $('#next-btn').off('click').on('click', function(e) {
+                e.preventDefault(); 
+                rendition.next();
+            });
+
+            $('#prev-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                rendition.prev();
+            });
+
+            $(document).off('keyup').on('keyup', function(e) {
+                if (e.keyCode == 37) rendition.prev();
+                if (e.keyCode == 39) rendition.next();
+            });
+        }
+    }
+
+    function renderAudio(url, formatExt) {
+        const watermarkSrc = "{{ asset('assets/audio-wm.mp3') }}";
+
+        Howler.unload();
+
+        if (typeof audioAnimFrame !== 'undefined' && audioAnimFrame) {
+            cancelAnimationFrame(audioAnimFrame);
+        }
+
+        let cleanExt = (formatExt || 'mp3').toString().replace('.', '').toLowerCase().trim();
+        const $wrapper = $('#audio-wrapper');
+        const $playWrapper = $('#play-pause-wrapper');
+        const $iconPlay = $('#icon-play');
+        const $iconPause = $('#icon-pause');
+        const $title = $('#audio-title-display');
+        const canvas = document.getElementById('wave-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        $wrapper.fadeIn();
+
+        $('#watermark-overlay').hide();
+
+        $title.text('Menyiapkan...');
+        $iconPlay.show(); $iconPause.hide();
+
+        const syncWatermark = () => {
+            if (!watermarkSound || !currentSound) return;
+            if (!currentSound.playing()) return;
+
+            const wmDur = watermarkSound.duration();
+
+            if (wmDur > 0) {
+                const targetPos = currentSound.seek() % wmDur;
+                const currentWmPos = watermarkSound.seek();
+
+                if (Math.abs(currentWmPos - targetPos) > 0.3) {
+                    watermarkSound.seek(targetPos);
+                }
+                
+                if (!watermarkSound.playing()) {
+                    watermarkSound.play();
+                }
+            }
+        };
+
+        watermarkSound = new Howl({
+            src: [watermarkSrc],
+            html5: true, 
+            loop: true, 
+            preload: true,
+            volume: 0.3,
+        });
+
+        currentSound = new Howl({
+            src: [url],
+            html5: true, 
+            format: [cleanExt, 'mp3'], 
+            xhr: { method: 'GET', withCredentials: true },
+
+            onload: function() {
+                $title.text('Audio Siap');
+
+                $('#timer-duration').text(formatTime(currentSound.duration()));
+
+                if(!audioAnimFrame) loopAnimation();
+            },
+            onloaderror: function(id, err) {
+                $title.text('Gagal Memuat');
+            },
+            onplay: function() {
+                watermarkSound.play();
+
+                syncWatermark();
+
+                $iconPlay.hide(); $iconPause.show(); $title.text('Sedang Memutar');
+            },
+            onpause: function() {
+                watermarkSound.pause();
+                $iconPlay.show(); $iconPause.hide(); $title.text('Dijeda');
+            },
+            onseek: function() {
+                syncWatermark();
+            },
+            onend: function() {
+                watermarkSound.stop();
+                $iconPlay.show(); $iconPause.hide(); $title.text('Selesai');
+            }
+        });
+
+        let wavePhase = 0;
+        
+        const loopAnimation = () => {
+            if (currentSound && currentSound.playing()) {
+                $('#timer-current').text(formatTime(currentSound.seek() || 0));
+            }
+            
+            canvas.width = canvas.offsetWidth; 
+            canvas.height = canvas.offsetHeight;
+            const w = canvas.width, h = canvas.height, mid = h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const speed = (currentSound && currentSound.playing()) ? 0.1 : 0.02;
+
+            wavePhase += speed;
+
+            const drawSine = (color, offset, amp) => {
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+                for (let x = 0; x < w; x++) {
+                    const y = mid + Math.sin(x * 0.01 + wavePhase + offset) * (50 * amp) * Math.sin(wavePhase * 0.5);
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            };
+
+            drawSine('rgba(255,255,255,0.3)', 0, 1);
+            drawSine('rgba(255,255,255,0.8)', 2, 0.8);
+            
+            audioAnimFrame = requestAnimationFrame(loopAnimation);
+        };
+
+        const formatTime = (s) => {
+            if(isNaN(s)) return "0:00";
+
+            let m = Math.floor(s/60), sec = Math.floor(s%60);
+
+            return m + ':' + (sec<10?'0':'')+sec;
+        }
+
+        $playWrapper.off().on('click', function() {
+            if (!currentSound) return;
+
+            if (currentSound.playing()) {
+                currentSound.pause();
+            } else {
+                if (Howler.ctx && Howler.ctx.state !== 'running') Howler.ctx.resume();
+
+                currentSound.play();
+            }
+        });
+        
+        $('#btn-mute').off().on('click', function() {
+            const muted = !currentSound.mute();
+
+            currentSound.mute(muted);
+            watermarkSound.mute(muted);
+
+            $('#icon-vol').attr('class', muted ? 'ph-speaker-slash' : 'ph-speaker-high');
+        });
+        
+        loopAnimation();
+    }
 
     function removeRow(param) {
         $(param).closest('tr').remove();

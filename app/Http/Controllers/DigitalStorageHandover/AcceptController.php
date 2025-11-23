@@ -213,46 +213,94 @@ class AcceptController extends Controller
     {
         $collection = QueryAPI::get("
             select
-                catalogs.*,
-                penerbit.name as name_penerbit,
-                kabupaten.namakab as namakab,
-                propinsi.namapropinsi as namapropinsi,
-                e_collections.code_type as code_type_e_collection,
-                e_collections.serial as serial_e_collection,
-                e_collections.received_at as received_at_e_collection,
-                e_collections.price as price_e_collection,
-                e_collections.jilid as jilid_e_collection,
-                e_collections.description as description_e_collection,
-                e_collections.jenis_isi as jenis_isi_e_collection,
-                e_collections.jenis_wadah as jenis_wadah_e_collection,
-                e_collections.jenis_media as jenis_media_e_collection,
-                e_collections.currency as currency_e_collection,
-                e_collections.jumlah_eks as jumlah_eks_e_collection,
-                e_collections.physical_description as physical_description_e_collection,
-                parents.title as title_parent
+                c.*,
+                p.name as name_penerbit,
+                k.namakab as namakab,
+                pr.namapropinsi as namapropinsi,
+                ec.code_type as code_type_e_collection,
+                ec.serial as serial_e_collection,
+                ec.received_at as received_at_e_collection,
+                ec.price as price_e_collection,
+                ec.jilid as jilid_e_collection,
+                ec.description as description_e_collection,
+                ec.jenis_isi as jenis_isi_e_collection,
+                ec.jenis_wadah as jenis_wadah_e_collection,
+                ec.jenis_media as jenis_media_e_collection,
+                ec.currency as currency_e_collection,
+                ec.jumlah_eks as jumlah_eks_e_collection,
+                ec.physical_description as pd_e_collection,
+                par.title as title_parent,
+                ccr.id as id_catalogcovers,
+                ccr.fileurl as fileurl_catalogcovers,
+                ccr.hash as hash_catalogcovers,
+                ccr.mime as mime_catalogcovers,
+                ccr.file_size as file_size_catalogcovers,
+                ccr.method as method_catalogcovers,
+                cfr.id as id_catalogfiles,
+                cfr.fileurl as fileurl_catalogfiles,
+                cfr.hash as hash_catalogfiles,
+                cfr.mime as mime_catalogfiles,
+                cfr.file_size as file_size_catalogfiles,
+                cfr.method as method_catalogfiles
             from
-                catalogs
+                catalogs c
             left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
+                e_collections ec on ec.id = c.edeposit_col_id
             left join
-                e_collections parents on parents.id = e_collections.parent_id
+                e_collections par on par.id = ec.parent_id
             left join
-                penerbit on penerbit.id = catalogs.penerbit_id
+                penerbit p on p.id = c.penerbit_id
             left join
-                kabupaten on kabupaten.id = catalogs.city_id
+                kabupaten k on k.id = c.city_id
             left join
-                propinsi on propinsi.id = kabupaten.propinsiid
-            where
+                propinsi pr on pr.id = k.propinsiid
+            left join
                 (
-                    catalogs.isdelete = 0 or
-                    catalogs.isdelete is null
-                ) and
-                catalogs.id = $id
+                    select
+                        *
+                    from (
+                        select
+                            cf.catalog_id,
+                            cf.id,
+                            cf.fileurl,
+                            cf.hash,
+                            cf.mime,
+                            cf.file_size,
+                            cf.method,
+                            row_number() over (order by cf.id asc) as rn
+                        from
+                            catalogfiles cf
+                        where
+                            cf.catalog_id = $id
+                    ) where rn = 1
+                ) cfr on cfr.catalog_id = c.id
+            left join
+                (
+                    select
+                        *
+                    from (
+                        select
+                            cc.catalog_id,
+                            cc.id,
+                            cc.fileurl,
+                            cc.hash,
+                            cc.mime,
+                            cc.file_size,
+                            cc.method,
+                            row_number() over (order by cc.id asc) as rn
+                        from
+                            catalogcovers cc
+                        where
+                            cc.catalog_id = $id
+                    ) where rn = 1
+                ) ccr on ccr.catalog_id = c.id
+            where
+                nvl(c.isdelete, 0) = 0
+                and c.id = $id
         ", true);
 
         $collectionCategory = [];
         $collectionId = $collection->EDEPOSIT_COL_ID ?? 0;
-        $catalogId = $collection->ID ?? 0;
 
         $dataCollectionCategory = QueryAPI::get("
             select
@@ -279,33 +327,6 @@ class AcceptController extends Controller
                 deleted_at is null
         ");
 
-        $collectionCover = QueryAPI::get("
-            select
-                *
-            from
-                catalogcovers
-            where
-                catalog_id = $catalogId
-        ", true);
-
-        $collectionPreview = QueryAPI::get("
-            select
-                *
-            from
-                e_file_preview
-            where
-                catalog_id = $catalogId
-        ", true);
-
-        $collectionWatermark = QueryAPI::get("
-            select
-                *
-            from
-                e_file_access
-            where
-                catalog_id = $catalogId
-        ", true);
-
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
@@ -320,14 +341,15 @@ class AcceptController extends Controller
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,
-                'collectionCover' => $collectionCover,
-                'collectionPreview' => $collectionPreview,
-                'collectionWatermark' => $collectionWatermark,
-                'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION_E_COLLECTION ?? ''),
+                'physicalDescription' => json_decode($collection->PD_E_COLLECTION ?? ''),
                 'content' => 'digital-storage-handover.accept-detail',
                 'plugins' => [
                     'select2',
                     'datatable',
+                    'epubjs',
+                    'videojs',
+                    'pdfjs',
+                    'howlerjs',
                 ]
             ]
         ]);

@@ -344,6 +344,12 @@ class AuthController extends Controller
                     'verify' => false,
                 ])
                 ->get(config('inlis.base_url') . '/Sakedap_Monitoring/Logout.aspx');
+
+            Http::timeout(10)
+                ->withOptions([
+                    'verify' => false,
+                ])
+                ->get(config('inlis.base_url') . '/Logout.aspx');
         } catch (\Exception $e) {
             Log::warning('External logout failed', [
                 'error' => $e->getMessage(),

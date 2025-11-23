@@ -225,27 +225,55 @@ class ReviewEditionController extends Controller
     {
         $sqlCollection = "
             select
-                e_collections.*,
+                ec.*,
                 penerbit.id as id_penerbit,
                 penerbit.name as name_penerbit,
                 kabupaten.namakab as namakab,
                 propinsi.namapropinsi as namapropinsi,
-                parents.title as title_parent
+                parents.title as title_parent,
+                ccr.id as id_catalogcovers,
+                ccr.fileurl as fileurl_catalogcovers,
+                ccr.hash as hash_catalogcovers,
+                ccr.mime as mime_catalogcovers,
+                ccr.file_size as file_size_catalogcovers,
+                ccr.method as method_catalogcovers,
+                cfr.id as id_catalogfiles,
+                cfr.fileurl as fileurl_catalogfiles,
+                cfr.hash as hash_catalogfiles,
+                cfr.mime as mime_catalogfiles,
+                cfr.file_size as file_size_catalogfiles,
+                cfr.method as method_catalogfiles
             from
-                e_collections
+                e_collections ec
             left join
-                penerbit on penerbit.id = e_collections.penerbit_id
+                penerbit on penerbit.id = ec.penerbit_id
             left join
-                kabupaten on kabupaten.id = e_collections.kabupaten_id
+                kabupaten on kabupaten.id = ec.kabupaten_id
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join
-                e_collections parents on parents.id = e_collections.parent_id
+                e_collections parents on parents.id = ec.parent_id
+            left join
+                (
+                    select
+                        cf.e_col_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
+                        row_number() over (partition by cf.e_col_id order by cf.id asc) as rn
+                    from
+                        catalogfiles cf
+                ) cfr on cfr.e_col_id = ec.id and cfr.rn = 1
+            left join
+                (
+                    select
+                        cc.e_col_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
+                        row_number() over (partition by cc.e_col_id order by cc.id asc) as rn
+                    from
+                        catalogcovers cc
+                ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
             where
-                e_collections.id = $id and
-                e_collections.deleted_at is null and
-                e_collections.status = '1' and
-                e_collections.worksheet_id = 142
+                ec.id = $id and
+                ec.deleted_at is null and
+                ec.status = '1' and
+                ec.worksheet_id = 142
         ";
 
         $collection = QueryAPI::get($sqlCollection, true);
@@ -475,24 +503,6 @@ class ReviewEditionController extends Controller
                 deleted_at is null
         ");
 
-        $collectionCover = QueryAPI::get("
-            select
-                *
-            from
-                catalogcovers
-            where
-                e_col_id = $id
-        ", true);
-
-        $collectionContent = QueryAPI::get("
-            select
-                *
-            from
-                catalogfiles
-            where
-                e_col_id = $id
-        ", true);
-
         $collectionProblemHistory = QueryAPI::get("
             select
                 e_collection_problems.*,
@@ -519,8 +529,6 @@ class ReviewEditionController extends Controller
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,
-                'collectionCover' => $collectionCover,
-                'collectionContent' => $collectionContent,
                 'collectionProblemHistory' => $collectionProblemHistory,
                 'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION ?? ''),
                 'content' => 'digital-storage-handover.review-edition-detail',
@@ -528,6 +536,10 @@ class ReviewEditionController extends Controller
                     'select2',
                     'daterangepicker',
                     'datatable',
+                    'epubjs',
+                    'videojs',
+                    'pdfjs',
+                    'howlerjs',
                 ]
             ]
         ]);

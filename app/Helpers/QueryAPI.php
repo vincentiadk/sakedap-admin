@@ -33,8 +33,8 @@ class QueryAPI
     {
         static::initialize();
 
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'isloginvalid',
@@ -58,8 +58,8 @@ class QueryAPI
         static::initialize();
 
         $data = null;
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'getlistraw',
@@ -125,8 +125,8 @@ class QueryAPI
         }
 
         $data = [];
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->asForm()
             ->post(static::$baseUrl, [
                 'token' => static::$token,
@@ -180,8 +180,8 @@ class QueryAPI
         }
 
         $data = false;
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->asForm()
             ->post(static::$baseUrl, [
                 'token' => static::$token,
@@ -217,8 +217,8 @@ class QueryAPI
         static::initialize();
 
         $data = false;
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'delete',
@@ -287,8 +287,8 @@ class QueryAPI
             return false;
         }
 
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->attach('file', $fileContent, $filename)
             ->withQueryParameters($param)
             ->post(static::$baseUrl);
@@ -318,8 +318,8 @@ class QueryAPI
             'terminal' => request()->ip(),
         ]);
 
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters($param)
             ->post(static::$baseUrl);
 
@@ -353,8 +353,8 @@ class QueryAPI
         ]);
 
         try {
-            $query = Http::connectTimeout(60)
-                ->timeout(120)
+            $query = Http::connectTimeout(0)
+                ->timeout(0)
                 ->withQueryParameters($param)
                 ->withOptions(['stream' => true])
                 ->post(static::$baseUrl);
@@ -395,6 +395,8 @@ class QueryAPI
                 }, 200, [
                     'Content-Type' => Main::contentTypeFile($payload['filename'] ?? 'unknown'),
                     'Content-Disposition' => 'inline; filename="' . ($payload['filename'] ?? 'file') . '"',
+                    'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                    'Pragma' => 'no-cache',
                 ]);
             } else {
                 Log::channel('sakedap-api')->error('GetFile API Error: Status Code bukan 200', [
@@ -423,8 +425,8 @@ class QueryAPI
         static::initialize();
 
         $data = false;
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'verifikasikoleksiditerima',
@@ -456,8 +458,8 @@ class QueryAPI
         static::initialize();
 
         $data = false;
-        $query = Http::connectTimeout(60)
-            ->timeout(120)
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'hashpassword',

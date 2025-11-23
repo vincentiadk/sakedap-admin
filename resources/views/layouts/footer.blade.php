@@ -2,7 +2,9 @@
                     <div class="container-fluid">
                         <span>
                             &copy; {{ date('Y') }}
-                            <a href="https://edeposit.perpusnas.go.id" target="_blank" class="text-primary">SAKEDAP</a>
+                            <a href="https://edeposit.perpusnas.go.id" target="_blank" class="text-primary">
+                                SAKEDAP | Sistem Akses Elektronik Deposit Aman dan Praktis
+                            </a>
                         </span>
                         <ul class="nav">
                             <li class="nav-item">
