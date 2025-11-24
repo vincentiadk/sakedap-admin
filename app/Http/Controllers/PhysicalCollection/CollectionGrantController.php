@@ -29,6 +29,7 @@ class CollectionGrantController extends Controller
     {
         $column = [
             null,
+            'hibah_detail.createdate',
             'hibah_detail.judul',
             'hibah_detail.penerbit',
             'branchs.name',
@@ -195,6 +196,7 @@ class CollectionGrantController extends Controller
                 $data[] = [
                     $inputHidden,
                     $start + 1,
+                    Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
                     $val->JUDUL,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
