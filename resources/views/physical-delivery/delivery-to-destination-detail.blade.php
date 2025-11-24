@@ -82,8 +82,21 @@
                                 $totalSystem = 0;
                                 $totalSent = $ld->COPY ?? 0;
                                 $totalReject = $totalSent;
+                                $fileCover = asset('assets/no-file.jpg');
 
                                 if ($code) {
+                                    $getDataISBN = ISBN::get('search', [
+                                        'code' => $code
+                                    ], true);
+
+                                    if($getDataISBN) {
+                                        if(isset($getDataISBN->cover_file_name)) {
+                                            if($getDataISBN->cover_file_name) {
+                                                $fileCover = $getDataISBN->cover_file_name;
+                                            }
+                                        }
+                                    }
+
                                     $sqlLetterDetail = "select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where isbn = '$code'";
                                     $letterDetail = QueryAPI::get($sqlLetterDetail, true);
 
@@ -133,6 +146,11 @@
                                         <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
                                         <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }} {{ $disabled }}>
                                     </center>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ $fileCover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
+                                        <img src="{{ $fileCover }}" class="img img-fluid img-thumbnail">
+                                    </a>
                                 </td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
                                 <td class="text-wrap">{{ $ld->ISBN }}</td>

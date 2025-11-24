@@ -398,6 +398,7 @@ class AcceptController extends Controller
                 'plugins' => [
                     'select2',
                     'datatable',
+                    'lightbox',
                 ]
             ]
         ]);

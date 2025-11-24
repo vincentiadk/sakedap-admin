@@ -41,6 +41,7 @@ class CreateReceiptController extends Controller
                     'select2',
                     'datatable',
                     'daterangepicker',
+                    'lightbox',
                 ]
             ]
         ]);
@@ -87,6 +88,23 @@ class CreateReceiptController extends Controller
             $optionAccept[] = '<option value="' . $i . '" ' . $optionSelected . '>' . $i . '</option>';
         }
 
+        $linkCover = asset('assets/no-file.jpg');
+        $title = $data->title ?? '';
+
+        if ($data) {
+            if (isset($data->cover_file_name)) {
+                if ($data->cover_file_name) {
+                    $linkCover = $data->cover_file_name;
+                }
+            }
+        }
+
+        $fileCover = '
+            <a href="' . $linkCover . '" data-lightbox="cover-' . $code . '" data-title="' . $title . '">
+                <img src="' . $linkCover . '" class="img img-fluid img-thumbnail" style="max-width:70px;">
+            </a>
+        ';
+
         return response()->json([
             'data' => $data,
             'totalAccept' => $totalAccept,
@@ -94,6 +112,7 @@ class CreateReceiptController extends Controller
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,
             'totalAccept' => Main::isNotSuperAdmin() ? 1 : 2,
+            'fileCover' => $fileCover,
         ]);
     }
 

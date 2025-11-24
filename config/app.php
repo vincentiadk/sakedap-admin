@@ -126,6 +126,10 @@ return [
     'aliases' => [
         'App' => Illuminate\Support\Facades\App::class,
         'QueryAPI' => \App\Helpers\QueryAPI::class,
+        'ISBN' => \App\Helpers\ISBN::class,
+        'Fonnte' => \App\Helpers\Fonnte::class,
+        'RajaOngkir' => \App\Helpers\RajaOngkir::class,
+        'Twilio' => \App\Helpers\Twilio::class,
         'Str' => Illuminate\Support\Str::class,
         'Arr' => Illuminate\Support\Arr::class,
         'Request' => Illuminate\Support\Facades\Request::class,

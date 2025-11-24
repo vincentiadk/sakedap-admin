@@ -94,6 +94,7 @@
                     <table class="table table-bordered">
                         <thead class="text-bg-light">
                             <tr>
+                                <th class="text-nowrap text-center" rowspan="2">Cover</th>
                                 <th class="text-nowrap" rowspan="2">Kode</th>
                                 <th class="text-nowrap" rowspan="2">Judul</th>
                                 <th class="text-nowrap" rowspan="2">Edisi</th>
@@ -241,6 +242,7 @@
                                     <input type="hidden" name="ci[]" value="1">
                                     <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
 
+                                    <td class="text-center">${ response.fileCover }</td>
                                     <td class="text-wrap">${ response.data.isbn }</td>
                                     <td class="text-wrap">${ response.data.title }</td>
                                     <td class="text-wrap">${ response.data.edisi ?? '' }</td>
