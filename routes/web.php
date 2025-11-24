@@ -69,6 +69,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('dashboard')->group(function () {
         Route::get('/', 'DashboardController@index');
+        Route::get('data-collection-status', 'DashboardController@dataCollectionStatus');
         Route::get('data-province', 'DashboardController@dataProvince');
         Route::get('data-activity', 'DashboardController@dataActivity');
         Route::get('data-digital-work', 'DashboardController@dataDigitalWork');

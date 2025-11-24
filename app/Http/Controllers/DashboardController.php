@@ -34,6 +34,53 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function dataCollectionStatus(Request $request)
+    {
+        $date = $request->date;
+        $explodeDate = explode(' - ', $date);
+        $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+        $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+        $response = [];
+        $condition = ["(e_collections.created_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collections.created_at < to_date('$endDate', 'YYYY-MM-DD') + 1)"];
+
+        if (Main::isNotSuperAdmin()) {
+            $condition[] = "penerbit.province_id = " . session('province_id');
+        }
+
+        $whereClause = !empty($condition) ? "where " . implode(' and ', $condition) : '';
+
+        $data = QueryAPI::get("
+            select
+                coalesce(sum(case when e_collections.status = '1' then 1 else 0 end), 0) as total_1,
+                coalesce(sum(case when e_collections.status = '2' then 1 else 0 end), 0) as total_2,
+                coalesce(sum(case when e_collections.status = '3' then 1 else 0 end), 0) as total_3,
+                coalesce(sum(case when e_collections.status = '5' then 1 else 0 end), 0) as total_5
+            from
+                e_collections
+            join
+                penerbit on penerbit.id = e_collections.penerbit_id
+            $whereClause
+        ", true);
+
+        $response = [
+            'label' => [
+                'Ditinjau',
+                'Diterima',
+                'Bermasalah',
+                'Ditolak',
+            ],
+            'data' => [
+                $data->TOTAL_1 ?? 0,
+                $data->TOTAL_2 ?? 0,
+                $data->TOTAL_3 ?? 0,
+                $data->TOTAL_5 ?? 0,
+            ]
+        ];
+
+        return response()->json($response);
+    }
+
     public function dataProvince(Request $request)
     {
         $date = $request->date;

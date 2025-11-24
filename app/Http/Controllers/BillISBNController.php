@@ -151,7 +151,7 @@ class BillISBNController extends Controller
 
                 if ($letterDetail) {
                     $status = '
-                        <a href="' . url('physical-delivery/accept/detail/' . $letterDetail->LETTER_ID) . '" class="btn btn-success btn-sm" target="_blank">
+                        <a href="' . url('physical-delivery/accept/print/' . $letterDetail->LETTER_ID) . '" class="btn btn-success btn-sm" target="_blank">
                             <i class="ph-check me-1"></i>
                             Sudah Diterima
                         </a>

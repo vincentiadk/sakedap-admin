@@ -49,6 +49,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="card" id="card-collection">
+                <div class="card-header">
+                    <h5 class="hstack gap-2 mb-0">Status Koleksi</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chart-collection-status" style="width:100%; height:500px;"></div>
+                </div>
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="card" id="card-province">
                 <div class="card-header">
@@ -136,6 +146,7 @@
         chartDigitalWork();
         chartAnalogWork();
         chartPrintedWork();
+        chartCollectionStatus();
         dataProvince();
         dataActivity();
         chartCollection();
@@ -602,6 +613,108 @@
             },
             error: function(response) {
                 onLoading('close', '#card-type');
+                responseError(response);
+            }
+        });
+    }
+
+    function chartCollectionStatus() {
+        $.ajax({
+            url: '{{ url("dashboard/data-collection-status") }}',
+            type: 'GET',
+            dataType: 'JSON',
+            data: {
+                date: $('#date').val()
+            },
+            beforeSend: function() {
+                onLoading('show', '#card-collection-status');
+            },
+            success: function(response) {
+                var chartSelector = document.getElementById('chart-collection-status');
+                var chart = echarts.init(chartSelector, null, {
+                    renderer: 'canvas'
+                });
+
+                var option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: 2,
+                        right: 2,
+                        top: 10,
+                        bottom: 0,
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: response.label,
+                            axisTick: {
+                                alignWithLabel: true
+                            },
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#9CA3AF'
+                                }
+                            },
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: '#E5E7EB'
+                                }
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            axisLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: '#9CA3AF'
+                                }
+                            },
+                            splitLine: {
+                                lineStyle: {
+                                    color: '#E5E7EB'
+                                }
+                            },
+                            splitArea: {
+                                show: true,
+                                areaStyle: {
+                                    color: ['rgba(255, 255, 255, .01)', 'rgba(0, 0, 0, .01)']
+                                }
+                            }
+                        }
+                    ],
+                    axisPointer: [
+                        {
+                            lineStyle: {
+                                color: '#6B7280'
+                            }
+                        }
+                    ],
+                    series: [
+                        {
+                            name: 'Total',
+                            type: 'bar',
+                            smooth: true,
+                            barWidth: '60%',
+                            data: response.data
+                        }
+                    ]
+                };
+
+                option && chart.setOption(option);
+
+                onLoading('close', '#card-collection-status');
+            },
+            error: function(response) {
+                onLoading('close', '#card-collection-status');
                 responseError(response);
             }
         });
