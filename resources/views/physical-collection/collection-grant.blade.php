@@ -153,7 +153,6 @@
 
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
-            dom: '<"dt-buttons-full"B><"datatable-header"fl><"datatable-scroll-wrap"t><"datatable-footer"ip>',
             processing: true,
             serverSide: true,
             deferRender: true,
@@ -172,8 +171,51 @@
                 selector: 'td.allow-select'
             },
             buttons: [
-                { extend: 'selectAll', className: 'btn btn-teal', text: 'Centang Semua' },
-                { extend: 'selectNone', className: 'btn btn-warning', text: 'Hilangkan Semua Centang' },
+                {
+                    extend: 'collection',
+                    text: '<i class="ph-microsoft-excel-logo me-1"></i> Download Excel',
+                    buttons: [
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Semua Data Keseluruhan',
+                            exportOptions: {
+                                modifier: {
+                                    page: 'all',
+                                    search: 'none',
+                                }
+                            }
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Semua Data Dengan Pencarian',
+                            exportOptions: {
+                                modifier: {
+                                    page: 'all',
+                                    search: 'applied',
+                                }
+                            }
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Halaman Ini Saja',
+                            exportOptions: {
+                                modifier: {
+                                    page: 'current',
+                                }
+                            }
+                        },
+                    ]
+                },
+                {
+                    extend: 'selectAll',
+                    className: 'btn btn-success',
+                    text: '<i class="ph-checks me-1"></i> Centang Semua'
+                },
+                {
+                    extend: 'selectNone',
+                    className: 'btn btn-warning',
+                    text: '<i class="ph-x me-1"></i> Hilangkan Semua Centang'
+                },
             ],
             ajax: {
                 url: '{{ url("physical-collection/collection-grant/datatable") }}',
