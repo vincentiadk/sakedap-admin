@@ -20,19 +20,19 @@
                         <input type="text" class="form-control" name="title" id="title" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Pelaksana Serah :</label>
                         <input type="text" class="form-control" name="executor" id="executor" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Kepeng :</label>
                         <input type="text" class="form-control" name="author" id="author" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tahun Terbit :</label>
                         <select class="form-select" name="year" id="year">
@@ -43,25 +43,37 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tempat Terbit :</label>
                         <input type="text" class="form-control" name="city" id="city" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Nomor ISBN :</label>
                         <input type="text" class="form-control" name="code" id="code" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Subjek :</label>
                         <input type="text" class="form-control" name="subject" id="subject" placeholder="....................">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Sinopsis Class :</label>
+                        <input type="text" class="form-control" name="sinopsis_class" id="sinopsis_class" placeholder="....................">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Nomor Panggil :</label>
+                        <input type="text" class="form-control" name="call_number" id="call_number" placeholder="....................">
+                    </div>
+                </div>
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Media :</label>
                         <select class="form-select" name="media" id="media">
@@ -74,7 +86,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Provinsi :</label>
                         <select class="form-select" name="province_id" id="province_id">
@@ -84,13 +96,13 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tgl Terima KCKR :</label>
                         <input type="text" class="form-control date-range-picker" name="received_date_kckr" id="received_date_kckr" placeholder="Semua Tanggal" readonly>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label">Tgl Terima Provinsi :</label>
                         <input type="text" class="form-control date-range-picker" name="received_date_province" id="received_date_province" placeholder="Semua Tanggal" readonly>
@@ -117,6 +129,7 @@
                 <thead class="text-bg-light">
                     <tr>
                         <th class="text-nowrap">No</th>
+                        <th class="text-nowrap">Status</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Kepeng</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
@@ -191,6 +204,7 @@
                 }
             },
             columns: [
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },

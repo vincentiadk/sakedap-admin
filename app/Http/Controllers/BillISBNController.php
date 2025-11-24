@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Helpers\ISBN;
+use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -75,6 +76,14 @@ class BillISBNController extends Controller
             $filter['province_id'] = $request->province_id;
         }
 
+        if ($request->sinopsis_class) {
+            $filter['sinopsis_class'] = $request->sinopsis_class;
+        }
+
+        if ($request->call_number) {
+            $filter['call_number'] = $request->call_number;
+        }
+
         if ($request->received_date_kckr) {
             $explodeDate = explode(' - ', $request->received_date_kckr);
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
@@ -120,16 +129,45 @@ class BillISBNController extends Controller
                 }
 
                 $executorId = isset($val->penerbit_id) ? $val->penerbit_id . ' | ' : '';
+                $isbn = isset($val->isbn) ? $val->isbn : '';
+
+                $status = '
+                    <button type="button" class="btn btn-danger btn-sm disabled">
+                        <i class="ph-x me-1"></i>
+                        Belum Diterima
+                    </button>
+                ';
+
+                $letterDetail = QueryAPI::get("
+                    select
+                        letter_id
+                    from
+                        letter_detail
+                    where
+                        isbn = '$isbn' and
+                        qty_accept > 0 and
+                        rownum = 1
+                ", true);
+
+                if ($letterDetail) {
+                    $status = '
+                        <a href="' . url('physical-delivery/accept/detail/' . $letterDetail->LETTER_ID) . '" class="btn btn-success btn-sm" target="_blank">
+                            <i class="ph-check me-1"></i>
+                            Sudah Diterima
+                        </a>
+                    ';
+                }
 
                 $data[] = [
                     $start +  1,
+                    $status,
                     isset($val->title) ? $val->title : '',
                     $author,
                     isset($val->nama_penerbit) ? $executorId . $val->nama_penerbit : '',
                     isset($val->tahun_terbit) ? $val->tahun_terbit : '',
                     isset($val->tempat_terbit) ? $val->tempat_terbit : '',
                     isset($val->provinsi) ? $val->provinsi : '',
-                    isset($val->isbn) ? $val->isbn : '',
+                    $isbn,
                     isset($val->jenis_media) ? ucwords($val->jenis_media) : '',
                     isset($val->jenis_pustaka) ? ucwords($val->jenis_pustaka) : '',
                     isset($val->received_date_kckr) ? Carbon::parse($val->received_date_kckr)->isoFormat('dddd, D MMMM Y') : '',
