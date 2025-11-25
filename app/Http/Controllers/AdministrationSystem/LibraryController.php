@@ -31,6 +31,8 @@ class LibraryController extends Controller
             'propinsi.namapropinsi',
             'branchs.code',
             'branchs.name',
+            'branchs.phone',
+            'branchs.kode_pos',
             'branchs.alamat',
         ];
 
@@ -144,6 +146,8 @@ class LibraryController extends Controller
                     $val->NAMAPROPINSI,
                     $val->CODE,
                     $val->NAME,
+                    $val->PHONE,
+                    $val->KODE_POS,
                     $val->ALAMAT,
                 ];
 
@@ -164,10 +168,19 @@ class LibraryController extends Controller
         $validation = Validator::make($request->all(), [
             'name' => 'required',
             'code' => 'required',
+            'postal_code' => 'required|digits:5|numeric',
+            'phone' => 'required|min_digits:8|max_digits:13|numeric',
             'province_id' => 'required',
         ], [
             'name.required' => 'Nama tidak boleh kosong',
             'code.required' => 'Kode tidak boleh kosong',
+            'postal_code.required' => 'Kode pos tidak boleh kosong',
+            'postal_code.digits' => 'Kode pos harus 5 digit',
+            'postal_code.numeric' => 'Kode pos harus angka',
+            'phone.required' => 'Telepon tidak boleh kosong',
+            'phone.min_digits' => 'Telepon minimal 8 digit',
+            'phone.max_digits' => 'Telepon maksimal 13 digit',
+            'phone.numeric' => 'Telepon harus angka',
             'province_id.required' => 'Provinsi tidak boleh kosong',
         ]);
 
@@ -190,6 +203,8 @@ class LibraryController extends Controller
                     'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
                     'province_id' => $request->province_id,
+                    'kode_pos' => $request->postal_code,
+                    'phone' => $request->phone,
                 ], false);
 
                 $response = [
@@ -231,10 +246,19 @@ class LibraryController extends Controller
         $validation = Validator::make($request->all(), [
             'name' => 'required',
             'code' => 'required',
+            'postal_code' => 'required|digits:5|numeric',
+            'phone' => 'required|min_digits:8|max_digits:13|numeric',
             'province_id' => 'required',
         ], [
             'name.required' => 'Nama tidak boleh kosong',
             'code.required' => 'Kode tidak boleh kosong',
+            'postal_code.required' => 'Kode pos tidak boleh kosong',
+            'postal_code.digits' => 'Kode pos harus 5 digit',
+            'postal_code.numeric' => 'Kode pos harus angka',
+            'phone.required' => 'Telepon tidak boleh kosong',
+            'phone.min_digits' => 'Telepon minimal 8 digit',
+            'phone.max_digits' => 'Telepon maksimal 13 digit',
+            'phone.numeric' => 'Telepon harus angka',
             'province_id.required' => 'Provinsi tidak boleh kosong',
         ]);
 
@@ -253,6 +277,8 @@ class LibraryController extends Controller
                     'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
                     'province_id' => $request->province_id,
+                    'kode_pos' => $request->postal_code,
+                    'phone' => $request->phone,
                 ], false);
 
                 $response = [

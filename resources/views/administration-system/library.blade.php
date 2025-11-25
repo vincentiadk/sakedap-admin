@@ -28,6 +28,8 @@
                         <th class="text-nowrap">Provinsi</th>
                         <th class="text-nowrap">Kode</th>
                         <th class="text-nowrap">Nama</th>
+                        <th class="text-nowrap">Telepon</th>
+                        <th class="text-nowrap">Kode Pos</th>
                         <th class="text-nowrap">Alamat</th>
                     </tr>
                 </thead>
@@ -63,6 +65,14 @@
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Telepon : <span class="text-danger fw-bold">*</span></label>
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kode Pos : <span class="text-danger fw-bold">*</span></label>
+                        <input type="text" class="form-control" name="postal_code" id="postal_code" placeholder="....................">
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Alamat :</label>
                         <textarea class="form-control" name="address" id="address" placeholder="...................."></textarea>
                     </div>
@@ -91,8 +101,8 @@
         loadData();
 
         select2Serverside('#province_id', 'location', {
-                for: 'province'
-            });
+            for: 'province'
+        });
     });
 
     function onReloadTable() {
@@ -184,6 +194,8 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
@@ -261,6 +273,8 @@
                 $('#code').val(response.CODE);
                 $('#name').val(response.NAME);
                 $('#address').val(response.ALAMAT);
+                $('#postal_code').val(response.KODE_POS);
+                $('#phone').val(response.PHONE);
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
