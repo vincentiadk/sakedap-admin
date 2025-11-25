@@ -5,6 +5,7 @@ namespace App\Http\Controllers\PhysicalDelivery;
 use Carbon\Carbon;
 use App\Helpers\Main;
 use App\Helpers\Fonnte;
+use Milon\Barcode\DNS2D;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -448,88 +449,78 @@ class AcceptController extends Controller
                 letter.letter_id = $letterId
         ", true);
 
-        if ($letter) {
-            if ($letter->EMAIL_PENERBIT) {
-                $settings = QueryAPI::get("
-                    select
-                        *
-                    from
-                        e_settings
-                    where
-                        slug = 'ResiPenerimaan' or
-                        (
-                            slug in ('Header','Footer') and
-                            province_id = " . session('province_id') . "
-                        )
-                ");
-
-                $templateEmailContent = null;
-                $templateEmailHeader = null;
-                $templateEmailFooter = null;
-
-                if ($settings) {
-                    foreach ($settings as $setting) {
-                        if ($setting->SLUG == 'ResiPenerimaan') $templateEmailContent = $setting;
-                        elseif ($setting->SLUG == 'Header') $templateEmailHeader = $setting;
-                        elseif ($setting->SLUG == 'Footer') $templateEmailFooter = $setting;
-                    }
-                }
-
-                $dateNow = date('Y-m-d');
-                $branchId = $letter->BRANCH_ID ?? 0;
-
-                $leader = QueryAPI::get("
-                    select
-                        *
-                    from
-                        penanggung_jawab
-                    where
-                        branch_id = $branchId and
-                        (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
-                ", true);
-
-                $signature = '';
-
-                if ($leader) {
-                    $signatureUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? 0) . '&filename=' . ($leader->TTD_FILE_NAME ?? 0);
-                    $signature = $leader->JABATAN . '<br><br>' . '<img src="' . $signatureUrl . '" style="max-width:40px !important;"><br><br>' . $leader->NAMA . '<br>' . '<span style="font-weight:bold;">' . $leader->NIP . '</span>';
-                }
-
-                $bodyParamEmail = [
-                    'accepted_date' => date('d/m/Y', strtotime($letter->ACCEPT_DATE ?? '')),
-                    'letter_no' => $letter->LETTER_NUMBER_UT ?? '',
-                    'publisher_name' => $letter->NAME_PENERBIT ?? '',
-                    'director' => $signature,
-                    'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
-                    'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
-                    'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
-                ];
-
-                Mail::send([], [], function ($message) use ($bodyParamEmail, $templateEmailContent, $letter) {
-                    $message->to($letter->EMAIL_PENERBIT ?? '', $bodyParamEmail['publisher_name'])
-                        ->subject('Resi Penerimaan')
-                        ->from(config('mail.from.address'), config('mail.from.name'))
-                        ->html(Main::parseTemplateEmail($bodyParamEmail, $templateEmailContent), 'text/html');
-                });
-
-                $response = [
-                    'code' => 200,
-                    'message' => 'Email berhasil dikirim'
-                ];
-            } else {
-                $response = [
-                    'code' => 401,
-                    'message' => 'Email pelaksana serah kosong'
-                ];
-            }
-        } else {
-            $response = [
+        if (!$letter) {
+            return response()->json([
                 'code' => 404,
-                'message' => 'Data tidak ditemukan'
-            ];
+                'message' => 'Data surat tidak ditemukan'
+            ]);
         }
 
-        return response()->json($response);
+        if (empty($letter->EMAIL_PENERBIT)) {
+            return response()->json([
+                'code' => 401,
+                'message' => 'Email penerbit/pelaksana serah kosong'
+            ]);
+        }
+
+        $pdfPath = $this->generatePDF($letterId);
+
+        if (!$pdfPath || !file_exists($pdfPath)) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Gagal membuat file PDF Resi'
+            ]);
+        }
+
+        try {
+            $acceptDate = $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->isoFormat('D MMMM Y') : date('d-m-Y');
+            $receiptNo = $letter->RECEIPT_NO ?? '-';
+            $emailSubject = "Bukti Penerimaan Serah Simpan Karya Cetak / Karya Rekam - " . $receiptNo;
+
+            $emailBody = "
+                <p>Kepada Yth. <br><b>{$letter->NAME_PENERBIT}</b></p>
+                <p>Dengan hormat,</p>
+                <p>Terima kasih telah melaksanakan kewajiban Serah Simpan Karya Cetak dan Karya Rekam (SSKCKR).</p>
+                <p>Bersama email ini, kami sampaikan <b>Bukti Penerimaan (Resi)</b> atas koleksi fisik yang telah kami terima pada tanggal <b>{$acceptDate}</b>.</p>
+                <p>Dokumen resi terlampir dalam format PDF. Silakan unduh lampiran tersebut sebagai arsip bukti serah simpan.</p>
+                <br>
+                <p>Atas perhatian dan kerja sama Saudara dalam melestarikan hasil karya bangsa, kami ucapkan terima kasih.</p>
+                <br>
+                <hr>
+                <small><i>Email ini dikirim secara otomatis oleh sistem. Mohon untuk tidak membalas email ini.</i></small>
+            ";
+
+            Mail::send([], [], function ($message) use ($letter, $pdfPath, $emailSubject, $emailBody, $receiptNo) {
+                $message->to($letter->EMAIL_PENERBIT, $letter->NAME_PENERBIT)
+                    ->subject($emailSubject)
+                    ->from(config('mail.from.address'), config('mail.from.name'))
+                    ->html($emailBody)
+                    ->attach($pdfPath, [
+                        'as' => 'Resi_Penerimaan_' . str_replace('/', '_', $receiptNo) . '.pdf',
+                        'mime' => 'application/pdf',
+                    ]);
+            });
+
+            if (file_exists($pdfPath)) {
+                @unlink($pdfPath);
+            }
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Email beserta lampiran PDF berhasil dikirim'
+            ]);
+        } catch (\Exception $e) {
+            if (isset($pdfPath) && file_exists($pdfPath)) {
+                @unlink($pdfPath);
+            }
+
+            Log::error('Gagal kirim email resi: ' . $e->getMessage());
+
+            return response()->json([
+                'code' => 500,
+                'message' => 'Terjadi kesalahan saat mengirim email: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function sendWhatsapp(Request $request)
@@ -642,10 +633,7 @@ class AcceptController extends Controller
                     e_settings
                 where
                     slug = 'ResiPenerimaan' or
-                    (
-                        slug in ('Header','Footer') and
-                        province_id = " . session('province_id') . "
-                    )
+                    (slug in ('Header','Footer') and province_id = " . session('province_id') . ")
             ");
 
             $templateEmailContent = null;
@@ -654,23 +642,28 @@ class AcceptController extends Controller
 
             if ($settings) {
                 foreach ($settings as $setting) {
-                    if ($setting->SLUG == 'ResiPenerimaan') {
-                        $templateEmailContent = $setting;
-                    } elseif ($setting->SLUG == 'Header') {
-                        $templateEmailHeader = $setting;
-                    } elseif ($setting->SLUG == 'Footer') {
-                        $templateEmailFooter = $setting;
-                    }
+                    if ($setting->SLUG == 'ResiPenerimaan') $templateEmailContent = $setting;
+                    elseif ($setting->SLUG == 'Header') $templateEmailHeader = $setting;
+                    elseif ($setting->SLUG == 'Footer') $templateEmailFooter = $setting;
                 }
             }
 
-            if (!$templateEmailContent || !$templateEmailHeader || !$templateEmailFooter) {
-                return null;
+            $imgHeader = '';
+            $imgFooter = '';
+
+            if ($templateEmailHeader) {
+                $urlHeader = url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''));
+                $imgHeader = Main::base64File($urlHeader);
+            }
+
+            if ($templateEmailFooter) {
+                $urlFooter = url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''));
+                $imgFooter = Main::base64File($urlFooter);
             }
 
             $branchId = session('branch_id');
             $dateNow = date('Y-m-d');
-            $signature = '';
+            $signatureTable = '<br><br><br>';
 
             $leader = QueryAPI::get("
                 select
@@ -683,26 +676,65 @@ class AcceptController extends Controller
             ", true);
 
             if ($leader) {
-                $signatureUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? '') . '&filename=' . ($leader->TTD_FILE_NAME ?? '');
-                $signature = $leader->JABATAN . '<br><br>' . '<img src="' . $signatureUrl . '" style="max-width:40px !important;"><br><br>' . $leader->NAMA . '<br>' . '<span style="font-weight:bold;">' . $leader->NIP . '</span>';
+                $ttdUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? '') . '&filename=' . ($leader->TTD_FILE_NAME ?? '');
+                $imgTtd = Main::base64File($ttdUrl) ?: '';
+                $imgTagTtd = (strlen($imgTtd) > 100) ? '<img src="' . $imgTtd . '" height="60" style="height:60px;">' : '<br><br><br>';
+
+                $signatureTable = '
+                    <table border="0" cellspacing="0" cellpadding="0" style="text-align:center; width:100%;">
+                        <tr><td>' . ($leader->JABATAN ?? 'Pejabat') . '</td></tr>
+                        <tr><td style="height:70px;">' . $imgTagTtd . '</td></tr>
+                        <tr><td>' . ($leader->NAMA ?? '') . '</td></tr>
+                        <tr><td style="font-weight:bold;">NIP. ' . ($leader->NIP ?? '-') . '</td></tr>
+                    </table>
+                ';
             }
 
+            $qrGenerator = new \Milon\Barcode\DNS2D();
+            $qrCodeBody = config('system.fo_url') . '/track-shipment?receipt=' . $letter->RECEIPT_NO;
+            $qrBase64Raw = $qrGenerator->getBarcodePNG((string) $qrCodeBody, 'QRCODE', 4, 4);
+
             $dataParseTemplate = [
-                'accepted_date' => date('d/m/Y', strtotime($letter->ACCEPT_DATE)),
-                'letter_no' => $letter->LETTER_NUMBER_UT,
+                'accepted_date' => Carbon::parse($letter->ACCEPT_DATE)->isoFormat('D MMMM Y'),
+                'letter_no' => $letter->LETTER_NUMBER_UT ?: '-',
                 'publisher_name' => $letter->NAME_PENERBIT,
-                'director' => $signature,
-                'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
-                'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
-                'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
+                'director' => $signatureTable,
+                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="300" style="width:100%;"></div><br><br>' : '',
+                'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="550" style="width:100%;"></div>' : '',
+                'qr' => '<br><br><img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" style="height:120px; width:120px">',
             ];
 
-            $pdf = new \TCPDF();
-            $pdf->SetMargins(10, 5, 10, 0);
-            $pdf->SetAutoPageBreak(true, 0);
+            $htmlContent = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);
+            $finalHtml = '
+                <style>
+                    table {
+                        border-collapse: collapse;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    td {
+                        vertical-align: top;
+                    }
+
+                    body {
+                        font-family: helvetica;
+                        font-size: 10pt;
+                    }
+                </style>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr><td>' . $htmlContent . '</td></tr>
+                </table>
+            ';
+
+            $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+            $pdf->SetMargins(15, 10, 15);
+            $pdf->SetAutoPageBreak(true, 15);
             $pdf->AddPage();
-            $html = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);
-            $pdf->writeHTML($html, true, false, true, false, '');
+
+            $pdf->writeHTML($finalHtml, true, false, true, false, '');
 
             $collections = QueryAPI::get("
                 select
@@ -712,8 +744,7 @@ class AcceptController extends Controller
                     ld.jenis_media,
                     ld.isbn,
                     case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept,
-                    c.noinduk as noinduk_collection,
-                    c.mark_province as mark_province_collection
+                    c.noinduk as noinduk_collection, c.mark_province as mark_province_collection
                 from
                     letter_detail ld
                 left join
@@ -721,19 +752,7 @@ class AcceptController extends Controller
                 cross join
                     (select level as lvl from dual connect by level <= 1000) t
                 left join
-                    collections c on c.id = to_number(
-                        nvl(
-                            trim(
-                                regexp_substr(
-                                    ld.collection_id,
-                                    '[^,]+',
-                                    1,
-                                    t.lvl
-                                )
-                            ),
-                            '0'
-                        )
-                    )
+                    collections c on c.id = to_number(nvl(trim(regexp_substr(ld.collection_id,'[^,]+',1,t.lvl)),'0'))
                 where
                     ld.letter_id = $letter->LETTER_ID
                     and ld.qty_accept is not null
@@ -741,29 +760,27 @@ class AcceptController extends Controller
                     and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
             ");
 
-            $htmlCollections = '<table border="1" style="font-size:8px">';
-            $htmlCollections .= '<tr>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">No</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">Tanggal Terima</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">Judul</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">Jenis Media</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">ISBN/ISSN</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">Jumlah (Eksemplar)</th>';
-            $htmlCollections .= '<th style="padding:12px;text-align: center;">TRK</th>';
-            $htmlCollections .= '</tr>';
+            $htmlCollections = '
+                <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse;">
+                    <tr style="background-color:#f0f0f0; font-weight:bold;">
+                        <th width="5%" align="center">No</th>
+                        <th width="15%" align="center">Tgl Terima</th>
+                        <th width="40%" align="center">Judul</th>
+                        <th width="15%" align="center">Jenis</th>
+                        <th width="15%" align="center">ISBN</th>
+                        <th width="10%" align="center">Jml</th>
+                    </tr>
+            ';
 
             if ($collections) {
                 foreach ($collections as $key => $c) {
-                    $trk = Main::isNotSuperAdmin() ? $c->MARK_PROVINCE_COLLECTION : $c->NOINDUK_COLLECTION;
-
                     $htmlCollections .= '<tr>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($key + 1) . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->TITLE ?? '-') . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->ISBN ?? '-') . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
-                    $htmlCollections .= '<td style="padding:10px;text-align: center;">' . ($trk ?? '-') . '</td>';
+                    $htmlCollections .= '<td align="center">' . ($key + 1) . '</td>';
+                    $htmlCollections .= '<td align="center">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
+                    $htmlCollections .= '<td>' . ($c->TITLE ?? '-') . '</td>';
+                    $htmlCollections .= '<td align="center">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
+                    $htmlCollections .= '<td align="center">' . ($c->ISBN ?? '-') . '</td>';
+                    $htmlCollections .= '<td align="center">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
                     $htmlCollections .= '</tr>';
                 }
             }
@@ -774,14 +791,14 @@ class AcceptController extends Controller
             $pdf->writeHTML($htmlCollections, true, false, true, false, '');
 
             $letterNumber = $letter->LETTER_ID ?? date('YmdHis');
-            $nameExecutor = $letter->NAME_PENERBIT;
+            $nameExecutor = $letter->NAME_PENERBIT ?? '';
             $directory = storage_path('app/public/physical-delivery/accept/receipt');
 
             if (!file_exists($directory)) {
                 mkdir($directory, 0755, true);
             }
 
-            $filename = $directory . '/' . Str::slug('Pengiriman Koleksi ' . $letterNumber . ' ' . $nameExecutor, '-') . '.pdf';
+            $filename = $directory . '/' . Str::slug('Pengiriman Fisik Koleksi ' . $letterNumber . ' ' . $nameExecutor, '-') . '.pdf';
             $pdf->Output($filename, 'F');
 
             return $filename;

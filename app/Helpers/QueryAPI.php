@@ -370,34 +370,25 @@ class QueryAPI
                         'response_body' => $errorBody,
                         'payload' => $payload
                     ]);
-
-                    return false;
-                }
-
-                $contentLength = $query->header('Content-Length');
-
-                if ($contentLength === '0') {
+                } else if ($query->header('Content-Length') === '0') {
                     Log::channel('sakedap-api')->error('GetFile 200 OK but Content-Length is 0', [
                         'payload' => $payload
                     ]);
+                } else {
+                    $result = $query->toPsrResponse()->getBody();
 
-                    return false;
+                    return response()->stream(function () use ($result) {
+                        while (!$result->eof()) {
+                            echo $result->read(1024);
+                            flush();
+                        }
+                    }, 200, [
+                        'Content-Type' => Main::contentTypeFile($payload['filename'] ?? 'unknown'),
+                        'Content-Disposition' => 'inline; filename="' . ($payload['filename'] ?? 'file') . '"',
+                        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                        'Pragma' => 'no-cache',
+                    ]);
                 }
-
-                $result = $query->toPsrResponse()->getBody();
-
-                return response()->stream(function () use ($result) {
-                    while (!$result->eof()) {
-                        echo $result->read(1024);
-
-                        flush();
-                    }
-                }, 200, [
-                    'Content-Type' => Main::contentTypeFile($payload['filename'] ?? 'unknown'),
-                    'Content-Disposition' => 'inline; filename="' . ($payload['filename'] ?? 'file') . '"',
-                    'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
-                    'Pragma' => 'no-cache',
-                ]);
             } else {
                 Log::channel('sakedap-api')->error('GetFile API Error: Status Code bukan 200', [
                     'status' => $query->status(),
@@ -408,6 +399,17 @@ class QueryAPI
             Log::channel('sakedap-api')->error('GetFile Exception', [
                 'message' => $e->getMessage(),
                 'payload' => $payload
+            ]);
+        }
+
+        $filePath = public_path('assets/no-file.jpg');
+
+        if (file_exists($filePath)) {
+            return response()->file($filePath, [
+                'Content-Type' => 'image/jpeg',
+                'Content-Disposition' => 'inline; filename="no-file.jpg"',
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache',
             ]);
         }
 
