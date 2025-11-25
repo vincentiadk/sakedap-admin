@@ -32,7 +32,6 @@ class NewsController extends Controller
             'e_news.id',
             null,
             'e_news.image',
-            'e_news.pages',
             'e_news_kategori.name',
             'e_news.title',
             'e_news.lang',
