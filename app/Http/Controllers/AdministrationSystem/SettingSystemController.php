@@ -119,6 +119,9 @@ class SettingSystemController extends Controller
             ['name' => 'EAPIISBNBaseUrl', 'value' => $request->isbn_base_url],
             ['name' => 'EAPIRajaOngkirToken', 'value' => $request->ro_token],
             ['name' => 'EAPIRajaOngkirBaseUrl', 'value' => $request->ro_base_url],
+            ['name' => 'EAPIKomshipToken', 'value' => $request->komship_token],
+            ['name' => 'EAPIKomshipBaseUrl', 'value' => $request->komship_base_url],
+            ['name' => 'EDeliveryMethod', 'value' => $request->delivery_method],
         ];
     }
 

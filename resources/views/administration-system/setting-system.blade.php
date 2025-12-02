@@ -49,7 +49,7 @@
                         <a href="#nav-tabs-api-isbn" class="nav-link" data-bs-toggle="tab">API ISBN</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#nav-tabs-api-ro" class="nav-link" data-bs-toggle="tab">API Raja Ongkir</a>
+                        <a href="#nav-tabs-api-ro" class="nav-link" data-bs-toggle="tab">API Pengiriman</a>
                     </li>
                 </ul>
                 <div class="tab-content flex-lg-fill mt-4">
@@ -370,16 +370,46 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-api-ro">
-                        <div class="form-group row">
-                            <label class="col-form-label col-md-2">Token</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" name="ro_token" id="ro_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirToken')->VALUE ?? '' }}" placeholder="....................">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="fw-bold border-bottom pb-2 mb-3">Raja Ongkir</div>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-md-2">Token</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" name="ro_token" id="ro_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirToken')->VALUE ?? '' }}" placeholder="....................">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-md-2">Base Url</label>
+                                    <div class="col-md-10">
+                                        <input type="url" class="form-control" name="ro_base_url" id="ro_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirBaseUrl')->VALUE ?? '' }}" placeholder="....................">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="fw-bold border-bottom pb-2 mb-3">Komship</div>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-md-2">Token</label>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" name="komship_token" id="komship_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIKomshipToken')->VALUE ?? '' }}" placeholder="....................">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-md-2">Base Url</label>
+                                    <div class="col-md-10">
+                                        <input type="url" class="form-control" name="komship_base_url" id="komship_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIKomshipBaseUrl')->VALUE ?? '' }}" placeholder="....................">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label class="col-form-label col-md-2">Base Url</label>
-                            <div class="col-md-10">
-                                <input type="url" class="form-control" name="ro_base_url" id="ro_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirBaseUrl')->VALUE ?? '' }}" placeholder="....................">
+                        <hr>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-text">Metode Pengiriman</span>
+                                <select class="form-select" name="delivery_method" id="delivery_method">
+                                    <option value="manual">Manual</option>
+                                    <option value="expedition" {{ ($settingParameter->firstWhere('NAME', 'EDeliveryMethod')->VALUE ?? '') == 'expedition' ? 'selected' : '' }}>Ekspedisi</option>
+                                </select>
                             </div>
                         </div>
                     </div>

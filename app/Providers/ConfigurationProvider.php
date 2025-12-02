@@ -67,11 +67,14 @@ class ConfigurationProvider extends ServiceProvider
                 $collectedSettings['system.time_recording_work'] = (int) ($sp->firstWhere('NAME', 'EWaktuWajibKaryaRekam')->VALUE ?? 365);
                 $collectedSettings['system.executor_start_date'] = $sp->firstWhere('NAME', 'ETglKepatuhanPenerbit')->VALUE ?? date('Y-m-d');
                 $collectedSettings['system.max_coaching'] = $sp->firstWhere('NAME', 'EMaksJumlahPembinaan')->VALUE ?? date('Y-m-d');
+                $collectedSettings['system.delivery_method'] = $sp->firstWhere('NAME', 'EDeliveryMethod')->VALUE ?? 'manual';
 
                 $collectedSettings['isbn.token'] = $sp->firstWhere('NAME', 'EAPIISBNToken')->VALUE ?? null;
                 $collectedSettings['isbn.base_url'] = $sp->firstWhere('NAME', 'EAPIISBNBaseUrl')->VALUE ?? null;
                 $collectedSettings['raja-ongkir.token'] = $sp->firstWhere('NAME', 'EAPIRajaOngkirToken')->VALUE ?? null;
                 $collectedSettings['raja-ongkir.base_url'] = $sp->firstWhere('NAME', 'EAPIRajaOngkirBaseUrl')->VALUE ?? null;
+                $collectedSettings['komship.base_url'] = $sp->firstWhere('NAME', 'EAPIKomshipBaseUrl')->VALUE ?? null;
+                $collectedSettings['komship.base_url'] = $sp->firstWhere('NAME', 'EAPIKomshipBaseUrl')->VALUE ?? null;
             }
 
             if ($mail) {

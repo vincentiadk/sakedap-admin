@@ -50,7 +50,7 @@
             </div>
         </div>
         <div class="col-md-12">
-            <div class="card" id="card-collection">
+            <div class="card" id="card-collection-status">
                 <div class="card-header">
                     <h5 class="hstack gap-2 mb-0">Status Koleksi</h5>
                 </div>

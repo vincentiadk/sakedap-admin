@@ -423,7 +423,7 @@
                                 </button>
                                 <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
                                     <i class="ph-check me-1"></i>
-                                    Simpan & Verifikas
+                                    Simpan & Verifikasi
                                 </button>
                             </div>
                         </div>
@@ -522,20 +522,20 @@
         }
 
         if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);    
+            cancelAnimationFrame(animationFrameId);
         }
 
         if (currentSound) {
             currentSound.stop();
             currentSound.unload();
-            
+
             currentSound = null;
         }
 
-        if (watermarkSound) { 
-            watermarkSound.unload(); 
+        if (watermarkSound) {
+            watermarkSound.unload();
 
-            watermarkSound = null; 
+            watermarkSound = null;
         }
 
         $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
@@ -547,7 +547,7 @@
                 renderPdf(url);
 
                 break;
-            case 'mp4': 
+            case 'mp4':
                 renderVideo(url, ext);
 
                 break;
@@ -683,21 +683,21 @@
 
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
-        } 
+        }
 
         const watermarkSrc = "{{ asset('assets/audio-wm.mp3') }}";
 
         $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
 
         const $videoEl = $('#video-player');
-        
+
         $videoEl.show().css({ 'width': '100%', 'height': '600px' });
-        
+
         $('#video-watermark-layer').remove();
 
         watermarkSound = new Howl({
             src: [watermarkSrc],
-            html5: true,  
+            html5: true,
             loop: true,
             volume: 0.2,
             preload: true
@@ -705,13 +705,13 @@
 
         const syncVideoWatermark = () => {
             if (!watermarkSound || !window.player) return;
-            
+
             const wmDur = watermarkSound.duration();
 
             if (wmDur > 0) {
                 const currentTime = window.player.currentTime();
                 const targetPos = currentTime % wmDur;
-                
+
                 if (Math.abs(watermarkSound.seek() - targetPos) > 0.5) {
                     watermarkSound.seek(targetPos);
                 }
@@ -730,7 +730,7 @@
             controls: true,
             preload: 'auto',
             fluid: false,
-            height: 600, 
+            height: 600,
             width: '100%',
             sources: [
                 {
@@ -760,7 +760,7 @@
                     </div>
                 </div>
             `;
-            
+
             $(window.player.el()).append(watermarkHtml);
         });
 
@@ -769,7 +769,7 @@
 
             syncVideoWatermark();
         });
-        
+
         window.player.on('pause', function() { watermarkSound.pause(); });
         window.player.on('ended', function() { watermarkSound.stop(); });
         window.player.on('seeking', function() { syncVideoWatermark(); });
@@ -779,17 +779,17 @@
 
     function renderEpub(url) {
         const $container = $('#epub-container');
-        
+
         $container
             .show()
             .css({
                 'display': 'block',
                 'overflow-y': 'hidden',
-                'position': 'relative' 
+                'position': 'relative'
             })
             .empty();
 
-        $('#watermark-overlay').css('display', 'flex'); 
+        $('#watermark-overlay').css('display', 'flex');
         $('#epub-controls').css('display', 'none');
         $('#epub-watermark-layer').remove();
 
@@ -808,7 +808,7 @@
                 $('#watermark-overlay').hide();
 
                 const containerHeight = $container.height();
-                
+
                 const watermarkHtml = `
                     <div id="epub-watermark-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;">
                         <div style="position: absolute; bottom: 10px; left: 60px; transform: rotate(-90deg); transform-origin: bottom left; width: ${containerHeight - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.5;">
@@ -824,9 +824,9 @@
                         </div>
                     </div>
                 `;
-                
+
                 $container.append(watermarkHtml);
-                
+
             });
 
             rendition.themes.default({
@@ -840,9 +840,9 @@
                 },
                 'body': { 'padding': '0 15px !important', 'box-sizing': 'border-box' }
             });
-            
+
             $('#next-btn').off('click').on('click', function(e) {
-                e.preventDefault(); 
+                e.preventDefault();
                 rendition.next();
             });
 
@@ -875,7 +875,7 @@
         const $title = $('#audio-title-display');
         const canvas = document.getElementById('wave-canvas');
         const ctx = canvas.getContext('2d');
-        
+
         $wrapper.fadeIn();
 
         $('#watermark-overlay').hide();
@@ -896,7 +896,7 @@
                 if (Math.abs(currentWmPos - targetPos) > 0.3) {
                     watermarkSound.seek(targetPos);
                 }
-                
+
                 if (!watermarkSound.playing()) {
                     watermarkSound.play();
                 }
@@ -905,16 +905,16 @@
 
         watermarkSound = new Howl({
             src: [watermarkSrc],
-            html5: true, 
-            loop: true, 
+            html5: true,
+            loop: true,
             preload: true,
             volume: 0.3,
         });
 
         currentSound = new Howl({
             src: [url],
-            html5: true, 
-            format: [cleanExt, 'mp3'], 
+            html5: true,
+            format: [cleanExt, 'mp3'],
             xhr: { method: 'GET', withCredentials: true },
 
             onload: function() {
@@ -948,13 +948,13 @@
         });
 
         let wavePhase = 0;
-        
+
         const loopAnimation = () => {
             if (currentSound && currentSound.playing()) {
                 $('#timer-current').text(formatTime(currentSound.seek() || 0));
             }
-            
-            canvas.width = canvas.offsetWidth; 
+
+            canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             const w = canvas.width, h = canvas.height, mid = h / 2;
 
@@ -975,7 +975,7 @@
 
             drawSine('rgba(255,255,255,0.3)', 0, 1);
             drawSine('rgba(255,255,255,0.8)', 2, 0.8);
-            
+
             audioAnimFrame = requestAnimationFrame(loopAnimation);
         };
 
@@ -998,7 +998,7 @@
                 currentSound.play();
             }
         });
-        
+
         $('#btn-mute').off().on('click', function() {
             const muted = !currentSound.mute();
 
@@ -1007,7 +1007,7 @@
 
             $('#icon-vol').attr('class', muted ? 'ph-speaker-slash' : 'ph-speaker-high');
         });
-        
+
         loopAnimation();
     }
 

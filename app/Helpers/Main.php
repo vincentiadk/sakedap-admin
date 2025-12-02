@@ -44,6 +44,9 @@ class Main
         'EAPIISBNBaseUrl',
         'EAPIRajaOngkirToken',
         'EAPIRajaOngkirBaseUrl',
+        'EAPIKomshipToken',
+        'EAPIKomshipBaseUrl',
+        'EDeliveryMethod',
     ];
 
     /**

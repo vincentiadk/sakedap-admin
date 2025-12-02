@@ -434,6 +434,7 @@
             $('#section-file-content').addClass('d-none');
         } else {
             $('#form-parent').addClass('d-none');
+            $('#column-edition').addClass('d-none');
             $('#btn-cancel-parent').addClass('d-none');
             $('#card-edition').addClass('d-none');
             $('#section-file-cover').removeClass('d-none');

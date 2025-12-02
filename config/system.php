@@ -18,4 +18,5 @@ return [
     'executor_start_date' => date('Y-m-d'),
     'max_coaching' => 10,
     'fo_url' => env('FO_URL'),
+    'delivery_method' => 'manual',
 ];

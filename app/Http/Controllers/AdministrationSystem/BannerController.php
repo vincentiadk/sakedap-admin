@@ -180,7 +180,7 @@ class BannerController extends Controller
             'image.required' => 'Gambar tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'image.max' => 'Gambar maksimal 500 KB',
         ]);
 
         if ($validation->fails()) {
@@ -257,7 +257,7 @@ class BannerController extends Controller
             'title.required' => 'Judul tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'image.max' => 'Gambar maksimal 500 KB',
         ]);
 
         if ($validation->fails()) {
