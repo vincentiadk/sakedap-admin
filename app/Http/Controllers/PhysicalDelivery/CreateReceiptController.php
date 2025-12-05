@@ -35,7 +35,7 @@ class CreateReceiptController extends Controller
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
                 'content' => 'physical-delivery.create-receipt',
-                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
+                'acceptDefault' => 2,
                 'media' => $media ?? [],
                 'plugins' => [
                     'select2',
@@ -63,7 +63,7 @@ class CreateReceiptController extends Controller
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
         $totalCollection = $collection->TOTAL ?? 0;
         $totalSystem = 0;
-        $maxAccept = Main::isNotSuperAdmin() ? 1 : 2;
+        $maxAccept = 2;
         $optionAccept = [];
 
         if ($totalLetterDetail > 0) {

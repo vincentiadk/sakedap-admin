@@ -411,7 +411,9 @@
                                             <span class="input-group-text">Terima</span>
                                             <select class="form-select w-auto flex-grow-0 cni-accept-${ randStr }" name="cni_qty_accept[]" onchange="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                                 <option value="0" selected>0</option>
-                                                <option value="{{ $acceptDefault }}">{{ $acceptDefault }}</option>
+                                                @for($i = 1; $i <= $acceptDefault; $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
                                             </select>
                                             <span class="input-group-text">Tolak</span>
                                             <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
@@ -543,7 +545,9 @@
                         <span class="input-group-text">Terima</span>
                         <select class="form-select form-select-sm w-auto flex-grow-0 cpe-accept-${ randStr }" name="cpe_qty_accept[][]" onchange="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                             <option value="0" selected>0</option>
-                            <option value="{{ $acceptDefault }}">{{ $acceptDefault }}</option>
+                            @for($i = 1; $i <= $acceptDefault; $i++)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
                         </select>
                         <span class="input-group-text">Tolak</span>
                         <input type="number" class="form-control form-control-sm cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
