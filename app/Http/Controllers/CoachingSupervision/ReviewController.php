@@ -233,6 +233,21 @@ class ReviewController extends Controller
                     'updateterminal' => $request->ip(),
                 ];
             } else {
+                QueryAPI::update('penerbit_registrasi_masalah', $id, [
+                    'is_solve' => 1
+                ], false);
+
+                QueryAPI::create('penerbit_registrasi_masalah', [
+                    'is_solve' => 0,
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'createterminal' => $request->ip(),
+                    'updateby' => session('name'),
+                    'updatedate' => date('Y-m-d H:i:s'),
+                    'updateterminal' => $request->ip(),
+                    'penerbit_id' => $id,
+                    'masalah' => $request->description
+                ], false);
+
                 $payload = [
                     'status' => $status,
                     'keterangan' => $request->description,
