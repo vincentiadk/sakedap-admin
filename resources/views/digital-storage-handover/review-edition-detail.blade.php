@@ -2,7 +2,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Serah Simpan Digital - Peninjauan Edisi - <span class="fw-normal">Detail</span>
+                Serah Simpan Digital - Peninjauan Serial Elektronik - <span class="fw-normal">Detail</span>
             </h4>
         </div>
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">

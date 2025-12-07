@@ -150,7 +150,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <a href="{{ url('digital-storage-handover/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('digital-storage-handover/review-edition') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review-edition' ? 'active' : '' }}">Peninjauan Edisi</a>
+                                                <a href="{{ url('digital-storage-handover/review-edition') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review-edition' ? 'active' : '' }}">Peninjauan Serial Elektronik</a>
                                                 <a href="{{ url('digital-storage-handover/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
                                                 <a href="{{ url('digital-storage-handover/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
                                                 <a href="{{ url('digital-storage-handover/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
