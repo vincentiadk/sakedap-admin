@@ -173,13 +173,13 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Preview</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="preview" id="preview" value="{{ $collection->PREVIEW }}" placeholder="cth : 1-5 / 00:01-00:20">
+                                <input type="text" class="form-control" name="preview" id="preview" value="{{ $collection->PREVIEW }}" placeholder="cth : 1-5 / 00:01-00:20" disabled>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Akses</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" readonly>
+                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" readonly disabled>
                                     <option value=""></option>
                                     <option value="1" {{ $collection->AKSES == 1 ? 'selected' : '' }}>Akses full file berwatermak secara online</option>
                                     <option value="2" {{ $collection->AKSES == 2 ? 'selected' : '' }}>Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN</option>
@@ -191,7 +191,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Mata Uang</label>
                             <div class="col-md-10">
-                                <select class="form-select" name="currency" id="currency">
+                                <select class="form-select" name="currency" id="currency" disabled>
                                     @if($collection->CURRENCY)
                                         <option value="{{ $collection->CURRENCY }}" selected>{{ $collection->CURRENCY }}</option>
                                     @endif
@@ -201,7 +201,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Harga</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="....................">
+                                <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="...................." disabled>
                             </div>
                         </div>
                         <div class="form-group row">
