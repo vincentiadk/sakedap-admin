@@ -225,10 +225,10 @@ class ReviewController extends Controller
             if ($status == 3) {
                 $payload = [
                     'status' => 3,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ];
@@ -241,7 +241,7 @@ class ReviewController extends Controller
                     'is_solve' => 0,
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'penerbit_id' => $id,
@@ -251,7 +251,7 @@ class ReviewController extends Controller
                 $payload = [
                     'status' => $status,
                     'keterangan' => $request->description,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ];

@@ -54,7 +54,7 @@ class PagesController extends Controller
                     if ($categoryContent) {
                         QueryAPI::update('e_news_kategori', $c, [
                             'content' => implode(',', $categoryContent),
-                            'updateby' => session('name'),
+                            'updateby' => session('username'),
                             'updatedate' => date('Y-m-d H:i:s'),
                             'updateterminal' => $request->ip(),
                         ], false);

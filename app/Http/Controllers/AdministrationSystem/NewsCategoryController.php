@@ -176,10 +176,10 @@ class NewsCategoryController extends Controller
                     'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -253,7 +253,7 @@ class NewsCategoryController extends Controller
                     'slug' => Str::slug($request->name, '-'),
                     'pages' => $request->pages,
                     'parent_id' => $request->parent_id,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

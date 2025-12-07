@@ -254,7 +254,7 @@ class QueryAPI
         $param = array_merge($payload, [
             'token' => static::$token,
             'op' => 'uploadfile',
-            'uploadby' => session('name'),
+            'uploadby' => session('username'),
             'terminal' => request()->ip(),
         ]);
 
@@ -314,7 +314,7 @@ class QueryAPI
         $param = array_merge($payload, [
             'token' => static::$token,
             'op' => 'deletefile',
-            'actionby' => session('name'),
+            'actionby' => session('username'),
             'terminal' => request()->ip(),
         ]);
 

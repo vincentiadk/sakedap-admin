@@ -168,10 +168,10 @@ class VillageController extends Controller
                 QueryAPI::create('kelurahan', [
                     'namakel' => $request->name,
                     'kecamatanid' => $request->district_id,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -230,7 +230,7 @@ class VillageController extends Controller
                 QueryAPI::update('kelurahan', $id, [
                     'namakel' => $request->name,
                     'kecamatanid' => $request->district_id,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

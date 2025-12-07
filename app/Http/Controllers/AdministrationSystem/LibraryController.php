@@ -195,10 +195,10 @@ class LibraryController extends Controller
                     'code' => $request->code,
                     'name' => $request->name,
                     'isdelete' => 0,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
@@ -272,7 +272,7 @@ class LibraryController extends Controller
                 QueryAPI::update('branchs', $id, [
                     'code' => $request->code,
                     'name' => $request->name,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'alamat' => $request->address,
@@ -303,7 +303,7 @@ class LibraryController extends Controller
         try {
             QueryAPI::update('branchs', $id, [
                 'isdelete' => 1,
-                'updateby' => session('name'),
+                'updateby' => session('username'),
                 'updatedate' => date('Y-m-d H:i:s'),
                 'updateterminal' => $request->ip(),
             ], false);

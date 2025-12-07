@@ -71,7 +71,7 @@ class SettingSystemController extends Controller
     private function getAuditData(Request $request)
     {
         $currentDate = date('Y-m-d H:i:s');
-        $userName = session('name', 'system');
+        $userName = session('username', 'system');
         $ip = $request->ip();
 
         return [

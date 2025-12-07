@@ -23,7 +23,7 @@ class AboutUsController extends Controller
             if ($template) {
                 QueryAPI::update('settingparameters', ($template->ID ?? null), [
                     '!value_lob' => $request->content,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -31,13 +31,13 @@ class AboutUsController extends Controller
                 QueryAPI::create('settingparameters', [
                     '!value_lob' => $request->content,
                     'name' => 'TentangKamiEdeposit',
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                 ], false);
             }
 

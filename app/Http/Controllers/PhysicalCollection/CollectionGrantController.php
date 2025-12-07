@@ -252,10 +252,10 @@ class CollectionGrantController extends Controller
                     'total_nilai' => $dhd->TOTAL_NILAI,
                     'pengirim' => $dhd->SENDER_LETTER,
                     'keterangan' => $dhd->KETERANGAN,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -263,7 +263,7 @@ class CollectionGrantController extends Controller
                 if ($group) {
                     QueryAPI::update('hibah_detail', $dhd->ID, [
                         'group_id' => $group->ID,
-                        'updateby' => session('name'),
+                        'updateby' => session('username'),
                         'updatedate' => date('Y-m-d H:i:s'),
                         'updateterminal' => $request->ip(),
                     ], false);
@@ -295,7 +295,7 @@ class CollectionGrantController extends Controller
             foreach ($dataHibahDetail as $dhd) {
                 QueryAPI::update('hibah_detail', $dhd->ID, [
                     'group_id' => null,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

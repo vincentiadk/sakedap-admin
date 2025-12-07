@@ -371,7 +371,7 @@ class AcceptController extends Controller
                     QueryAPI::update('letter', $id, [
                         'status' => ($param === 'save-verification') ? $status : $requestStatus,
                         'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('name') : null,
+                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('username') : null,
                     ], false);
 
                     $response = [

@@ -263,21 +263,12 @@ class DeliveryVerificationController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
-                $disabled = '';
-                $isSuperAdmin = !Main::isNotSuperAdmin();
-                $currentUsername = session('username');
-                $verificatorUsername = $val->IS_VERIFICATION_BY ?? '';
-
-                if (!$isSuperAdmin && !empty($verificatorUsername) && $verificatorUsername !== $currentUsername) {
-                    $disabled = 'disabled';
-                }
-
                 $iconClass = in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check';
                 $buttonText = 'Detail';
                 $detailUrl = url('physical-delivery/delivery-verification/detail/' . $val->LETTER_ID);
 
                 $action = '
-                    <button type="button" class="btn btn-primary btn-sm text-nowrap" data-url="' . $detailUrl . '" ' . $disabled . ' onclick="if (!this.disabled) { window.location.href = this.getAttribute(\'data-url\'); }"><i class="' . $iconClass . ' me-1"></i>' . $buttonText . '</button>
+                    <button type="button" class="btn btn-primary btn-sm text-nowrap" data-url="' . $detailUrl . '" onclick="window.location.href = this.getAttribute(\'data-url\');"><i class="' . $iconClass . ' me-1"></i>' . $buttonText . '</button>
                 ';
 
                 $data[] = [
@@ -373,44 +364,9 @@ class DeliveryVerificationController extends Controller
                 exit;
             }
 
-            if ($isVerifiableNow && empty($verificatorUsername)) {
-                if (!$isSuperAdmin) {
-                    QueryAPI::update('letter', $letterId, [
-                        'is_verification_by' => $currentUser,
-                        'proses_by' => session('name'),
-                    ], false);
-
-                    $letter = QueryAPI::get($letterSql, true);
-                    $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
-                }
-
-                $disable = null;
-            } else if (!empty($verificatorUsername)) {
-                if ($isSuperAdmin && $verificatorUsername !== $currentUser) {
-                    $disable = 'disabled';
-                } else {
-                    $disable = null;
-                }
-            } else {
-                $disable = 'disabled';
-            }
-
             if ($request->ajax()) {
                 try {
                     $param = $request->input('param');
-
-                    if ($param === 'cancel') {
-                        QueryAPI::update('letter', $letterId, [
-                            'is_verification_by' => null,
-                            'proses_by' => null,
-                        ], false);
-
-                        return response()->json([
-                            'code' => 200,
-                            'message' => 'Verifikasi telah dibatalkan'
-                        ]);
-                    }
-
                     $letterDetailIds = $request->input('letter_detail_id', []);
                     $quantities = $request->input('letter_detail_quantity', []);
                     $qtyAccepts = $request->input('letter_detail_qty_accept', []);
@@ -450,9 +406,8 @@ class DeliveryVerificationController extends Controller
                         $letterUpdateData['accept_date'] = date('Y-m-d H:i:s');
                     }
 
-                    if (in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL'])) {
-                        $letterUpdateData['proses_by'] = session('name');
-                    }
+                    $letterUpdateData['is_verification_by'] = session('username');
+                    $letterUpdateData['proses_by'] = session('username');
 
                     QueryAPI::update('letter', $letterId, $letterUpdateData, false);
 
@@ -478,7 +433,6 @@ class DeliveryVerificationController extends Controller
                 'data' => [
                     'letter' => $letter,
                     'letterDetail' => $letterDetail,
-                    'disabled' => $disable,
                     'content' => 'physical-delivery.delivery-verification-detail',
                     'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                     'plugins' => [

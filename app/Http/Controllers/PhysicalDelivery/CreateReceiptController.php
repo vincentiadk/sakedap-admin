@@ -186,7 +186,7 @@ class CreateReceiptController extends Controller
                     }
 
                     $now = date('Y-m-d H:i:s');
-                    $currentUser = session('name');
+                    $currentUser = session('username');
                     $currentIp = $request->ip();
                     $cacheDuration = 60;
 
@@ -235,7 +235,7 @@ class CreateReceiptController extends Controller
                         'branch_id' => $request->branch_id,
                         'receipt_no' => $receiptNumber,
                         'berat' => $weight,
-                        'proses_by' => session('name'),
+                        'proses_by' => session('username'),
                     ], $auditData);
 
                     $letter = QueryAPI::create('letter', $letterData, false);

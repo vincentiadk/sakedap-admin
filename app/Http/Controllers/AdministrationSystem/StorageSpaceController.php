@@ -217,10 +217,10 @@ class StorageSpaceController extends Controller
                     'name' => $request->name,
                     'description' => $request->description,
                     'locationlibrary_id' => $request->location_library_id,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -301,7 +301,7 @@ class StorageSpaceController extends Controller
                     'name' => $request->name,
                     'description' => $request->description,
                     'locationlibrary_id' => $request->location_library_id,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

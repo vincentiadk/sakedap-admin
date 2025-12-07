@@ -168,10 +168,10 @@ class DistrictController extends Controller
                 QueryAPI::create('kecamatan', [
                     'namakec' => $request->name,
                     'kabupatenid' => $request->city_id,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -230,7 +230,7 @@ class DistrictController extends Controller
                 QueryAPI::update('kecamatan', $id, [
                     'namakec' => $request->name,
                     'kabupatenid' => $request->city_id,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

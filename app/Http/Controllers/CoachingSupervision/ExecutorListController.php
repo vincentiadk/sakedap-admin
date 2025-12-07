@@ -326,7 +326,7 @@ class ExecutorListController extends Controller
                     'fax2' => $request->fax_alternative,
                     'website' => $request->website,
                     'rata_terbitan' => $request->publication_average,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'jwt' => $request->jwt ?? null,

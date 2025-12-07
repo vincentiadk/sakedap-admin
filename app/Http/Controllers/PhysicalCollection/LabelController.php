@@ -247,7 +247,7 @@ class LabelController extends Controller
         ");
 
         $pdf = Pdf::setOptions([
-            'adminUsername' => session('name'),
+            'adminUsername' => session('username'),
         ])->loadView('pdf.label', [
             'title' => 'Cetak Label',
             'data' => $listCollection,

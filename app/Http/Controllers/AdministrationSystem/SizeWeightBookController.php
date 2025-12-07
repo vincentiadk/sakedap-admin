@@ -173,10 +173,10 @@ class SizeWeightBookController extends Controller
                     'value' => $request->value,
                     'faktor_harga' => $request->price,
                     'berat' => $request->weight,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -241,7 +241,7 @@ class SizeWeightBookController extends Controller
                     'value' => $request->value,
                     'faktor_harga' => $request->price,
                     'berat' => $request->weight,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);

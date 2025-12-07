@@ -96,7 +96,7 @@ class AuthController extends Controller
                     if ($hash) {
                         $change = QueryAPI::update('users', session('id'), [
                             'password' => $hash->Output,
-                            'updateby' => session('name'),
+                            'updateby' => session('username'),
                             'updatedate' => date('Y-m-d H:i:s'),
                             'updateterminal' => $request->ip(),
                         ], false);
@@ -145,7 +145,7 @@ class AuthController extends Controller
                     $change = QueryAPI::update('users', session('id'), [
                         'fullname' => $request->name,
                         'emailaddress' => $request->email,
-                        'updateby' => session('name'),
+                        'updateby' => session('username'),
                         'updatedate' => date('Y-m-d H:i:s'),
                         'updateterminal' => $request->ip(),
                     ], false);

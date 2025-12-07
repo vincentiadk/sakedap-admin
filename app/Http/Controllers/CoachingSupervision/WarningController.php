@@ -407,8 +407,8 @@ class WarningController extends Controller
                     'warning_date_3' => $request->warning_date_3,
                     'tagihan_koleksi' => $request->bill_collection,
                     'status' => $request->status,
-                    'createby' => session('name'),
-                    'updateby' => session('name'),
+                    'createby' => session('username'),
+                    'updateby' => session('username'),
                 ]);
 
                 if ($createData) {
@@ -531,7 +531,7 @@ class WarningController extends Controller
                     'warning_date_3' => $request->warning_date_3,
                     'tagihan_koleksi' => (int) $request->bill_collection ?? 0,
                     'status' => $request->status,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                 ]);
 
                 if ($updateData) {

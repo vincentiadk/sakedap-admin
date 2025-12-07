@@ -184,10 +184,10 @@ class DepoController extends Controller
                     'code' => $request->code,
                     'name' => $request->name,
                     'isdelete' => 0,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'branch_id' => (int) $request->branch_id,
@@ -249,7 +249,7 @@ class DepoController extends Controller
                 QueryAPI::update('location_library', $id, [
                     'code' => $request->code,
                     'name' => $request->name,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                     'branch_id' => $request->branch_id,
@@ -277,7 +277,7 @@ class DepoController extends Controller
         try {
             QueryAPI::update('location_library', $id, [
                 'isdelete' => 1,
-                'updateby' => session('name'),
+                'updateby' => session('username'),
                 'updatedate' => date('Y-m-d H:i:s'),
                 'updateterminal' => $request->ip(),
             ], false);

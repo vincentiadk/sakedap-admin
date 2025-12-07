@@ -164,10 +164,10 @@ class ComplianceController extends Controller
                 QueryAPI::create('e_kepatuhan_kckr', [
                     'name' => $request->name,
                     'persen' => $request->percentage,
-                    'createby' => session('name'),
+                    'createby' => session('username'),
                     'createdate' => date('Y-m-d H:i:s'),
                     'createterminal' => $request->ip(),
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
@@ -226,7 +226,7 @@ class ComplianceController extends Controller
                 QueryAPI::update('e_kepatuhan_kckr', $id, [
                     'name' => $request->name,
                     'persen' => $request->percentage,
-                    'updateby' => session('name'),
+                    'updateby' => session('username'),
                     'updatedate' => date('Y-m-d H:i:s'),
                     'updateterminal' => $request->ip(),
                 ], false);
