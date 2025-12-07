@@ -284,7 +284,7 @@ class CreateReceiptController extends Controller
                                 'copy' => $qtyAccept + $qtyReject,
                                 'quantity' => 1,
                                 'letter_id' => $letter->LETTER_ID ?? null,
-                                'remark' => implode(';', $request->ci_description[$key] ?? ''),
+                                'remark' => implode(';', $request->ci_description[$key] ?? []),
                                 'author' => $isbn->kepeng,
                                 'publisher' => $isbn->nama_penerbit,
                                 'isbn' => $code,
@@ -369,7 +369,7 @@ class CreateReceiptController extends Controller
                                 'quantity' => 1,
                                 'price' => str_replace(',', '', ($request->cni_price[$key] ?? 0)),
                                 'letter_id' => $letter->LETTER_ID ?? null,
-                                'remark' => implode(';', $request->cni_description[$key] ?? ''),
+                                'remark' => implode(';', $request->cni_description[$key] ?? []),
                                 'author' => $author,
                                 'publisher' => $catalog->NAME_PENERBIT ?? $executor,
                                 'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
@@ -396,36 +396,41 @@ class CreateReceiptController extends Controller
 
                     if ($request->cp) {
                         foreach ($request->cp as $key => $cp) {
-                            $catalogId = $request->cp_catalog_id[$key] ?? null;
-                            if (!$catalogId) continue;
+                            $catalogId = isset($request->cp_catalog_id[$key]) ? $request->cp_catalog_id[$key] : 0;
+                            $manualTitle = isset($request->cp_manual_title[$key]) ? $request->cp_manual_title[$key] : null;
 
                             foreach ($request->cpe[$key] as $keys => $cpe) {
                                 $qtyReject = (int) ($request->cpe_qty_reject[$key][$keys] ?? 0);
+                                $catalog = null;
+
                                 if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
+
                                 $totalPackage++;
 
-                                $catalogCacheKey = "catalog:detail:{$catalogId}";
+                                if ($catalogId) {
+                                    $catalogCacheKey = "catalog:detail:{$catalogId}";
 
-                                $catalog = Cache::remember($catalogCacheKey, $cacheDuration, function () use ($catalogId) {
-                                    $catalogQuery = "
-                                        select
-                                            catalogs.*,
-                                            penerbit.name as name_penerbit,
-                                            penerbit.alamat as alamat_penerbit,
-                                            kabupaten.namakab as namakab,
-                                            kabupaten.propinsiid as propinsiid
-                                        from
-                                            catalogs
-                                        left join
-                                            penerbit on penerbit.id = catalogs.penerbit_id
-                                        left join
-                                            kabupaten on kabupaten.id = penerbit.city_id
-                                        where
-                                            catalogs.id = $catalogId
-                                    ";
+                                    $catalog = Cache::remember($catalogCacheKey, $cacheDuration, function () use ($catalogId) {
+                                        $catalogQuery = "
+                                            select
+                                                catalogs.*,
+                                                penerbit.name as name_penerbit,
+                                                penerbit.alamat as alamat_penerbit,
+                                                kabupaten.namakab as namakab,
+                                                kabupaten.propinsiid as propinsiid
+                                            from
+                                                catalogs
+                                            left join
+                                                penerbit on penerbit.id = catalogs.penerbit_id
+                                            left join
+                                                kabupaten on kabupaten.id = penerbit.city_id
+                                            where
+                                                catalogs.id = $catalogId
+                                        ";
 
-                                    return QueryAPI::get($catalogQuery, true);
-                                });
+                                        return QueryAPI::get($catalogQuery, true);
+                                    });
+                                }
 
                                 $qtyAccept = (int) ($request->cpe_qty_accept[$key][$keys] ?? 0);
                                 $edition = $request->cpe_edition[$key][$keys] ?? null;
@@ -433,8 +438,8 @@ class CreateReceiptController extends Controller
                                 $endTTES = $request->cpe_end_ttes[$key][$keys] ?? null;
 
                                 $letterDetailData = [
-                                    'title' => $catalog->TITLE ?? null,
-                                    'remark' => implode(';', $request->cpe_description[$key][$keys] ?? ''),
+                                    'title' => $catalog->TITLE ?? ($manualTitle ?? ''),
+                                    'remark' => implode(';', $request->cpe_description[$key][$keys] ?? []),
                                     'copy' => $qtyAccept + $qtyReject,
                                     'quantity' => 1,
                                     'price' => $catalog->PRICE ?? null,

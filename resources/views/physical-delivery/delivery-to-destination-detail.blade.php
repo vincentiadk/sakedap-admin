@@ -58,6 +58,7 @@
                         <tr>
                             <th class="text-center" rowspan="2">No</th>
                             <th class="text-center" rowspan="2">Check</th>
+                            <th rowspan="2">Cover</th>
                             <th rowspan="2">Judul</th>
                             <th rowspan="2">ISBN</th>
                             <th rowspan="2">Jilid</th>
