@@ -62,9 +62,10 @@
                         <label class="form-label">Tanggal :</label>
                         <div class="input-group">
                             <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
-                                <option value="accept_date">Diterima</option>
-                                <option value="letter_date">Pengiriman</option>
-                                <option value="createdate">Dibuat</option>
+                                <option value="letter.accept_date">Diterima</option>
+                                <option value="letter.letter_date">Pengiriman</option>
+                                <option value="letter.createdate">Dibuat</option>
+                                <option value="hibah_detail.createdate">Hibah</option>
                             </select>
                             <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
                         </div>

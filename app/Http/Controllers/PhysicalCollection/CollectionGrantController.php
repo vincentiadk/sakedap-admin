@@ -73,7 +73,7 @@ class CollectionGrantController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "($request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and $request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
