@@ -85,6 +85,14 @@
                                 $totalReject = $totalSent;
                                 $fileCover = asset('assets/no-file.jpg');
 
+                                $checked = $ld->CHECKED;
+                                $verifiedBy = $ld->VERIFIED_BY;
+                                $currentUsername = session('username');
+                                $isAdmin = !Main::isNotSuperAdmin(); 
+                                $isOpen = ($checked != 1 && empty($verifiedBy));
+                                $isOwner = ($verifiedBy == $currentUsername);
+                                $canEdit = $isAdmin || $isOpen || $isOwner;
+
                                 if ($code) {
                                     $getDataISBN = ISBN::get('search', [
                                         'code' => $code
@@ -138,14 +146,20 @@
                                 }
                             @endphp
                             <tr>
-                                <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
-                                <input type="hidden" name="letter_detail_total" value="{{ $totalSent }}">
+                                @if($canEdit)
+                                    <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
+                                    <input type="hidden" name="letter_detail_total" value="{{ $totalSent }}">
+                                @endif
 
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-center">
                                     <center>
-                                        <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
-                                        <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }} {{ $disabled }}>
+                                        @if($canEdit)
+                                            <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
+                                            <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }}>
+                                        @else
+                                            {{ $verifiedBy }}
+                                        @endif
                                     </center>
                                 </td>
                                 <td class="text-center">
@@ -158,27 +172,27 @@
                                 <td class="text-wrap">{{ $ld->NOMORPANGGILJILID }}</td>
                                 <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
                                 <td>
-                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_system[]" value="{{ $totalSystem }}" readonly>
+                                    <input type="number" class="form-control form-control-plaintext" @if($canEdit) name="letter_detail_system[]" @endif value="{{ $totalSystem }}" readonly @if(!$canEdit) disabled @endif>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control form-control-plaintext" name="letter_detail_quantity[]" value="{{ $ld->COPY }}" readonly>
+                                    <input type="number" class="form-control form-control-plaintext" @if($canEdit) name="letter_detail_quantity[]" @endif value="{{ $ld->COPY }}" readonly @if(!$canEdit) disabled @endif>
                                 </td>
                                 <td>
-                                    <select class="form-select" name="letter_detail_qty_accept[]" onchange="calculateQty(this, 'accept')" {{ $disabled }}>
+                                    <select class="form-select" @if($canEdit) name="letter_detail_qty_accept[]" @endif onchange="calculateQty(this, 'accept')" @if(!$canEdit) disabled @endif>
                                         @for($i = 0; $i <= $maxAccept; $i++)
                                             <option value="{{ $i }}" {{ ($totalAccept) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-select" name="letter_detail_qty_reject[]" onchange="calculateQty(this, 'reject')" {{ $disabled }}>
+                                    <select class="form-select" @if($canEdit) name="letter_detail_qty_reject[]" @endif onchange="calculateQty(this, 'reject')" @if(!$canEdit) disabled @endif>
                                         @for($i = 0; $i <= $totalSent; $i++)
                                             <option value="{{ $i }}" {{ ($totalReject) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-select" name="letter_detail_remark[][]" multiple {{ $disabled }}>
+                                    <select class="form-select" @if($canEdit) name="letter_detail_remark[][]" @endif multiple @if(!$canEdit) disabled @endif>
                                         @php
                                             $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
                                             $remark = [];
@@ -203,7 +217,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" name="letter_detail_note[]" value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="...................." {{ $disabled }}>
+                                    <input type="text" class="form-control" @if($canEdit) name="letter_detail_note[]" @endif value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="...................." @if(!$canEdit) disabled @endif>
                                 </td>
                             </tr>
                         @endforeach
@@ -211,34 +225,32 @@
                 </table>
             </div>
         </div>
-        @if(!$disabled && session('username') == $letter->IS_VERIFICATION_BY)
-            <div class="card">
-                <div class="card-body">
-                    <div class="justify-content-end d-flex">
-                        <div class="input-group me-2">
-                            <span class="input-group-text">Status</span>
-                            <select class="form-select wmin-200" name="status" id="status">
-                                <option value="DALAM PENGIRIMAN" {{ $letter->STATUS == 'DALAM PENGIRIMAN' ? 'selected' : '' }}>DALAM PENGIRIMAN</option>
-                                <option value="TERKIRIM" {{ $letter->STATUS == 'TERKIRIM' ? 'selected' : '' }}>TERKIRIM</option>
-                                <option value="CEK FISIK" {{ $letter->STATUS == 'CEK FISIK' ? 'selected' : '' }}>CEK FISIK</option>
-                            </select>
-                        </div>
-                        <button type="button" class="btn btn-danger text-nowrap me-2" onclick="submitted('cancel')">
-                            <i class="ph-x me-1"></i>
-                            Batal Verifikasi
-                        </button>
-                        <button type="button" class="btn btn-warning text-nowrap me-2" onclick="submitted('save')">
-                            <i class="ph-floppy-disk me-1"></i>
-                            Simpan
-                        </button>
-                        <button type="button" class="btn btn-success text-nowrap" onclick="submitted('save-verification')">
-                            <i class="ph-check me-1"></i>
-                            Simpan & Verifikasi
-                        </button>
+        <div class="card">
+            <div class="card-body">
+                <div class="justify-content-end d-flex">
+                    <div class="input-group me-2">
+                        <span class="input-group-text">Status</span>
+                        <select class="form-select wmin-200" name="status" id="status">
+                            <option value="DALAM PENGIRIMAN" {{ $letter->STATUS == 'DALAM PENGIRIMAN' ? 'selected' : '' }}>DALAM PENGIRIMAN</option>
+                            <option value="TERKIRIM" {{ $letter->STATUS == 'TERKIRIM' ? 'selected' : '' }}>TERKIRIM</option>
+                            <option value="CEK FISIK" {{ $letter->STATUS == 'CEK FISIK' ? 'selected' : '' }}>CEK FISIK</option>
+                        </select>
                     </div>
+                    <button type="button" class="btn btn-danger text-nowrap me-2" onclick="submitted('cancel')">
+                        <i class="ph-x me-1"></i>
+                        Batal Verifikasi
+                    </button>
+                    <button type="button" class="btn btn-warning text-nowrap me-2" onclick="submitted('save')">
+                        <i class="ph-floppy-disk me-1"></i>
+                        Simpan
+                    </button>
+                    <button type="button" class="btn btn-success text-nowrap" onclick="submitted('save-verification')">
+                        <i class="ph-check me-1"></i>
+                        Simpan & Verifikasi
+                    </button>
                 </div>
             </div>
-        @endif
+        </div>
     </form>
 </div>
 

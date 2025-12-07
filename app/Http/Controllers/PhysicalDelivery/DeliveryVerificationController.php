@@ -16,7 +16,7 @@ class DeliveryVerificationController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null") ?? [],
+                'verifiedBy' => QueryAPI::get("select distinct(verified_by) from letter where verified_by is not null") ?? [],
                 'content' => 'physical-delivery.delivery-verification',
                 'plugins' => [
                     'datatable',
@@ -32,7 +32,6 @@ class DeliveryVerificationController extends Controller
         $column = [
             'l.letter_id',
             null,
-            'l.is_verification_by',
             'p.name',
             'l.receipt_no',
             'jp.name',
@@ -44,7 +43,6 @@ class DeliveryVerificationController extends Controller
             null,
             null,
             'l.status',
-            'l.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -64,8 +62,8 @@ class DeliveryVerificationController extends Controller
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
-        if ($request->proses_by) {
-            $whereCondition[] = "l.proses_by = '$request->proses_by'";
+        if ($request->verified_by) {
+            $whereCondition[] = "ld.verified_by = '$request->verified_by'";
         }
 
         if ($request->receipt_no) {
@@ -215,9 +213,7 @@ class DeliveryVerificationController extends Controller
                                 l.letter_id,
                                 l.status,
                                 l.receipt_no,
-                                l.proses_by,
                                 l.penerbit_id,
-                                l.is_verification_by,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
@@ -274,7 +270,6 @@ class DeliveryVerificationController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->IS_VERIFICATION_BY,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
@@ -282,7 +277,6 @@ class DeliveryVerificationController extends Controller
                     $val->TOTAL_TITLE_DELIVERY,
                     $val->TOTAL_EKS_DELIVERY,
                     $val->STATUS,
-                    $val->PROSES_BY,
                 ];
 
                 $start++;
@@ -388,8 +382,10 @@ class DeliveryVerificationController extends Controller
                             'qty_accept' => $qtyAccept,
                             'qty_reject' => $qtyReject,
                             'remark' => is_array($remark) ? implode(';', $remark) : $remark,
-                            'checked' => $checked,
+                            'checked' => $checked ? 1 : null,
                             'isbn_status' => $note,
+                            'verified_by' => $checked ? session('username') : null,
+                            'verified_date' => $checked ? date('Y-m-d H:i:s') : null,
                         ], false);
 
                         if ($qtyAccept < $quantity) {

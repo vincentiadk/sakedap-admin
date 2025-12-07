@@ -72,12 +72,12 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label">Proses By :</label>
-                            <select class="form-select select2-basic" name="proses_by" id="proses_by" data-placeholder="Semua">
+                            <label class="form-label">Verified By :</label>
+                            <select class="form-select select2-basic" name="verified_by" id="verified_by" data-placeholder="Semua">
                                 <option value="">Semua</option>
-                                @if($prosesBy)
-                                    @foreach($prosesBy as $pb)
-                                        <option value="{{ $pb->PROSES_BY }}">{{ $pb->PROSES_BY }}</option>
+                                @if($verifiedBy)
+                                    @foreach($verifiedBy as $pb)
+                                        <option value="{{ $pb->VERIFIED_BY }}">{{ $pb->VERIFIED_BY }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -188,14 +188,12 @@
                     <tr>
                         <th class="text-nowrap" rowspan="2">No</th>
                         <th class="text-nowrap" rowspan="2">Aksi</th>
-                        <th class="text-nowrap" rowspan="2">User</th>
                         <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
                         <th class="text-nowrap" rowspan="2">Resi</th>
                         <th class="text-nowrap" rowspan="2">Jasa Kirim</th>
                         <th class="text-nowrap" rowspan="2">Tujuan</th>
                         <th class="text-nowrap text-center" colspan="2">Pengiriman</th>
                         <th class="text-nowrap" rowspan="2">Status</th>
-                        <th class="text-nowrap" rowspan="2">Proses By</th>
                     </tr>
                     <tr>
                         <th class="text-nowrap text-center">Judul</th>
@@ -257,14 +255,12 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
