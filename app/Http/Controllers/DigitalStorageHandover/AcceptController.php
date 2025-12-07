@@ -175,7 +175,7 @@ class AcceptController extends Controller
                         ) data
                 )
             where
-                rnum > $start and rnum <= $length
+                rnum > $start and rownum <= $length
         ");
 
         if ($queryData) {
@@ -267,7 +267,7 @@ class AcceptController extends Controller
                             cf.mime,
                             cf.file_size,
                             cf.method,
-                            row_number() over (order by cf.id asc) as rn
+                            row_number() over (order by cf.id desc) as rn
                         from
                             catalogfiles cf
                         where
@@ -287,7 +287,7 @@ class AcceptController extends Controller
                             cc.mime,
                             cc.file_size,
                             cc.method,
-                            row_number() over (order by cc.id asc) as rn
+                            row_number() over (order by cc.id desc) as rn
                         from
                             catalogcovers cc
                         where

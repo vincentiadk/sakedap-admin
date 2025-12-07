@@ -43,7 +43,7 @@ class LogAWBController extends Controller
                         ) data
                 )
             where
-                rnum >= $startRow and rnum <= $endRow
+                rnum >= $startRow and rownum <= $endRow
         ");
 
 

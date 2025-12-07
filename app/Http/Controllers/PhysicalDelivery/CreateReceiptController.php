@@ -236,6 +236,8 @@ class CreateReceiptController extends Controller
                         'receipt_no' => $receiptNumber,
                         'berat' => $weight,
                         'proses_by' => session('username'),
+                        'sent_date' => $now,
+                        'check_date' => $now,
                     ], $auditData);
 
                     $letter = QueryAPI::create('letter', $letterData, false);

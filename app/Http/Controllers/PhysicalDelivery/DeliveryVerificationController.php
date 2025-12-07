@@ -33,6 +33,9 @@ class DeliveryVerificationController extends Controller
             'l.letter_id',
             null,
             'p.name',
+            'l.status',
+            'l.sent_date',
+            'l.check_date',
             'l.receipt_no',
             'jp.name',
             'b.name',
@@ -42,7 +45,6 @@ class DeliveryVerificationController extends Controller
             null,
             null,
             null,
-            'l.status',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -214,6 +216,8 @@ class DeliveryVerificationController extends Controller
                                 l.status,
                                 l.receipt_no,
                                 l.penerbit_id,
+                                l.sent_date,
+                                l.check_date,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
@@ -253,7 +257,7 @@ class DeliveryVerificationController extends Controller
                         ) data
                 )
             where
-                rnum > $start and rnum <= $length
+                rnum > $start and rownum <= $length
         ");
 
         if ($queryData) {
@@ -267,16 +271,58 @@ class DeliveryVerificationController extends Controller
                     <button type="button" class="btn btn-primary btn-sm text-nowrap" data-url="' . $detailUrl . '" onclick="window.location.href = this.getAttribute(\'data-url\');"><i class="' . $iconClass . ' me-1"></i>' . $buttonText . '</button>
                 ';
 
+                $sentDateHTML = '
+                    <div>' . Carbon::parse($val->SENT_DATE)->isoFormat('D MMM Y') . '</div>
+                    <small class="text-muted">Jam : ' . Carbon::parse($val->SENT_DATE)->format('H:i') . ' WIB</small>
+                ';
+
+                $sentDateDB = $val->SENT_DATE;
+                $checkDateDB = null;
+                $sentDate = Carbon::parse($sentDateDB);
+
+                if ($checkDateDB) {
+                    $endDate = Carbon::parse($checkDateDB);
+                } else {
+                    $endDate = Carbon::now();
+                }
+
+                $seconds = round($sentDate->diffInSeconds($endDate));
+                $minutes = round($sentDate->diffInMinutes($endDate));
+                $hours = round($sentDate->diffInHours($endDate));
+                $days = round($sentDate->diffInDays($endDate));
+
+                if ($days > 0) {
+                    $aging = '
+                        <div>' . $days . ' Hari</div>
+                    ';
+                } else if ($hours > 0) {
+                    $aging = '
+                        <div>' . $hours . ' Jam</div>
+                    ';
+                } else if ($minutes > 0) {
+                    $aging = '
+                        <div>' . $minutes . ' Menit</div>
+                    ';
+                } else if ($seconds > 0) {
+                    $aging = '
+                        <div>' . $seconds . ' Detik</div>
+                    ';
+                } else {
+                    $aging = 'Tidak Ada';
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
+                    $val->STATUS,
+                    $sentDateHTML,
+                    $aging,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->NAME_BRANCH,
                     $val->TOTAL_TITLE_DELIVERY,
                     $val->TOTAL_EKS_DELIVERY,
-                    $val->STATUS,
                 ];
 
                 $start++;
@@ -404,6 +450,10 @@ class DeliveryVerificationController extends Controller
 
                     $letterUpdateData['is_verification_by'] = session('username');
                     $letterUpdateData['proses_by'] = session('username');
+
+                    if (empty($letter->CHECK_DATE ?? '') && in_array($letterUpdateData['status'], ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL'])) {
+                        $letterUpdateData['check_date'] = date('Y-m-d H:i:s');
+                    }
 
                     QueryAPI::update('letter', $letterId, $letterUpdateData, false);
 

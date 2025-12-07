@@ -51,6 +51,7 @@
                                 <option value="accept_date">Diterima</option>
                                 <option value="letter_date">Pengiriman</option>
                                 <option value="createdate">Dibuat</option>
+                                <option value="createdate">Sampai</option>
                             </select>
                         </div>
                     </div>
@@ -189,11 +190,13 @@
                         <th class="text-nowrap" rowspan="2">No</th>
                         <th class="text-nowrap" rowspan="2">Aksi</th>
                         <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
+                        <th class="text-nowrap" rowspan="2">Status</th>
+                        <th class="text-nowrap" rowspan="2">Tgl Sampai</th>
+                        <th class="text-nowrap" rowspan="2">Aging</th>
                         <th class="text-nowrap" rowspan="2">Resi</th>
                         <th class="text-nowrap" rowspan="2">Jasa Kirim</th>
                         <th class="text-nowrap" rowspan="2">Tujuan</th>
                         <th class="text-nowrap text-center" colspan="2">Pengiriman</th>
-                        <th class="text-nowrap" rowspan="2">Status</th>
                     </tr>
                     <tr>
                         <th class="text-nowrap text-center">Judul</th>
@@ -232,7 +235,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [[4, 'asc'], [3, 'desc']],
             ajax: {
                 url: '{{ url("physical-delivery/delivery-verification/datatable") }}',
                 dataType: 'JSON',
@@ -257,10 +260,12 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

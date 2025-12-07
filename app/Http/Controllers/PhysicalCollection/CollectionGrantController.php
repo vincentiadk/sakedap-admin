@@ -171,7 +171,7 @@ class CollectionGrantController extends Controller
                         ) data
                 )
             where
-                rnum > $start and rnum <= $length
+                rnum > $start and rownum <= $length
         ");
 
         if ($queryData) {

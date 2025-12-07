@@ -175,7 +175,7 @@ class ReviewEditionController extends Controller
                         ) data
                 )
             where
-                rnum > $start and rnum <= $length
+                rnum > $start and rownum <= $length
         ");
 
         if ($queryData) {
@@ -257,7 +257,7 @@ class ReviewEditionController extends Controller
                 (
                     select
                         cf.e_col_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
-                        row_number() over (partition by cf.e_col_id order by cf.id asc) as rn
+                        row_number() over (partition by cf.e_col_id order by cf.id desc) as rn
                     from
                         catalogfiles cf
                 ) cfr on cfr.e_col_id = ec.id and cfr.rn = 1
@@ -265,7 +265,7 @@ class ReviewEditionController extends Controller
                 (
                     select
                         cc.e_col_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
-                        row_number() over (partition by cc.e_col_id order by cc.id asc) as rn
+                        row_number() over (partition by cc.e_col_id order by cc.id desc) as rn
                     from
                         catalogcovers cc
                 ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
