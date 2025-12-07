@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Kepeng :</label>
+                        <label class="form-label">Kepengarangan :</label>
                         <input type="text" class="form-control" name="author" id="author" placeholder="....................">
                     </div>
                 </div>
@@ -131,7 +131,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap">Status</th>
                         <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Kepeng</th>
+                        <th class="text-nowrap">Kepengarangan</th>
                         <th class="text-nowrap">Pelaksana Serah</th>
                         <th class="text-nowrap">Tahun</th>
                         <th class="text-nowrap">Tempat</th>

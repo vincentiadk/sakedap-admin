@@ -100,7 +100,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label class="form-label">Kepeng :</label>
+                                    <label class="form-label">Kepengarangan :</label>
                                     <input type="text" class="form-control" name="author" id="author" placeholder="Semua">
                                 </div>
                             </div>
