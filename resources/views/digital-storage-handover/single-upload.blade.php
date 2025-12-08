@@ -81,7 +81,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
+                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................."></textarea>
                     </div>
                 </div>
                 <div class="form-group row">

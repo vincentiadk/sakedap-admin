@@ -30,40 +30,40 @@
         <ul class="mb-0" id="validation-data"></ul>
     </div>
     <form id="form-data">
-        <div class="d-flex align-items-stretch align-items-lg-start flex-column flex-lg-row">
-            <div class="flex-1 order-2 order-lg-1">
-                <div class="card" id="scrollspy-history-problem">
-                    <div class="card-header d-flex align-items-center">
-                        <h6 class="mb-0">Histori Masalah</h6>
-                        <div class="ms-auto">
-                            @if($collection->REVISION_COUNT)
-                                <span class="badge bg-danger">{{ $collection->REVISION_COUNT }} Kali Dilakukan Revisi</span>
-                            @else
-                                <span class="badge bg-info">Belum Ada Revisi</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-bordered table-hover">
-                            <tbody>
-                                @if($collectionProblemHistory)
-                                    @foreach($collectionProblemHistory as $cph)
-                                        <tr>
-                                            <td>{{ $cph->NAME_PROBLEM }}</td>
-                                            <td>{{ $cph->CREATED_AT ? Carbon::parse($cph->CREATED_AT)->isoFormat('dddd, D MMMM Y') : null }}</td>
-                                            <td>{{ $cph->SOLVED == 1 ? 'Telah Diperbaiki' : 'Belum Diperbaiki' }}</td>
-                                        </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="3">Tidak ada data</td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h6 class="mb-0">Histori Masalah</h6>
+                <div class="ms-auto">
+                    @if($collection->REVISION_COUNT)
+                        <span class="badge bg-danger">{{ $collection->REVISION_COUNT }} Kali Dilakukan Revisi</span>
+                    @else
+                        <span class="badge bg-info">Belum Ada Revisi</span>
+                    @endif
                 </div>
-                <div class="card" id="scrollspy-executor">
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        @if($collectionProblemHistory)
+                            @foreach($collectionProblemHistory as $cph)
+                                <tr>
+                                    <td>{{ $cph->NAME_PROBLEM }}</td>
+                                    <td>{{ $cph->CREATED_AT ? Carbon::parse($cph->CREATED_AT)->isoFormat('dddd, D MMMM Y') : null }}</td>
+                                    <td>{{ $cph->SOLVED == 1 ? 'Telah Diperbaiki' : 'Belum Diperbaiki' }}</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="3">Tidak ada data</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Pelaksana Serah</h5>
                     </div>
@@ -71,7 +71,7 @@
                         {{ $collection->ID_PENERBIT . ' | ' . $collection->NAME_PENERBIT }}
                     </div>
                 </div>
-                <div class="card" id="scrollspy-meta-data">
+                <div class="card">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Meta Data</h5>
                     </div>
@@ -79,18 +79,23 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" readonly>
-                                    <option value=""></option>
-                                    @foreach($worksheet as $w)
-                                        <option value="{{ $w->ID }}" {{ $collection->WORKSHEET_ID == $w->ID ? 'selected' : '' }}>{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
-                                    @endforeach
+                                <select class="form-select" name="worksheet_id" id="worksheet_id" readonly>
+                                    @if($collection->WORKSHEET_ID)
+                                        @foreach($worksheet as $w)
+                                            @if($collection->WORKSHEET_ID == $w->ID)
+                                                <option value="{{ $w->ID }}" selected>{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <option value="">Tidak Ada</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="title" id="title" value="{{ $collection->TITLE ?? $collection->TITLE_ORI }}" placeholder="....................">
+                                <textarea name="title" class="form-control" id="title" rows="5" placeholder="....................">{{ $collection->TITLE ?? $collection->TITLE_ORI }}</textarea>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -260,11 +265,8 @@
                                 <div class="input-group">
                                     <span class="input-group-text">Total Halaman / Durasi</span>
                                     <input type="number" class="form-control" name="physical_description[paging]" id="physical_description[paging]" value="{{ isset($physicalDescription->paging) ? $physicalDescription->paging : '' }}" placeholder="....................">
-                                    <select class="form-select flex-grow-0 w-auto" name="physical_description[paging_flag]" id="physical_description[paging_flag]">
-                                        <option value="Halaman" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Halaman' ? 'selected' : '') : '' }}>Halaman</option>
-                                        <option value="Menit" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Menit' ? 'selected' : '') : '' }}>Menit</option>
-                                        <option value="Jam" {{ isset($physicalDescription->paging_flag) ? ($physicalDescription->paging_flag == 'Jam' ? 'selected' : '') : '' }}>Jam</option>
-                                    </select>
+                                </div>
+                                <div class="input-group mt-1">
                                     <span class="input-group-text">Ilustrasi</span>
                                     <input type="text" class="form-control" name="physical_description[ill]" list="suggestion-physical-description-ill" id="physical_description[ill]" value="{{ isset($physicalDescription->ill) ? $physicalDescription->ill : '' }}" placeholder="...................." autocomplete="off">
                                     <datalist id="suggestion-physical-description-ill">
@@ -272,6 +274,8 @@
                                         <option value="Ada (Berwarna)">Ada (Berwarna)</option>
                                         <option value="Ada (Tidak Berwarna)">Ada (Tidak Berwarna)</option>
                                     </datalist>
+                                </div>
+                                <div class="input-group mt-1">
                                     <span class="input-group-text">Ukuran / Dimensi</span>
                                     <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" value="{{ isset($physicalDescription->sizes) ? $physicalDescription->sizes : '' }}" placeholder="....................">
                                 </div>
@@ -285,7 +289,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card" id="scrollspy-category">
+                <div class="card" >
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Kategori</h5>
                     </div>
@@ -298,7 +302,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="card" id="scrollspy-author">
+                <div class="card">
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Kontributor</h5>
                     </div>
@@ -310,158 +314,128 @@
                         </select>
                     </div>
                 </div>
-                <div class="card" id="scrollspy-file">
+            </div>
+            <div class="col-md-5">
+                <div class="card">
                     <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File</h5>
+                        <h5 class="hstack gap-2 mb-0">File Konten</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="fw-bold border-bottom pb-2 mb-2">Cover</div>
-                                <div class="alert alert-info mb-2">
-                                    <div><b>Hash :</b> {{ $collection->HASH_CATALOGCOVERS ?? '' }}</div>
-                                    <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGCOVERS ?? '' }}</div>
-                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGCOVERS ?? 0) }}</div>
-                                    <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGCOVERS ?? 0) }}</div>
+                        <div class="alert alert-info mb-2">
+                            <div><b>Hash :</b> {{ $collection->HASH_CATALOGFILES ?? '' }}</div>
+                            <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGFILES ?? '' }}</div>
+                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGFILES ?? 0) }}</div>
+                            <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGFILES ?? 0) }}</div>
+                        </div>
+                        <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
+                            <div id="viewer-content" style="width: 100%; height: 100%;">
+                                <div id="pdf-viewer-container" style="overflow: auto; max-height: 800px; background: #525659; padding: 20px 0; display: none;"></div>
+                                <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
+                                <div id="epub-container" style="display: none; height: 800px; width: 100%; background: white;"></div>
+                                <div id="epub-controls" style="display: none; position: absolute; top: 50%; left: 0; width: 100%; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 10000; transform: translateY(-50%);">
+                                    <button type="button" id="prev-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph-caret-left" style="font-size: 20px;"></i>
+                                    </button>
+                                    <button type="button" id="next-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph-caret-right" style="font-size: 20px;"></i>
+                                    </button>
                                 </div>
-                                <img src="{{ url('stream-file') }}?type=cover&id={{ $collection->ID_CATALOGCOVERS ?? '' }}&filename={{ $collection->FILEURL_CATALOGCOVERS ?? '' }}" class="img-fluid w-100" style="object-fit: contain; max-height: 600px;" alt="Cover Catalog">
-                            </div>
-                            <div class="col-md-6">
-                                <div class="fw-bold border-bottom pb-2 mb-2">Konten</div>
-                                <div class="alert alert-info mb-2">
-                                    <div><b>Hash :</b> {{ $collection->HASH_CATALOGFILES ?? '' }}</div>
-                                    <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGFILES ?? '' }}</div>
-                                    <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGFILES ?? 0) }}</div>
-                                    <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGFILES ?? 0) }}</div>
-                                </div>
-                                <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
-                                    <div id="viewer-content" style="width: 100%; height: 100%;">
-                                        <div id="pdf-viewer-container" style="overflow: auto; max-height: 600px; background: #525659; padding: 20px 0; display: none;"></div>
-                                        <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
-                                        <div id="epub-container" style="display: none; height: 600px; width: 100%; background: white;"></div>
-                                        <div id="epub-controls" style="display: none; position: absolute; top: 50%; left: 0; width: 100%; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 10000; transform: translateY(-50%);">
-                                            <button type="button" id="prev-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
-                                                <i class="ph-caret-left" style="font-size: 20px;"></i>
-                                            </button>
-                                            <button type="button" id="next-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
-                                                <i class="ph-caret-right" style="font-size: 20px;"></i>
-                                            </button>
+                                <div id="audio-wrapper" style="display: none; height: 800px; width: 100%; position: relative; overflow: hidden; border-radius: 8px; background: #000;">
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #023BAD 0%, #06732A 100%); z-index: 1;"></div>
+                                    <canvas id="wave-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0.6;"></canvas>
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; padding: 30px;">
+                                        <div class="d-flex justify-content-between text-white align-items-center" style="font-family: sans-serif;">
+                                            <span id="timer-current" style="font-variant-numeric: tabular-nums;">0:00</span>
+                                            <span class="fw-bold text-uppercase" style="opacity: 0.8; font-size: 14px;">Now Playing</span>
+                                            <span id="timer-duration" style="font-variant-numeric: tabular-nums;">--:--</span>
                                         </div>
-                                        <div id="audio-wrapper" style="display: none; height: 600px; width: 100%; position: relative; overflow: hidden; border-radius: 8px; background: #000;">
-                                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #023BAD 0%, #06732A 100%); z-index: 1;"></div>
-                                            <canvas id="wave-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0.6;"></canvas>
-                                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; padding: 30px;">
-                                                <div class="d-flex justify-content-between text-white align-items-center" style="font-family: sans-serif;">
-                                                    <span id="timer-current" style="font-variant-numeric: tabular-nums;">0:00</span>
-                                                    <span class="fw-bold text-uppercase" style="opacity: 0.8; font-size: 14px;">Now Playing</span>
-                                                    <span id="timer-duration" style="font-variant-numeric: tabular-nums;">--:--</span>
-                                                </div>
-                                                <div class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
-                                                    <h3 id="audio-title-display" class="text-white fw-light" style="text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-                                                        Menyiapkan Audio...
-                                                    </h3>
-                                                </div>
-                                                <div class="d-flex align-items-center justify-content-center gap-4 pb-4" style="position: relative; z-index: 20;">
-                                                    <button type="button" class="btn btn-link text-white p-0" id="btn-rewind" title="-10 Detik">
-                                                        <i class="ph-rewind" style="font-size: 32px;"></i>
-                                                    </button>
-                                                    <div id="play-pause-wrapper" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border-radius: 50%; backdrop-filter: blur(5px); border: 2px solid rgba(255,255,255,0.5); cursor: pointer;transition: transform 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                                                        <i id="icon-play" class="ph-play text-white" style="font-size: 40px; margin-left: 4px;"></i>
-                                                        <i id="icon-pause" class="ph-pause text-white" style="font-size: 40px; display: none;"></i>
-                                                    </div>
-                                                    <button type="button" class="btn btn-link text-white p-0" id="btn-forward" title="+10 Detik">
-                                                        <i class="ph-fast-forward" style="font-size: 32px;"></i>
-                                                    </button>
-                                                </div>
-                                                <div style="position: absolute; bottom: 30px; right: 30px;">
-                                                    <button type="button" id="btn-mute" class="btn btn-link text-white p-0" style="opacity: 0.6;">
-                                                        <i class="ph-speaker-high" id="icon-vol" style="font-size: 24px;"></i>
-                                                    </button>
-                                                </div>
+                                        <div class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
+                                            <h3 id="audio-title-display" class="text-white fw-light" style="text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                                Menyiapkan Audio...
+                                            </h3>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-center gap-4 pb-4" style="position: relative; z-index: 20;">
+                                            <button type="button" class="btn btn-link text-white p-0" id="btn-rewind" title="-10 Detik">
+                                                <i class="ph-rewind" style="font-size: 32px;"></i>
+                                            </button>
+                                            <div id="play-pause-wrapper" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border-radius: 50%; backdrop-filter: blur(5px); border: 2px solid rgba(255,255,255,0.5); cursor: pointer;transition: transform 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <i id="icon-play" class="ph-play text-white" style="font-size: 40px; margin-left: 4px;"></i>
+                                                <i id="icon-pause" class="ph-pause text-white" style="font-size: 40px; display: none;"></i>
                                             </div>
+                                            <button type="button" class="btn btn-link text-white p-0" id="btn-forward" title="+10 Detik">
+                                                <i class="ph-fast-forward" style="font-size: 32px;"></i>
+                                            </button>
                                         </div>
-                                        <div id="default-message" style="display: flex; height: 600px; align-items: center; justify-content: center;">
-                                            <span class="text-muted">Memuat file...</span>
+                                        <div style="position: absolute; bottom: 30px; right: 30px;">
+                                            <button type="button" id="btn-mute" class="btn btn-link text-white p-0" style="opacity: 0.6;">
+                                                <i class="ph-speaker-high" id="icon-vol" style="font-size: 24px;"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
+                                <div id="default-message" style="display: flex; height: 800px; align-items: center; justify-content: center;">
+                                    <span class="text-muted">Memuat file...</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card" id="scrollspy-status">
+                <div class="card">
                     <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">Status</h5>
+                        <h5 class="hstack gap-2 mb-0">File Cover</h5>
                     </div>
                     <div class="card-body">
-                        <div class="form-group">
-                            <div class="btn-group d-flex">
-                                <input type="radio" class="btn-check" name="status" id="status-1" autocomplete="off" value="1" onchange="changeStatus()" checked>
-                                <label class="btn btn-outline-primary" for="status-1">Tinjau</label>
-                                <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
-                                <label class="btn btn-outline-success" for="status-2">Terima</label>
-                                <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
-                                <label class="btn btn-outline-warning" for="status-3">Bermasalah</label>
-                                <input type="radio" class="btn-check" name="status" id="status-5" autocomplete="off" value="5" onchange="changeStatus()">
-                                <label class="btn btn-outline-danger" for="status-5">Tolak</label>
-                            </div>
+                        <div class="alert alert-info mb-2">
+                            <div><b>Hash :</b> {{ $collection->HASH_CATALOGCOVERS ?? '' }}</div>
+                            <div><b>Mime Type :</b> {{ $collection->MIME_CATALOGCOVERS ?? '' }}</div>
+                            <div><b>Ukuran :</b> {{ Main::formatFileSize($collection->FILE_SIZE_CATALOGCOVERS ?? 0) }}</div>
+                            <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGCOVERS ?? 0) }}</div>
                         </div>
-                        <div id="content-change-status"></div>
+                        <img src="{{ url('stream-file') }}?type=cover&id={{ $collection->ID_CATALOGCOVERS ?? '' }}&filename={{ $collection->FILEURL_CATALOGCOVERS ?? '' }}" class="img-fluid w-100" style="object-fit: contain; max-height: 600px;" alt="Cover Catalog">
                     </div>
                 </div>
-                @if($collection->REVIEW_BY == session('username'))
-                    <div class="card" id="scrollspy-submit">
-                        <div class="card-body">
-                            <div class="text-end">
-                                <button type="button" class="btn btn-danger" onclick="submitted('cancel-review')">
-                                    <i class="ph-x me-1"></i>
-                                    Batal Tinjau
-                                </button>
-                                <button type="button" class="btn btn-warning" onclick="submitted('save')">
-                                    <i class="ph-floppy-disk me-1"></i>
-                                    Simpan
-                                </button>
-                                <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
-                                    <i class="ph-check me-1"></i>
-                                    Simpan & Verifikasi
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <div class="sticky-lg-top order-1 order-lg-2 wmin-lg-200 ms-lg-3 mb-3" id="page_nav">
-                <h6 class="fw-semibold mt-lg-3 mb-3">Anchor Link</h6>
-                <ul class="nav nav-scrollspy flex-column">
-                    <li class="nav-item">
-                        <a href="#scrollspy-history-problem" class="nav-link">Histori Masalah</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-executor" class="nav-link">Pelaksana Serah</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-meta-data" class="nav-link">Meta Data</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-category" class="nav-link">Kategori</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-author" class="nav-link">Kontributor</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-file" class="nav-link">File</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#scrollspy-status" class="nav-link">Status</a>
-                    </li>
-                    @if($collection->REVIEW_BY == session('username'))
-                        <li class="nav-item">
-                            <a href="#scrollspy-submit" class="nav-link">Submit</a>
-                        </li>
-                    @endif
-                </ul>
             </div>
         </div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="hstack gap-2 mb-0">Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="btn-group d-flex">
+                        <input type="radio" class="btn-check" name="status" id="status-1" autocomplete="off" value="1" onchange="changeStatus()" checked>
+                        <label class="btn btn-outline-primary" for="status-1">Tinjau</label>
+                        <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
+                        <label class="btn btn-outline-success" for="status-2">Terima</label>
+                        <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
+                        <label class="btn btn-outline-warning" for="status-3">Bermasalah</label>
+                        <input type="radio" class="btn-check" name="status" id="status-5" autocomplete="off" value="5" onchange="changeStatus()">
+                        <label class="btn btn-outline-danger" for="status-5">Tolak</label>
+                    </div>
+                </div>
+                <div id="content-change-status"></div>
+            </div>
+        </div>
+        @if($collection->REVIEW_BY == session('username'))
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-danger" onclick="submitted('cancel-review')">
+                            <i class="ph-x me-1"></i>
+                            Batal Tinjau
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="submitted('save')">
+                            <i class="ph-floppy-disk me-1"></i>
+                            Simpan
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="submitted('save-verification')">
+                            <i class="ph-check me-1"></i>
+                            Simpan & Verifikasi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
     </form>
 </div>
 
@@ -472,7 +446,7 @@
     let audioAnimFrame = null;
 
     $(function() {
-        datePickerSingle('#received_at,#publish_time');
+        datePickerSingle('#received_at, #publish_time');
 
         if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
             select2Serverside('#branch_id', 'branch', {
@@ -585,8 +559,8 @@
         $container.css({
             'display': 'block',
             'width': '100%',
-            'height': '600px',
-            'max-height': '600px',
+            'height': '800px',
+            'max-height': '800px',
             'overflow-y': 'auto',
             'overflow-x': 'hidden',
             'padding': '20px 0',
@@ -691,7 +665,7 @@
 
         const $videoEl = $('#video-player');
 
-        $videoEl.show().css({ 'width': '100%', 'height': '600px' });
+        $videoEl.show().css({ 'width': '100%', 'height': '800px' });
 
         $('#video-watermark-layer').remove();
 
@@ -745,7 +719,7 @@
 
             const watermarkHtml = `
                 <div id="video-watermark-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; overflow: hidden;">
-                    <div style="position: absolute; bottom: 30px; left: 65px; width: 600px; transform: rotate(-90deg); transform-origin: bottom left; text-align: left;">
+                    <div style="position: absolute; bottom: 30px; left: 65px; width: 800px; transform: rotate(-90deg); transform-origin: bottom left; text-align: left;">
                         <div style="font-family: 'Arial', sans-serif; font-size: 11px; line-height: 1.5; color: #fff; opacity: 0.7; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); white-space: nowrap;">
                             <span style="font-weight: bold; text-transform: uppercase;">
                                 Pelaksanaan Undang - Undang Nomor 13 Tahun 2018
