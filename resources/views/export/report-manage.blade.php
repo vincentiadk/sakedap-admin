@@ -74,7 +74,7 @@
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Pelaksana Serah</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Provinsi</th>
             <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Kabupaten</th>
-            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Jenis Bahan</th>
+            <th style="height:25px; border:1px solid black; text-align:left; color:white; vertical-align:center; background:#245DA9;">Jenis Media</th>
         </tr>
     </thead>
     <tbody>
@@ -95,7 +95,7 @@
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAPROPINSI }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAMAKAB }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_WORKSHEET }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_MEDIA }}</td>
                 </tr>
 
                 @php $no++; @endphp

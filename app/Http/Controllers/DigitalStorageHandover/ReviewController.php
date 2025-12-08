@@ -23,7 +23,7 @@ class ReviewController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
                 'content' => 'digital-storage-handover.review',
                 'plugins' => [
                     'datatable',
@@ -42,7 +42,7 @@ class ReviewController extends Controller
             'e_collections.review_by',
             'penerbit.name',
             'e_collections.title',
-            'worksheets.name',
+            'collectionmedias.name',
             'e_collections.code',
             'e_collections.updated_at',
         ];
@@ -87,8 +87,8 @@ class ReviewController extends Controller
             $whereCondition[] = "e_collections.publication_year = $request->year";
         }
 
-        if ($request->worksheet_id) {
-            $whereCondition[] = "e_collections.worksheet_id = $request->worksheet_id";
+        if ($request->media_id) {
+            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -141,6 +141,8 @@ class ReviewController extends Controller
             left join
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
+                collectionmedias on collectionmedias.id = e_collections.collection_media_id
+            left join
                 worksheets on worksheets.id = e_collections.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -158,13 +160,15 @@ class ReviewController extends Controller
                                 e_collections.*,
                                 penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
-                                worksheets.name as name_worksheet
+                                collectionmedias.name as name_media
                             from
                                 e_collections
                             left join
                                 penerbit on penerbit.id = e_collections.penerbit_id
                             left join
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
+                            left join
+                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
                             left join
                                 worksheets on worksheets.id = e_collections.worksheet_id
                             $whereClause
@@ -200,7 +204,7 @@ class ReviewController extends Controller
                     $val->REVIEW_BY,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     ($val->TITLE ?? $val->TITLE_ORI),
-                    $val->NAME_WORKSHEET,
+                    $val->NAME_MEDIA,
                     $val->CODE,
                     Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];

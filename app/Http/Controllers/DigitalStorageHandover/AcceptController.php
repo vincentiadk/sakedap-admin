@@ -21,7 +21,7 @@ class AcceptController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
                 'content' => 'digital-storage-handover.accept',
                 'plugins' => [
                     'datatable',
@@ -39,7 +39,7 @@ class AcceptController extends Controller
             null,
             'penerbit.name',
             'catalogs.title',
-            'worksheets.name',
+            'collectionmedias.name',
             'catalogs.isbn',
             'catalogs.createdate',
         ];
@@ -81,8 +81,8 @@ class AcceptController extends Controller
             $whereCondition[] = "catalogs.publishyear = $request->year";
         }
 
-        if ($request->worksheet_id) {
-            $whereCondition[] = "catalogs.worksheet_id = $request->worksheet_id";
+        if ($request->media_id) {
+            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -142,6 +142,8 @@ class AcceptController extends Controller
                 kabupaten on kabupaten.id = catalogs.city_id
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
+            left join
+                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -161,7 +163,7 @@ class AcceptController extends Controller
                                 catalogs.createdate,
                                 catalogs.penerbit_id,
                                 penerbit.name as name_penerbit,
-                                worksheets.name as name_worksheet
+                                collectionmedias.name as name_media
                             from
                                 catalogs
                             left join
@@ -170,6 +172,8 @@ class AcceptController extends Controller
                                 kabupaten on kabupaten.id = catalogs.city_id
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
+                            left join
+                                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
                             $whereClause
                             $orderBy
                         ) data
@@ -192,7 +196,7 @@ class AcceptController extends Controller
                     $action,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->TITLE,
-                    $val->NAME_WORKSHEET,
+                    $val->NAME_MEDIA,
                     $val->ISBN,
                     Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
                 ];

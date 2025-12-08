@@ -28,11 +28,11 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label">Jenis Bahan :</label>
-                        <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
+                        <label class="form-label">Jenis Media :</label>
+                        <select class="form-select select2-basic" name="media_id" id="media_id" data-placeholder="Semua">
                             <option value=""></option>
-                            @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                            @foreach($media as $m)
+                                <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
                     </div>
@@ -94,7 +94,7 @@
                         <th class="text-nowrap">Provinsi</th>
                         <th class="text-nowrap">Kota</th>
                         <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Jenis Bahan</th>
+                        <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Album</th>
                         <th class="text-nowrap">Seri</th>
                         <th class="text-nowrap">Edisi</th>
@@ -133,11 +133,11 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label class="form-label">Jenis Bahan :</label>
-                            <select class="form-select select2-basic" name="de_worksheet_id" id="de_worksheet_id" data-placeholder="Semua" data-dropdown-parent="#modal-download-excel">
+                            <label class="form-label">Jenis Media :</label>
+                            <select class="form-select select2-basic" name="media_id" id="media_id" data-placeholder="Semua">
                                 <option value=""></option>
-                                @foreach($worksheet as $w)
-                                    <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                                @foreach($media as $m)
+                                    <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                                 @endforeach
                             </select>
                         </div>
@@ -221,7 +221,7 @@
             executor_id: $('#de_executor_id').val(),
             province_id: $('#de_province_id').val(),
             year: $('#de_year').val(),
-            worksheet_id: $('#de_worksheet_id').val(),
+            media_id: $('#de_media_id').val(),
             date: $('#de_date').val(),
         }
 
@@ -246,7 +246,7 @@
                     executor_id: $('#executor_id').val(),
                     province_id: $('#province_id').val(),
                     year: $('#year').val(),
-                    worksheet_id: $('#worksheet_id').val(),
+                    media_id: $('#media_id').val(),
                     date: $('#date').val(),
                 },
                 beforeSend: function() {

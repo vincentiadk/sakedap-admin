@@ -62,8 +62,8 @@ class ReportManageExport implements FromView, ShouldAutoSize
             $whereCondition[] = "catalogs.publishyear = $request->year";
         }
 
-        if ($request->worksheet_id) {
-            $whereCondition[] = "catalogs.worksheet_id = $request->worksheet_id";
+        if ($request->media_id) {
+            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -92,7 +92,7 @@ class ReportManageExport implements FromView, ShouldAutoSize
                 penerbit.name as name_penerbit,
                 propinsi.namapropinsi as namapropinsi,
                 kabupaten.namakab as namakab,
-                worksheets.name as name_worksheet
+                collectionmedias.name as name_media
             from
                 catalogs
             join
@@ -102,7 +102,7 @@ class ReportManageExport implements FromView, ShouldAutoSize
             join
                 propinsi on propinsi.id = kabupaten.propinsiid
             join
-                worksheets on worksheets.id = catalogs.worksheet_id
+                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
             $whereClause
         ");
 

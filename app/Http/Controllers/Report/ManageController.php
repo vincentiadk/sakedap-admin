@@ -26,7 +26,7 @@ class ManageController extends Controller
                 'executor_id' => $request->executor_id,
                 'province_id' => $request->province_id,
                 'year' => $request->year,
-                'worksheet_id' => $request->worksheet_id,
+                'media_id' => $request->media_id,
                 'date' => $request->date
             ];
 
@@ -39,7 +39,7 @@ class ManageController extends Controller
 
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
                 'content' => 'report.manage',
                 'plugins' => [
                     'datatable',
@@ -59,7 +59,7 @@ class ManageController extends Controller
             'propinsi.namapropinsi',
             'kabupaten.namakab',
             'catalogs.title',
-            'worksheets.name',
+            'collectionmedias.name',
             'catalogs.album',
             'catalogs.series',
             'catalogs.edition',
@@ -101,8 +101,8 @@ class ManageController extends Controller
             $whereCondition[] = "catalogs.publishyear = $request->year";
         }
 
-        if ($request->worksheet_id) {
-            $whereCondition[] = "catalogs.worksheet_id = $request->worksheet_id";
+        if ($request->media_id) {
+            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -160,6 +160,8 @@ class ManageController extends Controller
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join
+                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+            left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
@@ -188,7 +190,7 @@ class ManageController extends Controller
                                 penerbit.name as name_penerbit,
                                 propinsi.namapropinsi as namapropinsi,
                                 kabupaten.namakab as namakab,
-                                worksheets.name as name_worksheet
+                                collectionmedias.name as name_media
                             from
                                 catalogs
                             left join
@@ -197,6 +199,8 @@ class ManageController extends Controller
                                 kabupaten on kabupaten.id = catalogs.city_id
                             left join
                                 propinsi on propinsi.id = kabupaten.propinsiid
+                            left join
+                                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause
@@ -223,7 +227,7 @@ class ManageController extends Controller
                     $val->NAMAPROPINSI,
                     $val->NAMAKAB,
                     $val->TITLE,
-                    $val->NAME_WORKSHEET,
+                    $val->NAME_MEDIA,
                     $val->ALBUM,
                     $val->SERIES,
                     $val->EDITION,
