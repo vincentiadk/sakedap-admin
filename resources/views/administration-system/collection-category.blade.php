@@ -26,7 +26,7 @@
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Nama</th>
-                        <th class="text-nowrap">Jenis Bahan</th>
+                        <th class="text-nowrap">Jenis Media</th>
                     </tr>
                 </thead>
             </table>
@@ -53,11 +53,11 @@
                         <input type="text" class="form-control" name="name" id="name" placeholder="....................">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Jenis Bahan : <span class="text-danger fw-bold">*</span></label>
+                        <label class="form-label">Jenis Media : <span class="text-danger fw-bold">*</span></label>
                         <select class="form-select select2-basic" name="type" id="type" data-dropdown-parent="#modal-form">
                             <option value=""></option>
-                            @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                            @foreach($media as $m)
+                                <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
                     </div>

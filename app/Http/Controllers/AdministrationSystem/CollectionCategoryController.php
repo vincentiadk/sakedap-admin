@@ -14,7 +14,7 @@ class CollectionCategoryController extends Controller
     {
         return view('layouts.index', [
             'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
+                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142) and depositformat_code is not null") ?? [],
                 'content' => 'administration-system.collection-category',
                 'plugins' => [
                     'datatable',
@@ -30,7 +30,7 @@ class CollectionCategoryController extends Controller
             'e_categories.id',
             null,
             'e_categories.name',
-            'worksheets.name',
+            'collectionmedias.name',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -83,7 +83,7 @@ class CollectionCategoryController extends Controller
             from
                 e_categories
             left join
-                worksheets on worksheets.id = e_categories.type
+                collectionmedias on collectionmedias.id = e_categories.type
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -98,11 +98,11 @@ class CollectionCategoryController extends Controller
                         (
                             select
                                 e_categories.*,
-                                worksheets.name as name_worksheet
+                                collectionmedias.name as name_media
                             from
                                 e_categories
                             left join
-                                worksheets on worksheets.id = e_categories.type
+                                collectionmedias on collectionmedias.id = e_categories.type
                             $whereClause
                             $orderBy
                         ) data
@@ -136,7 +136,7 @@ class CollectionCategoryController extends Controller
                     $start + 1,
                     $action,
                     $val->NAME,
-                    $val->NAME_WORKSHEET,
+                    $val->NAME_MEDIA,
                 ];
 
                 $start++;
@@ -195,11 +195,11 @@ class CollectionCategoryController extends Controller
         $data = QueryAPI::get("
             select
                 e_categories.*,
-                worksheets.name as name_worksheet
+                collectionmedias.name as name_media
             from
                 e_categories
             left join
-                worksheets on worksheets.id = e_categories.type
+                collectionmedias on collectionmedias.id = e_categories.type
             where
                 e_categories.id = $id
         ", true);
