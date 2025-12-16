@@ -29,6 +29,7 @@
                         <th class="text-nowrap">Promosi</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Keterangan</th>
+                        <th class="text-nowrap">Jenis</th>
                         <th class="text-nowrap">Status</th>
                     </tr>
                 </thead>
@@ -68,6 +69,14 @@
                     <div class="form-group">
                         <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
                         <input type="text" class="form-control" name="title" id="title" placeholder="....................">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jenis : <span class="text-danger fw-bold">*</span></label>
+                        <select class="form-select" name="type" id="type">
+                            <option value="">Pilih</option>
+                            <option value="slider">Slider</option>
+                            <option value="overlay">Overlay</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Status :</label>
@@ -198,6 +207,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -275,6 +285,7 @@
                 $('#table_id').val(response.ID);
                 $('#title').val(response.TITLE);
                 $('#description').val(response.DESCRIPTION);
+                $('#type').val(response.TYPE);
                 $('#status').val(response.STATUS);
                 $('#promotion_id').html('<option value="' + response.PROMO_ID + '" selected>' + response.JUDUL_E_PROMO + '</option>');
 

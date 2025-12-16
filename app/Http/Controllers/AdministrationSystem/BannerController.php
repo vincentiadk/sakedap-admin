@@ -32,6 +32,7 @@ class BannerController extends Controller
             'e_promo.judul',
             'e_banners.title',
             'e_banners.description',
+            'e_banners.type',
             'e_banners.status',
         ];
 
@@ -157,6 +158,7 @@ class BannerController extends Controller
                     $val->JUDUL_E_PROMO,
                     $val->TITLE,
                     $val->DESCRIPTION,
+                    ucwords($val->TYPE),
                     $val->STATUS == 1 ? 'Aktif' : 'Tidak Aktif',
                 ];
 
@@ -176,9 +178,11 @@ class BannerController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'title' => 'required',
+            'type' => 'required',
             'image' => 'required|image|mimes:png,jpg,jpeg|max:500',
         ], [
             'title.required' => 'Judul tidak boleh kosong',
+            'type.required' => 'Jenis tidak boleh kosong',
             'image.required' => 'Gambar tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
@@ -195,6 +199,7 @@ class BannerController extends Controller
                 $createData = QueryAPI::create('e_banners', [
                     'title' => $request->title,
                     'description' => $request->description,
+                    'type' => $request->type,
                     'status' => $request->status,
                     'promo_id' => $request->promotion_id,
                 ]);
@@ -254,9 +259,11 @@ class BannerController extends Controller
 
         $validation = Validator::make($request->all(), [
             'title' => 'required',
+            'type' => 'required',
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:500',
         ], [
             'title.required' => 'Judul tidak boleh kosong',
+            'type.required' => 'Jenis tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
             'image.max' => 'Gambar maksimal 500 KB',
@@ -272,6 +279,7 @@ class BannerController extends Controller
                 $updateData = QueryAPI::update('e_banners', $id, [
                     'title' => $request->title,
                     'description' => $request->description,
+                    'type' => $request->type,
                     'status' => $request->status,
                     'promo_id' => $request->promotion_id,
                 ]);
