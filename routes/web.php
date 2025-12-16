@@ -422,6 +422,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'UserController@index');
         });
 
+        Route::prefix('site-setting')->group(function () {
+            Route::get('/', 'SiteSettingController@index');
+            Route::post('submitted', 'SiteSettingController@submitted');
+        });
+
         Route::prefix('news')->group(function () {
             Route::get('/', 'NewsController@index');
             Route::get('datatable', 'NewsController@datatable');

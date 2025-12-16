@@ -215,6 +215,7 @@
                                             <div class="col-md-3">
                                                 <div class="alert alert-info text-center fw-semibold">Front Office</div>
                                                 <div class="col-md-2">
+                                                    <a href="{{ url('administration-system/site-setting') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'site-setting' ? 'active' : '' }}">Pengaturan Situs</a>
                                                     <a href="{{ url('administration-system/news') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'news' ? 'active' : '' }}">Berita</a>
                                                     <a href="{{ url('administration-system/banner') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'banner' ? 'active' : '' }}">Banner</a>
                                                     <a href="{{ url('administration-system/event') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'event' ? 'active' : '' }}">Event</a>
