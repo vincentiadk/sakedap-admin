@@ -15,7 +15,6 @@ class DeliveryController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null") ?? [],
                 'content' => 'report.delivery',
                 'plugins' => [
                     'datatable',
@@ -51,7 +50,6 @@ class DeliveryController extends Controller
             'l.biaya_kirim',
             'l.berat',
             'l.jumlah_paket',
-            'l.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -69,10 +67,6 @@ class DeliveryController extends Controller
 
         if (Main::isNotSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
-        }
-
-        if ($request->proses_by) {
-            $whereCondition[] = "l.proses_by = '$request->proses_by'";
         }
 
         if ($request->receipt_no) {
@@ -162,26 +156,26 @@ class DeliveryController extends Controller
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
-                                coalesce(td.total_eks_receipt, 0) as total_eks_receipt,
-                                coalesce(td.total_title_receipt, 0) as total_title_receipt,
+                                nvl(td.total_eks_receipt, 0) as total_eks_receipt,
+                                nvl(td.total_title_receipt, 0) as total_title_receipt,
                                 case
                                     when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_delivery, 0)
+                                    then nvl(td.total_eks_delivery, 0)
                                     else 0
                                 end as total_eks_delivery,
                                 case
                                     when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_delivery, 0)
+                                    then nvl(td.total_title_delivery, 0)
                                     else 0
                                 end as total_title_delivery,
                                 case
                                     when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_grant, 0)
+                                    then nvl(td.total_eks_grant, 0)
                                     else 0
                                 end as total_eks_grant,
                                 case
                                     when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_grant, 0)
+                                    then nvl(td.total_title_grant, 0)
                                     else 0
                                 end as total_title_grant
                             from
@@ -210,9 +204,11 @@ class DeliveryController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -240,7 +236,6 @@ class DeliveryController extends Controller
                     'Rp ' . number_format(($val->BIAYA_KIRIM ?: 0)),
                     (($val->BERAT ?: 0) > 0 ? number_format($val->BERAT / 1000, '2', ',', '.') : 0) . ' Kg',
                     $val->JUMLAH_PAKET,
-                    $val->PROSES_BY,
                 ];
 
                 $start++;

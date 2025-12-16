@@ -86,11 +86,11 @@
                                 $fileCover = asset('assets/no-file.jpg');
 
                                 $checked = $ld->CHECKED;
-                                $verifiedBy = $ld->VERIFIED_BY;
+                                $receivedBy = $ld->RECEIVED_BY;
                                 $currentUsername = session('username');
                                 $isAdmin = !Main::isNotSuperAdmin();
-                                $isOpen = ($checked != 1 && empty($verifiedBy));
-                                $isOwner = ($verifiedBy == $currentUsername);
+                                $isOpen = ($checked != 1 && empty($receivedBy));
+                                $isOwner = ($receivedBy == $currentUsername);
                                 $canEdit = $isAdmin || $isOpen || $isOwner;
 
                                 if ($code) {
@@ -158,7 +158,7 @@
                                             <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
                                             <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }}>
                                         @else
-                                            {{ $verifiedBy }}
+                                            {{ $receivedBy }}
                                         @endif
                                     </center>
                                 </td>

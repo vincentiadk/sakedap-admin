@@ -73,12 +73,12 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label">Verified By :</label>
-                            <select class="form-select select2-basic" name="verified_by" id="verified_by" data-placeholder="Semua">
+                            <label class="form-label">Received By :</label>
+                            <select class="form-select select2-basic" name="received_by" id="received_by" data-placeholder="Semua">
                                 <option value="">Semua</option>
-                                @if($verifiedBy)
-                                    @foreach($verifiedBy as $pb)
-                                        <option value="{{ $pb->VERIFIED_BY }}">{{ $pb->VERIFIED_BY }}</option>
+                                @if($receivedBy)
+                                    @foreach($receivedBy as $pb)
+                                        <option value="{{ $pb->RECEIVED_BY }}">{{ $pb->RECEIVED_BY }}</option>
                                     @endforeach
                                 @endif
                             </select>

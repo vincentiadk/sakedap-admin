@@ -99,9 +99,11 @@ class ProvinceController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {

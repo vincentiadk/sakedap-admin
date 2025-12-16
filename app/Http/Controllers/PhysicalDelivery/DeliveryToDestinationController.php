@@ -15,7 +15,6 @@ class DeliveryToDestinationController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null") ?? [],
                 'content' => 'physical-delivery.delivery-to-destination',
                 'plugins' => [
                     'datatable',
@@ -31,19 +30,12 @@ class DeliveryToDestinationController extends Controller
         $column = [
             'l.letter_id',
             null,
-            'l.is_verification_by',
             'p.name',
             'l.receipt_no',
             'jp.name',
             'b.name',
             null,
             null,
-            null,
-            null,
-            null,
-            null,
-            'l.status',
-            'l.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -63,10 +55,6 @@ class DeliveryToDestinationController extends Controller
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
-        if ($request->proses_by) {
-            $whereCondition[] = "l.proses_by = '$request->proses_by'";
-        }
-
         if ($request->receipt_no) {
             $receiptNo = strtoupper($request->receipt_no);
             $whereCondition[] = "upper(l.receipt_no) like '%$receiptNo%'";
@@ -74,10 +62,6 @@ class DeliveryToDestinationController extends Controller
 
         if ($request->delivery_service_id) {
             $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
-        }
-
-        if ($request->status) {
-            $whereCondition[] = "l.status = '$request->status'";
         }
 
         if ($request->executor_id) {
@@ -150,23 +134,18 @@ class DeliveryToDestinationController extends Controller
                     from
                         (
                             select
-                                l.letter_id,
-                                l.status,
-                                l.receipt_no,
-                                l.proses_by,
-                                l.penerbit_id,
-                                l.is_verification_by,
+                                l.*,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_delivery, 0)
+                                    when l.status in ('TERKIRIM')
+                                    then nvl(td.total_eks_delivery, 0)
                                     else 0
                                 end as total_eks_delivery,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_delivery, 0)
+                                    when l.status in ('TERKIRIM')
+                                    then nvl(td.total_title_delivery, 0)
                                     else 0
                                 end as total_title_delivery
                             from
@@ -191,15 +170,17 @@ class DeliveryToDestinationController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('physical-delivery/in-delivery/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
+                    <a href="' . url('physical-delivery/delivery-to-destination/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>
@@ -208,15 +189,12 @@ class DeliveryToDestinationController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->IS_VERIFICATION_BY,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
                     $val->NAME_BRANCH,
                     $val->TOTAL_TITLE_DELIVERY,
                     $val->TOTAL_EKS_DELIVERY,
-                    $val->STATUS,
-                    $val->PROSES_BY,
                 ];
 
                 $start++;
@@ -231,12 +209,13 @@ class DeliveryToDestinationController extends Controller
         ]);
     }
 
-    public function detail(Request $request, $id)
+    public function detail($id)
     {
         $letterSql = "
             select
                 letter.*,
                 jasa_pengiriman.name as name_jasa_pengiriman,
+                branchs.name as name_branch,
                 penerbit.name as name_penerbit
             from
                 letter
@@ -244,6 +223,8 @@ class DeliveryToDestinationController extends Controller
                 penerbit on penerbit.id = letter.penerbit_id
             left join
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+            left join
+                branchs on branchs.id = letter.branch_id
             where
                 letter.letter_id = $id
         ";
@@ -259,92 +240,11 @@ class DeliveryToDestinationController extends Controller
                 letter_id = $id
         ");
 
-        $disable = 'disabled';
-
-        if ($request->ajax()) {
-            try {
-                $param = $request->param;
-
-                if ($param == 'cancel') {
-                    QueryAPI::update('letter', $id, [
-                        'is_verification_by' => null
-                    ], false);
-
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Verifikasi telah dibatalkan'
-                    ];
-                } else {
-                    $letterDetailIds = $request->collect('letter_detail_id');
-                    $quantities = $request->collect('letter_detail_quantity');
-                    $qtyAccepts = $request->collect('letter_detail_qty_accept');
-                    $qtyRejects = $request->collect('letter_detail_qty_reject');
-                    $remarks = $request->collect('letter_detail_remark');
-                    $checkeds = $request->collect('letter_detail_checked');
-                    $notes = $request->collect('letter_detail_note');
-                    $status = 'DITERIMA PENUH';
-                    $letterDetailsToUpdate = [];
-
-                    foreach ($letterDetailIds as $key => $ldi) {
-                        $qtyAccept = $qtyAccepts->get($key, 0);
-                        $qtyReject = $qtyRejects->get($key, 0);
-                        $remark = $remarks->get($key, []);
-                        $quantity = $quantities->get($key, 0);
-                        $checked = $checkeds->get($key, 0);
-                        $note = $notes->get($key, 0);
-
-                        $letterDetailsToUpdate[] = [
-                            'id' => $ldi,
-                            'qty_accept' => $qtyAccept,
-                            'qty_reject' => $qtyReject,
-                            'remark' => is_array($remark) ? implode(';', $remark) : $remark,
-                            'checked' => $checked,
-                            'isbn_status' => $note,
-                        ];
-
-                        if ($qtyAccept < $quantity) {
-                            $status = 'DITERIMA PARSIAL';
-                        }
-                    }
-
-                    foreach ($letterDetailsToUpdate as $updateData) {
-                        $letterId = $updateData['id'];
-
-                        unset($updateData['id']);
-
-                        QueryAPI::update('letter_detail', $letterId, $updateData, false);
-                    }
-
-                    $requestStatus = $request->status;
-
-                    QueryAPI::update('letter', $id, [
-                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
-                        'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('username') : null,
-                    ], false);
-
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Data telah disimpan'
-                    ];
-                }
-            } catch (\Exception $e) {
-                $response = [
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ];
-            }
-
-            return response()->json($response);
-        }
-
         return view('layouts.index', [
             'data' => [
                 'letter' => $letter,
                 'letterDetail' => $letterDetail,
-                'disabled' => $disable,
                 'content' => 'physical-delivery.delivery-to-destination-detail',
-                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'datatable',

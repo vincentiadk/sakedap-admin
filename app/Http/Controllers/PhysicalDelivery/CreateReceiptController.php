@@ -57,7 +57,7 @@ class CreateReceiptController extends Controller
             'penerbit_id' => $executorId
         ], true);
 
-        $letterDetail = QueryAPI::get("select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
+        $letterDetail = QueryAPI::get("select nvl(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
         $collection = QueryAPI::get("select count(collections.id) as total from collections where replace(isbn, '-', '') = '$code' and source_id = 6", true);
 
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;

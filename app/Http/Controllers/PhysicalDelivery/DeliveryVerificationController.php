@@ -16,7 +16,7 @@ class DeliveryVerificationController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'verifiedBy' => QueryAPI::get("select distinct(verified_by) from letter where verified_by is not null") ?? [],
+                'receivedBy' => QueryAPI::get("select distinct(received_by) from letter where received_by is not null") ?? [],
                 'content' => 'physical-delivery.delivery-verification',
                 'plugins' => [
                     'datatable',
@@ -41,10 +41,6 @@ class DeliveryVerificationController extends Controller
             'b.name',
             null,
             null,
-            null,
-            null,
-            null,
-            null,
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -64,8 +60,8 @@ class DeliveryVerificationController extends Controller
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
-        if ($request->verified_by) {
-            $whereCondition[] = "ld.verified_by = '$request->verified_by'";
+        if ($request->received_by) {
+            $whereCondition[] = "ld.received_by = '$request->received_by'";
         }
 
         if ($request->receipt_no) {
@@ -211,7 +207,7 @@ class DeliveryVerificationController extends Controller
                         data.*
                     from
                         (
-                            select
+                            select distinct
                                 l.letter_id,
                                 l.status,
                                 l.receipt_no,
@@ -222,13 +218,13 @@ class DeliveryVerificationController extends Controller
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_delivery, 0)
+                                    when l.status in ('TERKIRIM', 'CEK FISIK')
+                                    then nvl(td.total_eks_delivery, 0)
                                     else 0
                                 end as total_eks_delivery,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_delivery, 0)
+                                    when l.status in ('TERKIRIM', 'CEK FISIK')
+                                    then nvl(td.total_title_delivery, 0)
                                     else 0
                                 end as total_title_delivery
                             from
@@ -255,9 +251,11 @@ class DeliveryVerificationController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -430,8 +428,8 @@ class DeliveryVerificationController extends Controller
                             'remark' => is_array($remark) ? implode(';', $remark) : $remark,
                             'checked' => $checked ? 1 : null,
                             'isbn_status' => $note,
-                            'verified_by' => $checked ? session('username') : null,
-                            'verified_date' => $checked ? date('Y-m-d H:i:s') : null,
+                            'received_by' => $checked ? session('username') : null,
+                            'received_date' => $checked ? date('Y-m-d H:i:s') : null,
                         ], false);
 
                         if ($qtyAccept < $quantity) {

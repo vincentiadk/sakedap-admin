@@ -41,9 +41,11 @@ class LogAWBController extends Controller
                                 to_char(date_req, 'MM') = '$month' and
                                 to_char(date_req, 'YYYY') = '$year'
                         ) data
+                    where
+                        rownum <= $endRow
                 )
             where
-                rnum >= $startRow and rownum <= $endRow
+                rnum > $startRow
         ");
 
 

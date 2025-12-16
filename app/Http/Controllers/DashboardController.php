@@ -52,10 +52,10 @@ class DashboardController extends Controller
 
         $data = QueryAPI::get("
             select
-                coalesce(sum(case when e_collections.status = '1' then 1 else 0 end), 0) as total_1,
-                coalesce(sum(case when e_collections.status = '2' then 1 else 0 end), 0) as total_2,
-                coalesce(sum(case when e_collections.status = '3' then 1 else 0 end), 0) as total_3,
-                coalesce(sum(case when e_collections.status = '5' then 1 else 0 end), 0) as total_5
+                nvl(sum(case when e_collections.status = '1' then 1 else 0 end), 0) as total_1,
+                nvl(sum(case when e_collections.status = '2' then 1 else 0 end), 0) as total_2,
+                nvl(sum(case when e_collections.status = '3' then 1 else 0 end), 0) as total_3,
+                nvl(sum(case when e_collections.status = '5' then 1 else 0 end), 0) as total_5
             from
                 e_collections
             join
@@ -312,9 +312,9 @@ class DashboardController extends Controller
 
         $data = QueryAPI::get("
             select
-                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryDigital' then 1 else 0 end), 0) as total_digital,
-                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryAnalog' then 1 else 0 end), 0) as total_analog,
-                coalesce(sum(case when worksheets.category = '$this->worksheetCategoryPrinted' then 1 else 0 end), 0) as total_printed
+                nvl(sum(case when worksheets.category = '$this->worksheetCategoryDigital' then 1 else 0 end), 0) as total_digital,
+                nvl(sum(case when worksheets.category = '$this->worksheetCategoryAnalog' then 1 else 0 end), 0) as total_analog,
+                nvl(sum(case when worksheets.category = '$this->worksheetCategoryPrinted' then 1 else 0 end), 0) as total_printed
             from
                 catalogs
             left join

@@ -21,7 +21,6 @@ class AcceptController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'prosesBy' => QueryAPI::get("select distinct(proses_by) from letter where proses_by is not null") ?? [],
                 'content' => 'physical-delivery.accept',
                 'plugins' => [
                     'datatable',
@@ -38,7 +37,6 @@ class AcceptController extends Controller
             'l.letter_id',
             null,
             'l.accept_date',
-            'l.is_verification_by',
             'p.name',
             'l.receipt_no',
             'jp.name',
@@ -50,7 +48,6 @@ class AcceptController extends Controller
             null,
             null,
             'l.status',
-            'l.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -70,10 +67,6 @@ class AcceptController extends Controller
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
-        if ($request->proses_by) {
-            $whereCondition[] = "l.proses_by = '$request->proses_by'";
-        }
-
         if ($request->receipt_no) {
             $receiptNo = strtoupper($request->receipt_no);
             $whereCondition[] = "upper(l.receipt_no) like '%$receiptNo%'";
@@ -81,10 +74,6 @@ class AcceptController extends Controller
 
         if ($request->delivery_service_id) {
             $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
-        }
-
-        if ($request->status) {
-            $whereCondition[] = "l.status = '$request->status'";
         }
 
         if ($request->executor_id) {
@@ -156,37 +145,31 @@ class AcceptController extends Controller
                         data.*
                     from
                         (
-                            select
-                                l.letter_id,
-                                l.status,
-                                l.receipt_no,
-                                l.proses_by,
-                                l.penerbit_id,
-                                l.is_verification_by,
-                                l.accept_date,
+                            select distinct
+                                l.*,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
-                                coalesce(td.total_eks_receipt, 0) as total_eks_receipt,
-                                coalesce(td.total_title_receipt, 0) as total_title_receipt,
+                                nvl(td.total_eks_receipt, 0) as total_eks_receipt,
+                                nvl(td.total_title_receipt, 0) as total_title_receipt,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_delivery, 0)
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    then nvl(td.total_eks_delivery, 0)
                                     else 0
                                 end as total_eks_delivery,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_delivery, 0)
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    then nvl(td.total_title_delivery, 0)
                                     else 0
                                 end as total_title_delivery,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_eks_grant, 0)
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    then nvl(td.total_eks_grant, 0)
                                     else 0
                                 end as total_eks_grant,
                                 case
-                                    when l.status in ('TERKIRIM', 'CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL', 'RETUR')
-                                    then coalesce(td.total_title_grant, 0)
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    then nvl(td.total_title_grant, 0)
                                     else 0
                                 end as total_title_grant
                             from
@@ -215,9 +198,11 @@ class AcceptController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -255,7 +240,6 @@ class AcceptController extends Controller
                     $start + 1,
                     $action,
                     ($val->ACCEPT_DATE ?: null) ? Carbon::parse($val->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '',
-                    $val->IS_VERIFICATION_BY,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
@@ -267,7 +251,6 @@ class AcceptController extends Controller
                     $val->TOTAL_TITLE_GRANT,
                     $val->TOTAL_EKS_GRANT,
                     $val->STATUS,
-                    $val->PROSES_BY,
                 ];
 
                 $start++;
@@ -288,13 +271,16 @@ class AcceptController extends Controller
             select
                 letter.*,
                 jasa_pengiriman.name as name_jasa_pengiriman,
-                penerbit.name as name_penerbit
+                penerbit.name as name_penerbit,
+                branchs.name as name_branch
             from
                 letter
             left join
                 penerbit on penerbit.id = letter.penerbit_id
             left join
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
+            left join
+                branchs on branchs.id = letter.branch_id
             where
                 letter.letter_id = $id
         ";
@@ -310,92 +296,11 @@ class AcceptController extends Controller
                 letter_id = $id
         ");
 
-        $disable = 'disabled';
-
-        if ($request->ajax()) {
-            try {
-                $param = $request->param;
-
-                if ($param == 'cancel') {
-                    QueryAPI::update('letter', $id, [
-                        'is_verification_by' => null
-                    ], false);
-
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Verifikasi telah dibatalkan'
-                    ];
-                } else {
-                    $letterDetailIds = $request->collect('letter_detail_id');
-                    $quantities = $request->collect('letter_detail_quantity');
-                    $qtyAccepts = $request->collect('letter_detail_qty_accept');
-                    $qtyRejects = $request->collect('letter_detail_qty_reject');
-                    $remarks = $request->collect('letter_detail_remark');
-                    $checkeds = $request->collect('letter_detail_checked');
-                    $notes = $request->collect('letter_detail_note');
-                    $status = 'DITERIMA PENUH';
-                    $letterDetailsToUpdate = [];
-
-                    foreach ($letterDetailIds as $key => $ldi) {
-                        $qtyAccept = $qtyAccepts->get($key, 0);
-                        $qtyReject = $qtyRejects->get($key, 0);
-                        $remark = $remarks->get($key, []);
-                        $quantity = $quantities->get($key, 0);
-                        $checked = $checkeds->get($key, 0);
-                        $note = $notes->get($key, 0);
-
-                        $letterDetailsToUpdate[] = [
-                            'id' => $ldi,
-                            'qty_accept' => $qtyAccept,
-                            'qty_reject' => $qtyReject,
-                            'remark' => is_array($remark) ? implode(';', $remark) : $remark,
-                            'checked' => $checked,
-                            'isbn_status' => $note,
-                        ];
-
-                        if ($qtyAccept < $quantity) {
-                            $status = 'DITERIMA PARSIAL';
-                        }
-                    }
-
-                    foreach ($letterDetailsToUpdate as $updateData) {
-                        $letterId = $updateData['id'];
-
-                        unset($updateData['id']);
-
-                        QueryAPI::update('letter_detail', $letterId, $updateData, false);
-                    }
-
-                    $requestStatus = $request->status;
-
-                    QueryAPI::update('letter', $id, [
-                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
-                        'accept_date' => ($param === 'save-verification') ? date('Y-m-d H:i:s') : null,
-                        'proses_by' => in_array($requestStatus, ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL']) ? session('username') : null,
-                    ], false);
-
-                    $response = [
-                        'code' => 200,
-                        'message' => 'Data telah disimpan'
-                    ];
-                }
-            } catch (\Exception $e) {
-                $response = [
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ];
-            }
-
-            return response()->json($response);
-        }
-
         return view('layouts.index', [
             'data' => [
                 'letter' => $letter,
                 'letterDetail' => $letterDetail,
-                'disabled' => $disable,
                 'content' => 'physical-delivery.accept-detail',
-                'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                 'plugins' => [
                     'select2',
                     'datatable',

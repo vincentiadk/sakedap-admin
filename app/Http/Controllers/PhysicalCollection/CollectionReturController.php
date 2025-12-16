@@ -35,6 +35,7 @@ class CollectionReturController extends Controller
             'letter_detail.diambil',
             'letter_detail.rencana_ambil',
             'letter_detail.kontak',
+            'letter_detail.nama_pengambil',
             'letter_detail.title',
             'penerbit.name',
             'branchs.name',
@@ -43,7 +44,6 @@ class CollectionReturController extends Controller
             'letter_detail.qty_retur',
             'letter_detail.jenis_media',
             'letter_detail.remark',
-            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -142,7 +142,6 @@ class CollectionReturController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
-                                letter.proses_by as proses_by_letter,
                                 letter.accept_date as accept_date_letter
                             from
                                 letter_detail
@@ -157,9 +156,11 @@ class CollectionReturController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -226,6 +227,7 @@ class CollectionReturController extends Controller
                     $status,
                     $val->RENCANA_AMBIL,
                     $val->KONTAK,
+                    $val->NAMA_PENGAMBIL,
                     $val->TITLE,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
@@ -234,7 +236,6 @@ class CollectionReturController extends Controller
                     $val->QTY_RETUR,
                     $val->JENIS_MEDIA,
                     $remark,
-                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;

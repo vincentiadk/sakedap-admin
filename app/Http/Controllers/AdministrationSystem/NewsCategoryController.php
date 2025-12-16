@@ -110,9 +110,11 @@ class NewsCategoryController extends Controller
                             order siblings by
                                 name
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {

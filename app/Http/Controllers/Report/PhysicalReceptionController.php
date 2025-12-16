@@ -42,7 +42,6 @@ class PhysicalReceptionController extends Controller
             'letter_detail.qty_verif',
             'letter_detail.jenis_media',
             'letter.status',
-            'letter.proses_by',
             'letter_detail.price',
             'letter_detail.isbn',
             'letter_detail.publish_year',
@@ -155,8 +154,7 @@ class PhysicalReceptionController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
-                                letter.penerbit_id as penerbit_id_letter,
-                                letter.proses_by as proses_by_letter
+                                letter.penerbit_id as penerbit_id_letter
                             from
                                 letter_detail
                             left join
@@ -170,9 +168,11 @@ class PhysicalReceptionController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -192,7 +192,6 @@ class PhysicalReceptionController extends Controller
                     $val->QTY_VERIF,
                     $val->JENIS_MEDIA,
                     $val->STATUS_LETTER,
-                    $val->PROSES_BY_LETTER,
                     'Rp ' . number_format($val->PRICE ?: 0),
                     $val->ISBN,
                     $val->PUBLISH_YEAR,

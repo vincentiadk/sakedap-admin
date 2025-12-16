@@ -89,19 +89,19 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('delivery-to-destination')->group(function () {
             Route::get('/', 'DeliveryToDestinationController@index');
             Route::get('datatable', 'DeliveryToDestinationController@datatable');
-            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryToDestinationController@detail');
+            Route::get('detail/{id}', 'DeliveryToDestinationController@detail');
         });
 
         Route::prefix('in-delivery')->group(function () {
             Route::get('/', 'InDeliveryController@index');
             Route::get('datatable', 'InDeliveryController@datatable');
-            Route::match(['get', 'post'], 'detail/{id}', 'InDeliveryController@detail');
+            Route::get('detail/{id}', 'InDeliveryController@detail');
         });
 
         Route::prefix('accept')->group(function () {
             Route::get('/', 'AcceptController@index');
             Route::get('datatable', 'AcceptController@datatable');
-            Route::match(['get', 'post'], 'detail/{id}', 'AcceptController@detail');
+            Route::get('detail/{id}', 'AcceptController@detail');
             Route::get('print/{id}', 'AcceptController@print');
             Route::post('send-email', 'AcceptController@sendEmail');
             Route::post('send-whatsapp', 'AcceptController@sendWhatsapp');

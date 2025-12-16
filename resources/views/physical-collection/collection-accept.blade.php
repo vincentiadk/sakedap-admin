@@ -84,7 +84,6 @@
                         <th class="text-nowrap">Jumlah Eks</th>
                         <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Status</th>
-                        <th class="text-nowrap">Proses By</th>
                     </tr>
                 </thead>
             </table>
@@ -158,7 +157,6 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

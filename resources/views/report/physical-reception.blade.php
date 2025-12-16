@@ -88,7 +88,6 @@
                         <th class="text-nowrap">Jumlah Verif</th>
                         <th class="text-nowrap">Jenis Media</th>
                         <th class="text-nowrap">Status</th>
-                        <th class="text-nowrap">Proses By</th>
                         <th class="text-nowrap">Harga</th>
                         <th class="text-nowrap">ISBN</th>
                         <th class="text-nowrap">Tahun Terbit</th>
@@ -178,7 +177,6 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

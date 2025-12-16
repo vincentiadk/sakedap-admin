@@ -40,7 +40,6 @@ class CollectionRejectController extends Controller
             'letter_detail.qty_reject',
             'letter_detail.jenis_media',
             'letter_detail.remark',
-            'letter.proses_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -141,7 +140,6 @@ class CollectionRejectController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
-                                letter.proses_by as proses_by_letter,
                                 letter.accept_date as accept_date_letter
                             from
                                 letter_detail
@@ -156,9 +154,11 @@ class CollectionRejectController extends Controller
                             $whereClause
                             $orderBy
                         ) data
+                    where
+                        rownum <= $length
                 )
             where
-                rnum > $start and rownum <= $length
+                rnum > $start
         ");
 
         if ($queryData) {
@@ -212,7 +212,6 @@ class CollectionRejectController extends Controller
                     $val->QTY_REJECT,
                     $val->JENIS_MEDIA,
                     $remark,
-                    $val->PROSES_BY_LETTER,
                 ];
 
                 $start++;
