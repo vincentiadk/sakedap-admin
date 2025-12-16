@@ -150,7 +150,7 @@
                                 </td>
                                 <td class="text-center">
                                     <a href="{{ $fileCover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
-                                        <img src="{{ $fileCover }}" class="img img-fluid img-thumbnail">
+                                        <img src="{{ $fileCover }}" class="img img-fluid img-thumbnail" style="max-width:70px;">
                                     </a>
                                 </td>
                                 <td class="text-wrap">{{ $ld->TITLE }}</td>
