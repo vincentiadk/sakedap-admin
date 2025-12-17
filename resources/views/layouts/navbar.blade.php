@@ -97,10 +97,19 @@
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">Verifikasi Pengiriman</a>
-                                                <a href="{{ url('physical-delivery/delivery-to-destination') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-to-destination' ? 'active' : '' }}">Pengiriman Sampai ke Tujuan</a>
-                                                <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">Dalam Pengiriman</a>
+                                            <div class="col-md-4">
+                                                <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">
+                                                    <span>Verifikasi Pengiriman</span>
+								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_delivery_verification') }}</span>
+                                                </a>
+                                                <a href="{{ url('physical-delivery/delivery-to-destination') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-to-destination' ? 'active' : '' }}">
+                                                    <span>Pengiriman Sampai ke Tujuan</span>
+								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_delivery_sent') }}</span>
+                                                </a>
+                                                <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">
+                                                    <span>Dalam Pengiriman</span>
+								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_in_delivery') }}</span>
+                                                </a>
                                                 <a href="{{ url('physical-delivery/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
                                                 <a href="{{ url('physical-delivery/create-receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'create-receipt' ? 'active' : '' }}">Tambah Bukti Penerimaan</a>
                                             </div>

@@ -164,6 +164,8 @@
 
             select2Serverside('#province_id', 'location', {
                 for: 'province'
+            }, {
+                minimumInputLength: 0
             });
         }
 

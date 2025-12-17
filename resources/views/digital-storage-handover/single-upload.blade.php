@@ -393,6 +393,8 @@
 
             select2Serverside('#city_id', 'location', {
                 for: 'city'
+            }, {
+                minimumInputLength: 0
             });
         }
 

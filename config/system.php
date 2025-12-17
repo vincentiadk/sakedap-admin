@@ -19,4 +19,7 @@ return [
     'max_coaching' => 10,
     'fo_url' => env('FO_URL'),
     'delivery_method' => 'manual',
+    'total_delivery_verification' => 0,
+    'total_delivery_sent' => 0,
+    'total_in_delivery' => 0,
 ];

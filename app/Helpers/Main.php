@@ -286,7 +286,7 @@ class Main
      */
     public static function isNotSuperAdmin()
     {
-        return (int) session('role_id') !== static::IS_SUPER_ADMIN;
+        return (int) (session('role_id') !== static::IS_SUPER_ADMIN);
     }
 
     /**

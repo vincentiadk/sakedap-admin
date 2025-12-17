@@ -219,6 +219,8 @@
 
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}',
+            }, {
+                minimumInputLength: 0
             });
         } else {
             select2Serverside('#executor_id', 'executor');

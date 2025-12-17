@@ -466,6 +466,8 @@
 
             select2Serverside('#city_id', 'city', {
                 for: 'city'
+            }, {
+                minimumInputLength: 0
             });
         }
 

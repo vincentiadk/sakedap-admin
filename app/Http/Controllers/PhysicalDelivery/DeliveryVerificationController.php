@@ -16,7 +16,7 @@ class DeliveryVerificationController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'receivedBy' => QueryAPI::get("select distinct(received_by) from letter where received_by is not null") ?? [],
+                'receivedBy' => QueryAPI::get("select distinct(received_by) from letter_detail where received_by is not null") ?? [],
                 'content' => 'physical-delivery.delivery-verification',
                 'plugins' => [
                     'datatable',
@@ -208,12 +208,7 @@ class DeliveryVerificationController extends Controller
                     from
                         (
                             select distinct
-                                l.letter_id,
-                                l.status,
-                                l.receipt_no,
-                                l.penerbit_id,
-                                l.sent_date,
-                                l.check_date,
+                                l.*,
                                 b.name as name_branch,
                                 jp.name as name_jasa_pengiriman,
                                 p.name as name_penerbit,
