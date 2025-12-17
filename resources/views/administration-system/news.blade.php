@@ -19,6 +19,26 @@
 </div>
 <div class="content pt-0">
     <div class="card">
+        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
+            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
+            <div class="ms-sm-auto my-sm-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Kategori</span>
+                    <select class="form-select w-auto flex-grow-0" name="filter_category" id="filter_category" onchange="loadData()">
+                        <option value="">Semua</option>
+                        @foreach($category as $c)
+                            <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
+                        @endforeach
+                    </select>
+                    <span class="input-group-text">Peruntukan</span>
+                    <select class="form-select w-auto flex-grow-0" name="filter_ownership" id="filter_ownership" onchange="loadData()">
+                        <option value="">Semua</option>
+                        <option value="1">Halaman Berita</option>
+                        <option value="2">Halaman Statis</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
@@ -27,6 +47,7 @@
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
                         <th class="text-nowrap">Gambar</th>
                         <th class="text-nowrap">Kategori</th>
+                        <th class="text-nowrap">Halaman</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Lang</th>
                         <th class="text-nowrap">Lampiran Link</th>
@@ -215,6 +236,10 @@
             ajax: {
                 url: '{{ url("administration-system/news/datatable") }}',
                 dataType: 'JSON',
+                data: {
+                    ownership: $('#filter_ownership').val(),
+                    category: $('#filter_category').val(),
+                },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
                 },
@@ -228,6 +253,7 @@
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },

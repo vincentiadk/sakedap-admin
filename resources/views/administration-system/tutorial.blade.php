@@ -19,6 +19,20 @@
 </div>
 <div class="content pt-0">
     <div class="card">
+        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
+            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
+            <div class="ms-sm-auto my-sm-auto">
+                <div class="input-group">
+                    <span class="input-group-text">Kategori</span>
+                    <select class="form-select w-auto flex-grow-0" name="filter_category" id="filter_category" onchange="loadData()">
+                        <option value="">Semua</option>
+                        @foreach($category as $c)
+                            <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
                 <thead class="text-bg-light">
@@ -215,6 +229,9 @@
             ajax: {
                 url: '{{ url("administration-system/tutorial/datatable") }}',
                 dataType: 'JSON',
+                data: {
+                    category: $('#filter_category').val(),
+                },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
                 },

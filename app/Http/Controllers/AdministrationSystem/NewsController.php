@@ -33,6 +33,7 @@ class NewsController extends Controller
             null,
             'e_news.image',
             'e_news_kategori.name',
+            'e_news_kategori.content',
             'e_news.title',
             'e_news.lang',
             'e_news.lampiran_link',
@@ -51,6 +52,15 @@ class NewsController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "(e_news.deleted_at is null and e_news.flag = 'BERITA')";
+
+        if ($request->category) {
+            $whereCondition[] = "e_news.kategori_id = $request->category";
+        }
+
+        if ($request->ownership) {
+            $filterPages = $request->ownership == 1 ? '> 0' : '< 1';
+            $whereCondition[] = "instr(',' || e_news_kategori.content || ',', ',' || to_char(e_news.id) || ',') $filterPages";
+        }
 
         if ($search) {
             $terms = [];
@@ -105,7 +115,8 @@ class NewsController extends Controller
                         (
                             select
                                 e_news.*,
-                                e_news_kategori.name as name_e_news_kategori
+                                e_news_kategori.name as name_e_news_kategori,
+                                e_news_kategori.content as content_e_news_kategori
                             from
                                 e_news
                             left join
@@ -129,6 +140,10 @@ class NewsController extends Controller
                             Aksi
                         </button>
                         <div class="dropdown-menu">
+                            <a href="' . url('administration-system/news/preview/' . $val->ID) . '" class="dropdown-item">
+                                <i class="ph-eye me-1"></i>
+                                Preview
+                            </a>
                             <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
                                 <i class="ph-pen me-1"></i>
                                 Ubah Data
@@ -165,11 +180,14 @@ class NewsController extends Controller
                     ';
                 }
 
+                $explodeCategoryContent = explode(',', $val->CONTENT_E_NEWS_KATEGORI ?? '');
+
                 $data[] = [
                     $start + 1,
                     $action,
                     $image,
                     $val->NAME_E_NEWS_KATEGORI,
+                    in_array($val->ID, $explodeCategoryContent) ? '<i class="ph-check text-success"></i>' : '<i class="ph-x text-danger"></i>',
                     $val->TITLE,
                     $val->LANG,
                     $attachmentLink,
@@ -185,6 +203,32 @@ class NewsController extends Controller
             'recordsTotal' => $totalData,
             'recordsFiltered' => $totalFiltered,
             'data' => $data
+        ]);
+    }
+
+    public function preview($id)
+    {
+        $news = QueryAPI::get("
+            select
+                e_news.*,
+                e_news_kategori.name as name_e_news_kategori
+            from
+                e_news
+            left join
+                e_news_kategori on e_news_kategori.id = e_news.kategori_id
+            where
+                e_news.id = $id
+        ", true);
+
+        if (!$news) {
+            abort(404);
+        }
+
+        return view('layouts.index', [
+            'data' => [
+                'news' => $news,
+                'content' => 'administration-system.news-preview',
+            ]
         ]);
     }
 

@@ -58,6 +58,10 @@ class EventController extends Controller
         $whereClause = '';
         $whereCondition[] = "(e_news.deleted_at is null and e_news.flag = 'EVENT')";
 
+        if ($request->category) {
+            $whereCondition[] = "e_news.kategori_id = $request->category";
+        }
+
         if ($search) {
             $terms = [];
 
@@ -135,6 +139,10 @@ class EventController extends Controller
                             Aksi
                         </button>
                         <div class="dropdown-menu">
+                            <a href="' . url('administration-system/event/preview/' . $val->ID) . '" class="dropdown-item">
+                                <i class="ph-eye me-1"></i>
+                                Preview
+                            </a>
                             <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
                                 <i class="ph-pen me-1"></i>
                                 Ubah Data
@@ -203,6 +211,32 @@ class EventController extends Controller
             'recordsTotal' => $totalData,
             'recordsFiltered' => $totalFiltered,
             'data' => $data
+        ]);
+    }
+
+    public function preview($id)
+    {
+        $news = QueryAPI::get("
+            select
+                e_news.*,
+                e_news_kategori.name as name_e_news_kategori
+            from
+                e_news
+            left join
+                e_news_kategori on e_news_kategori.id = e_news.kategori_id
+            where
+                e_news.id = $id
+        ", true);
+
+        if (!$news) {
+            abort(404);
+        }
+
+        return view('layouts.index', [
+            'data' => [
+                'news' => $news,
+                'content' => 'administration-system.event-preview',
+            ]
         ]);
     }
 

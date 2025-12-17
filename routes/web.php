@@ -430,6 +430,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('news')->group(function () {
             Route::get('/', 'NewsController@index');
             Route::get('datatable', 'NewsController@datatable');
+            Route::get('preview/{id}', 'NewsController@preview');
             Route::post('create-data', 'NewsController@createData');
             Route::get('show-data', 'NewsController@showData');
             Route::post('update-data', 'NewsController@updateData');
@@ -439,6 +440,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', 'EventController@index');
             Route::get('datatable', 'EventController@datatable');
+            Route::get('preview/{id}', 'EventController@preview');
             Route::post('create-data', 'EventController@createData');
             Route::get('show-data', 'EventController@showData');
             Route::post('update-data', 'EventController@updateData');
@@ -448,6 +450,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('tutorial')->group(function () {
             Route::get('/', 'TutorialController@index');
             Route::get('datatable', 'TutorialController@datatable');
+            Route::get('preview/{id}', 'TutorialController@preview');
             Route::post('create-data', 'TutorialController@createData');
             Route::get('show-data', 'TutorialController@showData');
             Route::post('update-data', 'TutorialController@updateData');
