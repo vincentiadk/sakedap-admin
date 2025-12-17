@@ -40,9 +40,6 @@ class NewsCategoryController extends Controller
         $data = [];
         $search = strtoupper($request->search['value']);
 
-        $orderBy = '';
-        $order = $request->order;
-
         $whereClause = '';
         $whereCondition = [];
 
@@ -60,12 +57,6 @@ class NewsCategoryController extends Controller
 
         if ($whereCondition) {
             $whereClause = "where " . implode(' and ', $whereCondition);
-        }
-
-        if ($order) {
-            $orderColumnIndex = $order[0]['column'];
-            $orderDir = $order[0]['dir'];
-            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
         }
 
         $totalData = QueryAPI::get("

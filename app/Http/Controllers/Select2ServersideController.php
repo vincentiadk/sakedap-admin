@@ -605,8 +605,15 @@ class Select2ServersideController extends Controller
 
         if ($data) {
             foreach ($data as $d) {
+                if ($d->PAGES == 1) {
+                    $pages = '<small class="text-success fst-italic">Untuk halaman statis</small>';
+                } else {
+                    $pages = '<small class="text-danger fst-italic">Bukan untuk halaman statis</small>';
+                }
+
                 $html = '
                     <div>' . ($d->TREE_PATH ?? '-') . '</div>
+                    ' . $pages . '
                 ';
 
                 $response[] = [
