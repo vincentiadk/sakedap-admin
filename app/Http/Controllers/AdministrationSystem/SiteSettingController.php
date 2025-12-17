@@ -243,7 +243,7 @@ class SiteSettingController extends Controller
 
             if ($newId) {
                 $uploadFile = QueryAPI::uploadFile([
-                    'type' => 'settingparameters',
+                    'type' => 'setting_parameter',
                     'id' => $newId,
                     'iszip' => 0,
                     'file' => $request->file($fileKey),

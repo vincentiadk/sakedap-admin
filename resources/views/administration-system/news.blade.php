@@ -62,40 +62,54 @@
                             </a>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
-                            <option value=""></option>
-                            @foreach($category as $c)
-                                <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status :</label>
-                        <select class="form-select" name="status" id="status">
-                            <option value="PUBLISH">PUBLISH</option>
-                            <option value="HIDE">HIDE</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Lang :</label>
-                        <select class="form-select" name="lang" id="lang">
-                            <option value="ID">ID</option>
-                            <option value="EN">EN</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Lampiran Link :</label>
-                        <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Ringkasan :</label>
-                        <textarea class="form-control" name="summary" id="summary" rows="5" placeholder="...................."></textarea>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
+                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
+                                    <option value=""></option>
+                                    @foreach($category as $c)
+                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Lampiran Link :</label>
+                                <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Lang :</label>
+                                <select class="form-select" name="lang" id="lang">
+                                    <option value="ID">ID</option>
+                                    <option value="EN">EN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Status :</label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="PUBLISH">PUBLISH</option>
+                                    <option value="HIDE">HIDE</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
+                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="...................."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Ringkasan :</label>
+                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="...................."></textarea>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Konten :</label>

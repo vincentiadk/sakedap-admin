@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AdministrationSystem;
 
+use Carbon\Carbon;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -35,6 +36,10 @@ class EventController extends Controller
             'e_news.catalog',
             'e_news_kategori.name',
             'e_news.title',
+            'e_news.narasumber',
+            'e_news.lokasi',
+            'e_news.tanggal_mulai',
+            'e_news.tanggal_selesai',
             'e_news.lang',
             'e_news.lampiran_link',
             'e_news.status',
@@ -180,6 +185,10 @@ class EventController extends Controller
                     $totalCatalog,
                     $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
+                    $val->NARASUMBER,
+                    $val->LOKASI,
+                    $val->TANGGAL_MULAI ? Carbon::parse($val->TANGGAL_MULAI)->isoFormat('D MMM Y') : '',
+                    $val->TANGGAL_SELESAI ? Carbon::parse($val->TANGGAL_SELESAI)->isoFormat('D MMM Y') : '',
                     $val->LANG,
                     $attachmentLink,
                     $val->STATUS,
@@ -243,6 +252,10 @@ class EventController extends Controller
                     'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
                     'lang' => $request->lang,
+                    'narasumber' => $request->narasumber,
+                    'lokasi' => $request->place,
+                    'tanggal_mulai' => $request->start_date,
+                    'tanggal_selesai' => $request->end_date,
                 ]);
 
                 if ($createData) {
@@ -336,6 +349,10 @@ class EventController extends Controller
                     'catalog' => $catalog ? json_encode($catalog) : null,
                     'flag' => 'EVENT',
                     'lang' => $request->lang,
+                    'narasumber' => $request->narasumber,
+                    'lokasi' => $request->place,
+                    'tanggal_mulai' => $request->start_date,
+                    'tanggal_selesai' => $request->end_date,
                 ]);
 
                 if ($updateData) {
