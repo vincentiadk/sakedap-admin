@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\PhysicalDelivery;
 
 use Carbon\Carbon;
+use App\Helpers\ISBN;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -330,6 +332,434 @@ class DeliveryVerificationController extends Controller
         ]);
     }
 
+    public function datatableCollection(Request $request)
+    {
+        $column = [
+            'letter_detail_id',
+            'checked',
+            null,
+            'title',
+            'isbn',
+            'nomorpanggiljilid',
+            'edisi_serial',
+            null,
+            null,
+            'qty_accept',
+            'qty_reject',
+            'remark',
+            'isbn_status',
+        ];
+
+        $draw = intval($request->draw ?? 0);
+        $start = intval($request->start ?? 0);
+        $length = intval($request->length ?? 10);
+        $search = strtoupper($request->search['value'] ?? '');
+        $whereCondition = ["letter_id = " . intval($request->letter_id)];
+
+        if ($search) {
+            $terms = collect($column)
+                ->filter()
+                ->map(fn($c) => "upper($c) like '%$search%'")
+                ->toArray();
+
+            if ($terms) {
+                $whereCondition[] = '(' . implode(' or ', $terms) . ')';
+            }
+        }
+
+        $whereClause = 'where ' . implode(' and ', $whereCondition);
+        $orderBy = '';
+
+        if ($request->order) {
+            $orderColumnIndex = $request->order[0]['column'];
+            $orderDir = strtoupper($request->order[0]['dir']);
+
+            if (isset($column[$orderColumnIndex]) && $column[$orderColumnIndex]) {
+                $orderBy = "order by {$column[$orderColumnIndex]} $orderDir";
+            }
+        }
+
+        $totalData = QueryAPI::get("
+            select
+                count(*) as total
+            from
+                letter_detail
+        ", true)->TOTAL ?? 0;
+
+        $totalFiltered = QueryAPI::get("
+            select
+                count(letter_detail_id) as total
+            from
+                letter_detail
+            $whereClause
+        ", true)->TOTAL ?? 0;
+
+        $endRow = $start + $length;
+        $queryData = QueryAPI::get("
+            select
+                *
+            from (
+                    select
+                        rownum as rnum,
+                        data.*
+                    from (
+                            select
+                                *
+                            from
+                                letter_detail
+                            $whereClause
+                            $orderBy
+                        ) data
+                    where
+                        rownum <= $endRow
+                )
+            where
+                rnum > $start
+        ");
+
+        $data = [];
+
+        if (!$queryData) {
+            return response()->json([
+                'draw' => $draw,
+                'recordsTotal' => $totalData,
+                'recordsFiltered' => $totalFiltered,
+                'data' => $data
+            ]);
+        }
+
+        $isbnCodes = collect($queryData)
+            ->pluck('ISBN')
+            ->map(fn($isbn) => str_replace('-', '', $isbn))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $isbnData = [];
+
+        if ($isbnCodes->isNotEmpty()) {
+            $isbnDataCollection = collect();
+
+            foreach ($isbnCodes as $code) {
+                $result = ISBN::get('search', ['code' => $code], true);
+
+                if ($result) {
+                    $isbnDataCollection->put($code, $result);
+                }
+            }
+
+            $isbnData = $isbnDataCollection;
+        }
+
+        $letterDetails = [];
+
+        if ($isbnCodes->isNotEmpty()) {
+            $isbnList = $isbnCodes->map(fn($c) => "'$c'")->implode(',');
+
+            $sqlLetterDetail = "
+                select
+                    isbn,
+                    nvl(sum(qty_accept), 0) as total_letter_detail
+                from
+                    letter_detail
+                where
+                    isbn in ($isbnList)
+                group by
+                    isbn
+            ";
+
+            $letterDetailResult = QueryAPI::get($sqlLetterDetail);
+
+            if ($letterDetailResult) {
+                $letterDetails = collect($letterDetailResult)->keyBy('ISBN');
+            }
+        }
+
+        $collections = [];
+
+        if ($isbnCodes->isNotEmpty()) {
+            $isbnList = $isbnCodes->map(fn($c) => "'$c'")->implode(',');
+
+            $sqlCollection = "
+                select
+                    isbn,
+                    count(id) as total
+                from
+                    collections
+                where
+                    isbn in ($isbnList) and
+                    source_id = 6
+                group by
+                    isbn
+            ";
+
+            $collectionResult = QueryAPI::get($sqlCollection);
+
+            if ($collectionResult) {
+                $collections = collect($collectionResult)->keyBy('ISBN');
+            }
+        }
+
+        $currentUsername = session('username');
+        $isAdmin = !Main::isNotSuperAdmin();
+        $noFileCover = asset('assets/no-file.jpg');
+        $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
+        $rowNumber = $start;
+
+        foreach ($queryData as $val) {
+            $randStr = Str::random(10);
+            $code = str_replace('-', '', $val->ISBN);
+            $totalSystem = 0;
+            $totalSent = $val->COPY ?: 0;
+            $fileCover = $noFileCover;
+
+            $checked = $val->CHECKED;
+            $receivedBy = $val->RECEIVED_BY;
+            $isOpen = ($checked != 1 && empty($receivedBy));
+            $isOwner = ($receivedBy == $currentUsername);
+            $canEdit = $isAdmin || $isOpen || $isOwner;
+
+            if ($code && isset($isbnData[$code])) {
+                $getDataISBN = $isbnData[$code];
+
+                if (!empty($getDataISBN->cover_file_name)) {
+                    $fileCover = $getDataISBN->cover_file_name;
+                }
+            }
+
+            if ($code) {
+                $totalLetterDetail = $letterDetails[$code]->TOTAL_LETTER_DETAIL ?? 0;
+                $totalCollection = $collections[$code]->TOTAL ?? 0;
+
+                if ($totalLetterDetail > 0) {
+                    $totalSystem = $totalLetterDetail;
+                } elseif ($totalCollection > 0) {
+                    $totalSystem = $totalCollection;
+                }
+            }
+
+            $totalAccept = 0;
+            $totalReject = $totalSent;
+
+            if ($totalSystem == 0 || $totalSystem == 1) {
+                if ($totalSent == 1) {
+                    $totalAccept = 1;
+                    $totalReject = 0;
+                } else {
+                    $totalAccept = $isAdmin ? 2 : 1;
+                    $totalReject = $totalSent - $totalAccept;
+                }
+            }
+
+            $maxAccept = ($totalSent >= 2) ? ($isAdmin ? 2 : 1) : 1;
+
+            if ($canEdit) {
+                $checkedAttr = $checked ? 'checked' : '';
+
+                $checkedField = sprintf(
+                    '<input type="checkbox" class="form-check-input checkbox-%s" onchange="checkedAction(%d, \'%s\')" %s>',
+                    e($randStr),
+                    intval($val->LETTER_DETAIL_ID),
+                    e($randStr),
+                    $checkedAttr
+                );
+            } else {
+                $checkedField = e($receivedBy);
+            }
+
+            $coverHtml = sprintf(
+                '<a href="%s" data-lightbox="cover-%s" data-title="%s"><img src="%s" class="img img-fluid img-thumbnail" style="max-width:70px;" alt="Cover"></a>',
+                e($fileCover),
+                e($code),
+                e($val->TITLE),
+                e($fileCover)
+            );
+
+            $nameAttr = $canEdit ? 'name="letter_detail_system[]"' : '';
+
+            $totalSystemField = sprintf(
+                '<input type="number" class="form-control form-control-plaintext total-system-%s" %s value="%d" readonly>',
+                e($randStr),
+                $nameAttr,
+                intval($totalSystem)
+            );
+
+            $nameAttr = $canEdit ? 'name="letter_detail_quantity[]"' : '';
+
+            $totalCopyField = sprintf(
+                '<input type="number" class="form-control form-control-plaintext total-copy-%s" %s value="%d" readonly>',
+                e($randStr),
+                $nameAttr,
+                intval($totalSent)
+            );
+
+            $optionAccept = '';
+
+            for ($i = 0; $i <= $maxAccept; $i++) {
+                $selected = ($totalAccept == $i) ? 'selected' : '';
+                $optionAccept .= sprintf('<option value="%d" %s>%d</option>', $i, $selected, $i);
+            }
+
+            $nameAttr = $canEdit ? 'name="letter_detail_qty_accept[]"' : '';
+            $disabledAttr = $canEdit ? '' : 'disabled';
+
+            $totalAcceptField = sprintf(
+                '<select class="form-select total-accept-%s" %s onchange="calculateQty(this, \'accept\')" %s>%s</select>',
+                e($randStr),
+                $nameAttr,
+                $disabledAttr,
+                $optionAccept
+            );
+
+            $optionReject = '';
+
+            for ($i = 0; $i <= $totalSent; $i++) {
+                $selected = ($totalReject == $i) ? 'selected' : '';
+                $optionReject .= sprintf('<option value="%d" %s>%d</option>', $i, $selected, $i);
+            }
+
+            $nameAttr = $canEdit ? 'name="letter_detail_qty_reject[]"' : '';
+
+            $totalRejectField = sprintf(
+                '<select class="form-select total-reject-%s" %s onchange="calculateQty(this, \'reject\')" %s>%s</select>',
+                e($randStr),
+                $nameAttr,
+                $disabledAttr,
+                $optionReject
+            );
+
+            $remark = [];
+
+            if (!empty($val->REMARK)) {
+                $remark = array_filter(explode(';', $val->REMARK));
+
+                if ($totalReject > 0 && !in_array($problemRejectDefault, $remark)) {
+                    $remark[] = $problemRejectDefault;
+                }
+            } else if ($totalReject > 0) {
+                $remark[] = $problemRejectDefault;
+            }
+
+            $optionRemark = '';
+
+            foreach ($remark as $r) {
+                $optionRemark .= sprintf(
+                    '<option value="%s" selected>%s</option>',
+                    e($r),
+                    e($r)
+                );
+            }
+
+            $nameAttr = $canEdit ? 'name="letter_detail_remark[][]"' : '';
+
+            $remarkField = sprintf(
+                '<select class="form-select remark-%s remark-field" %s multiple %s>%s</select>',
+                e($randStr),
+                $nameAttr,
+                $disabledAttr,
+                $optionRemark
+            );
+
+            $nameAttr = $canEdit ? 'name="letter_detail_note[]"' : '';
+
+            $noteField = sprintf(
+                '<input type="text" class="form-control note-%s" %s value="%s" placeholder="...................." %s>',
+                e($randStr),
+                $nameAttr,
+                e($val->ISBN_STATUS ?? ''),
+                $disabledAttr
+            );
+
+            $btnUpdate = '';
+
+            if ($receivedBy == $currentUsername) {
+                $btnUpdate = sprintf(
+                    '<button type="button" class="btn btn-warning btn-sm" onclick="checkedAction(%d, \'%s\', %d)"><i class="ph-pen me-1"></i>Edit Data</button>',
+                    intval($val->LETTER_DETAIL_ID),
+                    e($randStr),
+                    0,
+                );
+            }
+
+            $data[] = [
+                ++$rowNumber,
+                $checkedField,
+                $coverHtml,
+                e($val->TITLE),
+                e($val->ISBN),
+                e($val->NOMORPANGGILJILID),
+                e($val->EDISI_SERIAL),
+                $totalSystemField,
+                $totalCopyField,
+                $totalAcceptField,
+                $totalRejectField,
+                $remarkField,
+                $noteField,
+                $btnUpdate,
+            ];
+        }
+
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalData,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $data
+        ]);
+    }
+
+    public function checkedAction(Request $request)
+    {
+        $letterDetailId = $request->letter_detail_id;
+        $qtyAccept = $request->qty_accept;
+        $qtyReject = $request->qty_reject;
+        $ISBNStatus = $request->isbn_status;
+        $remark = $request->remark;
+        $username = session('username');
+        $checked = $request->checked;
+        $verif = $request->verif;
+
+        $letterDetail = QueryAPI::get("select * from letter_detail where letter_detail_id = $letterDetailId", true);
+
+        if (!$letterDetail) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+
+        if (!empty($letterDetail->RECEIVED_BY)) {
+            if ($letterDetail->RECEIVED_BY != $username) {
+                return response()->json([
+                    'code' => 403,
+                    'message' => 'Data sudah diverifikasi oleh ' . $letterDetail->RECEIVED_BY
+                ]);
+            }
+        }
+
+        $payload = [
+            'qty_accept' => $checked ? $qtyAccept : null,
+            'qty_reject' => $checked ? $qtyReject : null,
+            'remark' => $checked ? implode(';', $remark ?? []) : null,
+            'isbn_status' => $checked ? $ISBNStatus : null,
+            'received_by' => $checked ? $username : null,
+            'received_date' => $checked ? date('Y-m-d H:i:s') : null,
+            'checked' => $checked ? 1 : null,
+        ];
+
+        if (!$verif) {
+            unset($payload['received_by']);
+            unset($payload['received_date']);
+            unset($payload['checked']);
+        }
+
+        QueryAPI::update('letter_detail', $letterDetailId, $payload, false);
+
+        return response()->json([
+            'code' => 200,
+            'message' => !$verif ? 'Data verifikasi berhasil di ubah' : ($checked ? 'Data berhasil diverifikasi' : 'Data berhasil dibatalkan verifikasi')
+        ]);
+    }
+
     public function detail(Request $request, $id)
     {
         if (!is_numeric($id)) {
@@ -341,13 +771,16 @@ class DeliveryVerificationController extends Controller
                 select
                     l.*,
                     jp.name as name_jasa_pengiriman,
-                    p.name as name_penerbit
+                    p.name as name_penerbit,
+                    b.name as name_branch
                 from
                     letter l
                 left join
                     penerbit p on p.id = l.penerbit_id
                 left join
                     jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
+                left join
+                    branchs b on b.id = l.branch_id
                 where
                     l.letter_id = $id
             ";
@@ -358,97 +791,37 @@ class DeliveryVerificationController extends Controller
                 abort(404, 'Letter not found');
             }
 
-            $letterDetail = QueryAPI::get("
-                select
-                    *
-                from
-                    letter_detail
-                where
-                    letter_id = $id
-            ", false);
-
-            $currentStatus = $letter->STATUS ?? '';
-            $isSuperAdmin = !Main::isNotSuperAdmin();
-            $isBranchMatch = ($letter->BRANCH_ID ?? '') === session('branch_id');
-            $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
-            $currentUser = session('username');
-            $letterId = $letter->LETTER_ID ?? null;
-
-            if ($isBranchMatch && $currentStatus === 'TERKIRIM') {
-                QueryAPI::update('letter', $letterId, [
-                    'status' => 'CEK FISIK'
-                ], false);
-
-                $letter = QueryAPI::get($letterSql, true);
-                $currentStatus = $letter->STATUS ?? '';
-                $verificatorUsername = $letter->IS_VERIFICATION_BY ?? '';
-            }
-
-            $isVerifiableNow = ($currentStatus === 'CEK FISIK') && $isBranchMatch;
-
-            if (!empty($verificatorUsername) && $verificatorUsername !== $currentUser && !$isSuperAdmin) {
-                echo '
-                    <script>
-                        alert("Sedang diverifikasi oleh ' . $verificatorUsername . '");
-                        window.location.href = "' . url('physical-delivery/delivery-verification') . '";
-                    </script>
-                ';
-
-                exit;
-            }
-
             if ($request->ajax()) {
                 try {
-                    $param = $request->input('param');
-                    $letterDetailIds = $request->input('letter_detail_id', []);
-                    $quantities = $request->input('letter_detail_quantity', []);
-                    $qtyAccepts = $request->input('letter_detail_qty_accept', []);
-                    $qtyRejects = $request->input('letter_detail_qty_reject', []);
-                    $remarks = $request->input('letter_detail_remark', []);
-                    $checkeds = $request->input('letter_detail_checked', []);
-                    $notes = $request->input('letter_detail_note', []);
-                    $status = 'DITERIMA PENUH';
+                    $status = $request->status;
 
-                    foreach ($letterDetailIds as $key => $detailId) {
-                        $qtyAccept = $qtyAccepts[$key] ?? 0;
-                        $qtyReject = $qtyRejects[$key] ?? 0;
-                        $remark = $remarks[$key] ?? [];
-                        $quantity = $quantities[$key] ?? 0;
-                        $checked = $checkeds[$key] ?? 0;
-                        $note = $notes[$key] ?? '';
+                    $letterDetail = QueryAPI::get("
+                        select
+                            count(letter_id) as total_data,
+                            count(case when received_by is not null then 1 end) as total_verification,
+                            sum(nvl(qty_reject, 0)) as total_reject
+                        from
+                            letter_detail
+                        where
+                            letter_id = $id
+                    ", true);
 
-                        QueryAPI::update('letter_detail', $detailId, [
-                            'qty_accept' => $qtyAccept,
-                            'qty_reject' => $qtyReject,
-                            'remark' => is_array($remark) ? implode(';', $remark) : $remark,
-                            'checked' => $checked ? 1 : null,
-                            'isbn_status' => $note,
-                            'received_by' => $checked ? session('username') : null,
-                            'received_date' => $checked ? date('Y-m-d H:i:s') : null,
-                        ], false);
-
-                        if ($qtyAccept < $quantity) {
-                            $status = 'DITERIMA PARSIAL';
+                    if ($letterDetail) {
+                        if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_VERIFICATION) {
+                            if ($letterDetail->TOTAL_REJECT > 0) {
+                                $status = 'DITERIMA PARSIAL';
+                            } else {
+                                $status = 'DITERIMA PENUH';
+                            }
                         }
                     }
 
-                    $requestStatus = $request->input('status');
-                    $letterUpdateData = [
-                        'status' => ($param === 'save-verification') ? $status : $requestStatus,
-                    ];
-
-                    if ($param === 'save-verification') {
-                        $letterUpdateData['accept_date'] = date('Y-m-d H:i:s');
-                    }
-
-                    $letterUpdateData['is_verification_by'] = session('username');
-                    $letterUpdateData['proses_by'] = session('username');
-
-                    if (empty($letter->CHECK_DATE ?? '') && in_array($letterUpdateData['status'], ['CEK FISIK', 'DITERIMA PENUH', 'DITERIMA PARSIAL'])) {
-                        $letterUpdateData['check_date'] = date('Y-m-d H:i:s');
-                    }
-
-                    QueryAPI::update('letter', $letterId, $letterUpdateData, false);
+                    QueryAPI::update('letter', $id, [
+                        'status' => $status,
+                        'proses_by' => session('username'),
+                        'is_verification_by' => session('username'),
+                        'check_date' => ($status == 'CEK FISIK' && empty($letter->CHECK_DATE)) ? date('Y-m-d H:i:s') : $letter->CHECK_DATE
+                    ], false);
 
                     return response()->json([
                         'code' => 200,
@@ -456,7 +829,7 @@ class DeliveryVerificationController extends Controller
                     ]);
                 } catch (\Exception $e) {
                     Log::error('Error in AJAX request: ' . $e->getMessage(), [
-                        'letter_id' => $letterId,
+                        'letter_id' => $id,
                         'param' => $request->input('param'),
                         'trace' => $e->getTraceAsString()
                     ]);
@@ -471,9 +844,7 @@ class DeliveryVerificationController extends Controller
             return view('layouts.index', [
                 'data' => [
                     'letter' => $letter,
-                    'letterDetail' => $letterDetail,
                     'content' => 'physical-delivery.delivery-verification-detail',
-                    'acceptDefault' => Main::isNotSuperAdmin() ? 1 : 2,
                     'plugins' => [
                         'select2',
                         'datatable',

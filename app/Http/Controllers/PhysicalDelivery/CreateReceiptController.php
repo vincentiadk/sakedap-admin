@@ -309,6 +309,9 @@ class CreateReceiptController extends Controller
                                 'nomorpanggiljilid' => $isbn->keterangan,
                                 'qrcbn' => $qrcbn,
                                 'isbd' => $isbd,
+                                'received_by' => $currentUser,
+                                'received_date' => $now,
+                                'checked' => 1,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -390,6 +393,9 @@ class CreateReceiptController extends Controller
                                 'nomorpanggiljilid' => $binding,
                                 'qrcbn' => $qrcbn,
                                 'isbd' => $isbd,
+                                'received_by' => $currentUser,
+                                'received_date' => $now,
+                                'checked' => 1,
                             ];
 
                             QueryAPI::create('letter_detail', $letterDetailData, false);
@@ -462,6 +468,9 @@ class CreateReceiptController extends Controller
                                     'kab_id' => $catalog->CITY_ID ?? null,
                                     'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
                                     'penerbit_id' => $catalog->PENERBIT_ID ?? null,
+                                    'received_by' => $currentUser,
+                                    'received_date' => $now,
+                                    'checked' => 1,
                                 ];
 
                                 QueryAPI::create('letter_detail', $letterDetailData, false);

@@ -24,28 +24,34 @@
                 <table class="table table-bordered">
                     <tbody>
                         <tr>
-                            <th class="table-success align-top" width="15%">Resi</th>
-                            <td class="align-top" width="35%">{{ $letter->RECEIPT_NO }}</td>
-                            <th class="table-success align-top" width="15%">Jasa Kirim</th>
-                            <td class="align-top" width="35%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
+                            <th class="table-success" width="20%">Tanggal</th>
+                            <td width="30%">{{ Carbon::parse($letter->LETTER_DATE)->isoFormat('D MMM Y') }}, {{ Carbon::parse($letter->LETTER_DATE)->format('H:i') }}</td>
+                            <th class="table-success" width="20%">No Surat</th>
+                            <td width="30%">{{ $letter->LETTER_NUMBER }}</td>
                         </tr>
                         <tr>
-                            <th class="table-success align-top" width="15%">Tgl Kirim</th>
-                            <td class="align-top" width="35%">{{ $letter->LETTER_DATE ? Carbon::parse($letter->LETTER_DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
-                            <th class="table-success align-top" width="15%">Tgl Sampai</th>
-                            <td class="align-top" width="35%">{{ $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
+                            <th class="table-success" width="20%">Pengirim</th>
+                            <td width="30%">{{ $letter->SENDER }}</td>
+                            <th class="table-success" width="20%">Telp</th>
+                            <td width="30%">{{ $letter->PHONE }}</td>
                         </tr>
                         <tr>
-                            <th class="table-success align-top" width="15%">Jumlah Paket</th>
-                            <td class="align-top" width="35%">{{ $letter->JUMLAH_PAKET }}</td>
-                            <th class="table-success align-top" width="15%">Status</th>
-                            <td class="align-top" width="35%">{{ $letter->STATUS }}</td>
+                            <th class="table-success" width="20%">Jasa Kirim</th>
+                            <td width="30%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
+                            <th class="table-success" width="20%">Tujuan</th>
+                            <td width="30%">{{ $letter->NAME_BRANCH }}</td>
                         </tr>
                         <tr>
-                            <th class="table-success align-top" width="15%">Pelaksana Serah</th>
-                            <td class="align-top" width="35%">{{ $letter->PENERBIT_ID . ' | ' . $letter->NAME_PENERBIT }}</td>
-                            <th class="table-success align-top" width="15%">Kode Promo</th>
-                            <td class="align-top" width="35%">{{ $letter->KODE_PROMO }}</td>
+                            <th class="table-success" width="20%">Resi</th>
+                            <td width="30%">{{ $letter->RECEIPT_NO }}</td>
+                            <th class="table-success" width="20%">Biaya Kirim</th>
+                            <td width="30%">Rp {{ number_format($letter->BIAYA_KIRIM) }}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success" width="20%">Berat</th>
+                            <td width="30%">{{ number_format(($letter->BERAT ?? 0) / 1000, 2, ',', '.') }} Kg</td>
+                            <th class="table-success" width="20%">Pelaksana Serah</th>
+                            <td width="30%">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -53,7 +59,7 @@
         </div>
         <div class="card">
             <div class="card-body">
-                <table class="table table-bordered w-100 display" id="datatable-client">
+                <table class="table table-bordered w-100 display nowrap" id="datatable-serverside">
                     <thead class="text-bg-light">
                         <tr>
                             <th class="text-center" rowspan="2">No</th>
@@ -67,6 +73,7 @@
                             <th colspan="2" class="text-center">Jumlah Eks</th>
                             <th rowspan="2">Alasan Ditolak</th>
                             <th rowspan="2">Catatan</th>
+                            <th rowspan="2">Aksi</th>
                         </tr>
                         <tr>
                             <th class="text-center">Disistem</th>
@@ -75,153 +82,6 @@
                             <th class="text-center">Ditolak</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($letterDetail ?? [] as $key => $ld)
-                            @php
-                                $strRand = Str::random(5);
-                                $code = str_replace('-', '', $ld->ISBN);
-                                $totalSystem = 0;
-                                $totalSent = $ld->COPY ?? 0;
-                                $totalReject = $totalSent;
-                                $fileCover = asset('assets/no-file.jpg');
-
-                                $checked = $ld->CHECKED;
-                                $receivedBy = $ld->RECEIVED_BY;
-                                $currentUsername = session('username');
-                                $isAdmin = !Main::isNotSuperAdmin();
-                                $isOpen = ($checked != 1 && empty($receivedBy));
-                                $isOwner = ($receivedBy == $currentUsername);
-                                $canEdit = $isAdmin || $isOpen || $isOwner;
-
-                                if ($code) {
-                                    $getDataISBN = ISBN::get('search', [
-                                        'code' => $code
-                                    ], true);
-
-                                    if($getDataISBN) {
-                                        if(isset($getDataISBN->cover_file_name)) {
-                                            if($getDataISBN->cover_file_name) {
-                                                $fileCover = $getDataISBN->cover_file_name;
-                                            }
-                                        }
-                                    }
-
-                                    $sqlLetterDetail = "select coalesce(sum(qty_accept), 0) as total_letter_detail from letter_detail where isbn = '$code'";
-                                    $letterDetail = QueryAPI::get($sqlLetterDetail, true);
-
-                                    $sqlCollection = "select count(id) AS total from collections where isbn = '$code' and source_id = 6";
-                                    $collection = QueryAPI::get($sqlCollection, true);
-
-                                    $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
-                                    $totalCollection = $collection->TOTAL ?? 0;
-
-                                    if ($totalLetterDetail > 0) {
-                                        $totalSystem += $totalLetterDetail;
-                                    } else if ($totalCollection > 0) {
-                                        $totalSystem += $totalCollection;
-                                    }
-                                }
-
-                                $totalAccept = 0;
-
-                                if ($totalSystem == 0 || $totalSystem == 1) {
-                                    if ($totalSent == 1) {
-                                        $totalAccept = 1;
-                                        $totalReject -= 1;
-                                    } else {
-                                        if (Main::isNotSuperAdmin()) {
-                                            $totalAccept = 1;
-                                            $totalReject -= 1;
-                                        } else {
-                                            $totalAccept = 2;
-                                            $totalReject -= 2;
-                                        }
-                                    }
-                                }
-
-                                if($totalSent >= 2) {
-                                    $maxAccept = Main::isNotSuperAdmin() ? 1 : 2;
-                                } else {
-                                    $maxAccept = 1;
-                                }
-                            @endphp
-                            <tr>
-                                @if($canEdit)
-                                    <input type="hidden" name="letter_detail_id[]" value="{{ $ld->LETTER_DETAIL_ID }}">
-                                    <input type="hidden" name="letter_detail_total" value="{{ $totalSent }}">
-                                @endif
-
-                                <td class="text-center">{{ $key + 1 }}</td>
-                                <td class="text-center">
-                                    <center>
-                                        @if($canEdit)
-                                            <input type="hidden" name="letter_detail_checked[]" class="letter_detail_checked_{{ $strRand }}" value="{{ $ld->CHECKED == 1 ? 1 : 0 }}">
-                                            <input type="checkbox" class="form-check-input" onchange="$(this).is(':checked') ? $('.letter_detail_checked_{{ $strRand }}').val(1) : $('.letter_detail_checked_{{ $strRand }}').val(0)" {{ $ld->CHECKED == 1 ? 'checked' : '' }}>
-                                        @else
-                                            {{ $receivedBy }}
-                                        @endif
-                                    </center>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ $fileCover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
-                                        <img src="{{ $fileCover }}" class="img img-fluid img-thumbnail" style="max-width:70px;">
-                                    </a>
-                                </td>
-                                <td class="text-wrap">{{ $ld->TITLE }}</td>
-                                <td class="text-wrap">{{ $ld->ISBN }}</td>
-                                <td class="text-wrap">{{ $ld->NOMORPANGGILJILID }}</td>
-                                <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
-                                <td>
-                                    <input type="number" class="form-control form-control-plaintext" @if($canEdit) name="letter_detail_system[]" @endif value="{{ $totalSystem }}" readonly @if(!$canEdit) disabled @endif>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control form-control-plaintext" @if($canEdit) name="letter_detail_quantity[]" @endif value="{{ $ld->COPY }}" readonly @if(!$canEdit) disabled @endif>
-                                </td>
-                                <td>
-                                    <select class="form-select" @if($canEdit) name="letter_detail_qty_accept[]" @endif onchange="calculateQty(this, 'accept')" @if(!$canEdit) disabled @endif>
-                                        @for($i = 0; $i <= $maxAccept; $i++)
-                                            <option value="{{ $i }}" {{ ($totalAccept) == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="form-select" @if($canEdit) name="letter_detail_qty_reject[]" @endif onchange="calculateQty(this, 'reject')" @if(!$canEdit) disabled @endif>
-                                        @for($i = 0; $i <= $totalSent; $i++)
-                                            <option value="{{ $i }}" {{ ($totalReject) == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="form-select" @if($canEdit) name="letter_detail_remark[][]" @endif multiple @if(!$canEdit) disabled @endif>
-                                        @php
-                                            $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
-                                            $remark = [];
-
-                                            if($ld->REMARK) {
-                                                $remark = explode(';', $ld->REMARK ?? '');
-
-                                                if($totalReject > 0) {
-                                                    if(!in_array($problemRejectDefault, $remark)) {
-                                                        $remark[] = $problemRejectDefault;
-                                                    }
-                                                }
-                                            } else {
-                                                if($totalReject > 0) {
-                                                    $remark[] = $problemRejectDefault;
-                                                }
-                                            }
-                                        @endphp
-                                        @foreach($remark ?? [] as $r)
-                                            <option value="{{ $r }}" selected>{{ $r }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control" @if($canEdit) name="letter_detail_note[]" @endif value="{{ $ld->ISBN_STATUS ?? '' }}" placeholder="...................." @if(!$canEdit) disabled @endif>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -231,22 +91,12 @@
                     <div class="input-group me-2">
                         <span class="input-group-text">Status</span>
                         <select class="form-select wmin-200" name="status" id="status">
-                            <option value="DALAM PENGIRIMAN" {{ $letter->STATUS == 'DALAM PENGIRIMAN' ? 'selected' : '' }}>DALAM PENGIRIMAN</option>
-                            <option value="TERKIRIM" {{ $letter->STATUS == 'TERKIRIM' ? 'selected' : '' }}>TERKIRIM</option>
-                            <option value="CEK FISIK" {{ $letter->STATUS == 'CEK FISIK' ? 'selected' : '' }}>CEK FISIK</option>
+                            <option value="CEK FISIK" {{ ($letter->STATUS == 'CEK FISIK' || $letter->STATUS == 'TERKIRIM') ? 'selected' : '' }}>CEK FISIK</option>
                         </select>
                     </div>
-                    <button type="button" class="btn btn-danger text-nowrap me-2" onclick="submitted('cancel')">
-                        <i class="ph-x me-1"></i>
-                        Batal Verifikasi
-                    </button>
-                    <button type="button" class="btn btn-warning text-nowrap me-2" onclick="submitted('save')">
-                        <i class="ph-floppy-disk me-1"></i>
-                        Simpan
-                    </button>
-                    <button type="button" class="btn btn-success text-nowrap" onclick="submitted('save-verification')">
+                    <button type="button" class="btn btn-success text-nowrap" onclick="submitted()">
                         <i class="ph-check me-1"></i>
-                        Simpan & Verifikasi
+                        Simpan Hasil Verifikasi
                     </button>
                 </div>
             </div>
@@ -256,19 +106,181 @@
 
 <script>
     $(function() {
-        select2ServersideTag('select[name="letter_detail_remark[][]"]', 'problem', {}, {
-            minimumInputLength: 0
+        loadData();
+    });
+
+    function onReloadTable() {
+        window.gDataTable.ajax.reload(null, false);
+    }
+
+    function loadData() {
+        window.gDataTable = $('#datatable-serverside').DataTable({
+            processing: true,
+            serverSide: true,
+            deferRender: true,
+            destroy: true,
+            order: [0, 'asc'],
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.childRowImmediate,
+                    renderer: function (api, rowIdx, columns) {
+                        let data = columns.map((col, i) => {
+                            let isLast = (i === columns.length - 1);
+
+                            if (col.hidden) {
+                                if(isLast) {
+                                    return `
+                                        <div class="form-group">
+                                            <div class="text-end">${col.data}</div>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-lg-2">${col.title}</label>
+                                            <div class="col-md-10">
+                                                ${col.data}
+                                            </div>
+                                        </div>
+                                    `
+                                }
+                            } else {
+                                return '';
+                            }
+                        }).join('');
+
+                        return '<div class="mt-2">' + data + '</div>';
+                    }
+                }
+            },
+            ajax: {
+                url: '{{ url("physical-delivery/delivery-verification/datatable-collection") }}',
+                dataType: 'JSON',
+                data: {
+                    letter_id: '{{ $letter->LETTER_ID }}'
+                },
+                beforeSend: function() {
+                    onLoading('show', '#datatable-serverside_wrapper');
+                },
+                error: function(response) {
+                    onLoading('close', '#datatable-serverside_wrapper');
+                    responseError(response);
+                }
+            },
+            columns: [
+                { orderable: true, className: 'align-middle text-center', responsivePriority: 1 },
+                { orderable: false, className: 'align-middle text-center', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle text-center', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle text-wrap', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle text-wrap', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle text-wrap', responsivePriority: 1 },
+                { orderable: true, className: 'align-middle', responsivePriority: 1 },
+                { orderable: false, className: 'align-middle', responsivePriority: 1 },
+                { orderable: false, className: 'align-middle', responsivePriority: 1 },
+                { orderable: false, className: 'align-middle', responsivePriority: 1 },
+                { orderable: false, className: 'align-middle none' },
+                { orderable: false, className: 'align-middle none' },
+                { orderable: false, className: 'align-middle none' },
+            ],
+            initComplete: function (settings, json) {
+                var table = this.api();
+                const searchInput = $('div.dataTables_filter input');
+
+                searchInput.off().unbind();
+
+                searchInput.on('keyup', debounce(function () {
+                    table.search(this.value).draw();
+                }, 500));
+            },
+            drawCallback: function() {
+                select2ServersideTag('.remark-field', 'problem', {}, {
+                    minimumInputLength: 0,
+                });
+
+                onLoading('close', '#datatable-serverside_wrapper');
+            },
+        }).on('draw.dt', function() {
+            onLoading('close', '#datatable-serverside_wrapper');
+        }).on('responsive-display', function (e, datatable, row, showHide, update) {
+            if (showHide) {
+                select2ServersideTag('.remark-field', 'problem', {}, {
+                    minimumInputLength: 0,
+                });
+            }
         });
 
-        $('#datatable-client').DataTable({
-            paging: false,
-            lengthChange: false,
-            info: false,
-            scrollY: '400px',
-            scrollX: false,
-            scrollCollapse: true,
+        window.gDataTable.columns.adjust().draw();
+    }
+
+    function checkedAction(id, param, verif = 1) {
+        var checkChecked = $('.checkbox-' + param).is(':checked');
+
+        $.ajax({
+            url: '{{ url("physical-delivery/delivery-verification/checked-action") }}',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                letter_detail_id: id,
+                qty_accept: $('.total-accept-' + param).val(),
+                qty_reject: $('.total-reject-' + param).val(),
+                isbn_status: $('.note-' + param).val(),
+                checked: checkChecked ? 1 : 0,
+                verif: verif,
+                remark: $('.remark-' + param).find(':selected').map(function() {
+                    return $(this).val();
+                }).get(),
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            beforeSend: function() {
+                onLoading('show', '#datatable-serverside_wrapper');
+            },
+            success: function(response) {
+                if(response.code == 200) {
+                    if(verif == 1) {
+                        onReloadTable();
+                    } else {
+                        onLoading('close', '#datatable-serverside_wrapper');
+                    }
+
+                    notification('success', response.message);
+                } else {
+                    onLoading('close', '#datatable-serverside_wrapper');
+
+                    if(checkChecked) {
+                        $('.checkbox-' + param).prop('checked', false);
+                    } else {
+                        $('.checkbox-' + param).prop('checked', true);
+                    }
+
+                    swalInit.fire({
+                        title: response.code == 500 ? 'Error' : 'Oops ...',
+                        text: response.message,
+                        icon: response.code == 500 ? 'error' : 'info',
+                        showCloseButton: true
+                    });
+
+                    if(response.code == 403) {
+                        onReloadTable();
+                    }
+                }
+            },
+            error: function(response) {
+                onLoading('close', '#datatable-serverside_wrapper');
+                responseError(response);
+
+                var checkChecked = $('.checkbox-' + param).is(':checked');
+
+                if(checkChecked) {
+                    $('.checkbox-' + param).prop('checked', false);
+                } else {
+                    $('.checkbox-' + param).prop('checked', true);
+                }
+            }
         });
-    });
+    }
 
     function calculateQty(param, from) {
         var selector = $(param).closest('tr');
@@ -286,9 +298,9 @@
         }
     }
 
-    function submitted(param) {
+    function submitted() {
         $.ajax({
-            url: '{{ url("physical-delivery/delivery-verification/detail/" . $letter->LETTER_ID) }}?param=' + param,
+            url: '{{ url("physical-delivery/delivery-verification/detail/" . $letter->LETTER_ID) }}',
             type: 'POST',
             dataType: 'JSON',
             data: $('#form-data').serialize(),

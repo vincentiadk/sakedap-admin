@@ -362,6 +362,7 @@ class Select2ServersideController extends Controller
     {
         $response = [];
         $search = Str::upper($request->search);
+        $returnValue = $request->return_value ?? false;
 
         $data = QueryAPI::get("
             select
@@ -380,7 +381,7 @@ class Select2ServersideController extends Controller
                 ';
 
                 $response[] = [
-                    'id' => $d->ID,
+                    'id' => $returnValue ? $d->NAME : $d->ID,
                     'text' => $d->NAME,
                     'html' => $html,
                 ];

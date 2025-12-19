@@ -83,6 +83,8 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('delivery-verification')->group(function () {
             Route::get('/', 'DeliveryVerificationController@index');
             Route::get('datatable', 'DeliveryVerificationController@datatable');
+            Route::get('datatable-collection', 'DeliveryVerificationController@datatableCollection');
+            Route::post('checked-action', 'DeliveryVerificationController@checkedAction');
             Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
         });
 

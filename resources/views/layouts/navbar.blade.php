@@ -97,21 +97,56 @@
                                             <div class="col-md-12">
                                                 <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">
-                                                    <span>Verifikasi Pengiriman</span>
-								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_delivery_verification') }}</span>
-                                                </a>
-                                                <a href="{{ url('physical-delivery/delivery-to-destination') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-to-destination' ? 'active' : '' }}">
-                                                    <span>Pengiriman Sampai ke Tujuan</span>
-								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_delivery_sent') }}</span>
-                                                </a>
-                                                <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">
-                                                    <span>Dalam Pengiriman</span>
-								                    <span class="badge bg-primary align-self-center rounded-pill ms-auto">{{ config('system.total_in_delivery') }}</span>
-                                                </a>
+                                            <div class="col-md-7">
+                                                <a href="{{ url('physical-delivery/delivery-verification') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-verification' ? 'active' : '' }}">Verifikasi Pengiriman</a>
+                                                <a href="{{ url('physical-delivery/delivery-to-destination') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'delivery-to-destination' ? 'active' : '' }}">Pengiriman Sampai ke Tujuan</a>
+                                                <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">Dalam Pengiriman</a>
                                                 <a href="{{ url('physical-delivery/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
                                                 <a href="{{ url('physical-delivery/create-receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'create-receipt' ? 'active' : '' }}">Tambah Bukti Penerimaan</a>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="border-start-lg ps-lg-3 py-2">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="ph-chart-pie-slice text-success me-2 ph-lg"></i>
+                                                        <span class="fw-semibold text-uppercase text-muted">Statistik Pengiriman</span>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <p class="fs-sm text-muted">
+                                                            Sistem saat ini mencatat <span class="text-danger fw-bold">{{ number_format(config('system.total_delivery_verification')) }}</span> data verifikasi,
+                                                            <span class="text-primary fw-bold">{{ number_format(config('system.total_in_delivery')) }}</span> paket sedang dikirim, dan
+                                                            <span class="text-success fw-bold">{{ number_format(config('system.total_delivery_sent')) }}</span> pengiriman telah sampai di tujuan.
+                                                        </p>
+                                                    </div>
+                                                    <div class="list-group list-group-flush border-top border-bottom">
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-1 border-0">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ph-clipboard-text text-warning me-2"></i>
+                                                                <span class="fs-sm">Pengiriman Verifikasi</span>
+                                                            </div>
+                                                            <span class="badge bg-warning-alpha text-warning rounded-pill fw-bold">
+                                                                {{ number_format(config('system.total_delivery_verification')) }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-1 border-0">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ph-truck text-primary me-2"></i>
+                                                                <span class="fs-sm">Dalam Pengiriman</span>
+                                                            </div>
+                                                            <span class="badge bg-primary-alpha text-primary rounded-pill fw-bold">
+                                                                {{ number_format(config('system.total_in_delivery')) }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-1 border-0">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ph-check-circle text-success me-2"></i>
+                                                                <span class="fs-sm">Sampai Tujuan</span>
+                                                            </div>
+                                                            <span class="badge bg-success-alpha text-success rounded-pill fw-bold">
+                                                                {{ number_format(config('system.total_delivery_sent')) }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

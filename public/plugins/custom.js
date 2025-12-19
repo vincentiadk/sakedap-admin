@@ -372,6 +372,7 @@ function select2ServersideTag(selector, endpoint, payload = {}, additionalConfig
                 data: function (params) {
                     return $.extend({
                         search: params.term,
+                        return_value: true,
                     }, payload);
                 },
                 processResults: function (data) {
