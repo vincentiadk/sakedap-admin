@@ -73,17 +73,17 @@
                     <td style="border:1px solid black; text-align:center; vertical-align:center; background:#DCDCDC;">{{ $no }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->JUDUL_PROMO }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->KODE_PROMO_PROMO }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->SALDO_PROMO) }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->SALDO_PROMO ?: 0) }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->DISKON_PROMO . ' %' }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->JUMLAH_PAKET_PROMO }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->JUMLAH_POTONGAN) }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->JUMLAH_POTONGAN ?: 0) }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->LETTER_DATE_LETTER ? Carbon::parse($val->LETTER_DATE_LETTER)->isoFormat('dddd, D MMMM Y') : '' }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->LETTER_NUMBER_LETTER }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->SENDER_LETTER }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_PENERBIT }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->NAME_JASA_PENGIRIMAN }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->RECEIPT_NO_LETTER }}</td>
-                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->BIAYA_KIRIM_LETTER) }}</td>
+                    <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ 'Rp ' . number_format($val->BIAYA_KIRIM_LETTER ?: 0) }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->BERAT_LETTER . ' gram' }}</td>
                     <td style="border:1px solid black; text-align:left; vertical-align:center; background:#DCDCDC;">{{ $val->JUMLAH_PAKET_LETTER }}</td>
                 </tr>

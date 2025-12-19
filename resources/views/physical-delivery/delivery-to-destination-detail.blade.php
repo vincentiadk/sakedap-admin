@@ -45,11 +45,11 @@
                             <th class="table-success" width="20%">Resi</th>
                             <td width="30%">{{ $letter->RECEIPT_NO }}</td>
                             <th class="table-success" width="20%">Biaya Kirim</th>
-                            <td width="30%">Rp {{ number_format($letter->BIAYA_KIRIM) }}</td>
+                            <td width="30%">Rp {{ number_format($letter->BIAYA_KIRIM ?: 0) }}</td>
                         </tr>
                         <tr>
                             <th class="table-success" width="20%">Berat</th>
-                            <td width="30%">{{ number_format(($letter->BERAT ?? 0) / 1000, 2, ',', '.') }} Kg</td>
+                            <td width="30%">{{ number_format(($letter->BERAT ?: 0) / 1000, 2, ',', '.') }} Kg</td>
                             <th class="table-success" width="20%">Pelaksana Serah</th>
                             <td width="30%">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</td>
                         </tr>
