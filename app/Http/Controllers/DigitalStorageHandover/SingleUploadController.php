@@ -19,8 +19,11 @@ class SingleUploadController extends Controller
         $this->worksheetCategory = Main::COLLECTION_DIGITAL;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $uploadIDCover = $request->upload_id_cover;
+        $uploadIDContent = $request->upload_id_content;
+
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'") ?? [],
@@ -30,6 +33,8 @@ class SingleUploadController extends Controller
                 'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'") ?? [],
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'") ?? [],
                 'bigClass' => QueryAPI::get("select * from master_kelas_besar") ?? [],
+                'uploadIDCover' => $uploadIDCover,
+                'uploadIDContent' => $uploadIDContent,
                 'content' => 'digital-storage-handover.single-upload',
                 'plugins' => [
                     'select2',
@@ -128,6 +133,9 @@ class SingleUploadController extends Controller
                     $receivedTime = strtotime($request->received_at);
                     $catalogId = $request->catalog_id;
                     $catalog = QueryAPI::get("select edeposit_col_id from catalogs where id = $catalogId", true);
+
+                    $uploadIDCover = $request->upload_id_cover;
+                    $uploadIDContent = $request->upload_id_content;
 
                     $baseCollectionData = [
                         'id_old' => 0,
@@ -297,6 +305,11 @@ class SingleUploadController extends Controller
                             'iszip' => false,
                             'file' => $fileContent,
                         ]);
+                    }
+
+                    if ($uploadIDCover && $uploadIDContent) {
+                        QueryAPI::query("update catalogcovers set e_col_id = $createCollection->ID where upload_id = $uploadIDCover");
+                        QueryAPI::query("update catalogfiles set e_col_id = $createCollection->ID where upload_id = $uploadIDContent");
                     }
 
                     QueryAPI::verificationCollection($createCollection->ID);

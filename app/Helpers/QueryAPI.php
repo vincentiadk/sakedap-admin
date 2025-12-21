@@ -47,6 +47,34 @@ class QueryAPI
     }
 
     /**
+     * query
+     *
+     * @param  mixed $sql
+     * @return void
+     */
+    public static function query($sql)
+    {
+        static::initialize();
+
+        $data = null;
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
+            ->withQueryParameters([
+                'token' => static::$token,
+                'op' => 'getlistraw',
+                'sql' => $sql
+            ])
+            ->post(static::$baseUrl);
+
+        if ($query->status() == 200) {
+            $data = $query->object();
+        }
+
+        return $data;
+    }
+
+
+    /**
      * get
      *
      * @param  mixed $sql

@@ -12,6 +12,8 @@
         <ul class="mb-0" id="validation-data"></ul>
     </div>
     <form id="form-data">
+        <input type="hidden" name="upload_id_cover" id="upload_id_cover" value="{{ $uploadIDCover }}">
+        <input type="hidden" name="upload_id_content" id="upload_id_content" value="{{ $uploadIDCover }}">
         <div class="card">
             <div class="card-header">
                 <h5 class="hstack gap-2 mb-0">Jenis Bahan <span class="text-danger fw-bold">*</span></h5>
@@ -338,28 +340,30 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6" id="section-file-cover">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File Cover <span class="text-danger fw-bold">*</span></h5>
+        @if(!$uploadIDCover && !$uploadIDContent)
+            <div class="row">
+                <div class="col-md-6" id="section-file-cover">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="hstack gap-2 mb-0">File Cover <span class="text-danger fw-bold">*</span></h5>
+                        </div>
+                        <div class="card-body">
+                            <input type="file" name="file_cover" id="file_cover">
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <input type="file" name="file_cover" id="file_cover">
+                </div>
+                <div class="col-md-6" id="section-file-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="hstack gap-2 mb-0">File Konten <span class="text-danger fw-bold">*</span></h5>
+                        </div>
+                        <div class="card-body">
+                            <input type="file" name="file_content" id="file_content">
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6" id="section-file-content">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="hstack gap-2 mb-0">File Konten <span class="text-danger fw-bold">*</span></h5>
-                    </div>
-                    <div class="card-body">
-                        <input type="file" name="file_content" id="file_content">
-                    </div>
-                </div>
-            </div>
-        </div>
+        @endif
     </form>
     <div class="card">
         <div class="card-body">
