@@ -249,7 +249,7 @@ class EventController extends Controller
             'image.required' => 'Gambar tidak boleh kosong',
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'image.max' => 'Gambar maksimal 500 KB',
             'title.required' => 'Judul tidak boleh kosong',
         ]);
 
@@ -346,7 +346,7 @@ class EventController extends Controller
         ], [
             'image.image' => 'Gambar tidak valid',
             'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'image.max' => 'Gambar maksimal 500 KB',
             'title.required' => 'Judul tidak boleh kosong',
         ]);
 
@@ -394,7 +394,7 @@ class EventController extends Controller
                         QueryAPI::removeFile([
                             'type' => 'gambar_artikel',
                             'id' => $id,
-                            'filename' => $query->TTD_FILE_NAME ?? ''
+                            'filename' => $query->IMAGE ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([

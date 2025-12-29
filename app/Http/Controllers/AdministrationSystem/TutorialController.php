@@ -31,7 +31,7 @@ class TutorialController extends Controller
         $column = [
             'e_news.id',
             null,
-            'e_news.image',
+            'e_news.file',
             'e_news_kategori.name',
             'e_news.title',
             'e_news.lang',
@@ -149,18 +149,18 @@ class TutorialController extends Controller
                     </div>
                 ';
 
-                $image = '
+                $media = '
                     <button type="button" class="btn btn-danger btn-sm no-click">
                         <i class="ph-x me-1"></i>
-                        Tidak Ada Gambar
+                        Tidak Ada Media
                     </button>
                 ';
 
-                if ($val->IMAGE) {
-                    $image = '
-                        <a href="' . url('stream-file') . '?type=gambar_artikel&id=' . $val->ID . '&filename=' . $val->IMAGE . '" data-lightbox="news-' . $val->ID . '" data-title="' . $val->IMAGE . '" class="btn btn-success btn-sm">
-                            <i class="ph-image me-1"></i>
-                            Lihat Gambar
+                if ($val->FILE) {
+                    $media = '
+                        <a href="' . url('stream-file') . '?type=file_artikel&id=' . $val->ID . '&filename=' . $val->FILE . '" class="btn btn-success btn-sm">
+                            <i class="ph-file me-1"></i>
+                            Lihat Media
                         </a>
                     ';
                 }
@@ -176,7 +176,7 @@ class TutorialController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $image,
+                    $media,
                     $val->NAME_E_NEWS_KATEGORI,
                     $val->TITLE,
                     $val->LANG,
@@ -225,15 +225,13 @@ class TutorialController extends Controller
     public function createData(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:png,jpg,jpeg|max:500',
+            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
             'title' => 'required',
             'content' => 'required',
             'category_id' => 'required',
         ], [
-            'image.required' => 'Gambar tidak boleh kosong',
-            'image.image' => 'Gambar tidak valid',
-            'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
+            'media.max' => 'Media maksimal 5 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
             'category_id.required' => 'Kategori tidak boleh kosong',
@@ -259,17 +257,19 @@ class TutorialController extends Controller
                 ]);
 
                 if ($createData) {
-                    $uploadFile = QueryAPI::uploadFile([
-                        'type' => 'gambar_artikel',
-                        'id' => $createData->ID,
-                        'iszip' => 0,
-                        'file' => $request->file('image'),
-                    ]);
+                    if ($request->hasFile('media')) {
+                        $uploadFile = QueryAPI::uploadFile([
+                            'type' => 'file_artikel',
+                            'id' => $createData->ID,
+                            'iszip' => 0,
+                            'file' => $request->file('media'),
+                        ]);
 
-                    if ($uploadFile) {
-                        QueryAPI::update('e_news', $createData->ID, [
-                            'image' => $uploadFile->FileName
-                        ], false);
+                        if ($uploadFile) {
+                            QueryAPI::update('e_news', $createData->ID, [
+                                'file' => $uploadFile->FileName
+                            ], false);
+                        }
                     }
                 }
 
@@ -307,14 +307,13 @@ class TutorialController extends Controller
     {
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
-            'image' => 'nullable|image|mimes:png,jpg,jpeg|max:500',
+            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
             'title' => 'required',
             'content' => 'required',
             'category_id' => 'required',
         ], [
-            'image.image' => 'Gambar tidak valid',
-            'image.mimes' => 'Gambar harus png, jpg, jpeg',
-            'image.mimes' => 'Gambar maksimal 500 KB',
+            'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
+            'media.max' => 'Media maksimal 5 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
             'category_id.required' => 'Kategori tidak boleh kosong',
@@ -340,23 +339,23 @@ class TutorialController extends Controller
                 ]);
 
                 if ($updateData) {
-                    if ($request->hasFile('image')) {
+                    if ($request->hasFile('media')) {
                         QueryAPI::removeFile([
-                            'type' => 'gambar_artikel',
+                            'type' => 'file_artikel',
                             'id' => $id,
-                            'filename' => $query->TTD_FILE_NAME ?? ''
+                            'filename' => $query->FILE ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([
-                            'type' => 'gambar_artikel',
+                            'type' => 'file_artikel',
                             'id' => $id,
                             'iszip' => 0,
-                            'file' => $request->file('image'),
+                            'file' => $request->file('media'),
                         ]);
 
                         if ($uploadFile) {
                             QueryAPI::update('e_news', $id, [
-                                'image' => $uploadFile->FileName
+                                'file' => $uploadFile->FileName
                             ], false);
                         }
                     }

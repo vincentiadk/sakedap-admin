@@ -22,7 +22,16 @@
         <div class="col-lg-8 mx-auto">
             <div class="card shadow-sm">
                 <div class="card-img-top position-relative overflow-hidden" style="max-height: 450px;">
-                    <img src="{{ $news->IMAGE ? url('stream-file') . '?type=gambar_artikel&id=' . $news->ID . '&filename=' . $news->IMAGE : asset('assets/no-file.jpg') }}" class="img-fluid w-100" style="object-fit: cover; height: 450px;" alt="{{ $news->TITLE }}">
+                    @php $mediaExt = pathinfo($news->FILE, PATHINFO_EXTENSION); @endphp
+                    @if(in_array($mediaExt, ['png', 'jpg', 'jpeg']))
+                        <img src="{{ $news->FILE ? url('stream-file') . '?type=file_artikel&id=' . $news->ID . '&filename=' . $news->FILE : asset('assets/no-file.jpg') }}" class="img-fluid w-100" style="object-fit: cover; height: 450px;" alt="{{ $news->TITLE }}">
+                    @elseif(in_array($mediaExt, ['mp4', 'mkv']))
+                        <video src="{{ $news->FILE ? url('stream-file') . '?type=file_artikel&id=' . $news->ID . '&filename=' . $news->FILE : asset('assets/no-file.jpg') }}" class="w-100" style="object-fit: cover; height: 450px;"></video>
+                    @elseif($mediaExt == 'pdf')
+                        <iframe src="{{ $news->FILE ? url('stream-file') . '?type=file_artikel&id=' . $news->ID . '&filename=' . $news->FILE : asset('assets/no-file.jpg') }}" frameborder="0" class="w-100" style="object-fit: cover; height: 450px;"></iframe>
+                    @else
+                        <img src="{{ asset('assets/no-file.jpg') }}" class="img-fluid w-100" style="object-fit: cover; height: 450px;" alt="{{ $news->TITLE }}">
+                    @endif
                     <div class="position-absolute top-0 end-0 m-3">
                         @if($news->STATUS == 'PUBLISH')
                             <span class="badge bg-success fs-6 shadow">

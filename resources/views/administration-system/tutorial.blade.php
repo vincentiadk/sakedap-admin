@@ -39,7 +39,7 @@
                     <tr>
                         <th class="text-nowrap">No</th>
                         <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Gambar</th>
+                        <th class="text-nowrap">Media</th>
                         <th class="text-nowrap">Kategori</th>
                         <th class="text-nowrap">Judul</th>
                         <th class="text-nowrap">Lang</th>
@@ -67,12 +67,12 @@
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Gambar :</label>
+                        <label class="form-label">Media :</label>
                         <div class="input-group">
-                            <input type="file" class="form-control" name="image" id="image">
-                            <a href="" data-lightbox="news-form" data-title="Preview Gambar" class="btn btn-success" id="image-preview">
-                                <i class="ph-image me-1"></i>
-                                Lihat Gambar Saat Ini
+                            <input type="file" class="form-control" name="media" id="media">
+                            <a href="" class="btn btn-success" id="media-preview" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat Media Saat Ini
                             </a>
                         </div>
                     </div>
@@ -332,16 +332,16 @@
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
                 $('#summary').val(response.RINGKASAN);
 
-                if(response.IMAGE) {
+                if(response.MEDIA) {
                     var paramFile = {
                         id: response.ID,
-                        type: 'gambar_artikel',
-                        filename: response.IMAGE,
+                        type: 'file_artikel',
+                        filename: response.MEDIA,
                         v: '{{ Str::random(40) }}'
                     };
 
-                    $('#image-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#image-preview').fadeIn(500);
+                    $('#media-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
+                    $('#media-preview').fadeIn(500);
                 }
             },
             error: function(response) {
