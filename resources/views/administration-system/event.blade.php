@@ -1,181 +1,388 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Event</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-calendar-plus me-1"></i>
+                    Tambah Event
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
-            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
-            <div class="ms-sm-auto my-sm-auto">
-                <div class="input-group">
-                    <span class="input-group-text">Kategori</span>
-                    <select class="form-select w-auto flex-grow-0" name="filter_category" id="filter_category" onchange="loadData()">
-                        <option value="">Semua</option>
-                        @foreach($category as $c)
-                            <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
-                        @endforeach
-                    </select>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-calendar-check me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Event</h6>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
+                        <select class="form-select" name="filter_category" id="filter_category" onchange="loadData()" style="min-width: 200px;">
+                            <option value="">Semua Kategori</option>
+                            @foreach($category as $c)
+                                <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                        <i class="ph-list-checks me-1"></i>
+                        <span id="record-count">0</span> Data
+                    </span>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Gambar</th>
-                        <th class="text-nowrap">Total Katalog</th>
-                        <th class="text-nowrap">Kategori</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Narasumber</th>
-                        <th class="text-nowrap">Tempat</th>
-                        <th class="text-nowrap">Tgl Mulai</th>
-                        <th class="text-nowrap">Tgl Selesai</th>
-                        <th class="text-nowrap">Lang</th>
-                        <th class="text-nowrap">Lampiran Link</th>
-                        <th class="text-nowrap">Status</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 150px">
+                                <i class="ph-image me-1"></i>
+                                Gambar
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-books me-1"></i>
+                                Total Katalog
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-tag me-1"></i>
+                                Kategori
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-text-aa me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-user-circle me-1"></i>
+                                Narasumber
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-map-pin me-1"></i>
+                                Tempat
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-calendar me-1"></i>
+                                Tgl Mulai
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Selesai
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 80px">
+                                <i class="ph-translate me-1"></i>
+                                Lang
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-link me-1"></i>
+                                Lampiran Link
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-semibold">
+                    <i class="ph-calendar-check me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-warning-circle me-2 fs-4"></i>
+                        <div class="flex-fill">
+                            <h6 class="alert-heading mb-2">Terdapat Kesalahan Input</h6>
+                            <ul class="mb-0" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="form-group">
-                        <label class="form-label">Gambar :</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control" name="image" id="image">
-                            <a href="" data-lightbox="news-form" data-title="Preview Gambar" class="btn btn-success" id="image-preview">
-                                <i class="ph-image me-1"></i>
-                                Lihat Gambar Saat Ini
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h6 class="fw-semibold">
+                                <i class="ph-image me-1 text-primary"></i>
+                                Gambar Event
+                            </h6>
                             <div class="form-group">
-                                <label class="form-label">Status :</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="PUBLISH">PUBLISH</option>
-                                    <option value="HIDE">HIDE</option>
-                                </select>
+                                <label class="form-label fw-semibold">
+                                    Upload Gambar
+                                </label>
+                                <input type="file" class="form-control" name="image" id="image" accept="image/*">
+                                <div class="form-text">
+                                    <i class="ph-info me-1"></i>
+                                    Format: JPG, PNG, GIF. Maksimal 2MB. Rekomendasi ukuran: 1200x800px
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label class="form-label">Lang :</label>
-                                <select class="form-select" name="lang" id="lang">
-                                    <option value="ID">ID</option>
-                                    <option value="EN">EN</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label class="form-label">Tanggal Mulai :</label>
-                                <input type="date" class="form-control" name="start_date" id="start_date">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label class="form-label">Tanggal Selesai :</label>
-                                <input type="date" class="form-control" name="end_date" id="end_date">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Kategori :</label>
-                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
-                                    <option value=""></option>
-                                    @foreach($category as $c)
-                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Lampiran Link :</label>
-                                <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Ringkasan :</label>
-                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Narasumber :</label>
-                                <textarea class="form-control" name="narasumber" id="narasumber" rows="3" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Tempat :</label>
-                                <textarea class="form-control" name="place" id="place" rows="3" placeholder="...................."></textarea>
+                            <div id="image-preview-container" class="d-none">
+                                <label class="form-label fw-semibold">Preview Gambar Saat Ini</label>
+                                <div class="border rounded p-2 bg-white">
+                                    <a href="" data-lightbox="event-form" data-title="Preview Event" id="image-preview">
+                                        <img src="" class="img-fluid rounded" id="image-preview-img" style="max-height: 300px;">
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Katalog :</label>
-                        <select class="form-select" name="catalog[]" id="catalog" data-placeholder="Pilih Beberapa" data-dropdown-parent="#modal-form" multiple></select>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-info me-1 text-primary"></i>
+                                Informasi Dasar
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-flag me-1"></i>
+                                            Status
+                                        </label>
+                                        <select class="form-select" name="status" id="status">
+                                            <option value="PUBLISH">PUBLISH - Ditampilkan</option>
+                                            <option value="HIDE">HIDE - Disembunyikan</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Status publikasi event
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-translate me-1"></i>
+                                            Bahasa
+                                        </label>
+                                        <select class="form-select" name="lang" id="lang">
+                                            <option value="ID">Indonesia</option>
+                                            <option value="EN">English</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Bahasa konten event
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-calendar me-1"></i>
+                                            Tanggal Mulai
+                                        </label>
+                                        <input type="date" class="form-control" name="start_date" id="start_date">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Tanggal dimulainya event
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-calendar-check me-1"></i>
+                                            Tanggal Selesai
+                                        </label>
+                                        <input type="date" class="form-control" name="end_date" id="end_date">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Tanggal berakhirnya event
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-tag me-1"></i>
+                                            Kategori Event
+                                        </label>
+                                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori event">
+                                            <option value=""></option>
+                                            @foreach($category as $c)
+                                                <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Kategorikan event untuk memudahkan pencarian
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-link me-1"></i>
+                                            Lampiran Link
+                                        </label>
+                                        <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Link eksternal terkait event (opsional)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Konten :</label>
-                        <textarea class="form-control" name="content" id="content" placeholder="...................."></textarea>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-text-aa me-1 text-primary"></i>
+                                Detail Event
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-text-aa me-1"></i>
+                                            Judul Event
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul event yang menarik"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Judul event yang akan ditampilkan
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-note me-1"></i>
+                                            Ringkasan
+                                        </label>
+                                        <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang event"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Deskripsi singkat yang menarik perhatian
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-user-circle me-1"></i>
+                                            Narasumber
+                                        </label>
+                                        <textarea class="form-control" name="narasumber" id="narasumber" rows="3" placeholder="Nama narasumber atau pembicara"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Daftar pembicara atau narasumber event
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-map-pin me-1"></i>
+                                            Tempat / Lokasi
+                                        </label>
+                                        <textarea class="form-control" name="place" id="place" rows="3" placeholder="Lokasi penyelenggaraan event"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Alamat atau tempat penyelenggaraan event
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-books me-1 text-primary"></i>
+                                Katalog Terkait
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-books me-1"></i>
+                                    Pilih Katalog
+                                </label>
+                                <select class="form-select" name="catalog[]" id="catalog" data-placeholder="Pilih beberapa katalog yang terkait" data-dropdown-parent="#modal-form" multiple></select>
+                                <div class="form-text">
+                                    <i class="ph-info me-1"></i>
+                                    Hubungkan event dengan katalog buku yang relevan (opsional)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-article me-1 text-primary"></i>
+                                Konten Event
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-article me-1"></i>
+                                    Konten Lengkap
+                                </label>
+                                <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap event di sini..."></textarea>
+                                <div class="form-text mt-2">
+                                    <i class="ph-info me-1"></i>
+                                    Gunakan editor untuk memformat konten event dengan baik
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer border-top bg-light">
+                <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
-                    <i class="ph-plus-circle me-1"></i>
-                    Simpan Data
+                    <i class="ph-calendar-plus me-1"></i>
+                    Simpan Event
                 </button>
             </div>
         </div>
@@ -190,7 +397,30 @@
         });
 
         $('#content').summernote({
-            height: 300
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        // Preview image when file is selected
+        $('#image').on('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#image-preview-img').attr('src', e.target.result);
+                    $('#image-preview').attr('href', e.target.result);
+                    $('#image-preview-container').removeClass('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
         });
     });
 
@@ -207,7 +437,7 @@
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
         $('#image-preview').attr('href', 'javascript:void(0);');
-        $('#image-preview').hide();
+        $('#image-preview-container').addClass('d-none');
         $('#status').val('PUBLISH');
         $('#lang').val('ID');
         $('#category_id').val('').change();
@@ -219,7 +449,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Event');
         $('#modal-form').modal('show');
     }
 
@@ -233,7 +463,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Event');
         $('#modal-form').modal('show');
     }
 
@@ -256,6 +486,10 @@
         onReloadTable();
     }
 
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -268,7 +502,7 @@
                 url: '{{ url("administration-system/event/datatable") }}',
                 dataType: 'JSON',
                 data: {
-                    ownership: $('#filter_ownership').val(),
+                    category: $('#filter_category').val(),
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -279,19 +513,19 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -302,7 +536,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
@@ -399,8 +639,11 @@
                         v: '{{ Str::random(40) }}'
                     };
 
-                    $('#image-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#image-preview').fadeIn(500);
+                    var imageUrl = `{{ url("stream-file") }}?${ $.param(paramFile) }`;
+
+                    $('#image-preview').attr('href', imageUrl);
+                    $('#image-preview-img').attr('src', imageUrl);
+                    $('#image-preview-container').removeClass('d-none');
                 }
             },
             error: function(response) {
@@ -453,7 +696,7 @@
 
     function destroyData(id) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data Event?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',

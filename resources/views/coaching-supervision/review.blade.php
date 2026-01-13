@@ -1,30 +1,78 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Pengawasan & Pembinaan - <span class="fw-normal">Peninjauan</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-info p-2 bg-opacity-10 text-info">
+                    <i class="ph-eye me-1"></i>
+                    Peninjauan Data
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-clipboard-text me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Pelaksana Serah Perlu Ditinjau</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">ID</th>
-                        <th class="text-nowrap">Nama</th>
-                        <th class="text-nowrap">Email</th>
-                        <th class="text-nowrap">Kategori</th>
-                        <th class="text-nowrap">Jenis</th>
-                        <th class="text-nowrap">Telp</th>
-                        <th class="text-nowrap">Tgl Daftar</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-identification-card me-1"></i>
+                                ID
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-buildings me-1"></i>
+                                Nama
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-envelope me-1"></i>
+                                Email
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-tag me-1"></i>
+                                Kategori
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-list me-1"></i>
+                                Jenis
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-phone me-1"></i>
+                                Telp
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-plus me-1"></i>
+                                Tgl Daftar
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -32,121 +80,214 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tinjau Data</h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-magnifying-glass me-2"></i>
+                    Tinjau Data Pelaksana
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <table class="table table-bordered mb-4" id="info-detail">
-                        <tbody>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Kategori</th>
-                                <td class="align-top" width="80%" id="category" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Nama</th>
-                                <td class="align-top" width="80%" id="name" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Induk</th>
-                                <td class="align-top" width="80%" id="parent" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Lembaga Penaung</th>
-                                <td class="align-top" width="80%" id="shelter_institution" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Gedung</th>
-                                <td class="align-top" width="80%" id="building" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Lokasi</th>
-                                <td class="align-top" width="80%" id="location" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Kode Pos</th>
-                                <td class="align-top" width="80%" id="postal_code" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Alamat</th>
-                                <td class="align-top" width="80%" id="address" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Admin</th>
-                                <td class="align-top" width="30%" id="admin"></td>
-                                <th class="table-primary align-top" width="20%">Alternatif</th>
-                                <td class="align-top" width="30%" id="admin_alternative"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Email</th>
-                                <td class="align-top" width="30%" id="email"></td>
-                                <th class="table-primary align-top" width="20%">Alternatif</th>
-                                <td class="align-top" width="30%" id="email_alternative"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Telepon</th>
-                                <td class="align-top" width="30%" id="phone"></td>
-                                <th class="table-primary align-top" width="20%">Alternatif</th>
-                                <td class="align-top" width="30%" id="phone_alternative"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Fax</th>
-                                <td class="align-top" width="30%" id="fax"></td>
-                                <th class="table-primary align-top" width="20%">Alternatif</th>
-                                <td class="align-top" width="30%" id="fax_alternative"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Website</th>
-                                <td class="align-top" width="80%" id="website" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Rata Penerbitan</th>
-                                <td class="align-top" width="80%" id="publication_average" colspan="3"></td>
-                            </tr>
-                            <tr>
-                                <th class="table-primary align-top" width="20%">Tanggal Daftar</th>
-                                <td class="align-top" width="80%" id="registration_date" colspan="3"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="form-group mb-4">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="fw-bold border-bottom pb-2 mb-2">File Akta</div>
-                                <div class="ratio ratio-16x9">
-                                    <iframe src="" id="file_deed" frameborder="0"></iframe>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-bottom">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-info me-1"></i>
+                                Informasi Detail
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered mb-0" id="info-detail">
+                                <tbody>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-tag me-1"></i>
+                                            Kategori
+                                        </th>
+                                        <td class="align-top" width="80%" id="category" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-buildings me-1"></i>
+                                            Nama
+                                        </th>
+                                        <td class="align-top" width="80%" id="name" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-tree-structure me-1"></i>
+                                            Induk
+                                        </th>
+                                        <td class="align-top" width="80%" id="parent" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-buildings me-1"></i>
+                                            Lembaga Penaung
+                                        </th>
+                                        <td class="align-top" width="80%" id="shelter_institution" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-buildings me-1"></i>
+                                            Gedung
+                                        </th>
+                                        <td class="align-top" width="80%" id="building" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-map-pin me-1"></i>
+                                            Lokasi
+                                        </th>
+                                        <td class="align-top" width="80%" id="location" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-envelope me-1"></i>
+                                            Kode Pos
+                                        </th>
+                                        <td class="align-top" width="80%" id="postal_code" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-map-trifold me-1"></i>
+                                            Alamat
+                                        </th>
+                                        <td class="align-top" width="80%" id="address" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-user me-1"></i>
+                                            Admin
+                                        </th>
+                                        <td class="align-top" width="30%" id="admin"></td>
+                                        <th class="table-light fw-semibold align-top" width="20%">Alternatif</th>
+                                        <td class="align-top" width="30%" id="admin_alternative"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-envelope me-1"></i>
+                                            Email
+                                        </th>
+                                        <td class="align-top" width="30%" id="email"></td>
+                                        <th class="table-light fw-semibold align-top" width="20%">Alternatif</th>
+                                        <td class="align-top" width="30%" id="email_alternative"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-phone me-1"></i>
+                                            Telepon
+                                        </th>
+                                        <td class="align-top" width="30%" id="phone"></td>
+                                        <th class="table-light fw-semibold align-top" width="20%">Alternatif</th>
+                                        <td class="align-top" width="30%" id="phone_alternative"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-printer me-1"></i>
+                                            Fax
+                                        </th>
+                                        <td class="align-top" width="30%" id="fax"></td>
+                                        <th class="table-light fw-semibold align-top" width="20%">Alternatif</th>
+                                        <td class="align-top" width="30%" id="fax_alternative"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-globe me-1"></i>
+                                            Website
+                                        </th>
+                                        <td class="align-top" width="80%" id="website" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-book me-1"></i>
+                                            Rata Penerbitan
+                                        </th>
+                                        <td class="align-top" width="80%" id="publication_average" colspan="3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-light fw-semibold align-top" width="20%">
+                                            <i class="ph-calendar-plus me-1"></i>
+                                            Tanggal Daftar
+                                        </th>
+                                        <td class="align-top" width="80%" id="registration_date" colspan="3"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header border-bottom">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="ph-file-pdf me-1 text-danger"></i>
+                                        File Akta
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="ratio ratio-16x9">
+                                        <iframe src="" id="file_deed" frameborder="0"></iframe>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="fw-bold border-bottom pb-2 mb-2">File Pernyataan</div>
-                                <div class="ratio ratio-16x9">
-                                    <iframe src="" id="file_statement" frameborder="0"></iframe>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header border-bottom">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="ph-file-pdf me-1 text-danger"></i>
+                                        File Pernyataan
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="ratio ratio-16x9">
+                                        <iframe src="" id="file_statement" frameborder="0"></iframe>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="btn-group d-flex">
-                            <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
-                            <label class="btn btn-outline-danger" for="status-2">Bermasalah</label>
-                            <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
-                            <label class="btn btn-outline-success" for="status-3">Terima</label>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-bottom">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-check-circle me-1"></i>
+                                Status Peninjauan
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="btn-group d-flex" role="group">
+                                <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
+                                <label class="btn btn-outline-danger" for="status-2">
+                                    <i class="ph-x-circle me-1"></i>
+                                    Bermasalah
+                                </label>
+                                <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
+                                <label class="btn btn-outline-success" for="status-3">
+                                    <i class="ph-check-circle me-1"></i>
+                                    Terima
+                                </label>
+                            </div>
+                            <div class="mt-3 d-none" id="description-wrapper">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-note me-1"></i>
+                                    Keterangan Masalah
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" name="description" id="description" rows="4" placeholder="Jelaskan masalah yang ditemukan pada data pelaksana serah ini"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <textarea class="form-control d-none" name="description" id="description" placeholder="Keterangan masalah"></textarea>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer">
+                <button class="btn btn-light" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
                     Batal
                 </button>
-                <button class="btn btn-success" id="btn-update" onclick="updateData()">
-                    <i class="ph-check me-1"></i>
-                    Konfirmasi
+                <button class="btn btn-primary" id="btn-update" onclick="updateData()">
+                    <i class="ph-check-circle me-1"></i>
+                    Konfirmasi Peninjauan
                 </button>
             </div>
         </div>
@@ -162,9 +303,9 @@
         var status = $('input[name="status"]:checked').val();
 
         if(status == 2) {
-            $('#description').removeClass('d-none');
+            $('#description-wrapper').removeClass('d-none');
         } else {
-            $('#description').addClass('d-none');
+            $('#description-wrapper').addClass('d-none');
         }
     }
 
@@ -179,6 +320,7 @@
         $('#form-data').trigger('reset');
         $('#file_deed').attr('src', '');
         $('#file_statement').attr('src', '');
+        $('#description-wrapper').addClass('d-none');
     }
 
     function onCancel() {
@@ -230,7 +372,7 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -238,7 +380,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -249,12 +391,23 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
 
         window.gDataTable.columns.adjust().draw();
+    }
+
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
     }
 
     function showDataUpdate(id) {
@@ -269,8 +422,8 @@
                 onLoading('show', '.modal-content');
                 onUpdate();
 
-                $('#status').prop('checked', false);
-                $('#description').addClass('d-none');
+                $('input[name="status"]').prop('checked', false);
+                $('#description-wrapper').addClass('d-none');
                 $('#info-detail tbody tr td').text('');
             },
             success: function(response) {

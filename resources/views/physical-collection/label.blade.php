@@ -1,29 +1,39 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Koleksi Fisik - <span class="fw-normal">Label</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-info p-2 bg-opacity-10 text-info">
+                    Cetak Label Koleksi
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-flex align-items-center py-0">
-            <h5 class="py-3 mb-0">Daftar Koleksi Yang Akan di Cetak</h5>
-            <div class="ms-auto my-auto">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-printer me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Koleksi Yang Akan di Cetak</h6>
+                </div>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-teal dropdown-toggle" data-bs-toggle="dropdown">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="ph-printer me-1"></i>
                         Cetak Data
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu dropdown-menu-end">
                         <a href="javascript:void(0);" class="dropdown-item" onclick="printDataList('barcode')">
-                            <i class="ph-barcode me-1"></i>
+                            <i class="ph-barcode me-2"></i>
                             Barcode
                         </a>
                         <a href="javascript:void(0);" class="dropdown-item" onclick="printDataList('qrcode')">
-                            <i class="ph-qr-code me-1"></i>
+                            <i class="ph-qr-code me-2"></i>
                             QR Code
                         </a>
                     </div>
@@ -31,115 +41,192 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-print">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Kode</th>
-                        <th class="text-nowrap">Mark Nasional</th>
-                        <th class="text-nowrap">Mark Provinsi</th>
-                        <th class="text-nowrap">Hapus</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            <h5 class="hstack gap-2 mb-0">Filter Data</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah :</label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Jenis Bahan :</label>
-                        <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($worksheet as $w)
-                                <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Judul :</label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Provinsi :</label>
-                        <select class="form-select" name="province_id" id="province_id">
-                            @if(Main::isNotSuperAdmin())
-                                <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
-                            @endif
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tahun :</label>
-                        <input type="number" class="form-control" name="year" id="year" placeholder="....................">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer bg-white">
-            <div class="text-end">
-                <a href="{{ url('physical-collection/label') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
-                    <i class="ph-arrows-clockwise me-1"></i>
-                    Reset Filter
-                </a>
-                <a href="javascript:void(0);" class="btn btn-success" onclick="loadData()">
-                    <i class="ph-magnifying-glass me-1"></i>
-                    Cari Data
-                </a>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-print">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-fingerprint me-1"></i>
+                                Kode
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-flag me-1"></i>
+                                Mark Nasional
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-map-pin me-1"></i>
+                                Mark Provinsi
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 80px">
+                                <i class="ph-trash me-1"></i>
+                                Hapus
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header d-flex align-items-center py-0">
-            <h5 class="py-3 mb-0">Daftar Koleksi Yang Akan di Cetak</h5>
-            <div class="ms-auto my-auto">
-                <button type="button" class="btn btn-teal" onclick="addListPrint()">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Tanggal
+                            </label>
+                            <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-files me-1"></i>
+                                Jenis Bahan
+                            </label>
+                            <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" data-placeholder="Semua Jenis Bahan">
+                                <option value=""></option>
+                                @foreach($worksheet as $w)
+                                    <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-book-open me-1"></i>
+                                Judul
+                            </label>
+                            <input type="text" class="form-control" name="title" id="title" placeholder="Cari berdasarkan judul">
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-map-trifold me-1"></i>
+                                Provinsi
+                            </label>
+                            <select class="form-select" name="province_id" id="province_id">
+                                @if(Main::isNotSuperAdmin())
+                                    <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tahun
+                            </label>
+                            <input type="number" class="form-control" name="year" id="year" placeholder="Contoh: 2024">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('physical-collection/label') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-clipboard-text me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Koleksi</h6>
+                </div>
+                <button type="button" class="btn btn-success btn-sm" onclick="addListPrint()">
                     <i class="ph-list-plus me-1"></i>
                     Tambahkan ke Daftar Cetak
                 </button>
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">#</th>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap">Jenis Bahan</th>
-                        <th class="text-nowrap">Kode</th>
-                        <th class="text-nowrap">Mark Nasional</th>
-                        <th class="text-nowrap">Mark Provinsi</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">ISBN</th>
-                        <th class="text-nowrap">Lokasi</th>
-                        <th class="text-nowrap">Update Oleh</th>
-                        <th class="text-nowrap">Terima Oleh</th>
-                        <th class="text-nowrap">Tgl Terima</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 40px">
+                                <i class="ph-check-square"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-files me-1"></i>
+                                Jenis Bahan
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-fingerprint me-1"></i>
+                                Kode
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-flag me-1"></i>
+                                Mark Nasional
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-map-pin me-1"></i>
+                                Mark Provinsi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 130px">
+                                <i class="ph-barcode me-1"></i>
+                                ISBN
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-buildings me-1"></i>
+                                Lokasi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-user-gear me-1"></i>
+                                Update Oleh
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-check me-1"></i>
+                                Terima Oleh
+                            </th>
+                            <th class="text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Terima
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -196,6 +283,7 @@
                 {
                     extend: 'collection',
                     text: '<i class="ph-microsoft-excel-logo me-1"></i> Download Excel',
+                    className: 'btn btn-success',
                     buttons: [
                         {
                             extend: 'excelHtml5',
@@ -230,7 +318,7 @@
                 },
                 {
                     extend: 'selectAll',
-                    className: 'btn btn-success',
+                    className: 'btn btn-primary',
                     text: '<i class="ph-checks me-1"></i> Centang Semua'
                 },
                 {
@@ -242,13 +330,12 @@
             ajax: {
                 url: '{{ url("physical-collection/label/datatable") }}',
                 dataType: 'JSON',
-                data: {
-                    title: $('#title').val(),
-                    executor_id: $('#executor_id').val(),
-                    province_id: $('#province_id').val(),
-                    year: $('#year').val(),
-                    worksheet_id: $('#worksheet_id').val(),
-                    date: $('#date').val(),
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -260,18 +347,18 @@
             },
             columns: [
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -311,7 +398,7 @@
 
         $.each(data, function(i, val) {
             var btnRemove = `
-                <button type="button" class="btn btn-danger btn-sm col-12" onclick="removeListPrint(${ val[0] })">
+                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeListPrint(${ val[0] })">
                     <i class="ph-trash"></i>
                 </button>
             `;
@@ -327,6 +414,17 @@
     }
 
     function addListPrint() {
+        var selectedRows = window.gDataTable.rows({ selected: true }).count();
+
+        if (selectedRows === 0) {
+            swalInit.fire({
+                title: 'Peringatan',
+                text: 'Silakan pilih data terlebih dahulu',
+                icon: 'warning'
+            });
+            return;
+        }
+
         window.gDataTable.rows({ selected: true }).every(function() {
             var row = this.node();
             var data = $(row).find('input[name="data"]');
@@ -368,8 +466,10 @@
 
         swalInit.fire({
             title: 'Berhasil',
-            text: 'Data telah ditambahkan dalam list',
-            icon: 'success'
+            text: 'Data telah ditambahkan dalam daftar cetak',
+            icon: 'success',
+            timer: 2000,
+            timerProgressBar: true
         });
     }
 
@@ -384,6 +484,8 @@
         localStorage.setItem('datatable-print', JSON.stringify(updatedDataStorage));
 
         loadDataPrint();
+
+        notification('success', 'Data berhasil dihapus dari daftar cetak');
     }
 
     function printDataList(param) {
@@ -391,22 +493,23 @@
         var dataStorage = localStorage.getItem('datatable-print');
         var responseDataStorage = dataStorage ? JSON.parse(dataStorage) : [];
 
-        if(dataStorage) {
-            $.each(responseDataStorage, function(i, val) {
-                dataId.push(val[0]);
-            });
-
-            var queryString = {
-                id: dataId
-            }
-
-            window.open('{{ url("physical-collection/label/print") }}/' + param + '?' + $.param(queryString), '_blank');
-        } else {
+        if (responseDataStorage.length === 0) {
             swalInit.fire({
-                title: 'Oops ...',
-                text: 'Tidak ada data di tabel untuk di cetak',
-                icon: 'info'
+                title: 'Peringatan',
+                text: 'Daftar cetak masih kosong. Silakan tambahkan data terlebih dahulu',
+                icon: 'warning'
             });
+            return;
         }
+
+        $.each(responseDataStorage, function(i, val) {
+            dataId.push(val[0]);
+        });
+
+        var queryString = {
+            id: dataId
+        }
+
+        window.open('{{ url("physical-collection/label/print") }}/' + param + '?' + $.param(queryString), '_blank');
     }
 </script>

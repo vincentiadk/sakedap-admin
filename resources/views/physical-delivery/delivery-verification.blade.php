@@ -1,80 +1,118 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Pengiriman Fisik - <span class="fw-normal">Verifikasi Pengiriman</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary p-2 bg-opacity-10 text-primary">
+                    Status Verifikasi
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="hstack gap-2 mb-0">Filter Data</h5>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
+            </div>
         </div>
-        <div class="card-body">
-            <form id="form-filter">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Pelaksana Serah :</label>
-                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Jasa Kirim :</label>
-                            <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-truck me-1"></i>
+                                Jasa Kirim
+                            </label>
+                            <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua Jasa Kirim">
                                 <option value=""></option>
                                 @foreach($deliveryService as $ds)
                                     <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Tujuan :</label>
-                            <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua"></select>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-map-pin me-1"></i>
+                                Tujuan
+                            </label>
+                            <select class="form-select" name="branch_id" id="branch_id" data-placeholder="Semua Tujuan"></select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-barcode me-1"></i>
+                                No Resi
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Cari berdasarkan nomor resi">
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">No Resi :</label>
-                            <input type="text" class="form-control" name="receipt_no" id="receipt_no" placeholder="Semua">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Jenis Tanggal :</label>
+                    <hr class="my-3">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Jenis Tanggal
+                            </label>
                             <select class="form-select" name="date_type" id="date_type">
-                                <option value="accept_date">Diterima</option>
-                                <option value="letter_date">Pengiriman</option>
-                                <option value="createdate">Dibuat</option>
-                                <option value="createdate">Sampai</option>
+                                <option value="accept_date">Tanggal Diterima</option>
+                                <option value="letter_date">Tanggal Pengiriman</option>
+                                <option value="createdate">Tanggal Dibuat</option>
+                                <option value="arrival_date">Tanggal Sampai</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Tanggal :</label>
-                            <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar me-1"></i>
+                                Tanggal
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-calendar-blank"></i>
+                                </span>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Status :</label>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </label>
                             <select class="form-select" name="status" id="status">
-                                <option value="">Semua</option>
-                                <option value="TERKIRIM">TERKIRIM</option>
-                                <option value="CEK FISIK">CEK FISIK</option>
+                                <option value="">Semua Status</option>
+                                <option value="TERKIRIM">Terkirim</option>
+                                <option value="CEK FISIK">Cek Fisik</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Received By :</label>
-                            <select class="form-select select2-basic" name="received_by" id="received_by" data-placeholder="Semua">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-check-circle me-1"></i>
+                                Received By
+                            </label>
+                            <select class="form-select select2-basic" name="received_by" id="received_by" data-placeholder="Semua Penerima">
                                 <option value="">Semua</option>
                                 @if($receivedBy)
                                     @foreach($receivedBy as $pb)
@@ -84,126 +122,191 @@
                             </select>
                         </div>
                     </div>
-                </div>
-                <a href="#advance-search" class="fw-semibold" data-bs-toggle="collapse">
-                    <i class="ph-plus-circle me-1"></i>
-                    Pencarian Lanjutan
-                </a>
-                <div class="collapse" id="advance-search">
                     <div class="mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Judul :</label>
-                                    <input type="text" class="form-control" name="title" id="title" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Kepengarangan :</label>
-                                    <input type="text" class="form-control" name="author" id="author" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">ISBN :</label>
-                                    <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Tahun Terbit :</label>
-                                    <input type="number" class="form-control" name="publish_year" id="publish_year" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Edisi Serial :</label>
-                                    <input type="text" class="form-control" name="edition_serial" id="edition_serial" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Kala Terbit :</label>
-                                    <input type="text" class="form-control" name="periodicals" id="periodicals" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Ket FIsik :</label>
-                                    <input type="text" class="form-control" name="physical_description" id="physical_description" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Sinopsis :</label>
-                                    <input type="text" class="form-control" name="sinopsis" id="sinopsis" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">Jenis Media :</label>
-                                    <input type="text" class="form-control" name="media_type" id="media_type" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">No Panggil Jilid :</label>
-                                    <input type="text" class="form-control" name="binding" id="binding" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">QRCBN :</label>
-                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Semua">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label class="form-label">ISBD :</label>
-                                    <input type="text" class="form-control" name="isbd" id="isbd" placeholder="Semua">
+                        <a href="#advance-search" class="fw-semibold text-primary" data-bs-toggle="collapse">
+                            <i class="ph-plus-circle me-1"></i>
+                            Pencarian Lanjutan
+                        </a>
+                    </div>
+                    <div class="collapse mt-3" id="advance-search">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-book-open me-1"></i>
+                                            Judul
+                                        </label>
+                                        <input type="text" class="form-control" name="title" id="title" placeholder="Cari judul">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-pen me-1"></i>
+                                            Kepengarangan
+                                        </label>
+                                        <input type="text" class="form-control" name="author" id="author" placeholder="Cari pengarang">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-identification-card me-1"></i>
+                                            ISBN
+                                        </label>
+                                        <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Cari ISBN">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-calendar-blank me-1"></i>
+                                            Tahun Terbit
+                                        </label>
+                                        <input type="number" class="form-control" name="publish_year" id="publish_year" placeholder="Cari tahun terbit">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-books me-1"></i>
+                                            Edisi Serial
+                                        </label>
+                                        <input type="text" class="form-control" name="edition_serial" id="edition_serial" placeholder="Cari edisi serial">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-clock me-1"></i>
+                                            Kala Terbit
+                                        </label>
+                                        <input type="text" class="form-control" name="periodicals" id="periodicals" placeholder="Cari kala terbit">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-note me-1"></i>
+                                            Ket Fisik
+                                        </label>
+                                        <input type="text" class="form-control" name="physical_description" id="physical_description" placeholder="Cari keterangan fisik">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-file-text me-1"></i>
+                                            Sinopsis
+                                        </label>
+                                        <input type="text" class="form-control" name="sinopsis" id="sinopsis" placeholder="Cari sinopsis">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-file me-1"></i>
+                                            Jenis Media
+                                        </label>
+                                        <input type="text" class="form-control" name="media_type" id="media_type" placeholder="Cari jenis media">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-tag me-1"></i>
+                                            No Panggil Jilid
+                                        </label>
+                                        <input type="text" class="form-control" name="binding" id="binding" placeholder="Cari no panggil jilid">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-qr-code me-1"></i>
+                                            QRCBN
+                                        </label>
+                                        <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Cari QRCBN">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="ph-list me-1"></i>
+                                            ISBD
+                                        </label>
+                                        <input type="text" class="form-control" name="isbd" id="isbd" placeholder="Cari ISBD">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </form>
+            </div>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('physical-delivery/delivery-verification') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
                 </div>
-            </form>
-        </div>
-        <div class="card-footer bg-white">
-            <div class="text-end">
-                <a href="{{ url('physical-delivery/delivery-verification') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
-                    <i class="ph-arrows-clockwise me-1"></i>
-                    Reset Filter
-                </a>
-                <a href="javascript:void(0);" class="btn btn-success" onclick="loadData()">
-                    <i class="ph-magnifying-glass me-1"></i>
-                    Cari Data
-                </a>
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-clipboard-text me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Verifikasi Pengiriman</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap" rowspan="2">No</th>
-                        <th class="text-nowrap" rowspan="2">Aksi</th>
-                        <th class="text-nowrap" rowspan="2">Pelaksana Serah</th>
-                        <th class="text-nowrap" rowspan="2">Status</th>
-                        <th class="text-nowrap" rowspan="2">Tgl Sampai</th>
-                        <th class="text-nowrap" rowspan="2">Aging</th>
-                        <th class="text-nowrap" rowspan="2">Resi</th>
-                        <th class="text-nowrap" rowspan="2">Jasa Kirim</th>
-                        <th class="text-nowrap" rowspan="2">Tujuan</th>
-                        <th class="text-nowrap text-center" colspan="2">Pengiriman</th>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap text-center">Judul</th>
-                        <th class="text-nowrap text-center">Eksemplar</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" rowspan="2" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" rowspan="2" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" rowspan="2" style="min-width: 180px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-center text-nowrap" rowspan="2" style="min-width: 120px">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </th>
+                            <th class="text-center text-nowrap" rowspan="2" style="min-width: 130px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Sampai
+                            </th>
+                            <th class="text-center text-nowrap" rowspan="2" style="min-width: 100px">
+                                <i class="ph-clock me-1"></i>
+                                Aging
+                            </th>
+                            <th class="text-nowrap" rowspan="2" style="min-width: 150px">
+                                <i class="ph-barcode me-1"></i>
+                                Resi
+                            </th>
+                            <th class="text-nowrap" rowspan="2" style="min-width: 150px">
+                                <i class="ph-truck me-1"></i>
+                                Jasa Kirim
+                            </th>
+                            <th class="text-nowrap" rowspan="2" style="min-width: 200px">
+                                <i class="ph-map-pin me-1"></i>
+                                Tujuan
+                            </th>
+                            <th class="text-center" colspan="2">
+                                <i class="ph-package me-1"></i>
+                                Pengiriman
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-stack me-1"></i>
+                                Eksemplar
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -257,14 +360,14 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
@@ -278,12 +381,23 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
 
         window.gDataTable.columns.adjust().draw();
+    }
+
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
     }
 
     function sendEmail(id) {

@@ -186,6 +186,10 @@ class InDeliveryController extends Controller
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>
+                    <button type="button" class="btn btn-success btn-sm text-nowrap" onclick="markSent(' . $val->LETTER_ID . ')">
+                        <i class="ph-check me-1"></i>
+                        Tandai Terkirim
+                    </button>
                 ';
 
                 $data[] = [
@@ -263,6 +267,25 @@ class InDeliveryController extends Controller
                     'lightbox',
                 ]
             ]
+        ]);
+    }
+
+    public function markSent(Request $request)
+    {
+        $id = $request->id;
+        $now = date('Y-m-d H:i:s');
+
+        QueryAPI::update('letter', $id, [
+            'status' => 'TERKIRIM',
+            'sent_date' => $now,
+            'update_date' => $now,
+            'update_by' => session('username'),
+            'update_terminal' => $request->ip(),
+        ], false);
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Data berhasil ditandai terkirim.'
         ]);
     }
 }

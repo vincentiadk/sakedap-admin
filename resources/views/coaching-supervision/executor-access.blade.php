@@ -1,31 +1,35 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Pengawasan & Pembinaan - <span class="fw-normal">Akses Pelaksana Serah</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-1"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
-            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
-            <div class="ms-sm-auto my-sm-auto">
-                <div class="input-group">
-                    <span class="input-group-text">Grup</span>
-                    <select class="form-select wmin-200" name="filter_publisher_group_id" id="filter_publisher_group_id" onchange="loadData()">
-                        <option value="">Semua</option>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center">
+                    <i class="ph-key me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Akses Pelaksana Serah</h6>
+                </div>
+                <div class="d-flex align-items-center">
+                    <label class="form-label mb-0 me-2 fw-semibold text-nowrap">
+                        <i class="ph-funnel me-1"></i>
+                        Filter Grup:
+                    </label>
+                    <select class="form-select" style="min-width: 200px;" name="filter_publisher_group_id" id="filter_publisher_group_id" onchange="loadData()">
+                        <option value="">Semua Grup</option>
                         @foreach($group as $g)
                             <option value="{{ $g->ID }}">{{ $g->NAME }}</option>
                         @endforeach
@@ -34,61 +38,101 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Grup</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">KD Pelaksana Serah</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-users-three me-1"></i>
+                                Grup
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-identification-badge me-1"></i>
+                                Kode Pelaksana
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title">
+                    <i class="ph-note-pencil me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="ph-warning-circle me-2"></i>
+                        <strong>Terdapat kesalahan:</strong>
+                    </div>
                     <ul class="mb-0" id="validation-data"></ul>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Pilih" data-dropdown-parent="#modal-form"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Grup : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="publisher_group_id" id="publisher_group_id">
-                            <option value="">Pilih</option>
-                            @foreach($group as $g)
-                                <option value="{{ $g->ID }}">{{ $g->NAME }}</option>
-                            @endforeach
-                        </select>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Pilih pelaksana serah" data-dropdown-parent="#modal-form"></select>
+                            <div class="form-text text-muted">
+                                <i class="ph-info me-1"></i>
+                                Pilih pelaksana serah yang akan diberikan akses
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-users-three me-1"></i>
+                                Grup
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="publisher_group_id" id="publisher_group_id">
+                                <option value="">Pilih grup</option>
+                                @foreach($group as $g)
+                                    <option value="{{ $g->ID }}">{{ $g->NAME }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text text-muted">
+                                <i class="ph-info me-1"></i>
+                                Tentukan grup akses untuk pelaksana serah
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
+            <div class="modal-footer border-top">
                 <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
-                    Batalkan Perubahan
+                    Batalkan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
-                    <i class="ph-plus-circle me-1"></i>
+                    <i class="ph-check-circle me-1"></i>
                     Simpan Data
                 </button>
             </div>
@@ -121,7 +165,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Akses Pelaksana Serah');
         $('#modal-form').modal('show');
     }
 
@@ -135,7 +179,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Akses Pelaksana Serah');
         $('#modal-form').modal('show');
     }
 
@@ -181,7 +225,7 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },

@@ -20,68 +20,90 @@
         </div>
     </div>
     <form id="form-data">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <i class="ph-info ph-2x me-2"></i>
-                    <div>
-                        <h6 class="mb-0">Informasi Umum Pengiriman</h6>
-                        <small class="opacity-75">Data dasar terkait pengiriman koleksi</small>
-                    </div>
-                </div>
+                <h5 class="mb-0">
+                    <i class="ph-info me-1"></i>
+                    Informasi Umum Pengiriman
+                </h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Jasa Kirim <span class="text-danger">*</span></label>
-                        <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" onchange="receiptable()">
-                            <option value="">-- Pilih Jasa Kirim --</option>
-                            @foreach($deliveryService as $ds)
-                                <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
-                            @endforeach
-                        </select>
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Jasa Kirim
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ph-truck"></i></span>
+                            <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" onchange="receiptable()" data-width="1%">
+                                <option value="">-- Pilih Jasa Kirim --</option>
+                                @foreach($deliveryService as $ds)
+                                    <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label">Nomor Resi</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-barcode"></i></span>
                             <input type="text" class="form-control" name="receipt" id="receipt" placeholder="Masukkan nomor resi">
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Tanggal Terima <span class="text-danger">*</span></label>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Tanggal Terima
+                            <span class="text-danger">*</span>
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-calendar"></i></span>
                             <input type="text" class="form-control date-single" name="accept_date" id="accept_date" value="{{ date('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Nomor Telepon
+                            <span class="text-danger">*</span>
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-phone"></i></span>
                             <input type="text" class="form-control" name="phone" id="phone" placeholder="081234567890">
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Pelaksana Serah <span class="text-danger">*</span></label>
-                        <select class="form-select" name="executor_id" id="executor_id"></select>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Pelaksana Serah
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ph-user-circle"></i></span>
+                            <select class="form-select" name="executor_id" id="executor_id" data-width="1%"></select>
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Tujuan <span class="text-danger">*</span></label>
-                        <select class="form-select" name="branch_id" id="branch_id">
-                            <option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>
-                        </select>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Tujuan
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ph-map-pin"></i></span>
+                            <select class="form-select" name="branch_id" id="branch_id" data-width="1%">
+                                <option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Nama Pengirim <span class="text-danger">*</span></label>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">
+                            Nama Pengirim
+                            <span class="text-danger">*</span>
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-user"></i></span>
                             <input type="text" class="form-control" name="sender_name" id="sender_name" placeholder="Nama lengkap pengirim">
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label">Nomor Surat Pengantar</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-file-text"></i></span>
@@ -91,29 +113,24 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <div class="d-sm-flex align-items-sm-center">
-                    <div class="d-flex align-items-center">
-                        <i class="ph-barcode ph-2x me-2"></i>
-                        <div>
-                            <h6 class="mb-0">Koleksi ISBN</h6>
-                            <small class="opacity-75">Koleksi yang memiliki nomor ISBN terdaftar</small>
-                        </div>
-                    </div>
-                    <div class="ms-sm-auto mt-2 mt-sm-0">
-                        <div class="input-group">
-                            <input type="text" class="form-control form-control-sm" name="search_isbn" id="search_isbn" placeholder="Masukkan Nomor ISBN">
-                            <button type="button" class="btn btn-light btn-sm" onclick="searchISBN()">
-                                <i class="ph-magnifying-glass me-1"></i>
-                                Cari ISBN
-                            </button>
-                        </div>
+        <div class="card shadow-sm">
+            <div class="card-header d-sm-flex align-items-sm-center py-3">
+                <h5 class="mb-sm-0">
+                    <i class="ph-barcode me-1"></i>
+                    Koleksi ISBN
+                </h5>
+                <div class="ms-sm-auto my-sm-auto">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
+                        <input type="text" class="form-control" name="search_isbn" id="search_isbn" placeholder="Masukkan Nomor ISBN" onkeypress="if(event.keyCode == 13) { searchISBN(); return false; }">
+                        <button type="button" class="btn btn-primary" onclick="searchISBN()">
+                            Cari
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <div class="alert alert-success rounded-0">
+                <div class="alert alert-info border-0" role="alert">
                     <div class="d-flex align-items-start">
                         <i class="ph-lightbulb ph-2x me-3"></i>
                         <div>
@@ -121,49 +138,37 @@
                             <ol class="mb-0 ps-3">
                                 <li>Pastikan <strong>Pelaksana Serah</strong> sudah dipilih</li>
                                 <li>Masukkan nomor ISBN pada kolom pencarian</li>
-                                <li>Klik tombol <strong>"Cari ISBN"</strong></li>
+                                <li>Klik tombol <strong>"Cari"</strong> atau tekan Enter</li>
                                 <li>Data akan otomatis ditambahkan ke tabel</li>
                             </ol>
                         </div>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th class="text-center" rowspan="2" style="width: 80px;">
-                                    Cover
-                                </th>
-                                <th rowspan="2" style="width: 150px;">
-                                    ISBN
-                                </th>
-                                <th rowspan="2">
-                                    Judul
-                                </th>
-                                <th rowspan="2" style="width: 100px;">Edisi</th>
-                                <th rowspan="2" style="width: 100px;">Jilid</th>
-                                <th class="text-center text-nowrap" colspan="2">
-                                    Total Eks
-                                </th>
-                                <th class="text-center text-nowrap" colspan="2">
-                                    Jumlah Eks
-                                </th>
-                                <th rowspan="2" style="width: 200px;">Keterangan</th>
-                                <th rowspan="2" style="width: 120px;">QRCBN</th>
-                                <th rowspan="2" style="width: 120px;">ISBD</th>
-                                <th class="text-center" rowspan="2" style="width: 80px;">
-                                    <i class="ph-trash"></i>
-                                </th>
+                                <th class="text-center text-nowrap" rowspan="2" width="80">Cover</th>
+                                <th class="text-nowrap" rowspan="2" width="150">ISBN</th>
+                                <th class="text-nowrap" rowspan="2">Judul</th>
+                                <th class="text-nowrap" rowspan="2" width="100">Edisi</th>
+                                <th class="text-nowrap" rowspan="2" width="100">Jilid</th>
+                                <th class="text-center text-nowrap" colspan="2">Total Eks</th>
+                                <th class="text-center text-nowrap" colspan="2">Jumlah Eks</th>
+                                <th class="text-nowrap" rowspan="2" width="200">Keterangan</th>
+                                <th class="text-nowrap" rowspan="2" width="120">QRCBN</th>
+                                <th class="text-nowrap" rowspan="2" width="120">ISBD</th>
+                                <th class="text-center text-nowrap" rowspan="2" width="80">Aksi</th>
                             </tr>
                             <tr>
-                                <th class="text-center" style="width: 80px;">Sistem</th>
-                                <th class="text-center" style="width: 80px;">Dikirim</th>
-                                <th class="text-center" style="width: 100px;">Diterima</th>
-                                <th class="text-center" style="width: 100px;">Ditolak</th>
+                                <th class="text-center" width="80">Sistem</th>
+                                <th class="text-center" width="80">Dikirim</th>
+                                <th class="text-center" width="100">Diterima</th>
+                                <th class="text-center" width="100">Ditolak</th>
                             </tr>
                         </thead>
                         <tbody id="data-collection-isbn">
-                            <tr>
+                            <tr id="empty-isbn-row">
                                 <td colspan="13" class="text-center text-muted py-5">
                                     <i class="ph-book-open ph-4x d-block mb-3 opacity-50"></i>
                                     <h6 class="fw-semibold">Belum Ada Data Koleksi ISBN</h6>
@@ -175,18 +180,15 @@
                 </div>
             </div>
         </div>
-        <div class="card mb-3">
+        <div class="card shadow-sm">
             <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <i class="ph-book ph-2x me-2"></i>
-                    <div>
-                        <h6 class="mb-0">Koleksi Non ISBN</h6>
-                        <small class="opacity-75">Koleksi yang tidak memiliki ISBN</small>
-                    </div>
-                </div>
+                <h5 class="mb-0">
+                    <i class="ph-book-open me-1"></i>
+                    Koleksi Non ISBN
+                </h5>
             </div>
             <div class="card-body">
-                <div class="alert alert-warning rounded-0">
+                <div class="alert alert-warning border-0" role="alert">
                     <div class="d-flex align-items-start">
                         <i class="ph-lightbulb ph-2x me-3"></i>
                         <div>
@@ -198,7 +200,7 @@
                 <div class="table-responsive" id="non-isbn-container">
                     <table class="table">
                         <tbody id="data-collection-non-isbn">
-                            <tr>
+                            <tr id="empty-non-isbn-row">
                                 <td class="text-center text-muted py-5">
                                     <i class="ph-books ph-4x d-block mb-3 opacity-50"></i>
                                     <h6 class="fw-semibold">Belum Ada Data Koleksi Non ISBN</h6>
@@ -209,39 +211,36 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-white">
+            <div class="card-footer">
                 <div class="row align-items-center">
                     <div class="col-md-3 mb-2 mb-md-0">
                         <div class="input-group">
-                            <button type="button" class="btn btn-warning" onclick="addCollectionNonISBN()">
+                            <button type="button" class="btn btn-success" onclick="addCollectionNonISBN()">
                                 <i class="ph-plus-circle me-1"></i>
-                                Tambah Koleksi
+                                Tambah
                             </button>
-                            <input type="number" class="form-control text-center" id="add-number-collection-non-isbn" min="1" value="1">
+                            <input type="number" class="form-control text-center" id="add-number-collection-non-isbn" min="1" max="10" value="1">
                             <span class="input-group-text">Baris</span>
                         </div>
                     </div>
                     <div class="col-md-9">
-                        <div class="text-muted text-md-end">
+                        <small class="text-muted">
                             <i class="ph-info me-1"></i>
-                            Tentukan jumlah baris, lalu klik tombol Tambah
-                        </div>
+                            Maksimal menambahkan 10 baris sekaligus
+                        </small>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card mb-3">
+        <div class="card shadow-sm">
             <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <i class="ph-newspaper ph-2x me-2"></i>
-                    <div>
-                        <h6 class="mb-0">Koleksi Terbitan Berkala</h6>
-                        <small class="opacity-75">Majalah, jurnal, dan publikasi berkala lainnya</small>
-                    </div>
-                </div>
+                <h5 class="mb-0">
+                    <i class="ph-newspaper me-1"></i>
+                    Koleksi Terbitan Berkala
+                </h5>
             </div>
             <div class="card-body">
-                <div class="alert alert-info rounded-0">
+                <div class="alert alert-info border-0" role="alert">
                     <div class="d-flex align-items-start">
                         <i class="ph-lightbulb ph-2x me-3"></i>
                         <div>
@@ -253,7 +252,7 @@
                 <div class="table-responsive" id="periodicals-container">
                     <table class="table">
                         <tbody id="data-collection-periodicals">
-                            <tr>
+                            <tr id="empty-periodicals-row">
                                 <td class="text-center text-muted py-5">
                                     <i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i>
                                     <h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6>
@@ -264,29 +263,29 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-white">
+            <div class="card-footer">
                 <div class="row align-items-center">
                     <div class="col-md-3 mb-2 mb-md-0">
                         <div class="input-group">
                             <button type="button" class="btn btn-info" onclick="addPeriodicals()">
                                 <i class="ph-plus-circle me-1"></i>
-                                Tambah Terbitan
+                                Tambah
                             </button>
-                            <input type="number" class="form-control text-center" id="add-number-collection-periodicals" min="1" value="1">
+                            <input type="number" class="form-control text-center" id="add-number-collection-periodicals" min="1" max="10" value="1">
                             <span class="input-group-text">Baris</span>
                         </div>
                     </div>
                     <div class="col-md-9">
-                        <div class="text-muted text-md-end">
+                        <small class="text-muted">
                             <i class="ph-info me-1"></i>
-                            Tentukan jumlah terbitan yang ingin ditambahkan
-                        </div>
+                            Maksimal menambahkan 10 baris sekaligus
+                        </small>
                     </div>
                 </div>
             </div>
         </div>
     </form>
-    <div class="card shadow-lg border-0 mb-0">
+    <div class="card shadow-sm border-0">
         <div class="card-body py-3">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div class="text-muted">
@@ -311,6 +310,39 @@
         </div>
     </div>
 </div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #data-collection-isbn tr:not(#empty-isbn-row):hover,
+    #data-collection-non-isbn tr:not(#empty-non-isbn-row):hover,
+    #data-collection-periodicals tr:not(#empty-periodicals-row):hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .animate__animated {
+        animation-duration: 0.5s;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate__fadeIn {
+        animation-name: fadeIn;
+    }
+</style>
 
 <script>
     let collectionNonISBNCounter = 0;
@@ -388,7 +420,6 @@
             dataType: 'JSON',
             data: {
                 code: searchValue,
-                executor_id: executorId,
                 accept_default: '{{ $acceptDefault }}',
             },
             beforeSend: function() {
@@ -403,17 +434,17 @@
                     if((response.data?.jenis_media ?? '').toLowerCase() == 'cetak') {
                         if(response.data?.penerbit_id == executorId) {
                             if($('#data-collection-isbn tr td[colspan]').length > 0) {
-                                $('#data-collection-isbn').empty();
+                                $('#empty-isbn-row').remove();
                             }
 
                             $('#data-collection-isbn').append(`
-                                <tr class="isbn-row">
+                                <tr class="animate__animated animate__fadeIn">
                                     <input type="hidden" name="ci[]" value="1">
                                     <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
 
                                     <td class="text-center align-middle">${ response.fileCover }</td>
                                     <td class="align-middle">
-                                        <span class="badge bg-secondary fs-7">${ response.data.isbn }</span>
+                                        <span class="badge bg-secondary">${ response.data.isbn }</span>
                                     </td>
                                     <td class="align-middle">
                                         <div class="fw-semibold">${ response.data.title }</div>
@@ -444,7 +475,7 @@
                                         <input type="text" class="form-control form-control-sm" name="ci_isbd[]" placeholder="ISBD">
                                     </td>
                                     <td class="text-center align-middle">
-                                        <button type="button" class="btn btn-danger btn-icon btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item">
                                             <i class="ph-trash"></i>
                                         </button>
                                     </td>
@@ -513,26 +544,31 @@
             showCancelButton: true,
             confirmButtonText: 'Ya, Hapus',
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
         }).then((result) => {
             if (result.isConfirmed) {
                 var $tbody = $(param).closest('tbody');
+                var tbodyId = $tbody.attr('id');
 
-                $(param).closest('tr').remove();
+                $(param).closest('tr').fadeOut(300, function() {
+                    $(this).remove();
 
-                if($tbody.find('tr').length === 0) {
-                    var emptyMessage = '';
+                    if($tbody.find('tr').length === 0) {
+                        var emptyMessage = '';
 
-                    if($tbody.attr('id') === 'data-collection-isbn') {
-                        emptyMessage = '<tr><td colspan="13" class="text-center text-muted py-5"><i class="ph-book-open ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi ISBN</h6><p class="mb-0">Gunakan fitur pencarian di atas untuk menambahkan koleksi</p></td></tr>';
-                    } else if($tbody.attr('id') === 'data-collection-non-isbn') {
-                        emptyMessage = '<tr><td class="text-center text-muted py-5"><i class="ph-books ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi Non ISBN</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan koleksi</p></td></tr>';
-                    } else if($tbody.attr('id') === 'data-collection-periodicals') {
-                        emptyMessage = '<tr><td class="text-center text-muted py-5"><i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p></td></tr>';
+                        if(tbodyId === 'data-collection-isbn') {
+                            emptyMessage = '<tr id="empty-isbn-row"><td colspan="13" class="text-center text-muted py-5"><i class="ph-book-open ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi ISBN</h6><p class="mb-0">Gunakan fitur pencarian di atas untuk menambahkan koleksi</p></td></tr>';
+                        } else if(tbodyId === 'data-collection-non-isbn') {
+                            emptyMessage = '<tr id="empty-non-isbn-row"><td class="text-center text-muted py-5"><i class="ph-books ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi Non ISBN</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan koleksi</p></td></tr>';
+                        } else if(tbodyId === 'data-collection-periodicals') {
+                            emptyMessage = '<tr id="empty-periodicals-row"><td class="text-center text-muted py-5"><i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p></td></tr>';
+                        }
+
+                        $tbody.html(emptyMessage);
                     }
-
-                    $tbody.html(emptyMessage);
-                }
+                });
 
                 notification('success', '<i class="ph-check-circle me-2"></i> Item berhasil dihapus');
             }
@@ -563,7 +599,7 @@
         }
 
         if($('#data-collection-non-isbn tr td[colspan]').length > 0 || $('#data-collection-non-isbn tr td').length === 1) {
-            $('#data-collection-non-isbn').empty();
+            $('#empty-non-isbn-row').remove();
         }
 
         for(var i = 1; i <= total; i++) {
@@ -573,82 +609,79 @@
             var randStr = randomString(10);
 
             $('#data-collection-non-isbn').append(`
-                <tr class="border-top border-3 non-isbn-row">
+                <tr class="animate__animated animate__fadeIn">
                     <input type="hidden" name="cni[]" value="1">
-                    <td style="width: 5%;" class="align-top pt-3">
-                        <button type="button" class="btn btn-danger btn-icon" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus koleksi">
+                    <td width="5%" class="align-top pt-3">
+                        <button type="button" class="btn btn-danger" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus koleksi">
                             <i class="ph-trash"></i>
                         </button>
                     </td>
-                    <td style="width: 95%;">
+                    <td width="95%">
                         <div class="card border shadow-sm mb-2">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                                 <h6 class="mb-0">
                                     <i class="ph-book-open me-2"></i>
                                     Koleksi #${currentNumber}
                                 </h6>
                             </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row g-3">
                                     <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-hash me-1"></i>ID Katalog
-                                            </label>
+                                        <label class="form-label">
+                                            <i class="ph-hash me-1"></i>ID Katalog
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="ph-database"></i></span>
                                             <input type="text" class="form-control cni_catalog_id_${ randStr }" name="cni_catalog_id[]" placeholder="Klik untuk pilih katalog" onchange="selectCollectionNonISBN(this)" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-buildings me-1"></i>Pelaksana Serah
-                                            </label>
-                                            <input type="text" class="form-control" name="cni_executor[]" placeholder="Nama pelaksana">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-book-bookmark me-1"></i>Judul
-                                            </label>
-                                            <input type="text" class="form-control" name="cni_title[]" placeholder="Judul koleksi">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-user-circle me-1"></i>Kepengarangan
-                                            </label>
-                                            <input type="text" class="form-control" name="cni_author[]" placeholder="Nama pengarang/penulis">
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-note me-1"></i>Deskripsi Fisik
-                                            </label>
-                                            <input type="text" class="form-control" name="cni_physical_description[]" placeholder="Contoh: 200 hlm ; 21 cm">
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label fw-semibold">
-                                                    <i class="ph-calendar-blank me-1"></i>Tahun Terbit
-                                                </label>
-                                                <input type="text" class="form-control" name="cni_year[]" placeholder="2025">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label fw-semibold">
-                                                    <i class="ph-books me-1"></i>No Jilid
-                                                </label>
-                                                <input type="text" class="form-control" name="cni_binding[]" placeholder="No. jilid">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">
-                                                <i class="ph-note-pencil me-1"></i>Keterangan
-                                            </label>
-                                            <select class="form-select cni-description-${ randStr }" name="cni_description[]" multiple></select>
-                                        </div>
+                                        <label class="form-label">
+                                            <i class="ph-buildings me-1"></i>Pelaksana Serah
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_executor[]" placeholder="Nama pelaksana">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="form-label">
+                                            <i class="ph-book-bookmark me-1"></i>Judul
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_title[]" placeholder="Judul koleksi">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="form-label">
+                                            <i class="ph-user-circle me-1"></i>Kepengarangan
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_author[]" placeholder="Nama pengarang/penulis">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="form-label">
+                                            <i class="ph-note me-1"></i>Deskripsi Fisik
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_physical_description[]" placeholder="Contoh: 200 hlm ; 21 cm">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label class="form-label">
+                                            <i class="ph-calendar-blank me-1"></i>Tahun Terbit
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_year[]" placeholder="2025">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label class="form-label">
+                                            <i class="ph-books me-1"></i>No Jilid
+                                        </label>
+                                        <input type="text" class="form-control" name="cni_binding[]" placeholder="No. jilid">
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <label class="form-label">
+                                            <i class="ph-note-pencil me-1"></i>Keterangan
+                                        </label>
+                                        <select class="form-select cni-description-${ randStr }" name="cni_description[]" multiple></select>
                                     </div>
                                 </div>
                                 <hr class="my-3">
-                                <div class="row">
-                                    <div class="col-lg-4 mb-3">
-                                        <label class="form-label fw-semibold">
+                                <div class="row g-3">
+                                    <div class="col-lg-4">
+                                        <label class="form-label">
                                             <i class="ph-stack me-1"></i>Jumlah Eksemplar
                                         </label>
                                         <div class="input-group">
@@ -665,14 +698,17 @@
                                             <input type="number" class="form-control cni-reject-${ randStr }" name="cni_qty_reject[]" value="0" style="max-width: 80px;" oninput="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 mb-3">
-                                        <label class="form-label fw-semibold">
+                                    <div class="col-lg-4">
+                                        <label class="form-label">
                                             <i class="ph-currency-circle-dollar me-1"></i>Harga
                                         </label>
-                                        <input type="text" class="form-control" name="cni_price[]" placeholder="Harga buku">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="text" class="form-control" name="cni_price[]" placeholder="0">
+                                        </div>
                                     </div>
-                                    <div class="col-lg-4 mb-3">
-                                        <label class="form-label fw-semibold">
+                                    <div class="col-lg-4">
+                                        <label class="form-label">
                                             <i class="ph-file me-1"></i>Jenis Media
                                         </label>
                                         <select class="form-select select2-basic" name="cni_type[]">
@@ -682,14 +718,12 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-6 mb-2">
-                                        <label class="form-label fw-semibold">QRCBN</label>
+                                    <div class="col-lg-6">
+                                        <label class="form-label">QRCBN</label>
                                         <input type="text" class="form-control" name="cni_qrcbn[]" placeholder="Kode QRCBN">
                                     </div>
-                                    <div class="col-lg-6 mb-2">
-                                        <label class="form-label fw-semibold">ISBD</label>
+                                    <div class="col-lg-6">
+                                        <label class="form-label">ISBD</label>
                                         <input type="text" class="form-control" name="cni_isbd[]" placeholder="Kode ISBD">
                                     </div>
                                 </div>
@@ -717,7 +751,7 @@
         notification('success', '<i class="ph-check-circle me-2"></i> ' + total + ' koleksi berhasil ditambahkan');
 
         $('html, body').animate({
-            scrollTop: $('.non-isbn-row:last').offset().top - 100
+            scrollTop: $('#data-collection-non-isbn tr').last().offset().top - 100
         }, 500);
     }
 
@@ -777,7 +811,7 @@
         }
 
         if($('#data-collection-periodicals tr td[colspan]').length > 0 || $('#data-collection-periodicals tr td').length === 1) {
-            $('#data-collection-periodicals').empty();
+            $('#empty-periodicals-row').remove();
         }
 
         for(var i = 1; i <= total; i++) {
@@ -787,16 +821,16 @@
             var randStr = randomString(10);
 
             $('#data-collection-periodicals').append(`
-                <tr class="periodical-row-${ randStr } border-top border-3">
+                <tr class="periodical-row-${ randStr } animate__animated animate__fadeIn">
                     <input type="hidden" name="cp[]" value="1">
-                    <td style="width: 5%;" rowspan="2" class="align-top pt-3">
-                        <button type="button" class="btn btn-danger btn-icon" onclick="removeItemPeriodicals('${ randStr }')" data-bs-toggle="tooltip" title="Hapus terbitan berkala">
+                    <td width="5%" rowspan="2" class="align-top pt-3">
+                        <button type="button" class="btn btn-danger" onclick="removeItemPeriodicals('${ randStr }')" data-bs-toggle="tooltip" title="Hapus terbitan berkala">
                             <i class="ph-trash"></i>
                         </button>
                     </td>
-                    <td style="width: 95%;">
+                    <td width="95%">
                         <div class="card border shadow-sm mb-2">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                                 <h6 class="mb-0">
                                     <i class="ph-newspaper-clipping me-2"></i>
                                     Terbitan Berkala #${currentNumber}
@@ -805,20 +839,23 @@
                             <div class="card-body">
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input use-catalog-${ randStr }" type="checkbox" id="use_catalog_${ randStr }" checked onchange="toggleCatalogInput('${ randStr }')">
-                                    <label class="form-check-label fw-semibold" for="use_catalog_${ randStr }">
+                                    <label class="form-check-label" for="use_catalog_${ randStr }">
                                         <i class="ph-database me-1"></i>
                                         Gunakan Katalog dari Database
                                     </label>
                                 </div>
                                 <div class="catalog-input-${ randStr }">
                                     <input type="hidden" class="cp_catalog_id_${ randStr }" name="cp_catalog_id[]">
-                                    <label class="form-label fw-semibold">
+                                    <label class="form-label">
                                         Pilih Katalog <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control cp_catalog_text_${ randStr }" placeholder="Klik untuk mencari katalog terbitan berkala" readonly>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="ph-database"></i></span>
+                                        <input type="text" class="form-control cp_catalog_text_${ randStr }" placeholder="Klik untuk mencari katalog terbitan berkala" readonly>
+                                    </div>
                                 </div>
                                 <div class="manual-input-${ randStr }" style="display: none;">
-                                    <label class="form-label fw-semibold">
+                                    <label class="form-label">
                                         Judul Terbitan Berkala <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control cp_manual_title_${ randStr }" name="cp_manual_title[]" placeholder="Masukkan judul terbitan berkala">
@@ -829,13 +866,13 @@
                 </tr>
                 <tr class="periodical-row-${ randStr }">
                     <td>
-                        <div class="card border">
+                        <div class="card border shadow-sm">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                                 <h6 class="mb-0">
                                     <i class="ph-notebook me-1"></i>
                                     Daftar Edisi
                                 </h6>
-                                <button type="button" class="btn btn-info btn-sm" onclick="addCollectionPeriodicalsEdition('${ randStr }')">
+                                <button type="button" class="btn btn-success btn-sm" onclick="addCollectionPeriodicalsEdition('${ randStr }')">
                                     <i class="ph-plus me-1"></i>
                                     Tambah Edisi
                                 </button>
@@ -869,12 +906,12 @@
 
     function toggleCatalogInput(randStr) {
         if($('.use-catalog-' + randStr).is(':checked')) {
-            $('.catalog-input-' + randStr).show();
-            $('.manual-input-' + randStr).hide();
+            $('.catalog-input-' + randStr).slideDown();
+            $('.manual-input-' + randStr).slideUp();
             $('.cp_manual_title_' + randStr).val('');
         } else {
-            $('.catalog-input-' + randStr).hide();
-            $('.manual-input-' + randStr).show();
+            $('.catalog-input-' + randStr).slideUp();
+            $('.manual-input-' + randStr).slideDown();
             $('.cp_catalog_id_' + randStr).val('');
             $('.cp_catalog_text_' + randStr).val('');
         }
@@ -888,14 +925,18 @@
             showCancelButton: true,
             confirmButtonText: 'Ya, Hapus',
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
         }).then((result) => {
             if (result.isConfirmed) {
-                $('.periodical-row-' + randStr).remove();
+                $('.periodical-row-' + randStr).fadeOut(300, function() {
+                    $(this).remove();
 
-                if($('#data-collection-periodicals tr').length === 0) {
-                    $('#data-collection-periodicals').html('<tr><td class="text-center text-muted py-5"><i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p></td></tr>');
-                }
+                    if($('#data-collection-periodicals tr').length === 0) {
+                        $('#data-collection-periodicals').html('<tr id="empty-periodicals-row"><td class="text-center text-muted py-5"><i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p></td></tr>');
+                    }
+                });
 
                 notification('success', '<i class="ph-check-circle me-2"></i> Terbitan berkala berhasil dihapus');
             }
@@ -911,29 +952,29 @@
         }
 
         editionContainer.append(`
-            <div class="edition-row-${ randStr } border rounded p-3 mb-3 bg-light">
+            <div class="edition-row-${ randStr } border rounded p-3 mb-3 bg-light animate__animated animate__fadeIn">
                 <input type="hidden" name="cpe[][]" value="${ parentRandStr }">
-                <div class="row align-items-end">
-                    <div class="col-lg-2 col-md-3 mb-2">
-                        <label class="form-label fw-semibold small">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-2">
+                        <label class="form-label small">
                             <i class="ph-hash me-1"></i>Edisi Serial
                         </label>
                         <input type="text" class="form-control form-control-sm" name="cpe_edition[][]" placeholder="No. Edisi">
                     </div>
-                    <div class="col-lg-2 col-md-3 mb-2">
-                        <label class="form-label fw-semibold small">
+                    <div class="col-lg-2">
+                        <label class="form-label small">
                             <i class="ph-calendar me-1"></i>TTES Awal
                         </label>
                         <input type="text" class="form-control form-control-sm date-single" name="cpe_first_ttes[][]" placeholder="Pilih tanggal" readonly>
                     </div>
-                    <div class="col-lg-2 col-md-3 mb-2">
-                        <label class="form-label fw-semibold small">
+                    <div class="col-lg-2">
+                        <label class="form-label small">
                             <i class="ph-calendar-check me-1"></i>TTES Akhir
                         </label>
                         <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" placeholder="Pilih tanggal" readonly>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <label class="form-label fw-semibold small">
+                    <div class="col-lg-4">
+                        <label class="form-label small">
                             <i class="ph-stack me-1"></i>Eksemplar
                         </label>
                         <div class="input-group input-group-sm">
@@ -950,17 +991,17 @@
                             <input type="number" class="form-control cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-3 mb-2">
-                        <label class="form-label fw-semibold small">
+                    <div class="col-lg-2">
+                        <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItemEdition('${ randStr }')">
+                            <i class="ph-trash me-1"></i>
+                            Hapus
+                        </button>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small">
                             <i class="ph-note-pencil me-1"></i>Keterangan
                         </label>
                         <select class="form-select form-select-sm cpe-description-${ randStr }" name="cpe_description[][]" multiple></select>
-                    </div>
-                    <div class="col-12 text-end mt-2">
-                        <button type="button" class="btn btn-sm btn-danger" onclick="removeItemEdition('${ randStr }')">
-                            <i class="ph-trash me-1"></i>
-                            Hapus Edisi
-                        </button>
                     </div>
                 </div>
             </div>
@@ -973,7 +1014,6 @@
         });
 
         datePickerSingle('.date-single');
-
         notification('success', '<i class="ph-check-circle me-2"></i> Edisi berhasil ditambahkan');
     }
 
@@ -985,10 +1025,14 @@
             showCancelButton: true,
             confirmButtonText: 'Ya, Hapus',
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
         }).then((result) => {
             if (result.isConfirmed) {
-                $('.edition-row-' + randStr).remove();
+                $('.edition-row-' + randStr).fadeOut(300, function() {
+                    $(this).remove();
+                });
 
                 notification('success', '<i class="ph-check-circle me-2"></i> Edisi berhasil dihapus');
             }
@@ -1063,7 +1107,9 @@
             showCancelButton: true,
             confirmButtonText: buttonText,
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
         }).then((result) => {
             if (result.isConfirmed) {
                 processSubmit(param);
@@ -1090,7 +1136,7 @@
                 if(response.code == 200) {
                     swalInit.fire({
                         title: 'Berhasil!',
-                        html: '<i class="ph-check-circle ph-3x text-success d-block mb-3"></i>' + response.message,
+                        html: response.message,
                         icon: 'success',
                         showDenyButton: false,
                         showCancelButton: false,
@@ -1132,21 +1178,3 @@
         });
     }
 </script>
-
-<style>
-    @keyframes slideUp {
-        from {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .isbn-row:hover, .non-isbn-row:hover, .periodical-row:hover {
-        background-color: rgba(0, 123, 255, 0.02);
-    }
-</style>

@@ -1,41 +1,82 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Promosi</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-2"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-tag me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Promosi</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary">
+                    <i class="ph-percent me-1"></i>
+                    Manajemen Promo
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Provinsi</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Kode</th>
-                        <th class="text-nowrap">Tgl Mulai</th>
-                        <th class="text-nowrap">Tgl Berakhir</th>
-                        <th class="text-nowrap">Saldo</th>
-                        <th class="text-nowrap">Diskon</th>
-                        <th class="text-nowrap">Jumlah Paket</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-map-pin me-1"></i>
+                                Provinsi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-notebook me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-barcode me-1"></i>
+                                Kode
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 140px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Mulai
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 140px">
+                                <i class="ph-calendar-x me-1"></i>
+                                Tgl Berakhir
+                            </th>
+                            <th class="text-nowrap" style="min-width: 130px">
+                                <i class="ph-wallet me-1"></i>
+                                Saldo
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-percent me-1"></i>
+                                Diskon
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-package me-1"></i>
+                                Jumlah Paket
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -43,79 +84,116 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-tag me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-start">
+                        <i class="ph-warning-circle me-2 fs-4"></i>
+                        <div class="flex-fill">
+                            <h6 class="mb-2">Terdapat Kesalahan Validasi!</h6>
+                            <ul class="mb-0" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-notebook me-1"></i>
+                            Judul Promosi
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" name="title" id="title" placeholder="Masukkan judul promosi">
+                        <div class="form-text">Nama atau judul promosi yang akan ditampilkan</div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Kode : <span class="text-danger fw-bold">*</span></label>
-                                <input type="text" class="form-control" name="code" id="code" placeholder="....................">
-                            </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-barcode me-1"></i>
+                                Kode Promo
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control text-uppercase" name="code" id="code" placeholder="KODEPROMO">
+                            <div class="form-text">Kode unik untuk promosi</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Tgl Mulai : <span class="text-danger fw-bold">*</span></label>
-                                <input type="datetime-local" class="form-control" name="start_date" id="start_date" placeholder="....................">
-                            </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tanggal Mulai
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" name="start_date" id="start_date">
+                            <div class="form-text">Tanggal mulai berlaku</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Tgl Berakhir : <span class="text-danger fw-bold">*</span></label>
-                                <input type="datetime-local" class="form-control" name="end_date" id="end_date" placeholder="....................">
-                            </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-x me-1"></i>
+                                Tanggal Berakhir
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" name="end_date" id="end_date">
+                            <div class="form-text">Tanggal berakhir promo</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Saldo :</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" class="form-control" name="balance" id="balance" placeholder="....................">
-                                </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-wallet me-1"></i>
+                                Saldo
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input type="text" class="form-control" name="balance" id="balance" placeholder="0">
                             </div>
+                            <div class="form-text">Nilai saldo promosi (opsional)</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Diskon :</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="discount" id="discount" placeholder="....................">
-                                    <span class="input-group-text">%</span>
-                                </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-percent me-1"></i>
+                                Diskon
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="discount" id="discount" placeholder="0" min="0" max="100">
+                                <span class="input-group-text">%</span>
                             </div>
+                            <div class="form-text">Persentase diskon (0-100)</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Jumlah Paket :</label>
-                                <input type="number" class="form-control" name="package" id="package" placeholder="....................">
-                            </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-package me-1"></i>
+                                Jumlah Paket
+                            </label>
+                            <input type="number" class="form-control" name="package" id="package" placeholder="0" min="0">
+                            <div class="form-text">Jumlah paket yang tersedia</div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Provinsi :</label>
-                        <select class="form-select" name="province_id[]" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih Beberapa" multiple></select>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-map-pin me-1"></i>
+                            Provinsi
+                        </label>
+                        <select class="form-select" name="province_id[]" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih satu atau beberapa provinsi" multiple></select>
+                        <div class="form-text">Pilih provinsi yang berlaku untuk promosi ini (kosongkan untuk semua provinsi)</div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
@@ -145,6 +223,10 @@
             });
         }
 
+        $('#code').on('input', function() {
+            $(this).val($(this).val().toUpperCase());
+        });
+
         loadData();
     });
 
@@ -160,13 +242,13 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#province_id').val(null).change();
+        $('#province_id').val(null).trigger('change');
     }
 
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Promosi');
         $('#modal-form').modal('show');
     }
 
@@ -180,7 +262,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Promosi');
         $('#modal-form').modal('show');
     }
 
@@ -223,16 +305,16 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-end' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -366,14 +448,14 @@
 
     function destroyData(id) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data Promosi?</h5><span class="text-muted">Data yang telah dihapus tidak dapat dikembalikan lagi</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',
             closeWith: 'button',
             type: 'confirm',
             buttons: [
-                Noty.button('Tidak', 'btn btn-light', function () {
+                Noty.button('Batal', 'btn btn-light', function () {
                     notyConfirm.close();
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {

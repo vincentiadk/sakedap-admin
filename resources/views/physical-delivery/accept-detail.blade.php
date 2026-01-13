@@ -1,134 +1,261 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Pengiriman Fisik - Diterima - <span class="fw-normal">Detail</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <a href="{{ url('physical-delivery/accept') }}" class="btn btn-primary">
-                        <i class="ph-arrow-left me-1"></i>
-                        Kembali ke Tabel
-                    </a>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <a href="{{ url('physical-delivery/accept') }}" class="btn btn-primary">
+                    <i class="ph-arrow-left me-1"></i>
+                    Kembali ke Tabel
+                </a>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
     <form id="form-data">
-        <div class="card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-info me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Informasi Pengiriman</h6>
+                </div>
+            </div>
             <div class="card-body">
-                <table class="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <th class="table-success" width="20%">Tanggal</th>
-                            <td width="30%">{{ Carbon::parse($letter->LETTER_DATE)->isoFormat('D MMM Y') }}, {{ Carbon::parse($letter->LETTER_DATE)->format('H:i') }}</td>
-                            <th class="table-success" width="20%">No Surat</th>
-                            <td width="30%">{{ $letter->LETTER_NUMBER }}</td>
-                        </tr>
-                        <tr>
-                            <th class="table-success" width="20%">Pengirim</th>
-                            <td width="30%">{{ $letter->SENDER }}</td>
-                            <th class="table-success" width="20%">Telp</th>
-                            <td width="30%">{{ $letter->PHONE }}</td>
-                        </tr>
-                        <tr>
-                            <th class="table-success" width="20%">Jasa Kirim</th>
-                            <td width="30%">{{ $letter->NAME_JASA_PENGIRIMAN }}</td>
-                            <th class="table-success" width="20%">Tujuan</th>
-                            <td width="30%">{{ $letter->NAME_BRANCH }}</td>
-                        </tr>
-                        <tr>
-                            <th class="table-success" width="20%">Resi</th>
-                            <td width="30%">{{ $letter->RECEIPT_NO }}</td>
-                            <th class="table-success" width="20%">Biaya Kirim</th>
-                            <td width="30%">Rp {{ number_format($letter->BIAYA_KIRIM ?: 0) }}</td>
-                        </tr>
-                        <tr>
-                            <th class="table-success" width="20%">Berat</th>
-                            <td width="30%">{{ number_format(($letter->BERAT ?: 0) / 1000, 2, ',', '.') }} Kg</td>
-                            <th class="table-success" width="20%">Pelaksana Serah</th>
-                            <td width="30%">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-calendar-blank me-1"></i>
+                                        Tanggal
+                                    </label>
+                                    <div class="fw-semibold text-dark">
+                                        {{ Carbon::parse($letter->LETTER_DATE)->isoFormat('D MMMM Y') }}, {{ Carbon::parse($letter->LETTER_DATE)->format('H:i') }} WIB
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-user me-1"></i>
+                                        Pengirim
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->SENDER ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-truck me-1"></i>
+                                        Jasa Kirim
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->NAME_JASA_PENGIRIMAN ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-barcode me-1"></i>
+                                        No Resi
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->RECEIPT_NO ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-scales me-1"></i>
+                                        Berat
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ number_format(($letter->BERAT ?: 0) / 1000, 2, ',', '.') }} Kg</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-file-text me-1"></i>
+                                        No Surat
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->LETTER_NUMBER ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-phone me-1"></i>
+                                        Telepon
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->PHONE ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-map-pin me-1"></i>
+                                        Tujuan
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->NAME_BRANCH ?: 'Tidak ada' }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-currency-circle-dollar me-1"></i>
+                                        Biaya Kirim
+                                    </label>
+                                    <div class="fw-semibold text-dark">Rp {{ number_format($letter->BIAYA_KIRIM ?: 0, 0, ',', '.') }}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-muted fw-semibold small mb-1">
+                                        <i class="ph-buildings me-1"></i>
+                                        Pelaksana Serah
+                                    </label>
+                                    <div class="fw-semibold text-dark">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-package me-1 text-primary"></i>
+                        <h6 class="mb-0 fw-semibold">Daftar Koleksi yang Diterima</h6>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success">
+                        <i class="ph-check-circle me-1"></i>
+                        Status: Diterima
+                    </span>
+                </div>
+            </div>
             <div class="card-body">
-                <table class="table table-bordered w-100 display" id="datatable-client">
-                    <thead class="text-bg-light">
-                        <tr>
-                            <th class="text-center" rowspan="2">No</th>
-                            <th rowspan="2">Check</th>
-                            <th rowspan="2">Cover</th>
-                            <th rowspan="2">Judul</th>
-                            <th rowspan="2">ISBN</th>
-                            <th rowspan="2">Jilid</th>
-                            <th rowspan="2">Edisi</th>
-                            <th colspan="2" class="text-center">Jumlah Eks</th>
-                            <th rowspan="2">Alasan Ditolak</th>
-                            <th rowspan="2">Catatan</th>
-                        </tr>
-                        <tr>
-                            <th class="text-center">Diterima</th>
-                            <th class="text-center">Ditolak</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($letterDetail ?? [] as $key => $ld)
-                            @php
-                                $code = str_replace('-', '', $ld->ISBN);
-                                $fileCover = asset('assets/no-file.jpg');
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered w-100 display" id="datatable-client">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center text-nowrap" rowspan="2" style="width: 60px">
+                                    <i class="ph-hash"></i>
+                                </th>
+                                <th class="text-center text-nowrap" rowspan="2" style="width: 80px">
+                                    <i class="ph-check-square"></i>
+                                    Check
+                                </th>
+                                <th class="text-center text-nowrap" rowspan="2" style="width: 100px">
+                                    <i class="ph-image"></i>
+                                    Cover
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 200px">
+                                    <i class="ph-book-open me-1"></i>
+                                    Judul
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 130px">
+                                    <i class="ph-identification-card me-1"></i>
+                                    ISBN
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 100px">
+                                    <i class="ph-books me-1"></i>
+                                    Jilid
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 100px">
+                                    <i class="ph-note me-1"></i>
+                                    Edisi
+                                </th>
+                                <th class="text-center text-nowrap" colspan="2">
+                                    <i class="ph-package me-1"></i>
+                                    Jumlah Eks
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 150px">
+                                    <i class="ph-x-circle me-1"></i>
+                                    Alasan Ditolak
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 150px">
+                                    <i class="ph-note-pencil me-1"></i>
+                                    Catatan
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="text-center text-nowrap" style="min-width: 100px">
+                                    <i class="ph-check-circle me-1"></i>
+                                    Diterima
+                                </th>
+                                <th class="text-center text-nowrap" style="min-width: 100px">
+                                    <i class="ph-x-circle me-1"></i>
+                                    Ditolak
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($letterDetail ?? [] as $key => $ld)
+                                @php
+                                    $code = str_replace('-', '', $ld->ISBN);
+                                    $fileCover = asset('assets/no-file.jpg');
 
-                                if ($code) {
-                                    $getDataISBN = ISBN::get('search', [
-                                        'code' => $code
-                                    ], true);
+                                    if ($code) {
+                                        $getDataISBN = ISBN::get('search', [
+                                            'code' => $code
+                                        ], true);
 
-                                    if($getDataISBN) {
-                                        if(isset($getDataISBN->cover_file_name)) {
-                                            if($getDataISBN->cover_file_name) {
-                                                $fileCover = $getDataISBN->cover_file_name;
+                                        if($getDataISBN) {
+                                            if(isset($getDataISBN->cover_file_name)) {
+                                                if($getDataISBN->cover_file_name) {
+                                                    $fileCover = $getDataISBN->cover_file_name;
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            @endphp
-                            <tr>
-                                <td class="text-center">{{ $key + 1 }}</td>
-                                <td class="text-wrap">{{ $ld->RECEIVED_BY }}</td>
-                                <td class="text-center">
-                                    <a href="{{ $fileCover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
-                                        <img src="{{ $fileCover }}" class="img img-fluid img-thumbnail" style="max-width:70px;">
-                                    </a>
-                                </td>
-                                <td class="text-wrap">{{ $ld->TITLE }}</td>
-                                <td class="text-wrap">{{ $ld->ISBN }}</td>
-                                <td class="text-wrap">{{ $ld->NOMORPANGGILJILID }}</td>
-                                <td class="text-wrap">{{ $ld->EDISI_SERIAL }}</td>
-                                <td class="text-wrap">{{ $ld->QTY_ACCEPT ?: 0 }}</td>
-                                <td class="text-wrap">{{ $ld->QTY_REJECT ?: 0 }}</td>
-                                <td>
-                                    @php $remark = explode(';', $ld->REMARK ?? ''); @endphp
-                                    @if($remark)
-                                        <ul class="m-0 pe-3">
-                                            @foreach($remark as $r)
-                                                @if(!empty($r))
-                                                    <li>{{ $r }}</li>
-                                                @endif
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </td>
-                                <td>{{ $ld->ISBN_STATUS }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                @endphp
+                                <tr>
+                                    <td class="text-center fw-semibold">{{ $key + 1 }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                            {{ $ld->RECEIVED_BY ?: '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ $fileCover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
+                                            <img src="{{ $fileCover }}" class="img-fluid img-thumbnail shadow-sm" style="max-width: 70px; max-height: 100px; object-fit: cover;">
+                                        </a>
+                                    </td>
+                                    <td class="align-middle text-wrap">
+                                        <div class="fw-semibold">{{ $ld->TITLE }}</div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                                            {{ $ld->ISBN ?: '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="align-middle">{{ $ld->NOMORPANGGILJILID ?: '-' }}</td>
+                                    <td class="align-middle">{{ $ld->EDISI_SERIAL ?: '-' }}</td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge bg-success">{{ $ld->QTY_ACCEPT ?: 0 }}</span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge bg-danger">{{ $ld->QTY_REJECT ?: 0 }}</span>
+                                    </td>
+                                    <td class="align-middle">
+                                        @php $remark = explode(';', $ld->REMARK ?? ''); @endphp
+                                        @if($remark && count(array_filter($remark)) > 0)
+                                            <ul class="m-0 ps-3">
+                                                @foreach($remark as $r)
+                                                    @if(!empty($r))
+                                                        <li class="text-danger small">{{ $r }}</li>
+                                                    @endif
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="align-middle">
+                                        @if($ld->ISBN_STATUS)
+                                            <span class="badge bg-info bg-opacity-10 text-info">{{ $ld->ISBN_STATUS }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </form>
@@ -137,12 +264,23 @@
 <script>
     $(function() {
         $('#datatable-client').DataTable({
-            paging: false,
-            lengthChange: false,
-            info: false,
-            scrollY: '400px',
-            scrollX: false,
+            paging: true,
+            lengthChange: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+            info: true,
+            searching: true,
+            scrollY: false,
+            scrollX: true,
             scrollCollapse: true,
+            autoWidth: false,
+            order: [[0, 'asc']],
+            columnDefs: [
+                {
+                    targets: [2],
+                    orderable: false
+                }
+            ],
         });
     });
 </script>

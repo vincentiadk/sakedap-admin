@@ -1,60 +1,115 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Berita</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-2"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
-            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
-            <div class="ms-sm-auto my-sm-auto">
-                <div class="input-group">
-                    <span class="input-group-text">Kategori</span>
-                    <select class="form-select w-auto flex-grow-0" name="filter_category" id="filter_category" onchange="loadData()">
-                        <option value="">Semua</option>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Data</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <label class="form-label fw-semibold">
+                        <i class="ph-folder-open me-1"></i>
+                        Kategori
+                    </label>
+                    <select class="form-select" name="filter_category" id="filter_category" onchange="loadData()">
+                        <option value="">Semua Kategori</option>
                         @foreach($category as $c)
                             <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
                         @endforeach
                     </select>
-                    <span class="input-group-text">Peruntukan</span>
-                    <select class="form-select w-auto flex-grow-0" name="filter_ownership" id="filter_ownership" onchange="loadData()">
-                        <option value="">Semua</option>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label fw-semibold">
+                        <i class="ph-file-text me-1"></i>
+                        Peruntukan
+                    </label>
+                    <select class="form-select" name="filter_ownership" id="filter_ownership" onchange="loadData()">
+                        <option value="">Semua Peruntukan</option>
                         <option value="1">Halaman Berita</option>
                         <option value="2">Halaman Statis</option>
                     </select>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-newspaper me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Berita</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary">
+                    <i class="ph-article me-1"></i>
+                    Manajemen Konten
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Gambar</th>
-                        <th class="text-nowrap">Kategori</th>
-                        <th class="text-nowrap">Halaman</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Lang</th>
-                        <th class="text-nowrap">Lampiran Link</th>
-                        <th class="text-nowrap">Status</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-image me-1"></i>
+                                Gambar
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-folder-open me-1"></i>
+                                Kategori
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-file-text me-1"></i>
+                                Halaman
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-article me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 80px">
+                                <i class="ph-globe me-1"></i>
+                                Lang
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-link me-1"></i>
+                                Lampiran Link
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-toggle-right me-1"></i>
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -62,90 +117,136 @@
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-newspaper me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-start">
+                        <i class="ph-warning-circle me-2 fs-4"></i>
+                        <div class="flex-fill">
+                            <h6 class="mb-2">Terdapat Kesalahan Validasi!</h6>
+                            <ul class="mb-0" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="form-group">
-                        <label class="form-label">Gambar :</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control" name="image" id="image">
-                            <a href="" data-lightbox="news-form" data-title="Preview Gambar" class="btn btn-success" id="image-preview">
+                    <div class="card bg-light border-0 form-group">
+                        <div class="card-body">
+                            <label class="form-label fw-semibold">
                                 <i class="ph-image me-1"></i>
-                                Lihat Gambar Saat Ini
-                            </a>
+                                Gambar Berita
+                            </label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" name="image" id="image" accept="image/*">
+                                <a href="javascript:void(0);" data-lightbox="news-form" data-title="Preview Gambar" class="btn btn-success d-none" id="image-preview">
+                                    <i class="ph-eye me-1"></i>
+                                    Lihat Gambar Saat Ini
+                                </a>
+                            </div>
+                            <div class="form-text">
+                                <i class="ph-info me-1"></i>
+                                Upload gambar untuk thumbnail berita (JPG, PNG, max 2MB)
+                            </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
-                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
-                                    <option value=""></option>
-                                    @foreach($category as $c)
-                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-folder-open me-1"></i>
+                                Kategori
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih Kategori">
+                                <option value=""></option>
+                                @foreach($category as $c)
+                                    <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis: {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Pilih kategori berita</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Lampiran Link :</label>
-                                <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-link me-1"></i>
+                                Lampiran Link
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-link-simple"></i>
+                                </span>
+                                <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
                             </div>
+                            <div class="form-text">Link eksternal terkait berita (opsional)</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Lang :</label>
-                                <select class="form-select" name="lang" id="lang">
-                                    <option value="ID">ID</option>
-                                    <option value="EN">EN</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-globe me-1"></i>
+                                Bahasa
+                            </label>
+                            <select class="form-select" name="lang" id="lang">
+                                <option value="ID">Indonesia (ID)</option>
+                                <option value="EN">English (EN)</option>
+                            </select>
+                            <div class="form-text">Pilih bahasa konten berita</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Status :</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="PUBLISH">PUBLISH</option>
-                                    <option value="HIDE">HIDE</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-toggle-right me-1"></i>
+                                Status Publikasi
+                            </label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="PUBLISH">Publish (Tampilkan)</option>
+                                <option value="HIDE">Hide (Sembunyikan)</option>
+                            </select>
+                            <div class="form-text">Status tampilan berita di website</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="...................."></textarea>
-                            </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-article me-1"></i>
+                                Judul Berita
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul berita yang menarik"></textarea>
+                            <div class="form-text">Judul akan ditampilkan di halaman berita</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Ringkasan :</label>
-                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="...................."></textarea>
-                            </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-note me-1"></i>
+                                Ringkasan
+                            </label>
+                            <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat berita (maks 200 karakter)"></textarea>
+                            <div class="form-text">Ringkasan untuk preview di daftar berita</div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Konten :</label>
-                        <textarea class="form-control" name="content" id="content" placeholder="...................."></textarea>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-text-align-left me-1"></i>
+                            Konten Berita
+                        </label>
+                        <textarea class="form-control" name="content" id="content" placeholder="Tulis konten berita lengkap di sini..."></textarea>
+                        <div class="form-text">
+                            <i class="ph-lightbulb me-1"></i>
+                            Gunakan editor untuk format teks, sisipkan gambar, dan buat konten yang menarik
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
@@ -161,7 +262,20 @@
         loadData();
 
         $('#content').summernote({
-            height: 300
+            height: 400,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            placeholder: 'Tulis konten berita lengkap di sini...'
         });
     });
 
@@ -178,22 +292,34 @@
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
         $('#image-preview').attr('href', 'javascript:void(0);');
-        $('#image-preview').hide();
+        $('#image-preview').addClass('d-none');
         $('#status').val('PUBLISH');
         $('#lang').val('ID');
-        $('#category_id').val('').change();
+        $('#category_id').val('').trigger('change');
         $('#content').summernote('code', '');
     }
 
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Berita');
         $('#modal-form').modal('show');
     }
 
     function onCancel() {
-        onReset();
+        swalInit.fire({
+            title: 'Batalkan Perubahan?',
+            text: 'Perubahan yang belum disimpan akan hilang',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onReset();
+            }
+        });
     }
 
     function onUpdate() {
@@ -202,7 +328,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Berita');
         $('#modal-form').modal('show');
     }
 
@@ -249,15 +375,15 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -337,7 +463,7 @@
                 $('#content').summernote('code', response.CONTENT);
                 $('#status').val(response.STATUS);
                 $('#lang').val(response.LANG);
-                $('#category_id').val(response.KATEGORI_ID).change();
+                $('#category_id').val(response.KATEGORI_ID).trigger('change');
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
                 $('#summary').val(response.RINGKASAN);
 
@@ -350,7 +476,7 @@
                     };
 
                     $('#image-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#image-preview').fadeIn(500);
+                    $('#image-preview').removeClass('d-none');
                 }
             },
             error: function(response) {
@@ -403,14 +529,14 @@
 
     function destroyData(id) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data Berita?</h5><span class="text-muted">Data yang telah dihapus tidak dapat dikembalikan lagi</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',
             closeWith: 'button',
             type: 'confirm',
             buttons: [
-                Noty.button('Tidak', 'btn btn-light', function () {
+                Noty.button('Batal', 'btn btn-light', function () {
                     notyConfirm.close();
                 }),
                 Noty.button('Hapus', 'btn btn-danger ms-2', function () {

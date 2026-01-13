@@ -98,6 +98,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'InDeliveryController@index');
             Route::get('datatable', 'InDeliveryController@datatable');
             Route::get('detail/{id}', 'InDeliveryController@detail');
+            Route::post('mark-sent', 'InDeliveryController@markSent');
         });
 
         Route::prefix('accept')->group(function () {
@@ -381,6 +382,10 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('physical-recording')->group(function () {
             Route::get('/', 'PhysicalRecordingController@index');
+        });
+
+        Route::prefix('asset')->group(function () {
+            Route::get('/', 'AssetController@index');
         });
 
         Route::prefix('download')->group(function () {

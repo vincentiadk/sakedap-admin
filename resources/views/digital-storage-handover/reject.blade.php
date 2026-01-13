@@ -1,96 +1,166 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Serah Simpan Digital - <span class="fw-normal">Ditolak</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-danger p-2 bg-opacity-10 text-danger">
+                    Data Ditolak
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="hstack gap-2 mb-0">Filter Data</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
-                    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah :</label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Jenis Media :</label>
-                        <select class="form-select select2-basic" name="media_id" id="media_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($media as $m)
-                                <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Judul :</label>
-                        <input type="text" class="form-control" name="title" id="title" placeholder="....................">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Provinsi :</label>
-                        <select class="form-select" name="province_id" id="province_id">
-                            @if(Main::isNotSuperAdmin())
-                                <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
-                            @endif
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tahun :</label>
-                        <input type="number" class="form-control" name="year" id="year" placeholder="....................">
-                    </div>
-                </div>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
             </div>
         </div>
-        <div class="card-footer bg-white">
-            <div class="text-end">
-                <a href="{{ url('digital-storage-handover/reject') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
-                    <i class="ph-arrows-clockwise me-1"></i>
-                    Reset Filter
-                </a>
-                <a href="javascript:void(0);" class="btn btn-success" onclick="loadData()">
-                    <i class="ph-magnifying-glass me-1"></i>
-                    Cari Data
-                </a>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar me-1"></i>
+                                Tanggal
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-calendar-blank"></i>
+                                </span>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-file me-1"></i>
+                                Jenis Media
+                            </label>
+                            <select class="form-select select2-basic" name="media_id" id="media_id" data-placeholder="Semua Jenis Media">
+                                <option value=""></option>
+                                @foreach($media as $m)
+                                    <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </label>
+                            <input type="text" class="form-control" name="title" id="title" placeholder="Cari judul">
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-map-pin me-1"></i>
+                                Provinsi
+                            </label>
+                            <select class="form-select" name="province_id" id="province_id" data-placeholder="Pilih Provinsi">
+                                @if(Main::isNotSuperAdmin())
+                                    <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Tahun
+                            </label>
+                            <input type="number" class="form-control" name="year" id="year" placeholder="Cari tahun">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('digital-storage-handover/reject') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-x-circle me-1 text-danger"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Data Ditolak</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap">Histori</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Jenis Media</th>
-                        <th class="text-nowrap">Kode</th>
-                        <th class="text-nowrap">Keterangan</th>
-                        <th class="text-nowrap">Tanggal</th>
-                        <th class="text-nowrap">User</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-clock-counter-clockwise"></i>
+                                Histori
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-file me-1"></i>
+                                Jenis Media
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-code me-1"></i>
+                                Kode
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-note me-1"></i>
+                                Keterangan
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar me-1"></i>
+                                Tanggal
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-user me-1"></i>
+                                User
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -134,13 +204,12 @@
             ajax: {
                 url: '{{ url("digital-storage-handover/reject/datatable") }}',
                 dataType: 'JSON',
-                data: {
-                    title: $('#title').val(),
-                    executor_id: $('#executor_id').val(),
-                    province_id: $('#province_id').val(),
-                    year: $('#year').val(),
-                    media_id: $('#media_id').val(),
-                    date: $('#date').val(),
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -151,14 +220,14 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
@@ -170,11 +239,22 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
 
         window.gDataTable.columns.adjust().draw();
+    }
+
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
     }
 </script>

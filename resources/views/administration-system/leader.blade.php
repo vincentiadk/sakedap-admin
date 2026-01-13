@@ -1,104 +1,234 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Pimpinan</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-1"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-user-circle-gear me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Pimpinan</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">TTD</th>
-                        <th class="text-nowrap">Provinsi</th>
-                        <th class="text-nowrap">Nama</th>
-                        <th class="text-nowrap">NIP</th>
-                        <th class="text-nowrap">Perpustakaan</th>
-                        <th class="text-nowrap">Jabatan</th>
-                        <th class="text-nowrap">Tgl Awal Jabatan</th>
-                        <th class="text-nowrap">Tgl Akhir Jabatan</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 80px">
+                                <i class="ph-pen-nib me-1"></i>
+                                TTD
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-map-pin me-1"></i>
+                                Provinsi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-user me-1"></i>
+                                Nama
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-identification-card me-1"></i>
+                                NIP
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-books me-1"></i>
+                                Perpustakaan
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-briefcase me-1"></i>
+                                Jabatan
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Awal Jabatan
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-x me-1"></i>
+                                Tgl Akhir Jabatan
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-user-circle-gear me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert bg-danger text-white border-0 alert-dismissible fade show d-none" id="validation-element">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    <div class="d-flex align-items-start">
+                        <i class="ph-warning-circle me-2 fs-5"></i>
+                        <div class="flex-fill">
+                            <strong>Validasi Error!</strong>
+                            <ul class="mb-0 mt-2" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">TTD : <span class="text-danger fw-bold">*</span></label>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-pen-nib me-1"></i>
+                            Tanda Tangan (TTD)
+                            <span class="text-danger">*</span>
+                        </label>
                         <div class="input-group">
-                            <input type="file" class="form-control" name="signature" id="signature">
-                            <a href="" data-lightbox="ttd-form" data-title="Preview TTD" class="btn btn-success" id="signature-preview">
+                            <span class="input-group-text">
+                                <i class="ph-file-image"></i>
+                            </span>
+                            <input type="file" class="form-control" name="signature" id="signature" accept="image/*">
+                            <a href="" data-lightbox="ttd-form" data-title="Preview TTD" class="btn btn-success" id="signature-preview" style="display: none;">
                                 <i class="ph-image me-1"></i>
-                                Lihat Gambar Saat Ini
+                                Lihat Gambar
                             </a>
                         </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Upload file gambar tanda tangan (JPG, PNG, max 2MB)
+                        </small>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Nama : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">NIP : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="number" id="number" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Jabatan : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="position" id="position" placeholder="....................">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Jabatan :</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Awal&nbsp;<span class="text-danger fw-bold">*</span></span>
-                            <input type="date" class="form-control" name="start_date" id="start_date">
-                            <span class="input-group-text">Akhir</span>
-                            <input type="date" class="form-control" name="end_date" id="end_date">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-user me-1"></i>
+                                    Nama Lengkap
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-text-aa"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama lengkap">
+                                </div>
+                                <small class="form-text text-muted">
+                                    <i class="ph-info me-1"></i>
+                                    Nama lengkap pimpinan
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-identification-card me-1"></i>
+                                    NIP
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-number-square-nine"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="number" id="number" placeholder="Masukkan NIP">
+                                </div>
+                                <small class="form-text text-muted">
+                                    <i class="ph-info me-1"></i>
+                                    Nomor Induk Pegawai
+                                </small>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Perpustakaan : <span class="text-danger fw-bold">*</span></label>
-                        <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-briefcase me-1"></i>
+                            Jabatan
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-suitcase"></i>
+                            </span>
+                            <input type="text" class="form-control" name="position" id="position" placeholder="Masukkan jabatan">
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Jabatan pimpinan saat ini
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-calendar-blank me-1"></i>
+                            Periode Jabatan
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-calendar-check me-1"></i>
+                                Awal <span class="text-danger ms-1">*</span>
+                            </span>
+                            <input type="date" class="form-control" name="start_date" id="start_date">
+                            <span class="input-group-text">
+                                <i class="ph-calendar-x me-1"></i>
+                                Akhir
+                            </span>
+                            <input type="date" class="form-control" name="end_date" id="end_date">
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Tanggal awal wajib diisi, tanggal akhir opsional
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-books me-1"></i>
+                            Perpustakaan
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih perpustakaan"></select>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Perpustakaan tempat pimpinan bertugas
+                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
-                <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
+                <button class="btn btn-primary d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
@@ -144,7 +274,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data');
         $('#modal-form').modal('show');
     }
 
@@ -158,7 +288,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data');
         $('#modal-form').modal('show');
     }
 
@@ -181,6 +311,10 @@
         onReloadTable();
     }
 
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -201,7 +335,7 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -209,8 +343,8 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -221,7 +355,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });

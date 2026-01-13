@@ -1,113 +1,243 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">FAQ</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-question me-1"></i>
+                    Tambah FAQ
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-question me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar FAQ (Frequently Asked Questions)</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Lang</th>
-                        <th class="text-nowrap">Urutan</th>
-                        <th class="text-nowrap">Publish</th>
-                        <th class="text-nowrap">Pertanyaan</th>
-                        <th class="text-nowrap">Jawaban</th>
-                        <th class="text-nowrap">Kategori</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 80px">
+                                <i class="ph-translate me-1"></i>
+                                Lang
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-sort-ascending me-1"></i>
+                                Urutan
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-eye me-1"></i>
+                                Publish
+                            </th>
+                            <th class="text-nowrap" style="min-width: 300px">
+                                <i class="ph-chat-circle-text me-1"></i>
+                                Pertanyaan
+                            </th>
+                            <th class="text-nowrap" style="min-width: 350px">
+                                <i class="ph-chat-circle-dots me-1"></i>
+                                Jawaban
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-tag me-1"></i>
+                                Kategori
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-semibold">
+                    <i class="ph-question me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-warning-circle me-2 fs-4"></i>
+                        <div class="flex-fill">
+                            <h6 class="alert-heading mb-2">Terdapat Kesalahan Input</h6>
+                            <ul class="mb-0" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Urutan :</label>
-                                <input type="number" class="form-control" name="sequence" id="sequence" min="0" placeholder="....................">
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-gear me-1 text-primary"></i>
+                                Pengaturan FAQ
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-sort-ascending me-1"></i>
+                                            Urutan Tampil
+                                        </label>
+                                        <input type="number" class="form-control" name="sequence" id="sequence" min="0" placeholder="0">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Urutan tampilan FAQ (angka lebih kecil tampil lebih dulu)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-eye me-1"></i>
+                                            Status Publikasi
+                                        </label>
+                                        <select class="form-select" name="publish" id="publish">
+                                            <option value="1">Ya - Ditampilkan</option>
+                                            <option value="2">Tidak - Disembunyikan</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            FAQ akan ditampilkan atau disembunyikan
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-translate me-1"></i>
+                                            Bahasa
+                                        </label>
+                                        <select class="form-select" name="lang" id="lang">
+                                            <option value="ID">Indonesia</option>
+                                            <option value="EN">English</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Bahasa yang digunakan dalam FAQ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-tag me-1"></i>
+                                            Kategori FAQ
+                                        </label>
+                                        <input type="text" class="form-control" name="category" id="category" placeholder="Contoh: Pendaftaran, Peminjaman, Layanan, dll">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Kelompokkan FAQ berdasarkan kategori untuk memudahkan pencarian
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Publish :</label>
-                                <select class="form-select" name="publish" id="publish">
-                                    <option value="1">Ya</option>
-                                    <option value="2">Tidak</option>
-                                </select>
+                    </div>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-chat-circle-text me-1 text-primary"></i>
+                                Pertanyaan & Jawaban
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-chat-circle-text me-1"></i>
+                                            Pertanyaan
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control text-editor" name="question" id="question" rows="5" placeholder="Tulis pertanyaan yang sering ditanyakan..."></textarea>
+                                        <div class="form-text mt-2">
+                                            <i class="ph-info me-1"></i>
+                                            Tulis pertanyaan dengan jelas dan ringkas
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-chat-circle-dots me-1"></i>
+                                            Jawaban
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" name="answer" id="answer" rows="5" placeholder="Tulis jawaban yang lengkap dan informatif..."></textarea>
+                                        <div class="form-text mt-2">
+                                            <i class="ph-info me-1"></i>
+                                            Berikan jawaban yang lengkap, jelas, dan mudah dipahami
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="form-label">Kategori :</label>
-                                <input type="text" class="form-control" name="category" id="category" placeholder="....................">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Lang :</label>
-                            <select class="form-select" name="lang" id="lang">
-                                <option value="ID">ID</option>
-                                <option value="EN">EN</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Pertanyaan : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control text-editor" name="question" id="question" rows="5" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Jawaban : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control" name="answer" id="answer" rows="5" placeholder="...................."></textarea>
+                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                                <div class="d-flex">
+                                    <i class="ph-lightbulb me-2 fs-5"></i>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Tips Menulis FAQ yang Baik:</h6>
+                                        <ul class="mb-0 small">
+                                            <li>Gunakan bahasa yang mudah dipahami</li>
+                                            <li>Pertanyaan harus spesifik dan langsung ke pokok masalah</li>
+                                            <li>Jawaban harus lengkap namun tidak bertele-tele</li>
+                                            <li>Sertakan contoh atau langkah-langkah jika diperlukan</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer border-top bg-light">
+                <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
-                    Simpan Data
+                    Simpan FAQ
                 </button>
             </div>
         </div>
@@ -117,11 +247,29 @@
 <script>
     $(function() {
         $('#question').summernote({
-            height: 300
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
         });
 
         $('#answer').summernote({
-            height: 300
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
         });
 
         loadData();
@@ -149,7 +297,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data FAQ');
         $('#modal-form').modal('show');
     }
 
@@ -163,7 +311,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data FAQ');
         $('#modal-form').modal('show');
     }
 
@@ -186,6 +334,10 @@
         onReloadTable();
     }
 
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -206,9 +358,9 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -224,7 +376,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
@@ -340,7 +498,7 @@
 
     function destroyData(id) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data FAQ?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',

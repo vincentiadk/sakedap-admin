@@ -1,79 +1,130 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Serah Simpan Digital - <span class="fw-normal">Unggah Banyak</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <a href="{{ url('download/from-public') }}?path=assets/bulk-example.zip" target="_blank" class="btn btn-success me-2">
-                        <i class="ph-file-zip me-1"></i>
-                        Contoh Upload
-                    </a>
-                    <a href="{{ url('download/from-public') }}?path=assets/PANDUAN BULK UPLOAD SAKEDAP.pdf" target="_blank" class="btn btn-info me-2">
-                        <i class="ph-file-pdf me-1"></i>
-                        Panduan Bulk Upload
-                    </a>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary p-2 bg-opacity-10 text-primary">
+                    <i class="ph-upload me-1"></i>
+                    Bulk Upload
+                </span>
+                <a href="{{ url('download/from-public') }}?path=assets/bulk-example.zip" target="_blank" class="btn btn-success btn-sm">
+                    <i class="ph-file-zip me-1"></i>
+                    Contoh Upload
+                </a>
+                <a href="{{ url('download/from-public') }}?path=assets/PANDUAN BULK UPLOAD SAKEDAP.pdf" target="_blank" class="btn btn-info btn-sm">
+                    <i class="ph-file-pdf me-1"></i>
+                    Panduan
+                </a>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="alert alert-danger d-none" id="validation-element">
+    <div class="alert alert-danger border-0 d-none" id="validation-element">
+        <div class="d-flex align-items-center mb-2">
+            <i class="ph-warning-circle me-2 fs-4"></i>
+            <h6 class="mb-0 fw-semibold">Terdapat Kesalahan Validasi</h6>
+        </div>
         <ul class="mb-0" id="validation-data"></ul>
     </div>
     <form id="form-data">
-        <div class="card">
-            <div class="card-body">
-                <ul class="nav nav-tabs nav-tabs-highlight nav-justified">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <ul class="nav nav-tabs nav-tabs-highlight card-header-tabs mb-0">
                     <li class="nav-item">
-                        <a href="#nav-tabs-upload" class="nav-link active" data-bs-toggle="tab">Upload</a>
+                        <a href="#nav-tabs-upload" class="nav-link active" data-bs-toggle="tab">
+                            <i class="ph-upload-simple me-2"></i>
+                            Upload
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#nav-tabs-progress" class="nav-link" data-bs-toggle="tab" onclick="loadData()">Progress</a>
+                        <a href="#nav-tabs-progress" class="nav-link" data-bs-toggle="tab" onclick="loadData()">
+                            <i class="ph-clock-clockwise me-2"></i>
+                            Progress
+                        </a>
                     </li>
                 </ul>
-                <div class="tab-content flex-lg-fill mt-4">
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
                     <div class="tab-pane fade show active" id="nav-tabs-upload">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <span class="input-group-text">Jenis</span>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-list me-1"></i>
+                                    Jenis Upload
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <select class="form-select" name="type" id="type" onchange="changeType()">
-                                    <option value="">Pilih</option>
+                                    <option value="">Pilih Jenis Upload</option>
                                     <option value="bulk_non_serial">Non Serial</option>
                                     <option value="bulk_serial">Serial</option>
                                 </select>
                             </div>
+                            <div class="col-12">
+                                <div id="param-id"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-file-zip me-1"></i>
+                                    File ZIP
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" name="file" id="file">
+                            </div>
                         </div>
-                        <div class="form-group" id="param-id"></div>
-                        <div class="form-group">
-                            <input type="file" name="file" id="file">
-                        </div>
-                        <div><hr></div>
-                        <div class="text-end">
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light" onclick="location.reload()">
+                                <i class="ph-arrow-counter-clockwise me-1"></i>
+                                Reset
+                            </button>
                             <button type="button" class="btn btn-primary" onclick="submitted()">
-                                <i class="ph-check me-1"></i>
+                                <i class="ph-check-circle me-1"></i>
                                 Submit Data
                             </button>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-tabs-progress">
-                        <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                            <thead class="text-bg-light">
-                                <tr>
-                                    <th class="text-nowrap">No</th>
-                                    <th class="text-nowrap">Detail</th>
-                                    <th class="text-nowrap">File</th>
-                                    <th class="text-nowrap">Mulai Proses</th>
-                                    <th class="text-nowrap">Selesai Proses</th>
-                                    <th class="text-nowrap">Status</th>
-                                    <th class="text-nowrap">Tanggal</th>
-                                </tr>
-                            </thead>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center text-nowrap" style="width: 60px">
+                                            <i class="ph-hash"></i>
+                                        </th>
+                                        <th class="text-center text-nowrap" style="width: 100px">
+                                            <i class="ph-info"></i>
+                                            Detail
+                                        </th>
+                                        <th class="text-nowrap" style="min-width: 200px">
+                                            <i class="ph-file-zip me-1"></i>
+                                            File
+                                        </th>
+                                        <th class="text-center text-nowrap" style="min-width: 150px">
+                                            <i class="ph-play-circle me-1"></i>
+                                            Mulai Proses
+                                        </th>
+                                        <th class="text-center text-nowrap" style="min-width: 150px">
+                                            <i class="ph-check-circle me-1"></i>
+                                            Selesai Proses
+                                        </th>
+                                        <th class="text-center text-nowrap" style="min-width: 120px">
+                                            <i class="ph-flag me-1"></i>
+                                            Status
+                                        </th>
+                                        <th class="text-center text-nowrap" style="min-width: 130px">
+                                            <i class="ph-calendar me-1"></i>
+                                            Tanggal
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,23 +135,37 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail Bulk</h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-info-circle me-2"></i>
+                    Detail Bulk Upload
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead class="text-bg-light">
-                        <tr>
-                            <th class="text-center">No</th>
-                            <th class="text-nowrap">Judul</th>
-                            <th class="text-nowrap">Keterangan</th>
-                            <th class="text-nowrap">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="data-detail-bulk"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center text-nowrap" style="width: 60px">
+                                    <i class="ph-hash"></i>
+                                </th>
+                                <th class="text-nowrap" style="min-width: 250px">
+                                    <i class="ph-book me-1"></i>
+                                    Judul
+                                </th>
+                                <th class="text-nowrap" style="min-width: 200px">
+                                    <i class="ph-note me-1"></i>
+                                    Keterangan
+                                </th>
+                                <th class="text-center text-nowrap" style="min-width: 120px">
+                                    <i class="ph-flag me-1"></i>
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-detail-bulk"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -135,13 +200,13 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -181,15 +246,24 @@
                     $.each(response, function(i, val) {
                         $('#data-detail-bulk').append(`
                             <tr>
-                                <td class="text-center">${ i + 1 }</td>
+                                <td class="text-center fw-semibold">${ i + 1 }</td>
                                 <td class="text-wrap">${ val.TITLE }</td>
                                 <td class="text-wrap">${ val.DESCRIPTION }</td>
-                                <td class="text-nowrap">${ val.STATUS }</td>
+                                <td class="text-center text-nowrap">${ val.STATUS }</td>
                             </tr>
                         `);
                     });
                 } else {
-                    $('#data-detail-bulk').html('<tr><td class="text-center" colspan="4">Tidak ada data</td></tr>');
+                    $('#data-detail-bulk').html(`
+                        <tr>
+                            <td class="text-center" colspan="4">
+                                <div class="py-3">
+                                    <i class="ph-file-x fs-2 text-muted mb-2 d-block"></i>
+                                    <span class="text-muted">Tidak ada data</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
                 }
             },
             error: function(response) {
@@ -207,6 +281,11 @@
 
         if(type == 'bulk_non_serial') {
             $('#param-id').html(`
+                <label class="form-label fw-semibold">
+                    <i class="ph-user-circle me-1"></i>
+                    Pelaksana Serah
+                    <span class="text-danger">*</span>
+                </label>
                 <select class="form-select" name="id" id="id" data-placeholder="Pilih Pelaksana Serah"></select>
             `);
 
@@ -219,8 +298,13 @@
             }
         } else if(type == 'bulk_serial') {
             $('#param-id').html(`
+                <label class="form-label fw-semibold">
+                    <i class="ph-book-open me-1"></i>
+                    Katalog Induk
+                    <span class="text-danger">*</span>
+                </label>
                 <input type="hidden" name="id" id="id">
-                <input type="text" class="form-control" name="text" id="text" placeholder="Pilih Katalog" readonly>
+                <input type="text" class="form-control" name="text" id="text" placeholder="Klik untuk memilih katalog induk" readonly>
             `);
 
             lookupCatalogParent('#text', '#id');

@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use App\Helpers\RajaOngkir;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
@@ -50,11 +51,9 @@ class CreateReceiptController extends Controller
     public function searchISBN(Request $request)
     {
         $code = str_replace('-', '', $request->code);
-        $executorId = $request->code;
 
         $data = ISBN::get('search', [
-            'code' => $code,
-            'penerbit_id' => $executorId
+            'code' => $code
         ], true);
 
         $letterDetail = QueryAPI::get("select nvl(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
@@ -107,11 +106,10 @@ class CreateReceiptController extends Controller
 
         return response()->json([
             'data' => $data,
-            'totalAccept' => $totalAccept,
+            'totalAccept' => Main::isNotSuperAdmin() ? 1 : 2,
             'optionAccept' => $optionAccept,
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,
-            'totalAccept' => Main::isNotSuperAdmin() ? 1 : 2,
             'fileCover' => $fileCover,
         ]);
     }
@@ -166,7 +164,12 @@ class CreateReceiptController extends Controller
                 ]);
             } else {
                 try {
+                    $deliveryServiceId = $request->delivery_service_id;
                     $receiptNumber = $request->receipt;
+
+                    if ($deliveryServiceId == 1) {
+                        $receiptNumber = 'LSG' . date('YmdHis');
+                    }
 
                     if (QueryAPI::get("select LETTER_ID from letter where receipt_no = '$receiptNumber'", true)) {
                         return response()->json([
@@ -175,7 +178,6 @@ class CreateReceiptController extends Controller
                         ]);
                     }
 
-                    $deliveryServiceId = $request->delivery_service_id;
                     $deliveryService = QueryAPI::get("select * from jasa_pengiriman where id = $deliveryServiceId", true);
 
                     if (!$deliveryService) {
@@ -207,8 +209,6 @@ class CreateReceiptController extends Controller
                             $weight = (float)($awb->details->weight ?? 0);
                             $letterDate = $awb->details->waybill_date . ' ' . $awb->details->waybill_time;
                         }
-                    } else {
-                        $receiptNumber = 'LSG' . date('YmdHis');
                     }
 
                     $auditData = [
@@ -250,7 +250,7 @@ class CreateReceiptController extends Controller
                         ]);
                     }
 
-                    if ($request->ci) {
+                    if ($request->ci && is_array($request->ci)) {
                         foreach ($request->ci as $key => $ci) {
                             $code = $request->ci_code[$key] ?? null;
                             if (!$code) continue;
@@ -260,19 +260,21 @@ class CreateReceiptController extends Controller
                                 return ISBN::get('search', ['code' => $code], true);
                             });
 
-                            if (!$isbn) continue;
+                            if (!$isbn) {
+                                continue;
+                            }
 
                             $qtyAccept = (int) ($request->ci_qty_accept[$key] ?? 0);
                             $qtyReject = (int) ($request->ci_qty_reject[$key] ?? 0);
-                            $qrcbn = ($request->ci_qrcbn[$key] ?? 0);
-                            $isbd = ($request->ci_isbd[$key] ?? 0);
+                            $qrcbn = ($request->ci_qrcbn[$key] ?? null);
+                            $isbd = ($request->ci_isbd[$key] ?? null);
 
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
                             $totalPackage++;
 
                             $catalog = null;
 
-                            if ($isbn->is_kdt_valid) {
+                            if ($isbn->is_kdt_valid == 1) {
                                 $catalogId = $isbn->catalog_id;
                                 $catalogCacheKey = "catalog:{$catalogId}";
 
@@ -281,12 +283,18 @@ class CreateReceiptController extends Controller
                                 });
                             }
 
+                            $description = '';
+
+                            if (isset($request->ci_description[$key]) && is_array($request->ci_description[$key])) {
+                                $description = implode(';', $request->ci_description[$key]);
+                            }
+
                             $letterDetailData = [
                                 'title' => $isbn->title,
                                 'copy' => $qtyAccept + $qtyReject,
                                 'quantity' => 1,
                                 'letter_id' => $letter->LETTER_ID ?? null,
-                                'remark' => implode(';', $request->ci_description[$key] ?? []),
+                                'remark' => $description,
                                 'author' => $isbn->kepeng,
                                 'publisher' => $isbn->nama_penerbit,
                                 'isbn' => $code,
@@ -318,7 +326,7 @@ class CreateReceiptController extends Controller
                         }
                     }
 
-                    if ($request->cni) {
+                    if ($request->cni && is_array($request->cni)) {
                         foreach ($request->cni as $key => $cni) {
                             $qtyReject = (int) ($request->cni_qty_reject[$key] ?? 0);
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
@@ -368,13 +376,25 @@ class CreateReceiptController extends Controller
                                 $getCollectionMedia = QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true);
                             }
 
+                            $description = '';
+
+                            if (isset($request->cni_description[$key]) && is_array($request->cni_description[$key])) {
+                                $description = implode(';', $request->cni_description[$key]);
+                            }
+
+                            $price = 0;
+
+                            if (isset($request->cni_price[$key])) {
+                                $price = str_replace([',', '.'], '', $request->cni_price[$key]);
+                            }
+
                             $letterDetailData = [
                                 'title' => $title,
                                 'copy' => $qtyAccept + $qtyReject,
                                 'quantity' => 1,
-                                'price' => str_replace(',', '', ($request->cni_price[$key] ?? 0)),
+                                'price' => $price,
                                 'letter_id' => $letter->LETTER_ID ?? null,
-                                'remark' => implode(';', $request->cni_description[$key] ?? []),
+                                'remark' => $description,
                                 'author' => $author,
                                 'publisher' => $catalog->NAME_PENERBIT ?? $executor,
                                 'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
@@ -402,10 +422,14 @@ class CreateReceiptController extends Controller
                         }
                     }
 
-                    if ($request->cp) {
+                    if ($request->cp && is_array($request->cp)) {
                         foreach ($request->cp as $key => $cp) {
-                            $catalogId = isset($request->cp_catalog_id[$key]) ? $request->cp_catalog_id[$key] : 0;
+                            $catalogId = isset($request->cp_catalog_id[$key]) ? $request->cp_catalog_id[$key] : null;
                             $manualTitle = isset($request->cp_manual_title[$key]) ? $request->cp_manual_title[$key] : null;
+
+                            if (!isset($request->cpe[$key]) || !is_array($request->cpe[$key])) {
+                                continue;
+                            }
 
                             foreach ($request->cpe[$key] as $keys => $cpe) {
                                 $qtyReject = (int) ($request->cpe_qty_reject[$key][$keys] ?? 0);
@@ -444,10 +468,15 @@ class CreateReceiptController extends Controller
                                 $edition = $request->cpe_edition[$key][$keys] ?? null;
                                 $firstTTES = $request->cpe_first_ttes[$key][$keys] ?? null;
                                 $endTTES = $request->cpe_end_ttes[$key][$keys] ?? null;
+                                $description = '';
+
+                                if (isset($request->cpe_description[$key][$keys]) && is_array($request->cpe_description[$key][$keys])) {
+                                    $description = implode(';', $request->cpe_description[$key][$keys]);
+                                }
 
                                 $letterDetailData = [
                                     'title' => $catalog->TITLE ?? ($manualTitle ?? ''),
-                                    'remark' => implode(';', $request->cpe_description[$key][$keys] ?? []),
+                                    'remark' => $description,
                                     'copy' => $qtyAccept + $qtyReject,
                                     'quantity' => 1,
                                     'price' => $catalog->PRICE ?? null,
@@ -561,9 +590,14 @@ class CreateReceiptController extends Controller
                         'url' => $url
                     ]);
                 } catch (\Exception $e) {
+                    Log::error('Exception in submitted', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+
                     return response()->json([
-                        'code' => $e->getCode(),
-                        'message' => $e->getMessage()
+                        'code' => 500,
+                        'message' => 'Terjadi kesalahan: ' . $e->getMessage()
                     ]);
                 }
             }

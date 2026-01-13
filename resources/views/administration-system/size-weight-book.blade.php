@@ -1,36 +1,62 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Ukuran & Berat Buku</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-1"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-ruler me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Ukuran & Berat Buku</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Value</th>
-                        <th class="text-nowrap">Faktor Harga</th>
-                        <th class="text-nowrap">Berat</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-text-aa me-1"></i>
+                                Value
+                            </th>
+                            <th class="text-nowrap text-center" style="min-width: 180px">
+                                <i class="ph-currency-circle-dollar me-1"></i>
+                                Faktor Harga
+                            </th>
+                            <th class="text-nowrap text-center" style="min-width: 150px">
+                                <i class="ph-barbell me-1"></i>
+                                Berat
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -38,39 +64,90 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-package me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert bg-danger text-white border-0 alert-dismissible fade show d-none" id="validation-element">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    <div class="d-flex align-items-start">
+                        <i class="ph-warning-circle me-2 fs-5"></i>
+                        <div class="flex-fill">
+                            <strong>Validasi Error!</strong>
+                            <ul class="mb-0 mt-2" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Value : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="value" id="value" placeholder="....................">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-text-aa me-1"></i>
+                            Value
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-notepad"></i>
+                            </span>
+                            <input type="text" class="form-control" name="value" id="value" placeholder="Masukkan value ukuran">
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Deskripsi atau nama ukuran buku (contoh: Small, Medium, Large)
+                        </small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Faktor Harga (Rp) :</label>
-                        <input type="number" class="form-control" name="price" id="price" placeholder="....................">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-currency-circle-dollar me-1"></i>
+                            Faktor Harga (Rp)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-money"></i>
+                            </span>
+                            <input type="number" class="form-control" name="price" id="price" placeholder="Masukkan faktor harga" min="0" step="0.01">
+                            <span class="input-group-text">Rp</span>
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Faktor harga berdasarkan ukuran buku (opsional)
+                        </small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Berat (gram) :</label>
-                        <input type="number" class="form-control" name="weight" id="weight" placeholder="....................">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-barbell me-1"></i>
+                            Berat (gram)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-scales"></i>
+                            </span>
+                            <input type="number" class="form-control" name="weight" id="weight" placeholder="Masukkan berat buku" min="0" step="1">
+                            <span class="input-group-text">gr</span>
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Berat buku dalam satuan gram (opsional)
+                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
-                <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
+                <button class="btn btn-primary d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
@@ -103,7 +180,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data');
         $('#modal-form').modal('show');
     }
 
@@ -117,7 +194,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data');
         $('#modal-form').modal('show');
     }
 
@@ -140,6 +217,10 @@
         onReloadTable();
     }
 
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -160,11 +241,11 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -175,7 +256,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });

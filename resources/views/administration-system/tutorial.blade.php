@@ -1,148 +1,300 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Tutorial</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-file-video me-1"></i>
+                    Tambah Tutorial
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-sm-flex align-items-sm-center py-sm-0">
-            <h6 class="py-sm-3 mb-sm-0">Daftar</h6>
-            <div class="ms-sm-auto my-sm-auto">
-                <div class="input-group">
-                    <span class="input-group-text">Kategori</span>
-                    <select class="form-select w-auto flex-grow-0" name="filter_category" id="filter_category" onchange="loadData()">
-                        <option value="">Semua</option>
-                        @foreach($category as $c)
-                            <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
-                        @endforeach
-                    </select>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-file-video me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Tutorial</h6>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
+                        <select class="form-select" name="filter_category" id="filter_category" onchange="loadData()" style="min-width: 200px;">
+                            <option value="">Semua Kategori</option>
+                            @foreach($category as $c)
+                                <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                        <i class="ph-list-checks me-1"></i>
+                        <span id="record-count">0</span> Data
+                    </span>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Media</th>
-                        <th class="text-nowrap">Kategori</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Lang</th>
-                        <th class="text-nowrap">Lampiran Link</th>
-                        <th class="text-nowrap">Status</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 150px">
+                                <i class="ph-file-video me-1"></i>
+                                Media
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-tag me-1"></i>
+                                Kategori
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-text-aa me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 80px">
+                                <i class="ph-translate me-1"></i>
+                                Lang
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-link me-1"></i>
+                                Lampiran Link
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-semibold">
+                    <i class="ph-file-video me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-warning-circle me-2 fs-4"></i>
+                        <div class="flex-fill">
+                            <h6 class="alert-heading mb-2">Terdapat Kesalahan Input</h6>
+                            <ul class="mb-0" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="form-group">
-                        <label class="form-label">Media :</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control" name="media" id="media">
-                            <a href="" class="btn btn-success" id="media-preview" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat Media Saat Ini
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h6 class="fw-semibold form-group">
+                                <i class="ph-file-video me-1 text-primary"></i>
+                                Media Tutorial
+                            </h6>
                             <div class="form-group">
-                                <label class="form-label">Kategori : <span class="text-danger fw-bold">*</span></label>
-                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form">
-                                    <option value=""></option>
-                                    @foreach($category as $c)
-                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
-                                    @endforeach
-                                </select>
+                                <label class="form-label fw-semibold">
+                                    Upload Media
+                                </label>
+                                <input type="file" class="form-control" name="media" id="media" accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx">
+                                <div class="form-text">
+                                    <i class="ph-info me-1"></i>
+                                    Format: Video (MP4, AVI, MKV), Audio (MP3, WAV), Dokumen (PDF, DOC, PPT). Maksimal 50MB
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Lampiran Link :</label>
-                                <input type="text" class="form-control" name="attachment_link" id="attachment_link" placeholder="....................">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Lang :</label>
-                                <select class="form-select" name="lang" id="lang">
-                                    <option value="ID">ID</option>
-                                    <option value="EN">EN</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Status :</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="PUBLISH">PUBLISH</option>
-                                    <option value="HIDE">HIDE</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Judul : <span class="text-danger fw-bold">*</span></label>
-                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="...................."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Ringkasan :</label>
-                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="...................."></textarea>
+                            <div id="media-preview-container" class="d-none">
+                                <label class="form-label fw-semibold">Media Saat Ini</label>
+                                <div class="border rounded p-3 bg-white">
+                                    <a href="" class="btn btn-success" id="media-preview" target="_blank">
+                                        <i class="ph-file me-1"></i>
+                                        Lihat / Download Media
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Konten :</label>
-                        <textarea class="form-control" name="content" id="content" placeholder="...................."></textarea>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-info me-1 text-primary"></i>
+                                Informasi Dasar
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-tag me-1"></i>
+                                            Kategori Tutorial
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori tutorial">
+                                            <option value=""></option>
+                                            @foreach($category as $c)
+                                                <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Kategorikan tutorial untuk memudahkan pencarian
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-link me-1"></i>
+                                            Lampiran Link
+                                        </label>
+                                        <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Link eksternal terkait tutorial (YouTube, Google Drive, dll)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-translate me-1"></i>
+                                            Bahasa
+                                        </label>
+                                        <select class="form-select" name="lang" id="lang">
+                                            <option value="ID">Indonesia</option>
+                                            <option value="EN">English</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Bahasa yang digunakan dalam tutorial
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-flag me-1"></i>
+                                            Status
+                                        </label>
+                                        <select class="form-select" name="status" id="status">
+                                            <option value="PUBLISH">PUBLISH - Ditampilkan</option>
+                                            <option value="HIDE">HIDE - Disembunyikan</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Status publikasi tutorial
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-text-aa me-1 text-primary"></i>
+                                Detail Tutorial
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-text-aa me-1"></i>
+                                            Judul Tutorial
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul tutorial yang jelas dan deskriptif"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Judul tutorial yang akan ditampilkan
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-label fw-semibold">
+                                            <i class="ph-note me-1"></i>
+                                            Ringkasan
+                                        </label>
+                                        <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang isi tutorial"></textarea>
+                                        <div class="form-text">
+                                            <i class="ph-info me-1"></i>
+                                            Deskripsi singkat yang menarik perhatian
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-article me-1"></i>
+                                    Konten Lengkap
+                                </label>
+                                <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap tutorial di sini..."></textarea>
+                                <div class="form-text mt-2">
+                                    <i class="ph-info me-1"></i>
+                                    Gunakan editor untuk memformat konten tutorial dengan baik
+                                </div>
+                            </div>
+                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                                <div class="d-flex">
+                                    <i class="ph-lightbulb me-2 fs-5"></i>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Tips Membuat Tutorial yang Baik:</h6>
+                                        <ul class="mb-0 small">
+                                            <li>Gunakan judul yang jelas dan spesifik</li>
+                                            <li>Sertakan langkah-langkah yang mudah diikuti</li>
+                                            <li>Tambahkan screenshot atau video untuk memudahkan pemahaman</li>
+                                            <li>Gunakan bahasa yang sederhana dan mudah dipahami</li>
+                                            <li>Sertakan contoh praktis jika memungkinkan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer border-top bg-light">
+                <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
-                    <i class="ph-plus-circle me-1"></i>
-                    Simpan Data
+                    <i class="ph-video me-1"></i>
+                    Simpan Tutorial
                 </button>
             </div>
         </div>
@@ -154,7 +306,46 @@
         loadData();
 
         $('#content').summernote({
-            height: 300
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        $('#media').on('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+
+            if (fileName) {
+                const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
+
+                if (!$('#media-info').length) {
+                    $(this).parent().after(`
+                        <div id="media-info" class="alert alert-success border-0 mt-2 mb-0">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-check-circle me-2"></i>
+                                <div>
+                                    <strong>File dipilih:</strong> ${fileName} (${fileSize} MB)
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    $('#media-info').html(`
+                        <div class="d-flex align-items-center">
+                            <i class="ph-check-circle me-2"></i>
+                            <div>
+                                <strong>File dipilih:</strong> ${fileName} (${fileSize} MB)
+                            </div>
+                        </div>
+                    `);
+                }
+            }
         });
     });
 
@@ -170,8 +361,9 @@
         $('#btn-create').removeClass('d-none');
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
-        $('#image-preview').attr('href', 'javascript:void(0);');
-        $('#image-preview').hide();
+        $('#media-preview').attr('href', 'javascript:void(0);');
+        $('#media-preview-container').addClass('d-none');
+        $('#media-info').remove();
         $('#status').val('PUBLISH');
         $('#lang').val('ID');
         $('#category_id').val('').change();
@@ -181,7 +373,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Tutorial');
         $('#modal-form').modal('show');
     }
 
@@ -195,7 +387,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Tutorial');
         $('#modal-form').modal('show');
     }
 
@@ -216,6 +408,10 @@
     function formSuccess() {
         onReset();
         onReloadTable();
+    }
+
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
     }
 
     function loadData() {
@@ -241,14 +437,14 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -259,7 +455,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
@@ -341,7 +543,7 @@
                     };
 
                     $('#media-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#media-preview').fadeIn(500);
+                    $('#media-preview-container').removeClass('d-none');
                 }
             },
             error: function(response) {
@@ -394,7 +596,7 @@
 
     function destroyData(id) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data Tutorial?</h5><span class="text-muted">Data yang telah dihapus tidak bisa dikembalikan lagi</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',

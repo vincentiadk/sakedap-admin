@@ -1,23 +1,33 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Koleksi Fisik - <span class="fw-normal">Koleksi Ditolak</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-danger p-2 bg-opacity-10 text-danger">
+                    Koleksi Ditolak
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header d-flex align-items-center py-0">
-            <h5 class="py-3 mb-0">Daftar Koleksi Yang Akan Dihibahkan / Diambil Kembali</h5>
-            <div class="ms-auto my-auto">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-list-checks me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Koleksi Yang Akan Dihibahkan / Diambil Kembali</h6>
+                </div>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-teal dropdown-toggle" data-bs-toggle="dropdown">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="ph-hand-pointing me-1"></i>
                         Aksi
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu dropdown-menu-end">
                         <a href="javascript:void(0);" class="dropdown-item" onclick="grant()">
                             <i class="ph-gift me-1"></i>
                             Hibahkan
@@ -31,99 +41,170 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-action">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Jumlah</th>
-                        <th class="text-nowrap">Resi</th>
-                        <th class="text-nowrap">Hapus</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-action">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-stack me-1"></i>
+                                Jumlah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-barcode me-1"></i>
+                                Resi
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-trash me-1"></i>
+                                Hapus
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            <h5 class="hstack gap-2 mb-0">Filter Data</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah :</label>
-                        <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua"></select>
-                    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <div class="input-group">
-                            <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
-                                <option value="accept_date">Diterima</option>
-                                <option value="letter_date">Pengiriman</option>
-                                <option value="createdate">Dibuat</option>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Tanggal
+                            </label>
+                            <div class="input-group">
+                                <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
+                                    <option value="accept_date">Tanggal Diterima</option>
+                                    <option value="letter_date">Tanggal Pengiriman</option>
+                                    <option value="createdate">Tanggal Dibuat</option>
+                                </select>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-truck me-1"></i>
+                                Jasa Kirim
+                            </label>
+                            <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua Jasa Kirim">
+                                <option value=""></option>
+                                @foreach($deliveryService as $ds)
+                                    <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
+                                @endforeach
                             </select>
-                            <input type="text" class="form-control" name="date" id="date" placeholder="Semua Tanggal" readonly>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Jasa Kirim :</label>
-                        <select class="form-select select2-basic" name="delivery_service_id" id="delivery_service_id" data-placeholder="Semua">
-                            <option value=""></option>
-                            @foreach($deliveryService as $ds)
-                                <option value="{{ $ds->ID }}">{{ $ds->NAME }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+                </form>
             </div>
-        </div>
-        <div class="card-footer bg-white">
-            <div class="text-end">
-                <a href="{{ url('physical-collection/collection-reject') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
-                    <i class="ph-arrows-clockwise me-1"></i>
-                    Reset Filter
-                </a>
-                <a href="javascript:void(0);" class="btn btn-success" onclick="loadData()">
-                    <i class="ph-magnifying-glass me-1"></i>
-                    Cari Data
-                </a>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('physical-collection/collection-reject') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header d-flex align-items-center py-0">
-            <h5 class="py-3 mb-0">Daftar Koleksi Ditolak</h5>
-            <div class="ms-auto my-auto">
-                <button type="button" class="btn btn-teal" onclick="addListAction()">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-x-circle me-1 text-danger"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Koleksi Ditolak</h6>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="addListAction()">
                     <i class="ph-list-plus me-1"></i>
                     Tambahkan ke Daftar Atas
                 </button>
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">#</th>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Auto Hibah</th>
-                        <th class="text-nowrap">Judul</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Tujuan</th>
-                        <th class="text-nowrap">Jasa Kirim</th>
-                        <th class="text-nowrap">Resi</th>
-                        <th class="text-nowrap">Jumlah</th>
-                        <th class="text-nowrap">Jenis Media</th>
-                        <th class="text-nowrap">Alasan Ditolak</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 50px">
+                                <i class="ph-check-square"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-gift me-1"></i>
+                                Auto Hibah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-book me-1"></i>
+                                Judul
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-map-pin me-1"></i>
+                                Tujuan
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-truck me-1"></i>
+                                Jasa Kirim
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-barcode me-1"></i>
+                                Resi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-stack me-1"></i>
+                                Jumlah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-file me-1"></i>
+                                Jenis Media
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-warning-circle me-1"></i>
+                                Alasan Ditolak
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -171,6 +252,7 @@
                 {
                     extend: 'collection',
                     text: '<i class="ph-microsoft-excel-logo me-1"></i> Download Excel',
+                    className: 'btn btn-success',
                     buttons: [
                         {
                             extend: 'excelHtml5',
@@ -205,7 +287,7 @@
                 },
                 {
                     extend: 'selectAll',
-                    className: 'btn btn-success',
+                    className: 'btn btn-info',
                     text: '<i class="ph-checks me-1"></i> Centang Semua'
                 },
                 {
@@ -217,11 +299,12 @@
             ajax: {
                 url: '{{ url("physical-collection/collection-reject/datatable") }}',
                 dataType: 'JSON',
-                data: {
-                    executor_id: $('#executor_id').val(),
-                    delivery_service_id: $('#delivery_service_id').val(),
-                    date: $('#date').val(),
-                    date_type: $('#date_type').val(),
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -233,17 +316,17 @@
             },
             columns: [
                 { orderable: false, className: 'align-middle text-center allow-select' },
-                { orderable: true, className: 'align-middle text-center allow-select' },
+                { orderable: true, className: 'align-middle text-center fw-semibold allow-select' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle allow-select' },
+                { orderable: true, className: 'align-middle text-center allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
                 { orderable: true, className: 'align-middle allow-select' },
-                { orderable: true, className: 'align-middle allow-select' },
+                { orderable: true, className: 'align-middle text-center allow-select' },
                 { orderable: true, className: 'align-middle text-wrap allow-select' },
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle allow-select' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -270,7 +353,7 @@
             columns: [
                 { className: 'align-middle text-wrap' },
                 { className: 'align-middle text-wrap' },
-                { className: 'align-middle' },
+                { className: 'align-middle text-center' },
                 { className: 'align-middle' },
                 { className: 'align-middle text-center' },
             ]
@@ -283,7 +366,7 @@
 
         $.each(data, function(i, val) {
             var btnRemove = `
-                <button type="button" class="btn btn-danger btn-sm col-12" onclick="removeListAction(${ val[0] })">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeListAction(${ val[0] })">
                     <i class="ph-trash"></i>
                 </button>
             `;
@@ -323,6 +406,7 @@
             for (var i = 0; i < currentDataStorage.length; i++) {
                 if (currentDataStorage[i][0] === id) {
                     isDuplicate = true;
+
                     break;
                 }
             }

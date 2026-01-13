@@ -1,179 +1,289 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Pengawasan & Pembinaan - <span class="fw-normal">Teguran</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary" onclick="onCreate()">
+                    <i class="ph-plus-circle me-1"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="hstack gap-2 mb-0">Filter Data</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal :</label>
-                        <input type="text" class="form-control" name="filter_date" id="filter_date" placeholder="Semua Tanggal" readonly>
-                    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Pelaksana Serah :</label>
-                        <select class="form-select" name="filter_executor_id" id="filter_executor_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Dari :</label>
-                        <select class="form-select" name="filter_branch_id" id="filter_branch_id" data-placeholder="Semua"></select>
-                    </div>
-                </div>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
             </div>
         </div>
-        <div class="card-footer bg-white">
-            <div class="text-end">
-                <a href="{{ url('coaching-supervision/warning') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
-                    <i class="ph-arrows-clockwise me-1"></i>
-                    Reset Filter
-                </a>
-                <a href="javascript:void(0);" class="btn btn-success" onclick="loadData()">
-                    <i class="ph-magnifying-glass me-1"></i>
-                    Cari Data
-                </a>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Tanggal
+                            </label>
+                            <input type="text" class="form-control" name="filter_date" id="filter_date" placeholder="Pilih tanggal" readonly>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="filter_executor_id" id="filter_executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-buildings me-1"></i>
+                                Dari
+                            </label>
+                            <select class="form-select" name="filter_branch_id" id="filter_branch_id" data-placeholder="Semua Cabang"></select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('coaching-supervision/warning') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-warning-circle me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Teguran</h6>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">ID</th>
-                        <th class="text-nowrap">Pelaksana Serah</th>
-                        <th class="text-nowrap">Dari</th>
-                        <th class="text-nowrap">Teguran 1</th>
-                        <th class="text-nowrap">Teguran 2</th>
-                        <th class="text-nowrap">Teguran 3</th>
-                        <th class="text-nowrap">Tagihan Koleksi</th>
-                        <th class="text-nowrap">Status</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-fingerprint me-1"></i>
+                                ID
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-buildings me-1"></i>
+                                Dari
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-warning me-1"></i>
+                                Teguran 1
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-warning me-1"></i>
+                                Teguran 2
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-warning me-1"></i>
+                                Teguran 3
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-receipt me-1"></i>
+                                Tagihan Koleksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title">
+                    <i class="ph-note-pencil me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="ph-warning-circle me-2"></i>
+                        <strong>Terdapat kesalahan:</strong>
+                    </div>
                     <ul class="mb-0" id="validation-data"></ul>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="row">
+
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Pelaksana Serah : <span class="text-danger fw-bold">*</span></label>
-                                <select class="form-select" name="executor_id" id="executor_id" data-dropdown-parent="#modal-form"></select>
-                            </div>
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-dropdown-parent="#modal-form"></select>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Dari : <span class="text-danger fw-bold">*</span></label>
-                                <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
-                            </div>
+                            <label class="form-label fw-semibold">
+                                <i class="ph-buildings me-1"></i>
+                                Dari
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form"></select>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Tagihan Koleksi :</label>
-                                <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="....................">
-                            </div>
+                            <label class="form-label fw-semibold">
+                                <i class="ph-receipt me-1"></i>
+                                Tagihan Koleksi
+                            </label>
+                            <input type="number" class="form-control" name="bill_collection" id="bill_collection" placeholder="Masukkan jumlah tagihan">
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Status :</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="DALAM TEGURAN">DALAM TEGURAN</option>
-                                    <option value="SELESAI">SELESAI</option>
-                                </select>
+                            <label class="form-label fw-semibold">
+                                <i class="ph-flag me-1"></i>
+                                Status
+                            </label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="DALAM TEGURAN">Dalam Teguran</option>
+                                <option value="SELESAI">Selesai</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="border-top my-3"></div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-warning me-1 text-warning"></i>
+                            Teguran 1
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-file"></i>
+                                    </span>
+                                    <input type="file" class="form-control" name="file" id="file">
+                                    <a href="" data-title="Preview File 1" class="btn btn-success d-none" id="file-preview" target="_blank">
+                                        <i class="ph-eye me-1"></i>
+                                        Lihat
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih tanggal" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Teguran 1 :</label>
-                        <div class="input-group">
-                            <span class="input-group-text">File</span>
-                            <input type="file" class="form-control" name="file" id="file">
-                            <a href="" data-title="Preview File 1" class="btn btn-success" id="file-preview" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                            <span class="input-group-text">Tanggal</span>
-                            <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih Tanggal" readonly>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-warning me-1 text-warning"></i>
+                            Teguran 2
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-file"></i>
+                                    </span>
+                                    <input type="file" class="form-control" name="file_2" id="file_2">
+                                    <a href="" data-title="Preview File 2" class="btn btn-success d-none" id="file-preview-2" target="_blank">
+                                        <i class="ph-eye me-1"></i>
+                                        Lihat
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih tanggal" readonly>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Teguran 2 :</label>
-                        <div class="input-group">
-                            <span class="input-group-text">File</span>
-                            <input type="file" class="form-control" name="file_2" id="file_2">
-                            <a href="" data-title="Preview File 2" class="btn btn-success" id="file-preview-2" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                            <span class="input-group-text">Tanggal</span>
-                            <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih Tanggal" readonly>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Teguran 3 :</label>
-                        <div class="input-group">
-                            <span class="input-group-text">File</span>
-                            <input type="file" class="form-control" name="file_3" id="file_3">
-                            <a href="" data-title="Preview File 3" class="btn btn-success" id="file-preview-3" target="_blank">
-                                <i class="ph-file me-1"></i>
-                                Lihat
-                            </a>
-                            <span class="input-group-text">Tanggal</span>
-                            <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih Tanggal" readonly>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-warning me-1 text-danger"></i>
+                            Teguran 3
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-file"></i>
+                                    </span>
+                                    <input type="file" class="form-control" name="file_3" id="file_3">
+                                    <a href="" data-title="Preview File 3" class="btn btn-success d-none" id="file-preview-3" target="_blank">
+                                        <i class="ph-eye me-1"></i>
+                                        Lihat
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ph-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih tanggal" readonly>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
+            <div class="modal-footer border-top">
                 <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
-                    Batalkan Perubahan
+                    Batalkan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
-                    <i class="ph-plus-circle me-1"></i>
+                    <i class="ph-check-circle me-1"></i>
                     Simpan Data
                 </button>
             </div>
@@ -216,20 +326,20 @@
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
         $('#file-preview').attr('href', 'javascript:void(0);');
-        $('#file-preview').hide();
+        $('#file-preview').addClass('d-none');
         $('#file-preview-2').attr('href', 'javascript:void(0);');
-        $('#file-preview-2').hide();
+        $('#file-preview-2').addClass('d-none');
         $('#file-preview-3').attr('href', 'javascript:void(0);');
-        $('#file-preview-3').hide();
+        $('#file-preview-3').addClass('d-none');
         $('#executor_id').val('').change();
         $('#branch_id').html(`<option value="{{ session('branch_id') }}" selected>{{ session('branch_name') }}</option>`);
-        $('#executor_id').val('DALAM TEGURAN');
+        $('#status').val('DALAM TEGURAN');
     }
 
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Teguran');
         $('#modal-form').modal('show');
     }
 
@@ -243,7 +353,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Teguran');
         $('#modal-form').modal('show');
     }
 
@@ -277,10 +387,12 @@
             ajax: {
                 url: '{{ url("coaching-supervision/warning/datatable") }}',
                 dataType: 'JSON',
-                data: {
-                    branch_id: $('#filter_branch_id').val(),
-                    executor_id: $('#filter_executor_id').val(),
-                    date: $('#filter_date').val(),
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
@@ -291,16 +403,16 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-top text-center' },
-                { orderable: false, className: 'align-top text-center' },
-                { orderable: true, className: 'align-top' },
-                { orderable: true, className: 'align-top text-wrap' },
-                { orderable: true, className: 'align-top text-wrap' },
-                { orderable: true, className: 'align-top' },
-                { orderable: true, className: 'align-top' },
-                { orderable: true, className: 'align-top' },
-                { orderable: true, className: 'align-top' },
-                { orderable: true, className: 'align-top text-wrap' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -393,7 +505,7 @@
                     };
 
                     $('#file-preview').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#file-preview').fadeIn(500);
+                    $('#file-preview').removeClass('d-none');
                 }
 
                 if(response.LINK_FILE_2) {
@@ -405,7 +517,7 @@
                     };
 
                     $('#file-preview-2').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#file-preview-2').fadeIn(500);
+                    $('#file-preview-2').removeClass('d-none');
                 }
 
                 if(response.LINK_FILE_3) {
@@ -417,7 +529,7 @@
                     };
 
                     $('#file-preview-3').attr('href', `{{ url("stream-file") }}?${ $.param(paramFile) }`);
-                    $('#file-preview-3').fadeIn(500);
+                    $('#file-preview-3').removeClass('d-none');
                 }
             },
             error: function(response) {
@@ -469,11 +581,9 @@
     }
 
     function lockable(id, value) {
-        if(value == 2) {
-            var statusText = 'melakukan usulan blokir';
-        } else {
-            var statusText = 'buka blokir';
-        }
+        var statusText = (value == 2) ? 'melakukan usulan blokir' : 'buka blokir';
+        var btnText = (value == 2) ? 'Blokir' : 'Buka Blokir';
+        var btnClass = (value == 2) ? 'btn-danger' : 'btn-success';
 
         var notyConfirm = new Noty({
             text: '<div class="mb-3"><h5 class="text-dark">Pemblokiran Pelaksana Serah?</h5><span class="text-muted">Anda yakin ingin ' + statusText + '?</span></div>',
@@ -486,7 +596,69 @@
                 Noty.button('Tidak', 'btn btn-light', function () {
                     notyConfirm.close();
                 }),
-                Noty.button('Ya', 'btn btn-danger ms-2', function () {
+                Noty.button(btnText, 'btn ' + btnClass + ' ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("coaching-supervision/warning/lockable") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id,
+                            is_lock: value
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
+    function lockable(id, value) {
+        var statusText = (value == 2) ? 'melakukan usulan blokir' : 'buka blokir';
+        var btnText = (value == 2) ? 'Blokir' : 'Buka Blokir';
+        var btnClass = (value == 2) ? 'btn-danger' : 'btn-success';
+
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Pemblokiran Pelaksana Serah?</h5><span class="text-muted">Anda yakin ingin ' + statusText + '?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button(btnText, 'btn ' + btnClass + ' ms-2', function () {
                     $.ajax({
                         url: '{{ url("coaching-supervision/warning/lockable") }}',
                         type: 'POST',
@@ -591,7 +763,7 @@
                 Noty.button('Tidak', 'btn btn-light', function () {
                     notyConfirm.close();
                 }),
-                Noty.button('Kirim', 'btn btn-danger ms-2', function () {
+                Noty.button('Kirim Email', 'btn btn-primary ms-2', function () {
                     $.ajax({
                         url: '{{ url("coaching-supervision/warning/send-email") }}',
                         type: 'POST',
@@ -639,7 +811,7 @@
 
     function sendWhatsapp(id, target) {
         var notyConfirm = new Noty({
-            text: '<div class="mb-3"><h5 class="text-dark">Kirim Whatsapp?</h5><span class="text-muted">Anda yakin ingin mengirim whatsapp?</span></div>',
+            text: '<div class="mb-3"><h5 class="text-dark">Kirim WhatsApp?</h5><span class="text-muted">Anda yakin ingin mengirim WhatsApp?</span></div>',
             timeout: false,
             modal: true,
             layout: 'center',
@@ -649,7 +821,7 @@
                 Noty.button('Tidak', 'btn btn-light', function () {
                     notyConfirm.close();
                 }),
-                Noty.button('Kirim', 'btn btn-teal ms-2', function () {
+                Noty.button('Kirim WhatsApp', 'btn btn-success ms-2', function () {
                     $.ajax({
                         url: '{{ url("coaching-supervision/warning/send-whatsapp") }}',
                         type: 'POST',

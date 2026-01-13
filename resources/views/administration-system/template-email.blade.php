@@ -1,26 +1,62 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Administrasi Sistem - <span class="fw-normal">Template Email</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary p-2 bg-opacity-10 text-primary">
+                    <i class="ph-envelope-simple me-1"></i>
+                    Manajemen Template
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-file-html me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Template Email</h6>
+                </div>
+                <span class="badge bg-info bg-opacity-10 text-info">
+                    <i class="ph-code me-1"></i>
+                    HTML Template
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Slug</th>
-                        <th class="text-nowrap">Tgl Buat</th>
-                        <th class="text-nowrap">Tgl Update</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-nowrap" style="min-width: 200px">
+                                <i class="ph-tag me-1"></i>
+                                Slug
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 150px">
+                                <i class="ph-calendar-plus me-1"></i>
+                                Tgl Dibuat
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 150px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Diperbarui
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -28,41 +64,74 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Data</h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+                <h5 class="modal-title">
+                    <i class="ph-pencil-simple me-2"></i>
+                    Edit Template Email
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-warning border-0 mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="ph-warning me-2 fs-4"></i>
+                        <div>
+                            <h6 class="mb-1">Perhatian</h6>
+                            Pastikan Anda memahami struktur HTML sebelum melakukan perubahan. Perubahan yang salah dapat menyebabkan tampilan email tidak sesuai.
+                        </div>
+                    </div>
+                </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <textarea name="contents" class="form-control contents" id="contents"></textarea>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-code me-1"></i>
+                            Konten Template
+                        </label>
+                        <textarea name="contents" class="form-control contents" id="contents" rows="10"></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
-                <button class="btn btn-warning" id="btn-update" onclick="updateData()">
+                <button class="btn btn-primary" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     $(function() {
         loadData();
 
         CKEDITOR.replace('contents',{
             enterMode : CKEDITOR.ENTER_BR,
-            height: 250,
+            height: 400,
             versionCheck: false,
-            enforceFocus: false
+            enforceFocus: false,
+            toolbar: [
+                { name: 'document', items: [ 'Source', '-', 'Preview' ] },
+                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll' ] },
+                '/',
+                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
+                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+                { name: 'links', items: [ 'Link', 'Unlink' ] },
+                { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule' ] },
+                '/',
+                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+            ]
         });
     });
 
@@ -71,36 +140,32 @@
     }
 
     function onReset() {
-        clearValidation();
-
         $('#modal-form').modal('hide');
         $('#form-data').trigger('reset');
 
-        CKEDITOR.instances.contents.setData('');
+        if(CKEDITOR.instances.contents) {
+            CKEDITOR.instances.contents.setData('');
+        }
     }
 
     function onCancel() {
-        onReset();
+        swalInit.fire({
+            title: 'Batalkan Perubahan?',
+            text: 'Perubahan yang belum disimpan akan hilang',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onReset();
+            }
+        });
     }
 
     function onUpdate() {
-        onReset();
-
         $('#modal-form').modal('show');
-    }
-
-    function clearValidation() {
-        $('#validation-element').addClass('d-none');
-        $('#validation-data').html('');
-    }
-
-    function showValidation(data) {
-        $('#validation-element').removeClass('d-none');
-        $('#validation-data').html('');
-
-        $.each(data, function(index, value) {
-            $('#validation-data').append('<li>' + value + '</li>');
-        });
     }
 
     function formSuccess() {
@@ -128,11 +193,11 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -168,7 +233,9 @@
 
                 $('#table_id').val(response.ID);
 
-                CKEDITOR.instances.contents.setData(response.CONTENT);
+                if(CKEDITOR.instances.contents) {
+                    CKEDITOR.instances.contents.setData(response.CONTENT);
+                }
             },
             error: function(response) {
                 onLoading('close', '.modal-content');
@@ -178,20 +245,35 @@
     }
 
     function updateData() {
+        var content = '';
+
+        if(CKEDITOR.instances.contents) {
+            content = CKEDITOR.instances.contents.getData();
+        }
+
+        if(!content || content.trim() === '') {
+            swalInit.fire({
+                title: 'Oops...',
+                text: 'Konten template tidak boleh kosong',
+                icon: 'warning',
+                showCloseButton: false
+            });
+            return;
+        }
+
         $.ajax({
             url: '{{ url("administration-system/template-email/update-data") }}',
             type: 'POST',
             dataType: 'JSON',
             data: {
                 table_id: $('#table_id').val(),
-                content: CKEDITOR.instances.contents.getData()
+                content: content
             },
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             beforeSend: function() {
                 onLoading('show', '.modal-content');
-                clearValidation();
             },
             success: function(response) {
                 onLoading('close', '.modal-content');
@@ -199,9 +281,6 @@
                 if(response.code == 200) {
                     formSuccess();
                     notification('success', response.message);
-                } else if(response.code == 400) {
-                    $('#modal-form .modal-body').scrollTop(0);
-                    showValidation(response.error);
                 } else {
                     swalInit.fire({
                         title: 'Error',
