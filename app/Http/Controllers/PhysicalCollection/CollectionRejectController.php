@@ -58,7 +58,7 @@ class CollectionRejectController extends Controller
         $whereCondition[] = "letter_detail.qty_retur is null";
         $whereCondition[] = "letter_detail.qty_reject > 0";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

@@ -63,7 +63,7 @@ class AcceptController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
@@ -236,10 +236,19 @@ class AcceptController extends Controller
                     ';
                 }
 
+                $acceptDateHTML = '';
+
+                if ($val->ACCEPT_DATE ?: null) {
+                    $acceptDateHTML = '
+                        <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
+                        <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
+                    ';
+                }
+
                 $data[] = [
                     $start + 1,
                     $action,
-                    ($val->ACCEPT_DATE ?: null) ? Carbon::parse($val->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '',
+                    $acceptDateHTML,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,

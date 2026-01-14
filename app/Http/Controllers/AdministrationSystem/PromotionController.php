@@ -52,7 +52,7 @@ class PromotionController extends Controller
         $whereClause = '';
         $whereCondition = [];
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = "
                 (
                     ',' || province_id || ',' LIKE '%," . session('province_id') . ",%' or

@@ -106,7 +106,7 @@ class CreateReceiptController extends Controller
 
         return response()->json([
             'data' => $data,
-            'totalAccept' => Main::isNotSuperAdmin() ? 1 : 2,
+            'totalAccept' => !Main::isSuperAdmin() ? 1 : 2,
             'optionAccept' => $optionAccept,
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,
@@ -224,7 +224,7 @@ class CreateReceiptController extends Controller
                         'type_of_delivery' => $deliveryService->NAME ?? null,
                         'letter_date' => $letterDate,
                         'letter_number' => $request->cover_letter_number,
-                        'accept_date' => $request->accept_date,
+                        'accept_date' => $request->accept_date . ' ' . date('H:i:s', strtotime($now)),
                         'sender' => $request->sender_name,
                         'is_printed' => $request->param == 'save-print' ? 1 : 0,
                         'publisher_id' => $request->executor_id,

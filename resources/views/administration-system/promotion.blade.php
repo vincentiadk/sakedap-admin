@@ -208,7 +208,7 @@
     $(function() {
         $('#balance').number(true);
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',

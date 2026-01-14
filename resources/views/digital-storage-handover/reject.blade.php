@@ -75,7 +75,7 @@
                                 Provinsi
                             </label>
                             <select class="form-select" name="province_id" id="province_id" data-placeholder="Pilih Provinsi">
-                                @if(Main::isNotSuperAdmin())
+                                @if(!Main::isSuperAdmin())
                                     <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                                 @endif
                             </select>
@@ -169,7 +169,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',

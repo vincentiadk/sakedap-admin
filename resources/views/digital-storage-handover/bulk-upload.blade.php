@@ -289,7 +289,7 @@
                 <select class="form-select" name="id" id="id" data-placeholder="Pilih Pelaksana Serah"></select>
             `);
 
-            if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+            if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
                 select2Serverside('#id', 'executor');
             } else {
                 select2Serverside('#id', 'executor', {

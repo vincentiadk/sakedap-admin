@@ -257,7 +257,7 @@
             }
         });
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#executor_id, #de_executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });

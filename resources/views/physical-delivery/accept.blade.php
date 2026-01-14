@@ -211,7 +211,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
             });
@@ -236,7 +236,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[2, 'desc']],
+            order: [[0, 'desc'], [2, 'desc']],
             ajax: {
                 url: '{{ url("physical-delivery/accept/datatable") }}',
                 dataType: 'JSON',

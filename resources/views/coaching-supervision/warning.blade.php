@@ -295,7 +295,7 @@
     $(function() {
         datePickerSingle('.date-single');
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#branch_id, #filter_branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

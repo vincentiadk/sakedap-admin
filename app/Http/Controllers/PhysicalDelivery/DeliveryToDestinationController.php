@@ -51,7 +51,7 @@ class DeliveryToDestinationController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('TERKIRIM')";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 

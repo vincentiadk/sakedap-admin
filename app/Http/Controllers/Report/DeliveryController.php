@@ -65,7 +65,7 @@ class DeliveryController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status != 'DRAFT'";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 

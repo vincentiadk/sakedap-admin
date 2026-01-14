@@ -1,78 +1,141 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 Serah Simpan Digital - <span class="fw-normal">Unggah Tunggal</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary bg-opacity-10 text-primary">
+                    <i class="ph-upload me-1"></i>
+                    Form Upload
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="alert alert-danger d-none" id="validation-element">
-        <ul class="mb-0" id="validation-data"></ul>
+    <div class="alert alert-danger border-0 shadow-sm d-none" id="validation-element">
+        <div class="d-flex align-items-start">
+            <i class="ph-warning-circle me-2 mt-1"></i>
+            <div class="flex-fill">
+                <strong>Terdapat kesalahan validasi:</strong>
+                <ul class="mb-0 mt-2" id="validation-data"></ul>
+            </div>
+        </div>
     </div>
     <form id="form-data">
         <input type="hidden" name="upload_id_cover" id="upload_id_cover" value="{{ $uploadIDCover }}">
         <input type="hidden" name="upload_id_content" id="upload_id_content" value="{{ $uploadIDCover }}">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Jenis Bahan <span class="text-danger fw-bold">*</span></h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-files me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">
+                        Jenis Bahan
+                        <span class="text-danger">*</span>
+                    </h6>
+                </div>
             </div>
             <div class="card-body">
-                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" onchange="chooseWorksheet()">
+                <select class="form-select select2-basic" name="worksheet_id" id="worksheet_id" onchange="chooseWorksheet()" data-placeholder="Pilih Jenis Bahan">
                     <option value=""></option>
                     @foreach($worksheet as $w)
                         <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
                     @endforeach
                 </select>
+                <small class="form-text text-muted">
+                    <i class="ph-info me-1"></i>
+                    Pilih jenis bahan yang akan diunggah
+                </small>
             </div>
         </div>
-        <div class="card d-none" id="form-parent">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Parent</h5>
+        <div class="card border-0 shadow-sm d-none" id="form-parent">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-folder-open me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Parent Catalog</h6>
+                </div>
             </div>
             <div class="card-body">
                 <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="ph-magnifying-glass"></i>
+                    </span>
                     <input type="hidden" name="catalog_id" id="catalog_id">
-                    <input type="text" class="form-control" name="catalog_title" id="catalog_title" placeholder="Tidak Ada" onchange="catalogParent()" readonly>
+                    <input type="text" class="form-control" name="catalog_title" id="catalog_title" placeholder="Cari catalog parent" onchange="catalogParent()" readonly>
                     <button type="button" class="btn btn-danger d-none" onclick="onLoading('show', 'body'); location.reload(true);" id="btn-cancel-parent">
                         <i class="ph-x me-1"></i>
                         Batalkan
                     </button>
                 </div>
+                <small class="form-text text-muted">
+                    <i class="ph-info me-1"></i>
+                    Klik untuk mencari catalog parent
+                </small>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Pelaksana Serah <span class="text-danger fw-bold">*</span></h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-user-circle me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">
+                        Pelaksana Serah
+                        <span class="text-danger">*</span>
+                    </h6>
+                </div>
             </div>
             <div class="card-body">
-                <select class="form-select" name="executor_id" id="executor_id"></select>
+                <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Pilih Pelaksana Serah"></select>
+                <small class="form-text text-muted">
+                    <i class="ph-info me-1"></i>
+                    Pilih pelaksana yang menyerahkan dokumen
+                </small>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Meta Data</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-info me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Meta Data</h6>
+                </div>
             </div>
             <div class="card-body">
                 <div class="d-none" id="column-edition">
                     <div class="form-group row">
-                        <label class="col-form-label col-md-2">Edisi</label>
+                        <label class="col-form-label col-md-2 fw-semibold">
+                            <i class="ph-book-open me-1"></i>
+                            Edisi
+                        </label>
                         <div class="col-md-10">
-                            <input type="text" class="form-control" name="edition" id="edition" placeholder="....................">
+                            <input type="text" class="form-control" name="edition" id="edition" placeholder="Masukkan edisi">
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-form-label col-md-2">Tanggal Terbit Edisi <span class="text-danger fw-bold">*</span></label>
+                        <label class="col-form-label col-md-2 fw-semibold">
+                            <i class="ph-calendar me-1"></i>
+                            Tanggal Terbit Edisi
+                            <span class="text-danger">*</span>
+                        </label>
                         <div class="col-md-10">
-                            <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" placeholder="Pilih Tanggal" readonly>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-calendar-blank"></i>
+                                </span>
+                                <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" placeholder="Pilih Tanggal" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Media <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-video-camera me-1"></i>
+                        Media
+                        <span class="text-danger">*</span>
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id">
+                        <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id" data-placeholder="Pilih Media">
                             <option value=""></option>
                             @foreach($media as $m)
                                 <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
@@ -81,13 +144,20 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-book me-1"></i>
+                        Judul
+                        <span class="text-danger">*</span>
+                    </label>
                     <div class="col-md-10">
-                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................."></textarea>
+                        <textarea name="title" class="form-control" id="title" rows="3" placeholder="Masukkan judul lengkap"></textarea>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Kode</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-barcode me-1"></i>
+                        Kode
+                    </label>
                     <div class="col-md-10">
                         <div class="input-group">
                             <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" onchange="codeType()">
@@ -98,47 +168,63 @@
                                 <option value="4">ISSN</option>
                                 <option value="5">ISAN</option>
                             </select>
-                            <input type="text" class="form-control" name="code" id="code" placeholder="....................">
-                            <button type="button" class="btn btn-success" id="btn-check-isbn" onclick="checkISBNCode()">Cek Kode</button>
+                            <input type="text" class="form-control" name="code" id="code" placeholder="Masukkan kode">
+                            <button type="button" class="btn btn-success" id="btn-check-isbn" onclick="checkISBNCode()">
+                                <i class="ph-magnifying-glass me-1"></i>
+                                Cek Kode
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-map-pin me-1"></i>
+                        Kota
+                        <span class="text-danger">*</span>
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select" name="city_id" id="city_id"></select>
+                        <select class="form-select" name="city_id" id="city_id" data-placeholder="Pilih Kota"></select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">QRCBN</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-qr-code me-1"></i>
+                        QRCBN
+                    </label>
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">
-                                <label>
+                                <label class="mb-0">
                                     <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('disabled', true) : $('#qrcbn').attr('disabled', false)" checked>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="...................." disabled>
+                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Masukkan QRCBN" disabled>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Seri</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-list-bullets me-1"></i>
+                        Seri
+                    </label>
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">
-                                <label>
+                                <label class="mb-0">
                                     <input type="checkbox" class="form-check-input mt-0 me-1" id="series_checkbox" onchange="$(this).is(':checked') ? $('#series').attr('disabled', true) : $('#series').attr('disabled', false)" checked>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="series" id="series" placeholder="...................." disabled>
+                            <input type="text" class="form-control" name="series" id="series" placeholder="Masukkan seri" disabled>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Kala Terbit</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-clock me-1"></i>
+                        Kala Terbit
+                    </label>
                     <div class="col-md-10">
                         <select class="form-select select2-basic" name="serial" id="serial" data-placeholder="Tidak Ada">
                             <option value=""></option>
@@ -155,27 +241,55 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Waktu Terbit</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-calendar-check me-1"></i>
+                        Waktu Terbit
+                    </label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control date-picker-single" name="publish_time" id="publish_time" placeholder="Pilih Tanggal" readonly>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-calendar-blank"></i>
+                            </span>
+                            <input type="text" class="form-control date-picker-single" name="publish_time" id="publish_time" placeholder="Pilih Tanggal" readonly>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Tanggal Terima <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-calendar-plus me-1"></i>
+                        Tanggal Terima
+                        <span class="text-danger">*</span>
+                    </label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control date-picker-single" name="received_at" id="received_at" placeholder="Pilih Tanggal" readonly>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ph-calendar-blank"></i>
+                            </span>
+                            <input type="text" class="form-control date-picker-single" name="received_at" id="received_at" placeholder="Pilih Tanggal" readonly>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Preview</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-eye me-1"></i>
+                        Preview
+                    </label>
                     <div class="col-md-10">
                         <input type="text" class="form-control" name="preview" id="preview" placeholder="cth : 1-5 / 00:01-00:20">
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Format: halaman (1-5) atau durasi (00:01-00:20)
+                        </small>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Akses <span class="text-danger fw-bold">*</span></label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-lock-key me-1"></i>
+                        Akses
+                        <span class="text-danger">*</span>
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih">
+                        <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih Jenis Akses">
                             <option value=""></option>
                             <option value="1">Akses full file berwatermak secara online</option>
                             <option value="2">Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN</option>
@@ -185,7 +299,10 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Mata Uang</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-currency-circle-dollar me-1"></i>
+                        Mata Uang
+                    </label>
                     <div class="col-md-10">
                         <select class="form-select" name="currency" id="currency">
                             <option value="IDR" selected>IDR</option>
@@ -193,21 +310,33 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Harga</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-tag me-1"></i>
+                        Harga
+                    </label>
                     <div class="col-md-10">
-                        <input type="number" class="form-control" name="price" id="price" placeholder="....................">
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" name="price" id="price" placeholder="0">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jilid</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-book-bookmark me-1"></i>
+                        Jilid
+                    </label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="binding" id="binding" placeholder="....................">
+                        <input type="text" class="form-control" name="binding" id="binding" placeholder="Masukkan jilid">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis Isi</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-file-text me-1"></i>
+                        Jenis Isi
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="content_type" id="content_type">
+                        <select class="form-select select2-basic" name="content_type" id="content_type" data-placeholder="Pilih Jenis Isi">
                             <option value=""></option>
                             @foreach($contentType as $ct)
                                 <option value="{{ $ct->NAME }}">{{ $ct->NAME }}</option>
@@ -216,9 +345,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis Wadah</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-package me-1"></i>
+                        Jenis Wadah
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="container_type" id="container_type">
+                        <select class="form-select select2-basic" name="container_type" id="container_type" data-placeholder="Pilih Jenis Wadah">
                             <option value=""></option>
                             @foreach($containerType as $ct)
                                 <option value="{{ $ct->NAME }}">{{ $ct->NAME }}</option>
@@ -227,9 +359,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Jenis Media</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-disc me-1"></i>
+                        Jenis Media
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="media_type" id="media_type">
+                        <select class="form-select select2-basic" name="media_type" id="media_type" data-placeholder="Pilih Jenis Media">
                             <option value=""></option>
                             @foreach($mediaType as $mt)
                                 <option value="{{ $mt->NAME }}">{{ $mt->NAME }}</option>
@@ -238,9 +373,12 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Kelas Besar</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-folders me-1"></i>
+                        Kelas Besar
+                    </label>
                     <div class="col-md-10">
-                        <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
+                        <select class="form-select select2-basic" name="big_class_id" id="big_class_id" data-placeholder="Pilih Kelas Besar">
                             <option value=""></option>
                             @foreach($bigClass as $bc)
                                 <option value="{{ $bc->ID }}">{{ $bc->CLASS }} - {{ $bc->DESCRIPTION }}</option>
@@ -249,90 +387,134 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Keterangan Fisik</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-ruler me-1"></i>
+                        Keterangan Fisik
+                    </label>
                     <div class="col-md-10">
                         <div class="input-group">
                             <span class="input-group-text">Total Halaman / Durasi</span>
-                            <input type="number" class="form-control" name="physical_description[paging]" id="physical_description[paging]" placeholder="....................">
+                            <input type="number" class="form-control" name="physical_description[paging]" id="physical_description[paging]" placeholder="0">
                             <select class="form-select flex-grow-0 w-auto" name="physical_description[paging_flag]" id="physical_description[paging_flag]">
                                 <option value="Halaman" selected>Halaman</option>
                                 <option value="Menit">Menit</option>
                                 <option value="Jam">Jam</option>
                             </select>
+                        </div>
+                        <div class="input-group mt-2">
                             <span class="input-group-text">Ilustrasi</span>
-                            <input type="text" class="form-control" name="physical_description[ill]" list="suggestion-physical-description-ill" id="physical_description[ill]" placeholder="...................." autocomplete="off">
+                            <input type="text" class="form-control" name="physical_description[ill]" list="suggestion-physical-description-ill" id="physical_description[ill]" placeholder="Pilih atau ketik" autocomplete="off">
                             <datalist id="suggestion-physical-description-ill">
                                 <option value="Tidak Ada">Tidak Ada</option>
                                 <option value="Ada (Berwarna)">Ada (Berwarna)</option>
                                 <option value="Ada (Tidak Berwarna)">Ada (Tidak Berwarna)</option>
                             </datalist>
+                        </div>
+                        <div class="input-group mt-2">
                             <span class="input-group-text">Ukuran / Dimensi</span>
-                            <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" placeholder="....................">
+                            <input type="text" class="form-control" name="physical_description[sizes]" id="physical_description[sizes]" placeholder="Masukkan ukuran">
                         </div>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label col-md-2">Sinopsis</label>
+                    <label class="col-form-label col-md-2 fw-semibold">
+                        <i class="ph-note me-1"></i>
+                        Sinopsis
+                    </label>
                     <div class="col-md-10">
-                        <textarea name="description" class="form-control" id="description" rows="5" placeholder="...................."></textarea>
+                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Masukkan sinopsis atau deskripsi"></textarea>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Kategori</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-tag me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Kategori</h6>
+                </div>
             </div>
             <div class="card-body">
-                <select class="form-select select2-basic" name="category[]" id="category" data-placeholder="Pilih" multiple>
+                <select class="form-select select2-basic" name="category[]" id="category" data-placeholder="Pilih Kategori (bisa lebih dari satu)" multiple>
                     <option value=""></option>
                     @foreach($category as $c)
                         <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
                     @endforeach
                 </select>
+                <small class="form-text text-muted">
+                    <i class="ph-info me-1"></i>
+                    Pilih satu atau lebih kategori yang sesuai
+                </small>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="hstack gap-2 mb-0">Kontributor</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="ph-users me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Kontributor</h6>
+                </div>
             </div>
             <div class="card-body">
-                <select class="form-select" name="author[]" id="author" data-placeholder="Tulis beberapa" multiple></select>
+                <select class="form-select" name="author[]" id="author" data-placeholder="Ketik nama kontributor (pisahkan dengan titik koma)" multiple></select>
+                <small class="form-text text-muted">
+                    <i class="ph-info me-1"></i>
+                    Ketik dan tekan Enter atau gunakan titik koma (;) untuk memisahkan kontributor
+                </small>
             </div>
         </div>
-        <div class="card" id="card-edition">
-            <div class="card-header d-flex align-items-center">
-                <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
-                <span class="ms-auto">
-                    <label>
+        <div class="card border-0 shadow-sm" id="card-edition">
+            <div class="card-header border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-books me-2 text-primary"></i>
+                        <h6 class="mb-0 fw-semibold">Edisi Serial</h6>
+                    </div>
+                    <label class="mb-0">
                         <input type="checkbox" class="form-check-input mt-0 me-1" name="has_edition" onchange="$(this).is(':checked') ? $('#content-edition-copy').fadeIn(500) : $('#content-edition-copy').hide()">
-                        Centang jika ada
+                        <span class="fw-semibold">Centang jika ada</span>
                     </label>
-                </span>
+                </div>
             </div>
             <div id="content-edition-copy" style="display:none;">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Edisi / Volume</th>
-                                    <th>Tgl Terbit</th>
-                                    <th>Cover</th>
-                                    <th>Konten</th>
-                                    <th>Hapus</th>
+                                    <th style="min-width: 150px">
+                                        <i class="ph-book me-1"></i>
+                                        Edisi / Volume
+                                    </th>
+                                    <th style="min-width: 130px">
+                                        <i class="ph-calendar me-1"></i>
+                                        Tgl Terbit
+                                    </th>
+                                    <th style="min-width: 150px">
+                                        <i class="ph-image me-1"></i>
+                                        Cover
+                                    </th>
+                                    <th style="min-width: 150px">
+                                        <i class="ph-file me-1"></i>
+                                        Konten
+                                    </th>
+                                    <th class="text-center" style="width: 80px">
+                                        <i class="ph-trash"></i>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="data-edition"></tbody>
                         </table>
                     </div>
                 </div>
-                <div class="card-footer bg-white">
-                    <div class="row">
-                        <div class="col-md-2">
+                <div class="card-footer border-top">
+                    <div class="row g-2">
+                        <div class="col-md-3">
                             <div class="input-group">
-                                <button type="button" class="btn btn-success" onclick="addEdition()">Tambah</button>
-                                <input type="number" class="form-control text-center" id="add-number-edition" min="1" value="1" placeholder="....................">
+                                <button type="button" class="btn btn-success" onclick="addEdition()">
+                                    <i class="ph-plus-circle me-1"></i>
+                                    Tambah
+                                </button>
+                                <input type="number" class="form-control text-center" id="add-number-edition" min="1" value="1">
                                 <span class="input-group-text">Baris</span>
                             </div>
                         </div>
@@ -341,36 +523,60 @@
             </div>
         </div>
         @if(!$uploadIDCover && !$uploadIDContent)
-            <div class="row">
+            <div class="row g-3">
                 <div class="col-md-6" id="section-file-cover">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="hstack gap-2 mb-0">File Cover <span class="text-danger fw-bold">*</span></h5>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-bottom">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-image me-2 text-primary"></i>
+                                <h6 class="mb-0 fw-semibold">
+                                    File Cover
+                                    <span class="text-danger">*</span>
+                                </h6>
+                            </div>
                         </div>
                         <div class="card-body">
                             <input type="file" name="file_cover" id="file_cover">
+                            <small class="form-text text-muted d-block mt-2">
+                                <i class="ph-info me-1"></i>
+                                Format: JPG, JPEG, PNG (Maks. 2MB)
+                            </small>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6" id="section-file-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="hstack gap-2 mb-0">File Konten <span class="text-danger fw-bold">*</span></h5>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-bottom">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-file-pdf me-2 text-primary"></i>
+                                <h6 class="mb-0 fw-semibold">
+                                    File Konten
+                                    <span class="text-danger">*</span>
+                                </h6>
+                            </div>
                         </div>
                         <div class="card-body">
                             <input type="file" name="file_content" id="file_content">
+                            <small class="form-text text-muted d-block mt-2">
+                                <i class="ph-info me-1"></i>
+                                Format: PDF, EPUB, MP3, MP4, WAV (Maks. 200MB)
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
         @endif
     </form>
-    <div class="card">
+    <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <div class="text-end">
-                <button type="button" class="btn btn-primary" onclick="submitted()">
-                    <i class="ph-plus me-1"></i>
-                    Tambah Data
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    <i class="ph-info me-1"></i>
+                    <small>Field bertanda <span class="text-danger">*</span> wajib diisi</small>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" onclick="submitted()">
+                    <i class="ph-cloud-arrow-up me-2"></i>
+                    Simpan & Upload Data
                 </button>
             </div>
         </div>
@@ -381,7 +587,7 @@
     $(function() {
         datePickerSingle('.date-picker-single');
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             select2Serverside('#city_id', 'location', {
                 for: 'city',
                 province_id: '{{ session("province_id") }}',
@@ -529,18 +735,26 @@
                 if(response.code == 200) {
                     swalInit.fire({
                         title: 'Data ditemukan',
+                        text: 'Kode ditemukan di database',
                         icon: 'success',
                         showDenyButton: true,
-                        confirmButtonText: 'Otomatis Isi Judul & Pelaksana Serah',
-                        denyButtonText: 'Hanya Cek Kode'
+                        confirmButtonText: '<i class="ph-check me-1"></i> Otomatis Isi Data',
+                        denyButtonText: '<i class="ph-x me-1"></i> Hanya Cek Kode'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $('#title').val(response.data.title);
-                            $('#executor_id').html(`<option value="` + response.data.penerbit_id + `">` + response.data.nama_penerbit + `</option>`);
+                            $('#executor_id').html(`<option value="` + response.data.penerbit_id + `" selected>` + response.data.penerbit_id + ` | ` + response.data.nama_penerbit + `</option>`);
+
+                            notification('success', 'Data berhasil diisi otomatis');
                         }
                     });
                 } else {
-                    swalInit.fire('Oops', 'Data tidak ditemukan', 'error');
+                    swalInit.fire({
+                        title: 'Oops',
+                        text: 'Data tidak ditemukan',
+                        icon: 'error',
+                        showCloseButton: false
+                    });
                 }
             },
             error: function(response) {
@@ -553,34 +767,49 @@
     function addEdition() {
         var total = $('#add-number-edition').val();
 
+        if(total < 1 || total > 10) {
+            swalInit.fire({
+                title: 'Peringatan',
+                text: 'Jumlah baris harus antara 1-10',
+                icon: 'warning',
+                showCloseButton: false
+            });
+            return;
+        }
+
         for(var i = 1; i <= total; i++) {
             $('#data-edition').append(`
                 <tr>
                     <input type="hidden" name="cc_edition[]" value="1">
                     <td>
-                        <input type="text" class="form-control" name="cc_edition_title[]" placeholder="....................">
+                        <input type="text" class="form-control" name="cc_edition_title[]" placeholder="Masukkan edisi/volume">
                     </td>
                     <td>
-                        <input type="text" class="form-control" name="cc_edition_date[]" placeholder="Pilih Tanggal">
+                        <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly>
                     </td>
                     <td>
-                        <input type="file" class="form-control" name="cc_edition_cover[]">
+                        <input type="file" class="form-control" name="cc_edition_cover[]" accept=".jpg,.jpeg,.png">
                     </td>
                     <td>
-                        <input type="file" class="form-control" name="cc_edition_content[]">
+                        <input type="file" class="form-control" name="cc_edition_content[]" accept=".pdf,.epub,.mp3,.mp4,.wav">
                     </td>
-                    <td>
-                        <button type="button" class="btn btn-danger col-12" onclick="removeRow(this)"><i class="ph-trash"></i></button>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
+                            <i class="ph-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `);
-
-            datePickerSingle('input[name="cc_edition_date[]"]');
         }
+
+        datePickerSingle('.date-picker-edition');
+
+        notification('success', total + ' baris edisi berhasil ditambahkan');
     }
 
     function removeRow(param) {
         $(param).closest('tr').remove();
+        notification('info', 'Baris edisi berhasil dihapus');
     }
 
     function codeType() {
@@ -600,6 +829,7 @@
     function clearValidation() {
         $('#validation-element').addClass('d-none');
         $('#validation-data').html('');
+        $('html, body').animate({scrollTop: 0}, 300);
     }
 
     function showValidation(data) {
@@ -609,6 +839,8 @@
         $.each(data, function(index, value) {
             $('#validation-data').append('<li>' + value + '</li>');
         });
+
+        $('html, body').animate({scrollTop: 0}, 500);
     }
 
     function submitted() {
@@ -637,19 +869,16 @@
                         icon: 'success',
                         showDenyButton: false,
                         showCancelButton: false,
-                        confirmButtonText: 'Oke',
+                        confirmButtonText: '<i class="ph-check me-1"></i> Oke',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                     }).then((result) => {
                         if (result.isConfirmed) {
                             onLoading('show', 'body');
-
                             location.href = '{{ url("digital-storage-handover/single-upload") }}';
                         }
                     });
                 } else if(response.code == 400) {
-                    onLoading('close', 'body');
-                    $('.btn-to-top button').click();
                     showValidation(response.error);
                 } else {
                     swalInit.fire({

@@ -54,7 +54,7 @@ class CollectionAcceptController extends Controller
         $whereClause = '';
         $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

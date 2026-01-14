@@ -244,7 +244,7 @@
         $('#btn-update').addClass('d-none');
         $('#btn-cancel').addClass('d-none');
 
-        if(parseInt('{{ Main::isNotSuperAdmin() }}') === 1) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
             $('#province_id').select2();
             $('#province_id').select2('destroy');
             $('#province_id').html(`

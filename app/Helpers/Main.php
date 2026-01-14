@@ -280,13 +280,13 @@ class Main
     }
 
     /**
-     * isNotSuperAdmin
+     * isSuperAdmin
      *
      * @return void
      */
-    public static function isNotSuperAdmin()
+    public static function isSuperAdmin()
     {
-        return (int) (session('role_id') !== static::IS_SUPER_ADMIN);
+        return (int) (session('role_id') == static::IS_SUPER_ADMIN);
     }
 
     /**

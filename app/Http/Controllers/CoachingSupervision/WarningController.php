@@ -59,7 +59,7 @@ class WarningController extends Controller
         $whereClause = '';
         $whereCondition[] = 'e_publisher_warnings.deleted_at is null';
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 

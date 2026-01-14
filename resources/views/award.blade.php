@@ -1,77 +1,130 @@
-<div class="page-header page-header-light shadow mb-4">
+<div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
                 <span class="fw-normal">Pekan Penghargaan</span>
             </h4>
         </div>
-        <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
-            <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
-                <div class="d-inline-flex mt-3 mt-sm-0">
-                    <button type="button" class="btn btn-primary" onclick="onCreate()">
-                        <i class="ph-plus-circle me-1"></i>
-                        Tambah Data
-                    </button>
-                </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-primary shadow-sm" onclick="onCreate()">
+                    <i class="ph-plus-circle me-2"></i>
+                    Tambah Data
+                </button>
             </div>
         </div>
     </div>
 </div>
 <div class="content pt-0">
-    <div class="card">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-trophy me-2 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Daftar Pekan Penghargaan</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover w-100 display" id="datatable-serverside">
-                <thead class="text-bg-light">
-                    <tr>
-                        <th class="text-nowrap">No</th>
-                        <th class="text-nowrap"><i class="ph-gear"></i></th>
-                        <th class="text-nowrap">Total Katalog</th>
-                        <th class="text-nowrap">Tahun</th>
-                        <th class="text-nowrap">Tema</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center text-nowrap" style="width: 60px">
+                                <i class="ph-hash"></i>
+                            </th>
+                            <th class="text-center text-nowrap" style="width: 100px">
+                                <i class="ph-gear"></i>
+                                Aksi
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-books me-1"></i>
+                                Total Katalog
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Tahun
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-text-aa me-1"></i>
+                                Tema
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                    <i class="ph-x"></i>
-                </button>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-semibold">
+                    <i class="ph-note-pencil me-2"></i>
+                    <span id="modal-title-text"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger d-none" id="validation-element">
-                    <ul class="mb-0" id="validation-data"></ul>
+                <div class="alert alert-danger border-0 d-none" id="validation-element">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-warning-circle me-2"></i>
+                        <div class="flex-fill">
+                            <strong>Terdapat kesalahan validasi:</strong>
+                            <ul class="mb-0 mt-2" id="validation-data"></ul>
+                        </div>
+                    </div>
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="form-group">
-                        <label class="form-label">Tahun : <span class="text-danger fw-bold">*</span></label>
+                        <label class="form-label fw-semibold">
+                            <i class="ph-calendar-blank me-1"></i>
+                            Tahun
+                            <span class="text-danger">*</span>
+                        </label>
                         <select class="form-select" name="year" id="year">
-                            <option value="">Pilih</option>
+                            <option value="">Pilih Tahun</option>
                             @for($i = 2019; $i <= date('Y', strtotime('+1 years')); $i++)
                                 <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
                         </select>
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Pilih tahun penyelenggaraan pekan penghargaan
+                        </small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tema : <span class="text-danger fw-bold">*</span></label>
-                        <input type="text" class="form-control" name="theme" id="theme" placeholder="....................">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-text-aa me-1"></i>
+                            Tema
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" name="theme" id="theme" placeholder="Masukkan tema pekan penghargaan">
+                        <small class="form-text text-muted">
+                            <i class="ph-info me-1"></i>
+                            Tema akan ditampilkan pada laporan dan publikasi
+                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer justify-content-end">
-                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
+                    Tutup
+                </button>
+                <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
+                    <i class="ph-arrow-counter-clockwise me-1"></i>
                     Batalkan Perubahan
                 </button>
                 <button class="btn btn-warning d-none" id="btn-update" onclick="updateData()">
                     <i class="ph-floppy-disk me-1"></i>
-                    Simpan Perubahan Data
+                    Simpan Perubahan
                 </button>
                 <button class="btn btn-primary d-none" id="btn-create" onclick="createData()">
                     <i class="ph-plus-circle me-1"></i>
@@ -104,7 +157,7 @@
     function onCreate() {
         onReset();
 
-        $('#modal-form .modal-title').text('Tambah Data');
+        $('#modal-title-text').text('Tambah Data Pekan Penghargaan');
         $('#modal-form').modal('show');
     }
 
@@ -118,7 +171,7 @@
         $('#btn-create').addClass('d-none');
         $('#btn-update').removeClass('d-none');
         $('#btn-cancel').removeClass('d-none');
-        $('#modal-form .modal-title').text('Edit Data');
+        $('#modal-title-text').text('Edit Data Pekan Penghargaan');
         $('#modal-form').modal('show');
     }
 
@@ -141,6 +194,10 @@
         onReloadTable();
     }
 
+    function updateRecordCount(count) {
+        $('#record-count').text(count || 0);
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -161,7 +218,7 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
@@ -176,7 +233,13 @@
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                updateRecordCount(json.recordsFiltered);
             },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsFiltered);
+            }
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });

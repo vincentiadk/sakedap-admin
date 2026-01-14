@@ -53,7 +53,7 @@ class InDeliveryController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('DIKIRIM', 'DALAM PENGIRIMAN')";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 

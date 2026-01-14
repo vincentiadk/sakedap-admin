@@ -74,7 +74,7 @@
                                 User
                             </label>
                             <select class="form-select select2-basic" name="action_by" id="action_by" data-placeholder="Semua User">
-                                @if(Main::isNotSuperAdmin())
+                                @if(!Main::isSuperAdmin())
                                     <option value="{{ session('username') }}" selected>{{ session('username') }}</option>
                                 @else
                                     <option value=""></option>

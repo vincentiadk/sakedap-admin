@@ -21,7 +21,7 @@ class LogActivityController extends Controller
             $userKey = "user:$userId:download";
 
             $payload = [
-                'is_not_center_branch' => Main::isNotSuperAdmin(),
+                'is_not_center_branch' => !Main::isSuperAdmin(),
                 'action' => $request->action,
                 'action_by' => $request->action_by,
                 'date' => $request->date

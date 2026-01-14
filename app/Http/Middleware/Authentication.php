@@ -24,7 +24,7 @@ class Authentication
             if (session('id')) {
                 $whereClause = '';
 
-                if (Main::isNotSuperAdmin()) {
+                if (!Main::isSuperAdmin()) {
                     $whereClause = 'and branchs.province_id = ' . session('province_id');
                 }
 

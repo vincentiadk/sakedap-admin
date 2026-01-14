@@ -188,7 +188,7 @@ class ReviewEditionController extends Controller
             foreach ($queryData as $val) {
                 $disabled = '';
 
-                if (Main::isNotSuperAdmin()) {
+                if (!Main::isSuperAdmin()) {
                     if (!empty($val->REVIEW_BY)) {
                         if ($val->REVIEW_BY !== session('username')) {
                             $disabled = 'disabled';
@@ -291,7 +291,7 @@ class ReviewEditionController extends Controller
         $reviewBy = $collection->REVIEW_BY ?? null;
 
         if (!empty($reviewBy)) {
-            if (Main::isNotSuperAdmin()) {
+            if (!Main::isSuperAdmin()) {
                 if ($reviewBy !== session('username')) {
                     echo '
                         <script>

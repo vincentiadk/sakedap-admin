@@ -49,7 +49,7 @@ class ReviewController extends Controller
         $whereClause = '';
         $whereCondition[] = "penerbit.status = '1'";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 

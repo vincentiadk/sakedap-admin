@@ -58,7 +58,7 @@ class DeliveryVerificationController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('TERKIRIM', 'CEK FISIK')";
 
-        if (Main::isNotSuperAdmin()) {
+        if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
@@ -501,7 +501,7 @@ class DeliveryVerificationController extends Controller
         }
 
         $currentUsername = session('username');
-        $isAdmin = !Main::isNotSuperAdmin();
+        $isAdmin = Main::isSuperAdmin();
         $noFileCover = asset('assets/no-file.jpg');
         $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
         $rowNumber = $start;
@@ -820,7 +820,8 @@ class DeliveryVerificationController extends Controller
                         'status' => $status,
                         'proses_by' => session('username'),
                         'is_verification_by' => session('username'),
-                        'check_date' => ($status == 'CEK FISIK' && empty($letter->CHECK_DATE)) ? date('Y-m-d H:i:s') : $letter->CHECK_DATE
+                        'check_date' => ($status == 'CEK FISIK' && empty($letter->CHECK_DATE)) ? date('Y-m-d H:i:s') : $letter->CHECK_DATE,
+                        'accept_date' => (in_array($status, ['DITERIMA PENUH', 'DITERIMA PARSIAL'])) ? date('Y-m-d H:i:s') : null,
                     ], false);
 
                     return response()->json([
