@@ -412,18 +412,17 @@
     }
 
     function calculateQty(param, from) {
-        var selector = $(param).closest('tr');
-        var total = selector.find('input[name="letter_detail_total"]').val();
-        var accept = selector.find('select[name="letter_detail_qty_accept[]"]').val();
-        var reject = selector.find('select[name="letter_detail_qty_reject[]"]').val();
+        var total = $('.total-copy-' + param).val();
+        var accept = $('.total-accept-' + param).val();
+        var reject = $('.total-reject-' + param).val();
 
         var accpetValue = parseInt(total) - parseInt(reject);
         var rejectValue = parseInt(total) - parseInt(accept);
 
         if(from == 'accept') {
-            selector.find('select[name="letter_detail_qty_reject[]"]').val(rejectValue);
+            $('.total-reject-' + param).val(rejectValue ?? 0);
         } else if(from == 'reject') {
-            selector.find('select[name="letter_detail_qty_accept[]"]').val(accpetValue);
+            $('.total-accept-' + param).val(accpetValue ?? 0);
         }
     }
 

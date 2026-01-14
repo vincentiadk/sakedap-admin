@@ -45,10 +45,6 @@
                         <option value="{{ $w->ID }}">{{ $w->NAME }} [{{ $w->CATEGORY }}]</option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">
-                    <i class="ph-info me-1"></i>
-                    Pilih jenis bahan yang akan diunggah
-                </small>
             </div>
         </div>
         <div class="card border-0 shadow-sm d-none" id="form-parent">
@@ -70,10 +66,6 @@
                         Batalkan
                     </button>
                 </div>
-                <small class="form-text text-muted">
-                    <i class="ph-info me-1"></i>
-                    Klik untuk mencari catalog parent
-                </small>
             </div>
         </div>
         <div class="card border-0 shadow-sm">
@@ -88,10 +80,6 @@
             </div>
             <div class="card-body">
                 <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Pilih Pelaksana Serah"></select>
-                <small class="form-text text-muted">
-                    <i class="ph-info me-1"></i>
-                    Pilih pelaksana yang menyerahkan dokumen
-                </small>
             </div>
         </div>
         <div class="card border-0 shadow-sm">
@@ -276,10 +264,6 @@
                     </label>
                     <div class="col-md-10">
                         <input type="text" class="form-control" name="preview" id="preview" placeholder="cth : 1-5 / 00:01-00:20">
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Format: halaman (1-5) atau durasi (00:01-00:20)
-                        </small>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -441,10 +425,6 @@
                         <option value="{{ $c->ID }}">{{ $c->NAME }}</option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">
-                    <i class="ph-info me-1"></i>
-                    Pilih satu atau lebih kategori yang sesuai
-                </small>
             </div>
         </div>
         <div class="card border-0 shadow-sm">
@@ -458,7 +438,7 @@
                 <select class="form-select" name="author[]" id="author" data-placeholder="Ketik nama kontributor (pisahkan dengan titik koma)" multiple></select>
                 <small class="form-text text-muted">
                     <i class="ph-info me-1"></i>
-                    Ketik dan tekan Enter atau gunakan titik koma (;) untuk memisahkan kontributor
+                    Ketik dan tekan Enter atau gunakan titik koma (;) untuk memisahkan kontributor (cth: Pengarang, Budi Santoso. S)
                 </small>
             </div>
         </div>
@@ -537,10 +517,6 @@
                         </div>
                         <div class="card-body">
                             <input type="file" name="file_cover" id="file_cover">
-                            <small class="form-text text-muted d-block mt-2">
-                                <i class="ph-info me-1"></i>
-                                Format: JPG, JPEG, PNG (Maks. 2MB)
-                            </small>
                         </div>
                     </div>
                 </div>
@@ -557,10 +533,6 @@
                         </div>
                         <div class="card-body">
                             <input type="file" name="file_content" id="file_content">
-                            <small class="form-text text-muted d-block mt-2">
-                                <i class="ph-info me-1"></i>
-                                Format: PDF, EPUB, MP3, MP4, WAV (Maks. 200MB)
-                            </small>
                         </div>
                     </div>
                 </div>

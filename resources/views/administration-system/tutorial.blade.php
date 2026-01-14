@@ -88,7 +88,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-file-video me-2"></i>
                     <span id="modal-title-text"></span>
@@ -107,179 +107,119 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="card bg-light border-0">
-                        <div class="card-body">
-                            <h6 class="fw-semibold form-group">
-                                <i class="ph-file-video me-1 text-primary"></i>
-                                Media Tutorial
-                            </h6>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            Upload Media
+                        </label>
+                        <input type="file" class="form-control" name="media" id="media" accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx">
+                    </div>
+                    <div id="media-preview-container" class="d-none">
+                        <label class="form-label fw-semibold">Media Saat Ini</label>
+                        <div class="border rounded p-3 bg-white">
+                            <a href="" class="btn btn-success" id="media-preview" target="_blank">
+                                <i class="ph-file me-1"></i>
+                                Lihat / Download Media
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label class="form-label fw-semibold">
-                                    Upload Media
+                                    <i class="ph-tag me-1"></i>
+                                    Kategori Tutorial
+                                    <span class="text-danger">*</span>
                                 </label>
-                                <input type="file" class="form-control" name="media" id="media" accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx">
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Format: Video (MP4, AVI, MKV), Audio (MP3, WAV), Dokumen (PDF, DOC, PPT). Maksimal 50MB
-                                </div>
+                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori tutorial">
+                                    <option value=""></option>
+                                    @foreach($category as $c)
+                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div id="media-preview-container" class="d-none">
-                                <label class="form-label fw-semibold">Media Saat Ini</label>
-                                <div class="border rounded p-3 bg-white">
-                                    <a href="" class="btn btn-success" id="media-preview" target="_blank">
-                                        <i class="ph-file me-1"></i>
-                                        Lihat / Download Media
-                                    </a>
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-link me-1"></i>
+                                    Lampiran Link
+                                </label>
+                                <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
                             </div>
                         </div>
                     </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-info me-1 text-primary"></i>
-                                Informasi Dasar
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-tag me-1"></i>
-                                            Kategori Tutorial
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori tutorial">
-                                            <option value=""></option>
-                                            @foreach($category as $c)
-                                                <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Kategorikan tutorial untuk memudahkan pencarian
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-link me-1"></i>
-                                            Lampiran Link
-                                        </label>
-                                        <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Link eksternal terkait tutorial (YouTube, Google Drive, dll)
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-translate me-1"></i>
+                                    Bahasa
+                                </label>
+                                <select class="form-select" name="lang" id="lang">
+                                    <option value="ID">Indonesia</option>
+                                    <option value="EN">English</option>
+                                </select>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-translate me-1"></i>
-                                            Bahasa
-                                        </label>
-                                        <select class="form-select" name="lang" id="lang">
-                                            <option value="ID">Indonesia</option>
-                                            <option value="EN">English</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Bahasa yang digunakan dalam tutorial
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-flag me-1"></i>
-                                            Status
-                                        </label>
-                                        <select class="form-select" name="status" id="status">
-                                            <option value="PUBLISH">PUBLISH - Ditampilkan</option>
-                                            <option value="HIDE">HIDE - Disembunyikan</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Status publikasi tutorial
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-flag me-1"></i>
+                                    Status
+                                </label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="PUBLISH">PUBLISH - Ditampilkan</option>
+                                    <option value="HIDE">HIDE - Disembunyikan</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-text-aa me-1 text-primary"></i>
-                                Detail Tutorial
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-text-aa me-1"></i>
-                                            Judul Tutorial
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul tutorial yang jelas dan deskriptif"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Judul tutorial yang akan ditampilkan
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-note me-1"></i>
-                                            Ringkasan
-                                        </label>
-                                        <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang isi tutorial"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Deskripsi singkat yang menarik perhatian
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="row">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label class="form-label fw-semibold">
-                                    <i class="ph-article me-1"></i>
-                                    Konten Lengkap
+                                    <i class="ph-text-aa me-1"></i>
+                                    Judul Tutorial
+                                    <span class="text-danger">*</span>
                                 </label>
-                                <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap tutorial di sini..."></textarea>
-                                <div class="form-text mt-2">
-                                    <i class="ph-info me-1"></i>
-                                    Gunakan editor untuk memformat konten tutorial dengan baik
-                                </div>
+                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul tutorial yang jelas dan deskriptif"></textarea>
                             </div>
-                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
-                                <div class="d-flex">
-                                    <i class="ph-lightbulb me-2 fs-5"></i>
-                                    <div>
-                                        <h6 class="alert-heading mb-1">Tips Membuat Tutorial yang Baik:</h6>
-                                        <ul class="mb-0 small">
-                                            <li>Gunakan judul yang jelas dan spesifik</li>
-                                            <li>Sertakan langkah-langkah yang mudah diikuti</li>
-                                            <li>Tambahkan screenshot atau video untuk memudahkan pemahaman</li>
-                                            <li>Gunakan bahasa yang sederhana dan mudah dipahami</li>
-                                            <li>Sertakan contoh praktis jika memungkinkan</li>
-                                        </ul>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-note me-1"></i>
+                                    Ringkasan
+                                </label>
+                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang isi tutorial"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-article me-1"></i>
+                            Konten Lengkap
+                        </label>
+                        <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap tutorial di sini..."></textarea>
+                    </div>
+                    <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                        <div class="d-flex">
+                            <i class="ph-lightbulb me-2 fs-5"></i>
+                            <div>
+                                <h6 class="alert-heading mb-1">Tips Membuat Tutorial yang Baik:</h6>
+                                <ul class="mb-0 small">
+                                    <li>Gunakan judul yang jelas dan spesifik</li>
+                                    <li>Sertakan langkah-langkah yang mudah diikuti</li>
+                                    <li>Tambahkan screenshot atau video untuk memudahkan pemahaman</li>
+                                    <li>Gunakan bahasa yang sederhana dan mudah dipahami</li>
+                                    <li>Sertakan contoh praktis jika memungkinkan</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top bg-light">
+            <div class="modal-footer">
                 <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

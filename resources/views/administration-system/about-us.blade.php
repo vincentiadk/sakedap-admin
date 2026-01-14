@@ -61,10 +61,6 @@
                         Konten Halaman
                     </label>
                     <textarea name="content" class="form-control content" id="content">{!! $template->VALUE_LOB ?? '' !!}</textarea>
-                    <small class="form-text text-muted">
-                        <i class="ph-info me-1"></i>
-                        Gunakan editor untuk mengatur format konten halaman Tentang Kami
-                    </small>
                 </div>
             </div>
         </div>

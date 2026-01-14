@@ -91,10 +91,6 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kepatuhan">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama kategori kepatuhan
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -109,14 +105,10 @@
                             <input type="number" class="form-control" name="percentage" id="percentage" placeholder="Masukkan persentase" min="0" max="100" step="0.01">
                             <span class="input-group-text">%</span>
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nilai persentase kepatuhan (0-100)
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

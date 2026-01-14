@@ -604,9 +604,10 @@ class DeliveryVerificationController extends Controller
             $disabledAttr = $canEdit ? '' : 'disabled';
 
             $totalAcceptField = sprintf(
-                '<select class="form-select total-accept-%s" %s onchange="calculateQty(this, \'accept\')" %s>%s</select>',
+                '<select class="form-select total-accept-%s" %s onchange="calculateQty(\'%s\', \'accept\')" %s>%s</select>',
                 e($randStr),
                 $nameAttr,
+                e($randStr),
                 $disabledAttr,
                 $optionAccept
             );
@@ -621,9 +622,10 @@ class DeliveryVerificationController extends Controller
             $nameAttr = $canEdit ? 'name="letter_detail_qty_reject[]"' : '';
 
             $totalRejectField = sprintf(
-                '<select class="form-select total-reject-%s" %s onchange="calculateQty(this, \'reject\')" %s>%s</select>',
+                '<select class="form-select total-reject-%s" %s onchange="calculateQty(\'%s\', \'reject\')" %s>%s</select>',
                 e($randStr),
                 $nameAttr,
+                e($randStr),
                 $disabledAttr,
                 $optionReject
             );

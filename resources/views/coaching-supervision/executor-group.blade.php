@@ -51,7 +51,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header border-bottom">
+            <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="ph-note-pencil me-2"></i>
                     <span id="modal-title-text"></span>
@@ -75,14 +75,10 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama grup pelaksana serah">
-                        <div class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama grup digunakan untuk mengelompokkan pelaksana serah
-                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
                     Batalkan

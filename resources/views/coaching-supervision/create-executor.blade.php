@@ -203,10 +203,6 @@
                     </div>
                     <div class="card-body">
                         <input type="file" name="file_deed" id="file_deed">
-                        <div class="form-text mt-2">
-                            <i class="ph-info me-1"></i>
-                            Upload file akta dalam format PDF. Maksimal 1 file.
-                        </div>
                     </div>
                 </div>
             </div>
@@ -223,10 +219,6 @@
                     </div>
                     <div class="card-body">
                         <input type="file" name="file_statement" id="file_statement">
-                        <div class="form-text mt-2">
-                            <i class="ph-info me-1"></i>
-                            Upload file pernyataan dalam format PDF. Maksimal 1 file.
-                        </div>
                     </div>
                 </div>
             </div>

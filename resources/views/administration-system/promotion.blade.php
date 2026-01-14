@@ -109,7 +109,6 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control" name="title" id="title" placeholder="Masukkan judul promosi">
-                        <div class="form-text">Nama atau judul promosi yang akan ditampilkan</div>
                     </div>
                     <div class="row">
                         <div class="col-md-4 form-group">
@@ -119,7 +118,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control text-uppercase" name="code" id="code" placeholder="KODEPROMO">
-                            <div class="form-text">Kode unik untuk promosi</div>
                         </div>
                         <div class="col-md-4 form-group">
                             <label class="form-label fw-semibold">
@@ -128,7 +126,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="datetime-local" class="form-control" name="start_date" id="start_date">
-                            <div class="form-text">Tanggal mulai berlaku</div>
                         </div>
                         <div class="col-md-4 form-group">
                             <label class="form-label fw-semibold">
@@ -137,7 +134,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="datetime-local" class="form-control" name="end_date" id="end_date">
-                            <div class="form-text">Tanggal berakhir promo</div>
                         </div>
                     </div>
                     <div class="row">
@@ -150,7 +146,6 @@
                                 <span class="input-group-text">Rp</span>
                                 <input type="text" class="form-control" name="balance" id="balance" placeholder="0">
                             </div>
-                            <div class="form-text">Nilai saldo promosi (opsional)</div>
                         </div>
                         <div class="col-md-4 form-group">
                             <label class="form-label fw-semibold">
@@ -161,7 +156,6 @@
                                 <input type="number" class="form-control" name="discount" id="discount" placeholder="0" min="0" max="100">
                                 <span class="input-group-text">%</span>
                             </div>
-                            <div class="form-text">Persentase diskon (0-100)</div>
                         </div>
                         <div class="col-md-4 form-group">
                             <label class="form-label fw-semibold">
@@ -169,7 +163,6 @@
                                 Jumlah Paket
                             </label>
                             <input type="number" class="form-control" name="package" id="package" placeholder="0" min="0">
-                            <div class="form-text">Jumlah paket yang tersedia</div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -178,7 +171,6 @@
                             Provinsi
                         </label>
                         <select class="form-select" name="province_id[]" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih satu atau beberapa provinsi" multiple></select>
-                        <div class="form-text">Pilih provinsi yang berlaku untuk promosi ini (kosongkan untuk semua provinsi)</div>
                     </div>
                 </form>
             </div>

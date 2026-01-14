@@ -184,7 +184,7 @@
 <div id="modal-download-excel" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header border-bottom">
+            <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="ph-microsoft-excel-logo me-1"></i>
                     Download Excel
@@ -233,7 +233,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Batal

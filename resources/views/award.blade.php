@@ -63,7 +63,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-light">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-note-pencil me-2"></i>
                     <span id="modal-title-text"></span>
@@ -94,10 +94,6 @@
                                 <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
                         </select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Pilih tahun penyelenggaraan pekan penghargaan
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -106,14 +102,10 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control" name="theme" id="theme" placeholder="Masukkan tema pekan penghargaan">
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Tema akan ditampilkan pada laporan dan publikasi
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer bg-light">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

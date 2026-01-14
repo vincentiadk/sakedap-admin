@@ -65,10 +65,6 @@
                             File Ikon
                         </label>
                         <input type="file" class="form-control" name="file_icon" id="file_icon">
-                        <div class="form-text">
-                            <i class="ph-info me-1"></i>
-                            Format: JPG, JPEG, PNG | Ukuran disarankan: 32x32px atau 64x64px | Max: 2MB
-                        </div>
                     </div>
                     <div class="col-md-6 form-group">
                         <label class="form-label fw-semibold">
@@ -76,10 +72,6 @@
                             File Logo
                         </label>
                         <input type="file" class="form-control" name="file_logo" id="file_logo">
-                        <div class="form-text">
-                            <i class="ph-info me-1"></i>
-                            Format: JPG, JPEG, PNG | Ukuran disarankan: 200x60px | Max: 2MB
-                        </div>
                     </div>
                 </div>
             </div>
@@ -99,7 +91,6 @@
                             Alamat
                         </label>
                         <textarea name="address" id="address" class="form-control" rows="4" placeholder="Masukkan alamat lengkap kantor">{{ $settingParameter->firstWhere('NAME', 'EFOAlamat')->VALUE ?? '' }}</textarea>
-                        <div class="form-text">Alamat lengkap kantor/instansi yang akan ditampilkan di website</div>
                     </div>
                     <div class="col-md-12 form-group">
                         <label class="form-label fw-semibold">
@@ -114,7 +105,6 @@
                             <span class="input-group-text">Karya Rekam</span>
                             <input type="text" class="form-control" name="phone_recorded" id="phone_recorded" value="{{ $settingParameter->firstWhere('NAME', 'EFOTelpKR')->VALUE ?? '' }}" placeholder="(021) 3456789">
                         </div>
-                        <div class="form-text">Nomor telepon yang dapat dihubungi untuk setiap layanan</div>
                     </div>
                     <div class="col-md-12 form-group">
                         <label class="form-label fw-semibold">
@@ -127,7 +117,6 @@
                             </span>
                             <input type="email" class="form-control" name="email" id="email" value="{{ $settingParameter->firstWhere('NAME', 'EFOEmail')->VALUE ?? '' }}" placeholder="contact@example.com">
                         </div>
-                        <div class="form-text">Email resmi untuk kontak dan komunikasi</div>
                     </div>
                 </div>
             </div>
@@ -160,7 +149,6 @@
                             </span>
                             <input type="url" class="form-control" name="youtube" id="youtube" value="{{ $settingParameter->firstWhere('NAME', 'EFOYoutube')->VALUE ?? '' }}" placeholder="https://youtube.com/@channel">
                         </div>
-                        <div class="form-text">URL lengkap channel YouTube</div>
                     </div>
                     <div class="col-md-12 form-group">
                         <label class="form-label fw-semibold">
@@ -181,7 +169,6 @@
                             </span>
                             <input type="url" class="form-control" name="instagram" id="instagram" value="{{ $settingParameter->firstWhere('NAME', 'EFOInstagram')->VALUE ?? '' }}" placeholder="https://instagram.com/username">
                         </div>
-                        <div class="form-text">URL lengkap profil Instagram</div>
                     </div>
                     <div class="col-md-12 form-group">
                         <label class="form-label fw-semibold">
@@ -194,7 +181,6 @@
                             </span>
                             <input type="url" class="form-control" name="national_website" id="national_website" value="{{ $settingParameter->firstWhere('NAME', 'EFOWebsiteNasional')->VALUE ?? '' }}" placeholder="https://example.com">
                         </div>
-                        <div class="form-text">URL website nasional untuk referensi</div>
                     </div>
                 </div>
             </div>

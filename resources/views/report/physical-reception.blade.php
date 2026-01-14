@@ -224,7 +224,7 @@
 <div id="modal-detail" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header border-bottom">
+            <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="ph-info me-1"></i>
                     Detail Data

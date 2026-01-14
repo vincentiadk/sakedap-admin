@@ -119,7 +119,6 @@
                                     <span class="input-group-text">Interval (Jam)</span>
                                     <input type="number" class="form-control" name="system_rate_limiter_interval" id="system_rate_limiter_interval" value="{{ $settingParameter->firstWhere('NAME', 'EPercobaanLoginInterval')->VALUE ?? '' }}" placeholder="Interval waktu">
                                 </div>
-                                <div class="form-text">Batasan jumlah percobaan login dan interval waktu pemblokiran</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -134,7 +133,6 @@
                                     <span class="input-group-text">IV</span>
                                     <input type="text" class="form-control" name="system_aes_iv" id="system_aes_iv" value="{{ $settingParameter->firstWhere('NAME', 'EAesIV')->VALUE ?? '' }}" placeholder="AES IV">
                                 </div>
-                                <div class="form-text">Kunci enkripsi AES untuk keamanan data</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -149,7 +147,6 @@
                                     <span class="input-group-text">IV</span>
                                     <input type="text" class="form-control" name="system_aes_iv_inlis" id="system_aes_iv_inlis" value="{{ $settingParameter->firstWhere('NAME', 'EAesInlisIV')->VALUE ?? '' }}" placeholder="AES INLIS IV">
                                 </div>
-                                <div class="form-text">Kunci enkripsi AES khusus untuk sistem INLIS</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -159,7 +156,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="url" class="form-control" name="system_allow_iframe_domain" id="system_allow_iframe_domain" value="{{ $settingParameter->firstWhere('NAME', 'EIFrameDomain')->VALUE ?? '' }}" placeholder="https://example.com">
-                                <div class="form-text">Domain yang diizinkan untuk menampilkan aplikasi dalam iframe</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -172,7 +168,6 @@
                                     <input type="number" class="form-control" name="system_limit_reset_password" id="system_limit_reset_password" value="{{ $settingParameter->firstWhere('NAME', 'EBatasResetPassword')->VALUE ?? '' }}" placeholder="Durasi dalam jam">
                                     <span class="input-group-text">Jam</span>
                                 </div>
-                                <div class="form-text">Masa berlaku link reset password</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -185,7 +180,6 @@
                                     <input type="number" class="form-control" name="system_limit_file_original" id="system_limit_file_original" value="{{ $settingParameter->firstWhere('NAME', 'EBatasFileOriginal')->VALUE ?? '' }}" placeholder="Durasi dalam hari">
                                     <span class="input-group-text">Hari</span>
                                 </div>
-                                <div class="form-text">Masa penyimpanan file original di server</div>
                             </div>
                         </div>
                         <div class="row">
@@ -200,7 +194,6 @@
                                     </span>
                                     <input type="text" class="form-control datepicker-single" name="executor_start_date" id="executor_start_date" value="{{ $settingParameter->firstWhere('NAME', 'ETglKepatuhanPenerbit')->VALUE ?? '' }}" placeholder="Pilih Tanggal" readonly>
                                 </div>
-                                <div class="form-text">Tanggal mulai perhitungan kepatuhan penerbit</div>
                             </div>
                         </div>
                     </div>
@@ -220,7 +213,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="system_redis_client" id="system_redis_client" value="{{ $settingParameter->firstWhere('NAME', 'ERedisClient')->VALUE ?? '' }}" placeholder="Redis client type">
-                                <div class="form-text">Tipe client Redis yang digunakan</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -230,7 +222,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="system_redis_host" id="system_redis_host" value="{{ $settingParameter->firstWhere('NAME', 'ERedisHost')->VALUE ?? '' }}" placeholder="127.0.0.1">
-                                <div class="form-text">Alamat host server Redis</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -240,7 +231,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="system_redis_username" id="system_redis_username" value="{{ $settingParameter->firstWhere('NAME', 'ERedisUsername')->VALUE ?? '' }}" placeholder="Redis username">
-                                <div class="form-text">Username untuk autentikasi Redis (opsional)</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -250,7 +240,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="password" class="form-control" name="system_redis_password" id="system_redis_password" value="{{ $settingParameter->firstWhere('NAME', 'ERedisPassword')->VALUE ?? '' }}" placeholder="Redis password">
-                                <div class="form-text">Password untuk autentikasi Redis (opsional)</div>
                             </div>
                         </div>
                         <div class="row">
@@ -260,7 +249,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="number" class="form-control" name="system_redis_port" id="system_redis_port" value="{{ $settingParameter->firstWhere('NAME', 'ERedisPort')->VALUE ?? '' }}" placeholder="6379">
-                                <div class="form-text">Port server Redis (default: 6379)</div>
                             </div>
                         </div>
                     </div>
@@ -288,7 +276,6 @@
                                     <option value="array" {{ ($settingParameter->firstWhere('NAME', 'ESessionDriver')->VALUE ?? '') == 'array' ? 'selected' : '' }}>Array</option>
                                     <option value="dynamodb" {{ ($settingParameter->firstWhere('NAME', 'ESessionDriver')->VALUE ?? '') == 'dynamodb' ? 'selected' : '' }}>Dynamo DB</option>
                                 </select>
-                                <div class="form-text">Driver penyimpanan session</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -301,7 +288,6 @@
                                     <input type="number" class="form-control" name="system_session_lifetime" id="system_session_lifetime" value="{{ $settingParameter->firstWhere('NAME', 'ESessionLifeTime')->VALUE ?? '' }}" placeholder="Durasi session">
                                     <span class="input-group-text">Menit</span>
                                 </div>
-                                <div class="form-text">Durasi maksimal session sebelum expired</div>
                             </div>
                         </div>
                         <div class="row">
@@ -314,7 +300,6 @@
                                     <option value="1" {{ ($settingParameter->firstWhere('NAME', 'ESessionEncrypt')->VALUE ?? '') == '1' ? 'selected' : '' }}>Ya</option>
                                     <option value="0" {{ ($settingParameter->firstWhere('NAME', 'ESessionEncrypt')->VALUE ?? '') == '0' ? 'selected' : '' }}>Tidak</option>
                                 </select>
-                                <div class="form-text">Aktifkan enkripsi untuk data session</div>
                             </div>
                         </div>
                     </div>
@@ -336,7 +321,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="mail_host" id="mail_host" value="{{ $mail->HOST ?? '' }}" placeholder="smtp.gmail.com">
-                                <div class="form-text">Alamat server SMTP</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -346,7 +330,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="mail_port" id="mail_port" value="{{ $mail->PORT ?? '' }}" placeholder="587">
-                                <div class="form-text">Port SMTP (587 untuk TLS, 465 untuk SSL)</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -356,7 +339,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="mail_username" id="mail_username" value="{{ $mail->CREDENTIALMAIL ?? '' }}" placeholder="email@example.com">
-                                <div class="form-text">Username atau email untuk autentikasi SMTP</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -366,7 +348,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="password" class="form-control" name="mail_password" id="mail_password" value="{{ $mail->CREDENTIALPASSWORD ?? '' }}" placeholder="••••••••">
-                                <div class="form-text">Password untuk autentikasi SMTP</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -376,7 +357,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="email" class="form-control" name="mail_from" id="mail_from" value="{{ $mail->MAILFROM ?? '' }}" placeholder="noreply@example.com">
-                                <div class="form-text">Email pengirim default</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -386,7 +366,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="mail_name" id="mail_name" value="{{ $mail->MAILDISPLAYNAME ?? '' }}" placeholder="Nama Pengirim">
-                                <div class="form-text">Nama yang akan ditampilkan sebagai pengirim</div>
                             </div>
                         </div>
                         <hr class="my-4">
@@ -409,7 +388,6 @@
                                                 Kirim Tes
                                             </button>
                                         </div>
-                                        <div class="form-text mt-2">Kirim email percobaan untuk memastikan konfigurasi bekerja dengan baik</div>
                                     </div>
                                 </div>
                             </div>
@@ -438,7 +416,6 @@
                                     <span class="input-group-text">Konten (MB)</span>
                                     <input type="number" class="form-control" name="catalog_content" id="catalog_content" value="{{ $settingParameter->firstWhere('NAME', 'EKatalogContentMaxUpload')->VALUE ?? '' }}" placeholder="Ukuran maks">
                                 </div>
-                                <div class="form-text">Batas maksimal ukuran file upload untuk cover dan konten katalog</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -472,7 +449,6 @@
                                     <input type="color" class="form-control form-control-color" name="catalog_not_obey_color" id="catalog_not_obey_color" value="{{ $obedient->firstWhere('NAME', 'Tidak Patuh')->WARNA ?? '#dc3545' }}">
                                     <input type="number" class="form-control" name="catalog_not_obey" id="catalog_not_obey" max="100" value="{{ $obedient->firstWhere('NAME', 'Tidak Patuh')->PERSEN ?? '' }}" placeholder="Persentase">
                                 </div>
-                                <div class="form-text mt-2">Persentase dan warna untuk setiap tingkat kepatuhan penerbit</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -485,7 +461,6 @@
                                     <input type="number" class="form-control" name="catalog_submission_kckr" id="catalog_submission_kckr" value="{{ $settingParameter->firstWhere('NAME', 'EBatasSerahKCKR')->VALUE ?? '' }}" placeholder="Jumlah hari">
                                     <span class="input-group-text">Hari</span>
                                 </div>
-                                <div class="form-text">Batas waktu penyerahan Karya Cetak dan Karya Rekam</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -498,7 +473,6 @@
                                     <input type="number" class="form-control" name="catalog_limit_grant" id="catalog_limit_grant" value="{{ $settingParameter->firstWhere('NAME', 'EBatasHibah')->VALUE ?? '' }}" placeholder="Jumlah hari">
                                     <span class="input-group-text">Hari</span>
                                 </div>
-                                <div class="form-text">Batas waktu untuk hibah koleksi</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -511,7 +485,6 @@
                                     <input type="number" class="form-control" name="catalog_limit_retur" id="catalog_limit_retur" value="{{ $settingParameter->firstWhere('NAME', 'EBatasPengambilan')->VALUE ?? '' }}" placeholder="Jumlah hari">
                                     <span class="input-group-text">Hari</span>
                                 </div>
-                                <div class="form-text">Batas waktu pengambilan koleksi</div>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -526,7 +499,6 @@
                                     <span class="input-group-text">Karya Rekam (Hari)</span>
                                     <input type="number" class="form-control" name="recording_work" id="recording_work" value="{{ $settingParameter->firstWhere('NAME', 'EWaktuWajibKaryaRekam')->VALUE ?? '' }}" placeholder="Hari">
                                 </div>
-                                <div class="form-text">Waktu wajib penyerahan untuk karya cetak dan karya rekam</div>
                             </div>
                         </div>
                         <div class="row">
@@ -536,7 +508,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="number" class="form-control" name="max_coaching" id="max_coaching" value="{{ $settingParameter->firstWhere('NAME', 'EMaksJumlahPembinaan')->VALUE ?? '' }}" placeholder="Jumlah maksimal">
-                                <div class="form-text">Batas maksimal jumlah pembinaan yang dapat dilakukan</div>
                             </div>
                         </div>
                     </div>
@@ -567,7 +538,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="captcha_secret_key" id="captcha_secret_key" value="{{ $settingParameter->firstWhere('NAME', 'ECaptchaSecret')->VALUE ?? '' }}" placeholder="Secret key dari Google reCAPTCHA">
-                                <div class="form-text">Kunci rahasia untuk validasi server-side</div>
                             </div>
                         </div>
                         <div class="row">
@@ -577,7 +547,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="captcha_site_key" id="captcha_site_key" value="{{ $settingParameter->firstWhere('NAME', 'ECaptchaSite')->VALUE ?? '' }}" placeholder="Site key dari Google reCAPTCHA">
-                                <div class="form-text">Kunci publik untuk ditampilkan di halaman web</div>
                             </div>
                         </div>
                     </div>
@@ -603,7 +572,6 @@
                                         <span class="input-group-text">+62</span>
                                         <input type="text" class="form-control" name="whatsapp_target" id="whatsapp_target" placeholder="8123456789">
                                     </div>
-                                    <div class="form-text">Masukkan nomor WhatsApp tanpa +62 atau 0</div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label fw-semibold">
@@ -611,7 +579,6 @@
                                         Isi Pesan
                                     </label>
                                     <textarea name="whatsapp_body" id="whatsapp_body" class="form-control" rows="5" placeholder="Tulis pesan yang akan dikirim..."></textarea>
-                                    <div class="form-text">Pesan yang akan dikirim ke nomor tujuan</div>
                                 </div>
                                 <button type="button" class="btn btn-success" onclick="testSendWhatsapp()">
                                     <i class="ph-paper-plane-right me-1"></i>
@@ -660,7 +627,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="isbn_token" id="isbn_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIISBNToken')->VALUE ?? '' }}" placeholder="Token API ISBN">
-                                <div class="form-text">Token autentikasi untuk mengakses API ISBN</div>
                             </div>
                         </div>
                         <div class="row">
@@ -670,7 +636,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="url" class="form-control" name="isbn_base_url" id="isbn_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIISBNBaseUrl')->VALUE ?? '' }}" placeholder="https://api.isbn.example.com">
-                                <div class="form-text">URL dasar endpoint API ISBN</div>
                             </div>
                         </div>
                     </div>
@@ -692,7 +657,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="ro_token" id="ro_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirToken')->VALUE ?? '' }}" placeholder="Token API Raja Ongkir">
-                                <div class="form-text">Token autentikasi untuk mengakses API Raja Ongkir</div>
                             </div>
                         </div>
                         <div class="row">
@@ -702,7 +666,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="url" class="form-control" name="ro_base_url" id="ro_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIRajaOngkirBaseUrl')->VALUE ?? '' }}" placeholder="https://api.rajaongkir.com">
-                                <div class="form-text">URL dasar endpoint API Raja Ongkir</div>
                             </div>
                         </div>
                     </div>
@@ -722,7 +685,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="text" class="form-control" name="komship_token" id="komship_token" value="{{ $settingParameter->firstWhere('NAME', 'EAPIKomshipToken')->VALUE ?? '' }}" placeholder="Token API Komship">
-                                <div class="form-text">Token autentikasi untuk mengakses API Komship</div>
                             </div>
                         </div>
                         <div class="row">
@@ -732,7 +694,6 @@
                             </label>
                             <div class="col-lg-9">
                                 <input type="url" class="form-control" name="komship_base_url" id="komship_base_url" value="{{ $settingParameter->firstWhere('NAME', 'EAPIKomshipBaseUrl')->VALUE ?? '' }}" placeholder="https://api.komship.com">
-                                <div class="form-text">URL dasar endpoint API Komship</div>
                             </div>
                         </div>
                     </div>
@@ -755,7 +716,6 @@
                                     <option value="manual" {{ ($settingParameter->firstWhere('NAME', 'EDeliveryMethod')->VALUE ?? '') == 'manual' ? 'selected' : '' }}>Manual</option>
                                     <option value="expedition" {{ ($settingParameter->firstWhere('NAME', 'EDeliveryMethod')->VALUE ?? '') == 'expedition' ? 'selected' : '' }}>Ekspedisi</option>
                                 </select>
-                                <div class="form-text">Pilih metode pengiriman default yang akan digunakan sistem</div>
                             </div>
                         </div>
                     </div>

@@ -90,10 +90,6 @@
                             <span class="text-danger">*</span>
                         </label>
                         <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih perpustakaan"></select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Pilih perpustakaan untuk depo ini
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -107,10 +103,6 @@
                             </span>
                             <input type="text" class="form-control" name="code" id="code" placeholder="Masukkan kode depo">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Kode unik depo
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -124,14 +116,10 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama depo">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama lengkap depo
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

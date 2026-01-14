@@ -77,10 +77,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control" name="name" id="name" value="{{ session('name') }}" placeholder="Masukkan nama lengkap">
-                            <small class="form-text text-muted">
-                                <i class="ph-info me-1"></i>
-                                Nama akan ditampilkan di sistem
-                            </small>
                         </div>
                         <div class="form-group">
                             <label class="form-label fw-semibold">
@@ -94,10 +90,6 @@
                                 </span>
                                 <input type="email" class="form-control" name="email" id="email" value="{{ session('email') }}" placeholder="nama@example.com">
                             </div>
-                            <small class="form-text text-muted">
-                                <i class="ph-info me-1"></i>
-                                Email digunakan untuk notifikasi sistem
-                            </small>
                         </div>
                     </div>
                     <div class="card-footer border-top">

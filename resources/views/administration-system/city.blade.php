@@ -103,10 +103,6 @@
                             </span>
                             <input type="text" class="form-control" name="code" id="code" placeholder="Masukkan kode kota/kabupaten">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Kode unik kota/kabupaten (contoh: 3201, 3271)
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -115,10 +111,6 @@
                             <span class="text-danger">*</span>
                         </label>
                         <select class="form-select" name="province_id" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih provinsi"></select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Pilih provinsi dimana kota/kabupaten berada
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -132,10 +124,6 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kota/kabupaten">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama lengkap (contoh: Kota Bandung, Kabupaten Bandung)
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -162,14 +150,10 @@
                                 </div>
                             </div>
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Koordinat geografis kota/kabupaten (opsional, untuk pemetaan)
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

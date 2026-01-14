@@ -119,10 +119,6 @@
                                 Lihat Gambar
                             </a>
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Upload file gambar tanda tangan (JPG, PNG, max 2MB)
-                        </small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -138,10 +134,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama lengkap">
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Nama lengkap pimpinan
-                                </small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -157,10 +149,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="number" id="number" placeholder="Masukkan NIP">
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Nomor Induk Pegawai
-                                </small>
                             </div>
                         </div>
                     </div>
@@ -176,10 +164,6 @@
                             </span>
                             <input type="text" class="form-control" name="position" id="position" placeholder="Masukkan jabatan">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Jabatan pimpinan saat ini
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -198,10 +182,6 @@
                             </span>
                             <input type="date" class="form-control" name="end_date" id="end_date">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Tanggal awal wajib diisi, tanggal akhir opsional
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -210,14 +190,10 @@
                             <span class="text-danger">*</span>
                         </label>
                         <select class="form-select" name="branch_id" id="branch_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih perpustakaan"></select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Perpustakaan tempat pimpinan bertugas
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

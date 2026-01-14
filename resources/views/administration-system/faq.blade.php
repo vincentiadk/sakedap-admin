@@ -75,7 +75,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-question me-2"></i>
                     <span id="modal-title-text"></span>
@@ -94,129 +94,85 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-gear me-1 text-primary"></i>
-                                Pengaturan FAQ
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-sort-ascending me-1"></i>
-                                            Urutan Tampil
-                                        </label>
-                                        <input type="number" class="form-control" name="sequence" id="sequence" min="0" placeholder="0">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Urutan tampilan FAQ (angka lebih kecil tampil lebih dulu)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-eye me-1"></i>
-                                            Status Publikasi
-                                        </label>
-                                        <select class="form-select" name="publish" id="publish">
-                                            <option value="1">Ya - Ditampilkan</option>
-                                            <option value="2">Tidak - Disembunyikan</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            FAQ akan ditampilkan atau disembunyikan
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-translate me-1"></i>
-                                            Bahasa
-                                        </label>
-                                        <select class="form-select" name="lang" id="lang">
-                                            <option value="ID">Indonesia</option>
-                                            <option value="EN">English</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Bahasa yang digunakan dalam FAQ
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-sort-ascending me-1"></i>
+                                    Urutan Tampil
+                                </label>
+                                <input type="number" class="form-control" name="sequence" id="sequence" min="0" placeholder="0">
                             </div>
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-tag me-1"></i>
-                                            Kategori FAQ
-                                        </label>
-                                        <input type="text" class="form-control" name="category" id="category" placeholder="Contoh: Pendaftaran, Peminjaman, Layanan, dll">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Kelompokkan FAQ berdasarkan kategori untuk memudahkan pencarian
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-eye me-1"></i>
+                                    Status Publikasi
+                                </label>
+                                <select class="form-select" name="publish" id="publish">
+                                    <option value="1">Ya - Ditampilkan</option>
+                                    <option value="2">Tidak - Disembunyikan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-translate me-1"></i>
+                                    Bahasa
+                                </label>
+                                <select class="form-select" name="lang" id="lang">
+                                    <option value="ID">Indonesia</option>
+                                    <option value="EN">English</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-chat-circle-text me-1 text-primary"></i>
-                                Pertanyaan & Jawaban
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-chat-circle-text me-1"></i>
-                                            Pertanyaan
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control text-editor" name="question" id="question" rows="5" placeholder="Tulis pertanyaan yang sering ditanyakan..."></textarea>
-                                        <div class="form-text mt-2">
-                                            <i class="ph-info me-1"></i>
-                                            Tulis pertanyaan dengan jelas dan ringkas
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-chat-circle-dots me-1"></i>
-                                            Jawaban
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control" name="answer" id="answer" rows="5" placeholder="Tulis jawaban yang lengkap dan informatif..."></textarea>
-                                        <div class="form-text mt-2">
-                                            <i class="ph-info me-1"></i>
-                                            Berikan jawaban yang lengkap, jelas, dan mudah dipahami
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-tag me-1"></i>
+                                    Kategori FAQ
+                                </label>
+                                <input type="text" class="form-control" name="category" id="category" placeholder="Contoh: Pendaftaran, Peminjaman, Layanan, dll">
                             </div>
-                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
-                                <div class="d-flex">
-                                    <i class="ph-lightbulb me-2 fs-5"></i>
-                                    <div>
-                                        <h6 class="alert-heading mb-1">Tips Menulis FAQ yang Baik:</h6>
-                                        <ul class="mb-0 small">
-                                            <li>Gunakan bahasa yang mudah dipahami</li>
-                                            <li>Pertanyaan harus spesifik dan langsung ke pokok masalah</li>
-                                            <li>Jawaban harus lengkap namun tidak bertele-tele</li>
-                                            <li>Sertakan contoh atau langkah-langkah jika diperlukan</li>
-                                        </ul>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-chat-circle-text me-1"></i>
+                                    Pertanyaan
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control text-editor" name="question" id="question" rows="5" placeholder="Tulis pertanyaan yang sering ditanyakan..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-chat-circle-dots me-1"></i>
+                                    Jawaban
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" name="answer" id="answer" rows="5" placeholder="Tulis jawaban yang lengkap dan informatif..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                        <div class="d-flex">
+                            <i class="ph-lightbulb me-2 fs-5"></i>
+                            <div>
+                                <h6 class="alert-heading mb-1">Tips Menulis FAQ yang Baik:</h6>
+                                <ul class="mb-0 small">
+                                    <li>Gunakan bahasa yang mudah dipahami</li>
+                                    <li>Pertanyaan harus spesifik dan langsung ke pokok masalah</li>
+                                    <li>Jawaban harus lengkap namun tidak bertele-tele</li>
+                                    <li>Sertakan contoh atau langkah-langkah jika diperlukan</li>
+                                </ul>
                             </div>
                         </div>
                     </div>

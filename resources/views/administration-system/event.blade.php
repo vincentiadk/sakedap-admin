@@ -108,7 +108,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-calendar-check me-2"></i>
                     <span id="modal-title-text"></span>
@@ -127,247 +127,147 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="card bg-light border-0">
-                        <div class="card-body">
-                            <h6 class="fw-semibold">
-                                <i class="ph-image me-1 text-primary"></i>
-                                Gambar Event
-                            </h6>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            Upload Gambar
+                        </label>
+                        <input type="file" class="form-control" name="image" id="image" accept="image/*">
+                    </div>
+                    <div id="image-preview-container" class="d-none">
+                        <label class="form-label fw-semibold">Preview Gambar Saat Ini</label>
+                        <div class="border rounded p-2 bg-white">
+                            <a href="" data-lightbox="event-form" data-title="Preview Event" id="image-preview">
+                                <img src="" class="img-fluid rounded" id="image-preview-img" style="max-height: 300px;">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6">
                             <div class="form-group">
                                 <label class="form-label fw-semibold">
-                                    Upload Gambar
+                                    <i class="ph-flag me-1"></i>
+                                    Status
                                 </label>
-                                <input type="file" class="form-control" name="image" id="image" accept="image/*">
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Format: JPG, PNG, GIF. Maksimal 2MB. Rekomendasi ukuran: 1200x800px
-                                </div>
-                            </div>
-                            <div id="image-preview-container" class="d-none">
-                                <label class="form-label fw-semibold">Preview Gambar Saat Ini</label>
-                                <div class="border rounded p-2 bg-white">
-                                    <a href="" data-lightbox="event-form" data-title="Preview Event" id="image-preview">
-                                        <img src="" class="img-fluid rounded" id="image-preview-img" style="max-height: 300px;">
-                                    </a>
-                                </div>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="PUBLISH">PUBLISH - Ditampilkan</option>
+                                    <option value="HIDE">HIDE - Disembunyikan</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-info me-1 text-primary"></i>
-                                Informasi Dasar
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-flag me-1"></i>
-                                            Status
-                                        </label>
-                                        <select class="form-select" name="status" id="status">
-                                            <option value="PUBLISH">PUBLISH - Ditampilkan</option>
-                                            <option value="HIDE">HIDE - Disembunyikan</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Status publikasi event
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-translate me-1"></i>
-                                            Bahasa
-                                        </label>
-                                        <select class="form-select" name="lang" id="lang">
-                                            <option value="ID">Indonesia</option>
-                                            <option value="EN">English</option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Bahasa konten event
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-calendar me-1"></i>
-                                            Tanggal Mulai
-                                        </label>
-                                        <input type="date" class="form-control" name="start_date" id="start_date">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Tanggal dimulainya event
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-calendar-check me-1"></i>
-                                            Tanggal Selesai
-                                        </label>
-                                        <input type="date" class="form-control" name="end_date" id="end_date">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Tanggal berakhirnya event
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-tag me-1"></i>
-                                            Kategori Event
-                                        </label>
-                                        <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori event">
-                                            <option value=""></option>
-                                            @foreach($category as $c)
-                                                <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Kategorikan event untuk memudahkan pencarian
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-link me-1"></i>
-                                            Lampiran Link
-                                        </label>
-                                        <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Link eksternal terkait event (opsional)
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-text-aa me-1 text-primary"></i>
-                                Detail Event
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-text-aa me-1"></i>
-                                            Judul Event
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul event yang menarik"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Judul event yang akan ditampilkan
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-note me-1"></i>
-                                            Ringkasan
-                                        </label>
-                                        <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang event"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Deskripsi singkat yang menarik perhatian
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-user-circle me-1"></i>
-                                            Narasumber
-                                        </label>
-                                        <textarea class="form-control" name="narasumber" id="narasumber" rows="3" placeholder="Nama narasumber atau pembicara"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Daftar pembicara atau narasumber event
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            <i class="ph-map-pin me-1"></i>
-                                            Tempat / Lokasi
-                                        </label>
-                                        <textarea class="form-control" name="place" id="place" rows="3" placeholder="Lokasi penyelenggaraan event"></textarea>
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Alamat atau tempat penyelenggaraan event
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-books me-1 text-primary"></i>
-                                Katalog Terkait
-                            </h6>
-                        </div>
-                        <div class="card-body">
+                        <div class="col-lg-3 col-md-6">
                             <div class="form-group">
                                 <label class="form-label fw-semibold">
-                                    <i class="ph-books me-1"></i>
-                                    Pilih Katalog
+                                    <i class="ph-translate me-1"></i>
+                                    Bahasa
                                 </label>
-                                <select class="form-select" name="catalog[]" id="catalog" data-placeholder="Pilih beberapa katalog yang terkait" data-dropdown-parent="#modal-form" multiple></select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Hubungkan event dengan katalog buku yang relevan (opsional)
-                                </div>
+                                <select class="form-select" name="lang" id="lang">
+                                    <option value="ID">Indonesia</option>
+                                    <option value="EN">English</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-calendar me-1"></i>
+                                    Tanggal Mulai
+                                </label>
+                                <input type="date" class="form-control" name="start_date" id="start_date">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-calendar-check me-1"></i>
+                                    Tanggal Selesai
+                                </label>
+                                <input type="date" class="form-control" name="end_date" id="end_date">
                             </div>
                         </div>
                     </div>
-                    <div class="card border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-article me-1 text-primary"></i>
-                                Konten Event
-                            </h6>
-                        </div>
-                        <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label class="form-label fw-semibold">
-                                    <i class="ph-article me-1"></i>
-                                    Konten Lengkap
+                                    <i class="ph-tag me-1"></i>
+                                    Kategori Event
                                 </label>
-                                <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap event di sini..."></textarea>
-                                <div class="form-text mt-2">
-                                    <i class="ph-info me-1"></i>
-                                    Gunakan editor untuk memformat konten event dengan baik
-                                </div>
+                                <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori event">
+                                    <option value=""></option>
+                                    @foreach($category as $c)
+                                        <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis : {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-link me-1"></i>
+                                    Lampiran Link
+                                </label>
+                                <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-text-aa me-1"></i>
+                                    Judul Event
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul event yang menarik"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-note me-1"></i>
+                                    Ringkasan
+                                </label>
+                                <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat tentang event"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-user-circle me-1"></i>
+                                    Narasumber
+                                </label>
+                                <textarea class="form-control" name="narasumber" id="narasumber" rows="3" placeholder="Nama narasumber atau pembicara"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-map-pin me-1"></i>
+                                    Tempat / Lokasi
+                                </label>
+                                <textarea class="form-control" name="place" id="place" rows="3" placeholder="Lokasi penyelenggaraan event"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-books me-1"></i>
+                            Pilih Katalog
+                        </label>
+                        <select class="form-select" name="catalog[]" id="catalog" data-placeholder="Pilih beberapa katalog yang terkait" data-dropdown-parent="#modal-form" multiple></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-article me-1"></i>
+                            Konten Lengkap
+                        </label>
+                        <textarea class="form-control" name="content" id="content" placeholder="Tulis konten lengkap event di sini..."></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top bg-light">
+            <div class="modal-footer">
                 <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

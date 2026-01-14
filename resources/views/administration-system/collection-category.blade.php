@@ -91,10 +91,6 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kategori">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama kategori koleksi
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -108,14 +104,10 @@
                                 <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Pilih jenis media untuk kategori ini
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

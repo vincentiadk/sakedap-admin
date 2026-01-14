@@ -75,7 +75,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-image me-2"></i>
                     <span id="modal-title-text"></span>
@@ -96,112 +96,73 @@
                     <input type="hidden" name="table_id" id="table_id">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="fw-semibold form-group">
-                                        <i class="ph-image me-1 text-primary"></i>
-                                        Gambar Banner
-                                    </h6>
-                                    <div class="form-group">
-                                        <label class="form-label fw-semibold">
-                                            Upload Gambar
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file" class="form-control" name="image" id="image" accept="image/*">
-                                        <div class="form-text">
-                                            <i class="ph-info me-1"></i>
-                                            Format: JPG, PNG, GIF. Maksimal 2MB. Rekomendasi ukuran: 1920x600px
-                                        </div>
-                                    </div>
-                                    <div id="image-preview-container" class="d-none">
-                                        <label class="form-label fw-semibold">Preview Gambar Saat Ini</label>
-                                        <div class="border rounded p-2 bg-white">
-                                            <a href="" data-lightbox="banner-form" data-title="Preview Banner" id="image-preview">
-                                                <img src="" class="img-fluid rounded" id="image-preview-img" style="max-height: 200px;">
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                        <h6 class="fw-semibold form-group">
+                            <i class="ph-image me-1 text-primary"></i>
+                            Gambar Banner
+                        </h6>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                Upload Gambar
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control" name="image" id="image" accept="image/*">
+                        </div>
+                        <div id="image-preview-container" class="d-none">
+                            <label class="form-label fw-semibold">Preview Gambar Saat Ini</label>
+                            <div class="border rounded p-2 bg-white">
+                                <a href="" data-lightbox="banner-form" data-title="Preview Banner" id="image-preview">
+                                    <img src="" class="img-fluid rounded" id="image-preview-img" style="max-height: 200px;">
+                                </a>
                             </div>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-text-aa me-1"></i>
-                                    Judul Banner
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control" name="title" id="title" placeholder="Masukkan judul banner">
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Judul akan ditampilkan pada banner
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-text-aa me-1"></i>
+                                Judul Banner
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="title" id="title" placeholder="Masukkan judul banner">
                         </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-megaphone me-1"></i>
-                                    Promosi Terkait
-                                </label>
-                                <select class="form-select" name="promotion_id" id="promotion_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih promosi (opsional)"></select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Hubungkan banner dengan promosi tertentu (opsional)
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-megaphone me-1"></i>
+                                Promosi Terkait
+                            </label>
+                            <select class="form-select" name="promotion_id" id="promotion_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih promosi (opsional)"></select>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-tag me-1"></i>
-                                    Jenis Banner
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select" name="type" id="type">
-                                    <option value="">Pilih jenis banner</option>
-                                    <option value="slider">Slider - Banner bergerak otomatis</option>
-                                    <option value="overlay">Overlay - Banner popup</option>
-                                </select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Tentukan bagaimana banner akan ditampilkan
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-tag me-1"></i>
+                                Jenis Banner
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" name="type" id="type">
+                                <option value="">Pilih jenis banner</option>
+                                <option value="slider">Slider - Banner bergerak otomatis</option>
+                                <option value="overlay">Overlay - Banner popup</option>
+                            </select>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-flag me-1"></i>
-                                    Status Banner
-                                </label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="1">Aktif - Banner akan ditampilkan</option>
-                                    <option value="2">Tidak Aktif - Banner disembunyikan</option>
-                                </select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Status aktif akan menampilkan banner di website
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-flag me-1"></i>
+                                Status Banner
+                            </label>
+                            <select class="form-select" name="status" id="status">
+                                <option value="1">Aktif - Banner akan ditampilkan</option>
+                                <option value="2">Tidak Aktif - Banner disembunyikan</option>
+                            </select>
                         </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-note me-1"></i>
-                                    Keterangan / Deskripsi
-                                </label>
-                                <textarea class="form-control" name="description" id="description" rows="4" placeholder="Masukkan keterangan atau deskripsi banner (opsional)"></textarea>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Keterangan tambahan tentang banner ini
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-note me-1"></i>
+                                Keterangan / Deskripsi
+                            </label>
+                            <textarea class="form-control" name="description" id="description" rows="4" placeholder="Masukkan keterangan atau deskripsi banner (opsional)"></textarea>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

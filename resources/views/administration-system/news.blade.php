@@ -148,10 +148,6 @@
                                     Lihat Gambar Saat Ini
                                 </a>
                             </div>
-                            <div class="form-text">
-                                <i class="ph-info me-1"></i>
-                                Upload gambar untuk thumbnail berita (JPG, PNG, max 2MB)
-                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -167,7 +163,6 @@
                                     <option value="{{ $c->ID }}">{{ $c->NAME }} | Halaman Statis: {{ $c->PAGES == 1 ? 'Ya' : 'Tidak' }}</option>
                                 @endforeach
                             </select>
-                            <div class="form-text">Pilih kategori berita</div>
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label fw-semibold">
@@ -180,7 +175,6 @@
                                 </span>
                                 <input type="url" class="form-control" name="attachment_link" id="attachment_link" placeholder="https://example.com">
                             </div>
-                            <div class="form-text">Link eksternal terkait berita (opsional)</div>
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label fw-semibold">
@@ -191,7 +185,6 @@
                                 <option value="ID">Indonesia (ID)</option>
                                 <option value="EN">English (EN)</option>
                             </select>
-                            <div class="form-text">Pilih bahasa konten berita</div>
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label fw-semibold">
@@ -202,7 +195,6 @@
                                 <option value="PUBLISH">Publish (Tampilkan)</option>
                                 <option value="HIDE">Hide (Sembunyikan)</option>
                             </select>
-                            <div class="form-text">Status tampilan berita di website</div>
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label fw-semibold">
@@ -211,7 +203,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control" name="title" id="title" rows="3" placeholder="Masukkan judul berita yang menarik"></textarea>
-                            <div class="form-text">Judul akan ditampilkan di halaman berita</div>
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label fw-semibold">
@@ -219,7 +210,6 @@
                                 Ringkasan
                             </label>
                             <textarea class="form-control" name="summary" id="summary" rows="3" placeholder="Ringkasan singkat berita (maks 200 karakter)"></textarea>
-                            <div class="form-text">Ringkasan untuk preview di daftar berita</div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -228,10 +218,6 @@
                             Konten Berita
                         </label>
                         <textarea class="form-control" name="content" id="content" placeholder="Tulis konten berita lengkap di sini..."></textarea>
-                        <div class="form-text">
-                            <i class="ph-lightbulb me-1"></i>
-                            Gunakan editor untuk format teks, sisipkan gambar, dan buat konten yang menarik
-                        </div>
                     </div>
                 </form>
             </div>

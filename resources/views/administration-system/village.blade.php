@@ -59,7 +59,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-map-trifold me-2"></i>
                     <span id="modal-title-text"></span>
@@ -78,39 +78,21 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="card border-0 mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-info me-1 text-primary"></i>
-                                Informasi Kelurahan / Desa
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-map-pin me-1"></i>
-                                    Kecamatan
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select" name="district_id" id="district_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kecamatan"></select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Pilih kecamatan tempat kelurahan/desa berada
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-text-aa me-1"></i>
-                                    Nama Kelurahan / Desa
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kelurahan atau desa">
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Nama resmi kelurahan atau desa sesuai data pemerintah
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-map-pin me-1"></i>
+                            Kecamatan
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" name="district_id" id="district_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kecamatan"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-text-aa me-1"></i>
+                            Nama Kelurahan / Desa
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kelurahan atau desa">
                     </div>
                     <div class="alert alert-info border-0 bg-info bg-opacity-10">
                         <div class="d-flex">
@@ -128,7 +110,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top bg-light">
+            <div class="modal-footer">
                 <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

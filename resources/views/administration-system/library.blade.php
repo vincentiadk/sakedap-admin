@@ -104,10 +104,6 @@
                                     <span class="text-danger">*</span>
                                 </label>
                                 <select class="form-select" name="province_id" id="province_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih provinsi"></select>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Provinsi lokasi perpustakaan
-                                </small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -123,10 +119,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="code" id="code" placeholder="Masukkan kode perpustakaan">
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Kode unik perpustakaan
-                                </small>
                             </div>
                         </div>
                     </div>
@@ -142,10 +134,6 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama perpustakaan">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama lengkap perpustakaan
-                        </small>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -161,10 +149,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="phone" id="phone" placeholder="Contoh: 021-12345678">
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Nomor telepon perpustakaan
-                                </small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -180,10 +164,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="postal_code" id="postal_code" placeholder="Contoh: 12345" maxlength="5">
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Kode pos lokasi perpustakaan
-                                </small>
                             </div>
                         </div>
                     </div>
@@ -193,14 +173,10 @@
                             Alamat
                         </label>
                         <textarea class="form-control" name="address" id="address" rows="3" placeholder="Masukkan alamat lengkap perpustakaan"></textarea>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Alamat lengkap lokasi perpustakaan
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

@@ -86,10 +86,6 @@
                             <span class="text-danger">*</span>
                         </label>
                         <select class="form-select" name="city_id" id="city_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kota/kabupaten"></select>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Pilih kota/kabupaten dimana kecamatan berada
-                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label fw-semibold">
@@ -103,14 +99,10 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kecamatan">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Nama lengkap kecamatan (contoh: Coblong, Sukajadi)
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

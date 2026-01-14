@@ -87,14 +87,10 @@
                             </span>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama masalah">
                         </div>
-                        <small class="form-text text-muted">
-                            <i class="ph-info me-1"></i>
-                            Deskripsi jenis masalah yang sering terjadi
-                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

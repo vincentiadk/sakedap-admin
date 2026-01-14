@@ -42,16 +42,13 @@
                             </span>
                             <input type="text" class="form-control" name="date" id="date" placeholder="Pilih rentang tanggal" readonly>
                         </div>
-                        <div class="form-text">Filter berdasarkan tanggal permintaan file</div>
                     </div>
-
                     <div class="col-lg-6">
                         <label class="form-label fw-semibold">
                             <i class="ph-user-circle me-1"></i>
                             Pelaksana Serah
                         </label>
                         <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
-                        <div class="form-text">Filter berdasarkan pelaksana serah</div>
                     </div>
                 </div>
             </div>

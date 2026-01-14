@@ -76,7 +76,6 @@
                                 <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                             </select>
                         </div>
-                        <div class="form-text">Pilih provinsi untuk header email</div>
                     </div>
                     <div class="col-lg-12">
                         <label class="form-label fw-semibold">
@@ -85,10 +84,6 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input type="file" name="file" id="file" required>
-                        <div class="form-text mt-2">
-                            <i class="ph-warning-circle me-1"></i>
-                            Unggah gambar header email dengan format JPG, JPEG, atau PNG
-                        </div>
                     </div>
                 </div>
             </div>

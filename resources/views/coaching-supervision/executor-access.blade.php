@@ -71,7 +71,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header border-bottom">
+            <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="ph-note-pencil me-2"></i>
                     <span id="modal-title-text"></span>
@@ -88,7 +88,6 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label fw-semibold">
@@ -97,10 +96,6 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Pilih pelaksana serah" data-dropdown-parent="#modal-form"></select>
-                            <div class="form-text text-muted">
-                                <i class="ph-info me-1"></i>
-                                Pilih pelaksana serah yang akan diberikan akses
-                            </div>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-semibold">
@@ -114,15 +109,11 @@
                                     <option value="{{ $g->ID }}">{{ $g->NAME }}</option>
                                 @endforeach
                             </select>
-                            <div class="form-text text-muted">
-                                <i class="ph-info me-1"></i>
-                                Tentukan grup akses untuk pelaksana serah
-                            </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button class="btn btn-danger d-none" id="btn-cancel" onclick="onCancel()">
                     <i class="ph-x me-1"></i>
                     Batalkan

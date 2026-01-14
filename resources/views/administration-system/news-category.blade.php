@@ -59,7 +59,7 @@
 <div id="modal-form" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary bg-opacity-10">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-folder-open me-2"></i>
                     <span id="modal-title-text"></span>
@@ -78,63 +78,37 @@
                 </div>
                 <form id="form-data" class="form-ajax">
                     <input type="hidden" name="table_id" id="table_id">
-                    <div class="card border-0 mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0 fw-semibold">
-                                <i class="ph-info me-1 text-primary"></i>
-                                Informasi Kategori
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-folder-open me-1"></i>
-                                    Kategori Parent (Induk)
-                                </label>
-                                <select class="form-select" name="parent_id" id="parent_id" data-dropdown-parent="#modal-form" data-allow-clear="true" data-placeholder="Tidak Ada Parent (Kategori Utama)"></select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Pilih kategori parent jika ini adalah sub-kategori. Kosongkan jika kategori utama.
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-file-text me-1"></i>
-                                    Halaman Statis
-                                </label>
-                                <select class="form-select" name="pages" id="pages">
-                                    <option value="">Tidak - Kategori Biasa</option>
-                                    <option value="1">Ya - Kategori dengan Halaman Khusus</option>
-                                </select>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Pilih "Ya" jika kategori ini memiliki halaman khusus dengan konten statis
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-text-aa me-1"></i>
-                                    Nama Kategori
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kategori">
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Nama kategori yang akan ditampilkan
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label fw-semibold">
-                                    <i class="ph-note me-1"></i>
-                                    Ringkasan / Deskripsi
-                                </label>
-                                <textarea class="form-control" name="summary" id="summary" rows="5" placeholder="Masukkan ringkasan atau deskripsi kategori (opsional)"></textarea>
-                                <div class="form-text">
-                                    <i class="ph-info me-1"></i>
-                                    Deskripsi singkat tentang kategori ini
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-folder-open me-1"></i>
+                            Kategori Parent (Induk)
+                        </label>
+                        <select class="form-select" name="parent_id" id="parent_id" data-dropdown-parent="#modal-form" data-allow-clear="true" data-placeholder="Tidak Ada Parent (Kategori Utama)"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-file-text me-1"></i>
+                            Halaman Statis
+                        </label>
+                        <select class="form-select" name="pages" id="pages">
+                            <option value="">Tidak - Kategori Biasa</option>
+                            <option value="1">Ya - Kategori dengan Halaman Khusus</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-text-aa me-1"></i>
+                            Nama Kategori
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan nama kategori">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label fw-semibold">
+                            <i class="ph-note me-1"></i>
+                            Ringkasan / Deskripsi
+                        </label>
+                        <textarea class="form-control" name="summary" id="summary" rows="5" placeholder="Masukkan ringkasan atau deskripsi kategori (opsional)"></textarea>
                     </div>
                     <div class="alert alert-info border-0 bg-info bg-opacity-10">
                         <div class="d-flex">
@@ -152,7 +126,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top bg-light">
+            <div class="modal-footer">
                 <button class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup

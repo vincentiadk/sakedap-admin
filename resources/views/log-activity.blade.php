@@ -162,7 +162,7 @@
 <div id="modal-download-excel" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-light">
+            <div class="modal-header">
                 <h5 class="modal-title fw-semibold">
                     <i class="ph-microsoft-excel-logo me-2 text-success"></i>
                     Download Excel Log Aktivitas
@@ -206,10 +206,6 @@
                                     </span>
                                     <input type="text" class="form-control" name="de_date" id="de_date" placeholder="Pilih tanggal" readonly>
                                 </div>
-                                <small class="form-text text-muted">
-                                    <i class="ph-info me-1"></i>
-                                    Maksimal rentang 1 bulan
-                                </small>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -233,7 +229,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer bg-light">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="ph-x me-1"></i>
                     Tutup
