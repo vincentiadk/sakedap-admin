@@ -129,10 +129,14 @@ class SingleUploadController extends Controller
                 try {
                     $currentTime = date('Y-m-d H:i:s');
                     $userId = session('id');
-                    $publishTime = strtotime($request->publish_time);
+                    $publishTime = $request->publish_time ? strtotime($request->publish_time) : time();
                     $receivedTime = strtotime($request->received_at);
                     $catalogId = $request->catalog_id;
-                    $catalog = QueryAPI::get("select edeposit_col_id from catalogs where id = $catalogId", true);
+                    $catalog = null;
+
+                    if ($catalogId) {
+                        $catalog = QueryAPI::get("select edeposit_col_id from catalogs where id = $catalogId", true);
+                    }
 
                     $uploadIDCover = $request->upload_id_cover;
                     $uploadIDContent = $request->upload_id_content;
@@ -164,7 +168,7 @@ class SingleUploadController extends Controller
                         'updated_by' => $userId,
                         'validated_at' => $currentTime,
                         'validated_by' => $userId,
-                        'price' => str_replace([',', '.'], '', $request->price),
+                        'price' => str_replace([',', '.'], '', $request->price ?? '0'),
                         'copyright' => Main::copyright($request->executor_id),
                         'worksheet_id' => $request->worksheet_id,
                         'collection_media_id' => $request->collection_media_id,
@@ -173,14 +177,14 @@ class SingleUploadController extends Controller
                         'title' => $request->title,
                         'author' => implode(';', ($request->author ?? [])),
                         'jilid' => $request->binding,
-                        'currency' => $request->currency,
+                        'currency' => $request->currency ?? 'IDR',
                         'jenis_isi' => $request->content_type,
                         'jenis_wadah' => $request->container_type,
                         'jenis_media' => $request->media_type,
                         'description' => $request->description,
                         'kelas_besar_id' => $request->big_class_id,
                         'edition' => $request->edition,
-                        'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
+                        'edition_date' => $request->edition_date ? date('Y-m-d H:i:s', strtotime($request->edition_date)) : null,
                         'qrcbn' => $request->qrcbn,
                     ];
 
@@ -221,27 +225,36 @@ class SingleUploadController extends Controller
                                 $editionContent = $request->file('cc_edition_content')[$key];
                             }
 
-                            if ($editionTitle && $editionDate && $editionCover && $editionContent) {
+                            if ($editionTitle && $editionDate && $editionCover && $editionContent && $editionCover->isValid() && $editionContent->isValid()) {
                                 $editionData = $baseCollectionData;
                                 $editionData['parent_id'] = $createCollection->ID;
                                 $editionData['edition'] = $editionTitle;
-                                $editionData['edition_date'] = $editionDate;
+                                $editionData['edition_date'] = date('Y-m-d H:i:s', strtotime($editionDate));
                                 $editionData['publication_month'] = date('m', strtotime($editionDate));
                                 $editionData['publication_year'] = date('Y', strtotime($editionDate));
                                 $editionData['publication_day'] = date('d', strtotime($editionDate));
+                                $editionData['jilid'] = $request->binding;
+                                $editionData['currency'] = $request->currency ?? 'IDR';
+                                $editionData['jenis_isi'] = $request->content_type;
+                                $editionData['jenis_wadah'] = $request->container_type;
+                                $editionData['jenis_media'] = $request->media_type;
                                 $createEdition = QueryAPI::create('e_collections', $editionData);
 
                                 if ($createEdition) {
+                                    if ($request->category && is_array($request->category)) {
+                                        foreach ($request->category as $categoryId) {
+                                            QueryAPI::create('e_collection_categories', [
+                                                'collection_id' => $createEdition->ID,
+                                                'category_id' => $categoryId
+                                            ]);
+                                        }
+                                    }
+
                                     $filesToUpload[] = [
                                         'collection_id' => $createEdition->ID,
                                         'slug' => $createEdition->SLUG,
                                         'cover' => $editionCover,
                                         'content' => $editionContent,
-                                        'jilid' => $request->binding,
-                                        'currency' => $request->currency,
-                                        'jenis_isi' => $request->content_type,
-                                        'jenis_wadah' => $request->container_type,
-                                        'jenis_media' => $request->media_type,
                                     ];
                                 }
                             }
@@ -320,7 +333,7 @@ class SingleUploadController extends Controller
                     ];
                 } catch (\Exception $e) {
                     $response = [
-                        'code' => $e->getCode(),
+                        'code' => $e->getCode() ?: 500,
                         'message' => $e->getMessage()
                     ];
                 }

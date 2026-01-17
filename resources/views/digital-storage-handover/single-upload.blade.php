@@ -27,7 +27,7 @@
     </div>
     <form id="form-data">
         <input type="hidden" name="upload_id_cover" id="upload_id_cover" value="{{ $uploadIDCover }}">
-        <input type="hidden" name="upload_id_content" id="upload_id_content" value="{{ $uploadIDCover }}">
+        <input type="hidden" name="upload_id_content" id="upload_id_content" value="{{ $uploadIDContent }}">
         <div class="card border-0 shadow-sm">
             <div class="card-header border-bottom">
                 <div class="d-flex align-items-center">
@@ -653,7 +653,7 @@
                     `);
 
                     $('#worksheet_id').val(response.WORKSHEET_ID).change();
-                    $('#media_id').val(response.COLLECTIONMEDIA_ID).change();
+                    $('#collection_media_id').val(response.COLLECTIONMEDIA_ID).change();
                     $('#title').val(response.TITLE);
                     $('#code_type').val(response.CODE_TYPE_E_COLLECTION).change();
                     $('#code').val(response.ISBN);
@@ -816,6 +816,10 @@
     }
 
     function submitted() {
+        if (!$('input[name="has_edition"]').is(':checked')) {
+            $('input[name="has_edition"]').val(0);
+        }
+
         $.ajax({
             url: '{{ url("digital-storage-handover/single-upload/submitted") }}',
             type: 'POST',
