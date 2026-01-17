@@ -457,46 +457,28 @@
             </div>
             <div id="content-edition-copy" style="display:none;">
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="min-width: 150px">
-                                        <i class="ph-book me-1"></i>
-                                        Edisi / Volume
-                                    </th>
-                                    <th style="min-width: 130px">
-                                        <i class="ph-calendar me-1"></i>
-                                        Tgl Terbit
-                                    </th>
-                                    <th style="min-width: 150px">
-                                        <i class="ph-image me-1"></i>
-                                        Cover
-                                    </th>
-                                    <th style="min-width: 150px">
-                                        <i class="ph-file me-1"></i>
-                                        Konten
-                                    </th>
-                                    <th class="text-center" style="width: 80px">
-                                        <i class="ph-trash"></i>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="data-edition"></tbody>
-                        </table>
+                    <div id="data-edition"></div>
+                    <div class="alert alert-info border-0 d-flex align-items-center" id="empty-edition-message">
+                        <i class="ph-info me-2"></i>
+                        <span>Belum ada edisi serial. Klik tombol "Tambah Edisi Serial" untuk menambahkan.</span>
                     </div>
                 </div>
-                <div class="card-footer border-top">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <button type="button" class="btn btn-success" onclick="addEdition()">
-                                    <i class="ph-plus-circle me-1"></i>
-                                    Tambah
-                                </button>
-                                <input type="number" class="form-control text-center" id="add-number-edition" min="1" value="1">
-                                <span class="input-group-text">Baris</span>
-                            </div>
+                <div class="card-footer">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-success" onclick="addEdition()">
+                                <i class="ph-plus-circle me-1"></i>
+                                Tambah Edisi Serial
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <input type="number" class="form-control" id="add-number-edition" min="1" max="10" value="1" style="width: 80px;">
+                        </div>
+                        <div class="col-auto">
+                            <span class="text-muted">
+                                <i class="ph-info me-1"></i>
+                                Maksimal 10 edisi sekaligus
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -746,42 +728,176 @@
                 icon: 'warning',
                 showCloseButton: false
             });
+
             return;
         }
 
         for(var i = 1; i <= total; i++) {
+            const editionIndex = $('#data-edition .edition-item').length + 1;
+
             $('#data-edition').append(`
-                <tr>
+                <div class="edition-item mb-4 p-3 border rounded bg-light">
                     <input type="hidden" name="cc_edition[]" value="1">
-                    <td>
-                        <input type="text" class="form-control" name="cc_edition_title[]" placeholder="Masukkan edisi/volume">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly>
-                    </td>
-                    <td>
-                        <input type="file" class="form-control" name="cc_edition_cover[]" accept=".jpg,.jpeg,.png">
-                    </td>
-                    <td>
-                        <input type="file" class="form-control" name="cc_edition_content[]" accept=".pdf,.epub,.mp3,.mp4,.wav">
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
-                            <i class="ph-trash"></i>
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-primary">
+                            <i class="ph-newspaper me-1"></i>
+                            Edisi Serial #${editionIndex}
+                        </h6>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeEditionItem(this)">
+                            <i class="ph-trash me-1"></i>
+                            Hapus Edisi
                         </button>
-                    </td>
-                </tr>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="ph-book-open me-1"></i>
+                                        Informasi Edisi
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-tag me-1"></i>
+                                            Edisi / Volume
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control" name="cc_edition_title[]" placeholder="Contoh: Vol 1 No 1">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-calendar me-1"></i>
+                                            Tanggal Terbit Edisi
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-image me-1"></i>
+                                            File Cover
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="file" class="form-control" name="cc_edition_cover[]" accept=".jpg,.jpeg,.png">
+                                            <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-file me-1"></i>
+                                            File Konten
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="file" class="form-control" name="cc_edition_content[]" accept=".pdf,.epub,.mp3,.mp4,.wav">
+                                            <small class="text-muted">Format: PDF, EPUB, MP3, MP4, WAV</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-success bg-opacity-10 border-bottom">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="ph-article me-1"></i>
+                                        Informasi Artikel
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-file-text me-1"></i>
+                                            Judul Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control" name="cc_edition_article_title[]" placeholder="Masukkan judul artikel">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-user me-1"></i>
+                                            Kontributor Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control" name="cc_edition_article_contributor[]" placeholder="Nama kontributor">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-note-pencil me-1"></i>
+                                            Abstrak Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <textarea class="form-control" name="cc_edition_article_abstract[]" rows="3" placeholder="Ringkasan artikel"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-hash me-1"></i>
+                                            Subyek Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control" name="cc_edition_article_subject[]" placeholder="Kata kunci / subyek">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-link me-1"></i>
+                                            Link Original Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="url" class="form-control" name="cc_edition_article_original_link[]" placeholder="https://...">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-calendar-check me-1"></i>
+                                            Tanggal Publikasi Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control date-picker-edition-article" name="cc_edition_article_publish_date[]" placeholder="Pilih Tanggal" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-md-12 fw-semibold">
+                                            <i class="ph-identification-badge me-1"></i>
+                                            DOI Artikel
+                                        </label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control" name="cc_edition_article_doi[]" placeholder="10.xxxx/xxxxx">
+                                            <small class="text-muted">Digital Object Identifier</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             `);
         }
 
-        datePickerSingle('.date-picker-edition');
+        $('#empty-edition-message').addClass('d-none');
 
-        notification('success', total + ' baris edisi berhasil ditambahkan');
+        datePickerSingle('.date-picker-edition, .date-picker-edition-article');
     }
 
-    function removeRow(param) {
-        $(param).closest('tr').remove();
-        notification('info', 'Baris edisi berhasil dihapus');
+    function removeEditionItem(button) {
+        $(button).closest('.edition-item').remove();
+
+        $('#data-edition .edition-item').each(function(index) {
+            $(this).find('h6.fw-bold').html(`
+                <i class="ph-newspaper me-1"></i>
+                Edisi Serial #${index + 1}
+            `);
+        });
+
+        if ($('#data-edition .edition-item').length === 0) {
+            $('#empty-edition-message').removeClass('d-none');
+        }
     }
 
     function codeType() {

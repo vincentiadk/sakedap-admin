@@ -215,6 +215,16 @@ class SingleUploadController extends Controller
                         foreach ($request->cc_edition as $key => $cce) {
                             $editionTitle = $request->cc_edition_title[$key] ?? null;
                             $editionDate = $request->cc_edition_date[$key] ?? null;
+
+                            // Data artikel baru
+                            $articleTitle = $request->cc_edition_article_title[$key] ?? null;
+                            $articleContributor = $request->cc_edition_article_contributor[$key] ?? null;
+                            $articleAbstract = $request->cc_edition_article_abstract[$key] ?? null;
+                            $articleSubject = $request->cc_edition_article_subject[$key] ?? null;
+                            $articleOriginalLink = $request->cc_edition_article_original_link[$key] ?? null;
+                            $articlePublishDate = $request->cc_edition_article_publish_date[$key] ?? null;
+                            $articleDoi = $request->cc_edition_article_doi[$key] ?? null;
+
                             $editionCover = null;
                             $editionContent = null;
 
@@ -238,6 +248,13 @@ class SingleUploadController extends Controller
                                 $editionData['jenis_isi'] = $request->content_type;
                                 $editionData['jenis_wadah'] = $request->container_type;
                                 $editionData['jenis_media'] = $request->media_type;
+                                $editionData['article_title'] = $articleTitle;
+                                $editionData['article_contributor'] = $articleContributor;
+                                $editionData['article_abstract'] = $articleAbstract;
+                                $editionData['article_subject'] = $articleSubject;
+                                $editionData['article_original_link'] = $articleOriginalLink;
+                                $editionData['article_publish_date'] = $articlePublishDate ? date('Y-m-d', strtotime($articlePublishDate)) : null;
+                                $editionData['article_doi'] = $articleDoi;
                                 $createEdition = QueryAPI::create('e_collections', $editionData);
 
                                 if ($createEdition) {

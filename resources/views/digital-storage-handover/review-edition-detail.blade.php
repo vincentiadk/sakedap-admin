@@ -361,71 +361,137 @@
                             <h5 class="hstack gap-2 mb-0">Edisi Serial</h5>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Edisi / Volume</th>
-                                            <th>Tgl Terbit</th>
-                                            <th>Cover</th>
-                                            <th>Konten</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if($collectionCopy)
-                                            @foreach($collectionCopy as $key => $cc)
-                                                @php
-                                                    $cover = QueryAPI::get("
-                                                        select
-                                                            *
-                                                        from
-                                                            catalogcovers
-                                                        where
-                                                            e_col_id = $cc->ID
-                                                    ", true);
+                            @if($collectionCopy)
+                                @foreach($collectionCopy as $key => $cc)
+                                    @php
+                                        $cover = QueryAPI::get("
+                                            select * from catalogcovers where e_col_id = $cc->ID
+                                        ", true);
 
-                                                    $content = QueryAPI::get("
-                                                        select
-                                                            *
-                                                        from
-                                                            catalogfiles
-                                                        where
-                                                            e_col_id = $cc->ID
-                                                    ", true);
-                                                @endphp
-                                                <tr>
-                                                    <td>{{ $cc->EDITION }}</td>
-                                                    <td>{{ $cc->EDITION_DATE ? Carbon::parse($cc->EDITION_DATE)->isoFormat('dddd, D MMMM Y') : '' }}</td>
-                                                    <td>
-                                                        @if($cover)
-                                                            <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="text-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
-                                                                <i class="ph-image me-1"></i>
-                                                                Lihat
-                                                            </a>
-                                                        @else
-                                                            Tidak ada cover
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($content)
-                                                            <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="text-primary" target="_blank">
-                                                                <i class="ph-file me-1"></i>
-                                                                Lihat
-                                                            </a>
-                                                        @else
-                                                            Tidak ada konten
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="4">Tidak ada data</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
+                                        $content = QueryAPI::get("
+                                            select * from catalogfiles where e_col_id = $cc->ID
+                                        ", true);
+                                    @endphp
+                                    <div class="edition-view-item mb-4 p-3 border rounded {{ $key > 0 ? 'mt-3' : '' }}">
+                                        <h6 class="fw-bold text-primary mb-3 pb-2 border-bottom">
+                                            <i class="ph-newspaper me-1"></i>
+                                            Edisi: {{ $cc->EDITION }}
+                                        </h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-header bg-primary bg-opacity-10">
+                                                        <h6 class="mb-0 fw-semibold">
+                                                            <i class="ph-book-open me-1"></i>
+                                                            Informasi Edisi
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Tgl Terbit</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->EDITION_DATE ? Carbon::parse($cc->EDITION_DATE)->isoFormat('dddd, D MMMM Y') : '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Cover</label>
+                                                            <div class="col-md-8">
+                                                                @if($cover)
+                                                                    <a href="{{ url('stream-file') }}?type=cover&id={{ $cover->ID }}&filename={{ $cover->FILEURL}}" class="btn btn-sm btn-primary" data-lightbox="Cover-Edisi-{{ $key + 1 }}" data-title="{{ $cover->FILEURL }}">
+                                                                        <i class="ph-image me-1"></i>
+                                                                        Lihat Cover
+                                                                    </a>
+                                                                @else
+                                                                    <span class="text-muted">Tidak ada cover</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Konten</label>
+                                                            <div class="col-md-8">
+                                                                @if($content)
+                                                                    <a href="{{ url('stream-file') }}?type=konten_digital&id={{ $content->ID }}&filename={{ $content->FILEURL}}" class="btn btn-sm btn-success" target="_blank">
+                                                                        <i class="ph-file me-1"></i>
+                                                                        Lihat Konten
+                                                                    </a>
+                                                                @else
+                                                                    <span class="text-muted">Tidak ada konten</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-header bg-success bg-opacity-10">
+                                                        <h6 class="mb-0 fw-semibold">
+                                                            <i class="ph-article me-1"></i>
+                                                            Informasi Artikel
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Judul</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_TITLE ?? '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Kontributor</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_CONTRIBUTOR ?? '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Abstrak</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_ABSTRACT ?? '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Subyek</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_SUBJECT ?? '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Link Original</label>
+                                                            <div class="col-md-8">
+                                                                @if($cc->ARTICLE_ORIGINAL_LINK)
+                                                                    <a href="{{ $cc->ARTICLE_ORIGINAL_LINK }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                        <i class="ph-link me-1"></i>
+                                                                        Buka Link
+                                                                    </a>
+                                                                @else
+                                                                    <p class="form-control-plaintext">-</p>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">Tgl Publikasi</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_PUBLISH_DATE ? Carbon::parse($cc->ARTICLE_PUBLISH_DATE)->isoFormat('D MMMM Y') : '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-form-label col-md-4 fw-semibold">DOI</label>
+                                                            <div class="col-md-8">
+                                                                <p class="form-control-plaintext">{{ $cc->ARTICLE_DOI ?? '-' }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-info mb-0">
+                                    <i class="ph-info me-2"></i>
+                                    Tidak ada data edisi serial
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
