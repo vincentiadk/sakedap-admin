@@ -33,12 +33,14 @@
                                                         Pengiriman Fisik
                                                     </a>
                                                 </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <a href="#menu-national-management" class="nav-link rounded {{ Request::segment(1) == 'national-management' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'national-management' ? 'true' : 'false' }}" role="tab">
-                                                        <i class="ph-user-circle-gear me-2"></i>
-                                                        Pengelolaan Koleksi Perpusnas
-                                                    </a>
-                                                </li>
+                                                @if(Main::isSuperAdmin())
+                                                    <li class="nav-item" role="presentation">
+                                                        <a href="#menu-national-management" class="nav-link rounded {{ Request::segment(1) == 'national-management' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'national-management' ? 'true' : 'false' }}" role="tab">
+                                                            <i class="ph-user-circle-gear me-2"></i>
+                                                            Pengelolaan Koleksi Perpusnas
+                                                        </a>
+                                                    </li>
+                                                @endif
                                                 <li class="nav-item" role="presentation">
                                                     <a href="#menu-physical-collection" class="nav-link rounded {{ Request::segment(1) == 'physical-collection' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'physical-collection' ? 'true' : 'false' }}" role="tab">
                                                         <i class="ph-books me-2"></i>
