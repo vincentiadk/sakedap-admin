@@ -60,6 +60,8 @@ class SingleUploadController extends Controller
     public function catalogParent(Request $request)
     {
         $id = $request->id;
+        $copy = [];
+
         $data = QueryAPI::get("
             select
                 catalogs.*,
@@ -86,7 +88,33 @@ class SingleUploadController extends Controller
                 catalogs.id = $id
         ", true);
 
-        return response()->json($data);
+        if ($data && $data->EDEPOSIT_COL_ID) {
+            $copyData = QueryAPI::get("
+                select
+                    ec.*,
+                    cc.id as cover_id,
+                    cc.fileurl as cover_fileurl,
+                    cf.id as content_id,
+                    cf.fileurl as content_fileurl
+                from
+                    e_collections ec
+                left join
+                    catalogcovers cc on cc.e_col_id = ec.id
+                left join
+                    catalogfiles cf on cf.e_col_id = ec.id
+                where
+                    ec.parent_id = {$data->EDEPOSIT_COL_ID}
+                order by
+                    ec.edition_date asc
+            ");
+
+            $copy = $copyData ?? [];
+        }
+
+        return response()->json([
+            'data' => $data,
+            'copy' => $copy
+        ]);
     }
 
     public function submitted(Request $request)
@@ -215,8 +243,6 @@ class SingleUploadController extends Controller
                         foreach ($request->cc_edition as $key => $cce) {
                             $editionTitle = $request->cc_edition_title[$key] ?? null;
                             $editionDate = $request->cc_edition_date[$key] ?? null;
-
-                            // Data artikel baru
                             $articleTitle = $request->cc_edition_article_title[$key] ?? null;
                             $articleContributor = $request->cc_edition_article_contributor[$key] ?? null;
                             $articleAbstract = $request->cc_edition_article_abstract[$key] ?? null;

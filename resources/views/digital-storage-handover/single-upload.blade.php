@@ -86,36 +86,10 @@
             <div class="card-header border-bottom">
                 <div class="d-flex align-items-center">
                     <i class="ph-info me-2 text-primary"></i>
-                    <h6 class="mb-0 fw-semibold">Meta Data</h6>
+                    <h6 class="mb-0 fw-semibold">Meta Data Induk</h6>
                 </div>
             </div>
             <div class="card-body">
-                <div class="d-none" id="column-edition">
-                    <div class="form-group row">
-                        <label class="col-form-label col-md-2 fw-semibold">
-                            <i class="ph-book-open me-1"></i>
-                            Edisi
-                        </label>
-                        <div class="col-md-10">
-                            <input type="text" class="form-control" name="edition" id="edition" placeholder="Masukkan edisi">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-form-label col-md-2 fw-semibold">
-                            <i class="ph-calendar me-1"></i>
-                            Tanggal Terbit Edisi
-                            <span class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-10">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ph-calendar-blank"></i>
-                                </span>
-                                <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" placeholder="Pilih Tanggal" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="form-group row">
                     <label class="col-form-label col-md-2 fw-semibold">
                         <i class="ph-video-camera me-1"></i>
@@ -450,17 +424,42 @@
                         <h6 class="mb-0 fw-semibold">Edisi Serial</h6>
                     </div>
                     <label class="mb-0">
-                        <input type="checkbox" class="form-check-input mt-0 me-1" name="has_edition" onchange="$(this).is(':checked') ? $('#content-edition-copy').fadeIn(500) : $('#content-edition-copy').hide()">
-                        <span class="fw-semibold">Centang jika ada</span>
+                        <input type="checkbox" class="form-check-input mt-0 me-1" name="has_edition" onchange="toggleEditionSection()">
+                        <span class="fw-semibold">Centang jika ada edisi baru</span>
                     </label>
+                </div>
+            </div>
+            <div id="existing-editions" style="display:none;">
+                <div class="card-body border-bottom">
+                    <h6 class="fw-semibold text-muted">
+                        <i class="ph-clock-counter-clockwise me-1"></i>
+                        Edisi Serial yang Sudah Ada
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover w-100 display nowrap" id="table-existing-editions">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 15%">Edisi/Volume</th>
+                                    <th style="width: 12%">Tgl Terbit</th>
+                                    <th style="width: 20%">Judul Artikel</th>
+                                    <th style="width: 15%">Kontributor</th>
+                                    <th style="width: 10%">DOI</th>
+                                    <th style="width: 10%">Files</th>
+                                    <th style="width: 13%">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div id="content-edition-copy" style="display:none;">
                 <div class="card-body">
                     <div id="data-edition"></div>
-                    <div class="alert alert-info border-0 d-flex align-items-center" id="empty-edition-message">
+                    <div class="alert alert-warning border-0 d-flex align-items-center" id="empty-edition-message">
                         <i class="ph-info me-2"></i>
-                        <span>Belum ada edisi serial. Klik tombol "Tambah Edisi Serial" untuk menambahkan.</span>
+                        <span>Belum ada edisi baru. Klik tombol "Tambah Edisi Serial" untuk menambahkan.</span>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -480,6 +479,26 @@
                                 Maksimal 10 edisi sekaligus
                             </span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalEditionDetail" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="ph-newspaper me-2"></i>
+                            Detail Edisi Serial
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="modalEditionDetailContent"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="ph-x me-1"></i>
+                            Tutup
+                        </button>
                     </div>
                 </div>
             </div>
@@ -521,7 +540,7 @@
             </div>
         @endif
     </form>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm mt-3">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted">
@@ -538,6 +557,8 @@
 </div>
 
 <script>
+    let existingEditionsTable = null;
+
     $(function() {
         datePickerSingle('.date-picker-single');
 
@@ -596,8 +617,9 @@
             $('#form-parent').removeClass('d-none');
             $('#column-edition').removeClass('d-none');
             $('#card-edition').removeClass('d-none');
-            $('#section-file-cover').removeClass('d-none');
+            $('#section-file-cover').addClass('d-none');
             $('#section-file-content').addClass('d-none');
+            $('#has_edition').prop('checked', true);
         } else {
             $('#form-parent').addClass('d-none');
             $('#column-edition').addClass('d-none');
@@ -612,7 +634,6 @@
 
     function catalogParent() {
         $('#btn-cancel-parent').removeClass('d-none');
-        $('#section-file-cover').addClass('d-none');
 
         if($('#catalog_id').val()) {
             $.ajax({
@@ -628,47 +649,270 @@
                 success: function(response) {
                     onLoading('close', 'body');
 
+                    const data = response.data;
+                    const copy = response.copy;
+
                     $('#executor_id').html(`
-                        <option value="${ response.PENERBIT_ID }" selected>
-                            ${ response.PENERBIT_ID } | ${ response.NAME_PENERBIT }
+                        <option value="${data.PENERBIT_ID}" selected>
+                            ${data.PENERBIT_ID} | ${data.NAME_PENERBIT}
                         </option>
                     `);
 
-                    $('#worksheet_id').val(response.WORKSHEET_ID).change();
-                    $('#collection_media_id').val(response.COLLECTIONMEDIA_ID).change();
-                    $('#title').val(response.TITLE);
-                    $('#code_type').val(response.CODE_TYPE_E_COLLECTION).change();
-                    $('#code').val(response.ISBN);
-                    $('#series_checkbox').prop('checked', response.SERIES ? false : true).change();
-                    $('#series').val(response.SERIES);
-                    $('#serial').val(response.SERIAL_E_COLLECTION).change();
-                    $('#publish_time').val(response.PUBLISHYEAR + '-' + response.PUBLISH_MONTH);
-                    $('#preview').val(response.PREVIEW);
-                    $('#currency').html('<option value="' + response.CURRENCY_E_COLLECTION + '" selected>' + response.CURRENCY_E_COLLECTION + '</option>');
-                    $('#price').val(response.PRICE_E_COLLECTION);
-                    $('#binding').val(response.JILID_E_COLLECTION);
-                    $('#content_type').val(response.JENIS_ISI).change();
-                    $('#container_type').val(response.JENIS_WADAH).change();
-                    $('#media_type').val(response.JENIS_MEDIA).change();
-                    $('#big_class_id').val(response.KELAS_BESAR_ID).change();
-                    $('input[name="physical_description[paging]"]').val(response.PAGING);
-                    $('input[name="physical_description[ill]"]').val(response.ILL);
-                    $('input[name="physical_description[sizes]"]').val(response.SIZES);
-                    $('#description').val(response.DESCRIPTION_E_COLLECTION).change();
+                    $('#worksheet_id').val(data.WORKSHEET_ID).change();
+                    $('#collection_media_id').val(data.COLLECTIONMEDIA_ID).change();
+                    $('#title').val(data.TITLE);
+                    $('#code_type').val(data.CODE_TYPE_E_COLLECTION).change();
+                    $('#code').val(data.ISBN);
+                    $('#series_checkbox').prop('checked', data.SERIES ? false : true).change();
+                    $('#series').val(data.SERIES);
+                    $('#serial').val(data.SERIAL_E_COLLECTION).change();
+                    $('#publish_time').val(data.PUBLISHYEAR + '-' + data.PUBLISH_MONTH);
+                    $('#preview').val(data.PREVIEW);
+                    $('#currency').html('<option value="' + data.CURRENCY_E_COLLECTION + '" selected>' + data.CURRENCY_E_COLLECTION + '</option>');
+                    $('#price').val(data.PRICE_E_COLLECTION);
+                    $('#binding').val(data.JILID_E_COLLECTION);
+                    $('#content_type').val(data.JENIS_ISI).change();
+                    $('#container_type').val(data.JENIS_WADAH).change();
+                    $('#media_type').val(data.JENIS_MEDIA).change();
+                    $('#big_class_id').val(data.KELAS_BESAR_ID).change();
+                    $('input[name="physical_description[paging]"]').val(data.PAGING);
+                    $('input[name="physical_description[ill]"]').val(data.ILL);
+                    $('input[name="physical_description[sizes]"]').val(data.SIZES);
+                    $('#description').val(data.DESCRIPTION_E_COLLECTION).change();
 
-                    if(response.NAMAKAB && response.NAMAPROPINSI) {
+                    if(data.NAMAKAB && data.NAMAPROPINSI) {
                         $('#city_id').html(`
-                            <option value="${ response.CITY_ID }" selected>
-                                ${ response.NAMAPROPINSI } -> ${ response.NAMAKAB }
+                            <option value="${data.CITY_ID}" selected>
+                                ${data.NAMAPROPINSI} -> ${data.NAMAKAB}
                             </option>
                         `);
                     }
+
+                    if(copy && copy.length > 0) {
+                        loadExistingEditionsDataTable(copy);
+
+                        $('#existing-editions').show();
+                    } else {
+                        $('#existing-editions').hide();
+
+                        if(existingEditionsTable) {
+                            existingEditionsTable.destroy();
+
+                            existingEditionsTable = null;
+                        }
+                    }
+
+                    $('#data-edition').empty();
+                    $('#empty-edition-message').show();
+                    $('#content-edition-copy').hide();
                 },
                 error: function(response) {
                     onLoading('close', 'body');
                     responseError(response);
                 }
             });
+        }
+    }
+
+    function loadExistingEditionsDataTable(editions) {
+        if(existingEditionsTable) {
+            existingEditionsTable.destroy();
+        }
+
+        const tableData = editions.map(function(edition, index) {
+            const editionDate = edition.EDITION_DATE ? moment(edition.EDITION_DATE).format('DD/MM/YYYY') : '-';
+            const editionTitle = edition.EDITION || '-';
+            const articleTitle = edition.ARTICLE_TITLE || '-';
+            const articleContributor = edition.ARTICLE_CONTRIBUTOR || '-';
+            const articleDoi = edition.ARTICLE_DOI || '-';
+
+            const files = [];
+            if(edition.COVER_FILEURL) {
+                files.push(`
+                    <a href="{{ url('stream-file') }}?type=cover&id=${edition.COVER_ID}&filename=${edition.COVER_FILEURL}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Lihat Cover">
+                        <i class="ph-image"></i>
+                    </a>
+                `);
+            }
+            if(edition.CONTENT_FILEURL) {
+                files.push(`
+                    <a href="{{ url('stream-file') }}?type=konten_digital&id=${edition.CONTENT_ID}&filename=${edition.CONTENT_FILEURL}" target="_blank" class="btn btn-sm btn-outline-success" title="Lihat Konten">
+                        <i class="ph-file"></i>
+                    </a>
+                `);
+            }
+
+            const filesHtml = files.length > 0 ? files.join(' ') : '<span class="text-muted">-</span>';
+
+            const actionBtn = `
+                <button type="button" class="btn btn-sm btn-info" onclick='viewEditionDetail(${JSON.stringify(edition)})'>
+                    <i class="ph-eye me-1"></i>
+                    Detail
+                </button>
+            `;
+
+            return [
+                index + 1,
+                editionTitle,
+                editionDate,
+                articleTitle,
+                articleContributor,
+                articleDoi,
+                filesHtml,
+                actionBtn
+            ];
+        });
+
+        existingEditionsTable = $('#table-existing-editions').DataTable({
+            data: tableData,
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]],
+            order: [[2, 'desc']],
+            columnDefs: [
+                { orderable: false, targets: [6, 7] },
+                { className: 'text-center', targets: [0, 5, 6, 7] }
+            ],
+            responsive: true
+        });
+    }
+
+    function viewEditionDetail(edition) {
+        const editionDate = edition.EDITION_DATE ? moment(edition.EDITION_DATE).format('dddd, DD MMMM YYYY') : '-';
+        const articlePublishDate = edition.ARTICLE_PUBLISH_DATE ? moment(edition.ARTICLE_PUBLISH_DATE).format('dddd, DD MMMM YYYY') : '-';
+
+        const detailHtml = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary bg-opacity-10">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-book-open me-1"></i>
+                                Informasi Edisi
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Edisi/Volume</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.EDITION || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Tgl Terbit</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${editionDate}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Cover</label>
+                                <div class="col-md-8">
+                                    ${edition.COVER_FILEURL ? `
+                                        <a href="{{ url('stream-file') }}?type=cover&id=${edition.COVER_ID}&filename=${edition.COVER_FILEURL}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="ph-image me-1"></i>
+                                            Lihat Cover
+                                        </a>
+                                    ` : '<span class="text-muted">Tidak ada</span>'}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Konten</label>
+                                <div class="col-md-8">
+                                    ${edition.CONTENT_FILEURL ? `
+                                        <a href="{{ url('stream-file') }}?type=konten_digital&id=${edition.CONTENT_ID}&filename=${edition.CONTENT_FILEURL}" target="_blank" class="btn btn-sm btn-success">
+                                            <i class="ph-file me-1"></i>
+                                            Lihat Konten
+                                        </a>
+                                    ` : '<span class="text-muted">Tidak ada</span>'}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Status</label>
+                                <div class="col-md-8">
+                                    <span class="badge bg-success">
+                                        <i class="ph-check-circle me-1"></i>
+                                        Terverifikasi
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-success bg-opacity-10">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="ph-article me-1"></i>
+                                Informasi Artikel
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Judul</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.ARTICLE_TITLE || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Kontributor</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.ARTICLE_CONTRIBUTOR || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Abstrak</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.ARTICLE_ABSTRACT || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Subyek</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.ARTICLE_SUBJECT || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Link Original</label>
+                                <div class="col-md-8">
+                                    ${edition.ARTICLE_ORIGINAL_LINK ? `
+                                        <a href="${edition.ARTICLE_ORIGINAL_LINK}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="ph-link me-1"></i>
+                                            Buka Link
+                                        </a>
+                                    ` : '<p class="form-control-plaintext">-</p>'}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">Tgl Publikasi</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${articlePublishDate}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-4 fw-semibold">DOI</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-plaintext">${edition.ARTICLE_DOI || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $('#modalEditionDetailContent').html(detailHtml);
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditionDetail'));
+
+        modal.show();
+    }
+
+    function toggleEditionSection() {
+        if($('input[name="has_edition"]').is(':checked')) {
+            $('#content-edition-copy').fadeIn(500);
+        } else {
+            $('#content-edition-copy').hide();
+            $('#data-edition').empty();
+            $('#empty-edition-message').show();
         }
     }
 
