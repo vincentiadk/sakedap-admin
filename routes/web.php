@@ -270,6 +270,9 @@ Route::middleware('authentication')->group(function () {
             Route::get('show-data', 'ExecutorListController@showData');
             Route::post('update-data', 'ExecutorListController@updateData');
             Route::post('send-email-reset-password', 'ExecutorListController@sendEmailResetPassword');
+            Route::post('approve-api-access', 'ExecutorListController@approveAPIAccess');
+            Route::post('reject-api-access', 'ExecutorListController@rejectAPIAccess');
+            Route::post('revoke-api-access', 'ExecutorListController@revokeAPIAccess');
             Route::delete('destroy-data', 'ExecutorListController@destroyData');
         });
 

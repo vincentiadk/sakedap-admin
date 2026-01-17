@@ -146,28 +146,15 @@ class ExecutorListController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $action = '
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-flat-primary w-100 btn-sm fw-semibold dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="ph-hand-pointing me-1"></i>
-                            Aksi
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')">
-                                <i class="ph-pen me-1"></i>
-                                Edit Data
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item" onclick="sendEmailResetPassword(' . $val->ID . ')">
-                                <i class="ph-envelope-open me-1"></i>
-                                Kirim Reset Password
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item" onclick="destroyData(' . $val->ID . ')">
-                                <i class="ph-trash-simple me-1"></i>
-                                Hapus Data
-                            </a>
-                        </div>
-                    </div>
-                ';
+                $action = '<div class="btn-group"><button type="button" class="btn btn-flat-primary w-100 btn-sm fw-semibold dropdown-toggle" data-bs-toggle="dropdown"><i class="ph-hand-pointing me-1"></i>Aksi</button><div class="dropdown-menu"><a href="javascript:void(0);" class="dropdown-item" onclick="showDataUpdate(' . $val->ID . ')"><i class="ph-pen me-1"></i>Edit Data</a>';
+
+                if ($val->API_STATUS == 'PENDING') {
+                    $action .= '<div class="dropdown-divider"></div><a href="javascript:void(0);" class="dropdown-item text-success" onclick="approveAPIAccess(' . $val->ID . ')"><i class="ph-check-circle me-1"></i>Setujui Akses API</a><a href="javascript:void(0);" class="dropdown-item text-danger" onclick="rejectAPIAccess(' . $val->ID . ')"><i class="ph-x-circle me-1"></i>Tolak Akses API</a>';
+                } else if ($val->API_STATUS == 'APPROVED') {
+                    $action .= '<div class="dropdown-divider"></div><a href="javascript:void(0);" class="dropdown-item text-warning" onclick="revokeAPIAccess(' . $val->ID . ')"><i class="ph-prohibit me-1"></i>Cabut Akses API</a>';
+                }
+
+                $action .= '<div class="dropdown-divider"></div><a href="javascript:void(0);" class="dropdown-item" onclick="sendEmailResetPassword(' . $val->ID . ')"><i class="ph-envelope-open me-1"></i>Kirim Reset Password</a><a href="javascript:void(0);" class="dropdown-item" onclick="destroyData(' . $val->ID . ')"><i class="ph-trash-simple me-1"></i>Hapus Data</a></div></div>';
 
                 $email = '
                     <div>Utama : ' . $val->EMAIL1 . '</div>
@@ -200,6 +187,7 @@ class ExecutorListController extends Controller
                 $mark = '
                     <div>Status : ' . $lock . '</div>
                     <div>Teguran : ' . $warning . '</div>
+                    <div>Status API : ' . ucwords(strtolower(($val->API_STATUS ?: 'Belum Mengajukan'))) . '</div>
                 ';
 
                 $data[] = [
@@ -334,7 +322,6 @@ class ExecutorListController extends Controller
                     'jwt' => $request->jwt ?? null,
                     'x_api_key' => $request->x_api_key ?? null,
                     'jwt_expired' => $request->jwt_expired ?? null,
-                    'is_api_enable' => $request->is_api_enable ? 1 : 0,
                 ], false);
 
                 $response = [
@@ -350,6 +337,137 @@ class ExecutorListController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function approveAPIAccess(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $apiKey = Str::random(64);
+
+            QueryAPI::update('penerbit', $id, [
+                'x_api_key' => $apiKey,
+                'api_status' => 'APPROVED',
+                'is_api_enable' => 1,
+                'updateby' => session('username'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'updateterminal' => $request->ip(),
+            ], false);
+
+            $data = QueryAPI::get("select * from penerbit where id = $id", true);
+
+            if ($data && $data->EMAIL1) {
+                try {
+                    $payloadEmail = [
+                        'name' => $data->NAME,
+                        'email' => $data->EMAIL1,
+                        'api_key' => $apiKey,
+                        'message' => 'Permintaan akses API Anda telah disetujui. Berikut adalah API Key Anda: ' . $apiKey
+                    ];
+
+                    Mail::send([], [], function ($message) use ($payloadEmail) {
+                        $message->to($payloadEmail['email'], $payloadEmail['name'])
+                            ->subject('Akses API SAKEDAP Disetujui')
+                            ->from(config('mail.from.address'), config('mail.from.name'))
+                            ->html('<p>Yth. ' . $payloadEmail['name'] . ',</p><p>' . $payloadEmail['message'] . '</p>', 'text/html');
+                    });
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'code' => $e->getCode() ?? 500,
+                        'message' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Akses API telah disetujui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function rejectAPIAccess(Request $request)
+    {
+        $id = $request->id;
+        $reason = $request->reason ?? 'Tidak memenuhi persyaratan';
+
+        try {
+            QueryAPI::update('penerbit', $id, [
+                'api_status' => 'REJECTED',
+                'api_reject_reason' => $reason,
+                'updateby' => session('username'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'updateterminal' => $request->ip(),
+            ], false);
+
+            $data = QueryAPI::get("select * from penerbit where id = $id", true);
+
+            if ($data && $data->EMAIL1) {
+                try {
+                    $payloadEmail = [
+                        'name' => $data->NAME,
+                        'email' => $data->EMAIL1,
+                        'reason' => $reason,
+                        'message' => 'Permintaan akses API Anda ditolak. Alasan: ' . $reason
+                    ];
+
+                    Mail::send([], [], function ($message) use ($payloadEmail) {
+                        $message->to($payloadEmail['email'], $payloadEmail['name'])
+                            ->subject('Akses API SAKEDAP Ditolak')
+                            ->from(config('mail.from.address'), config('mail.from.name'))
+                            ->html('<p>Yth. ' . $payloadEmail['name'] . ',</p><p>' . $payloadEmail['message'] . '</p>', 'text/html');
+                    });
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'code' => $e->getCode() ?? 500,
+                        'message' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Akses API telah ditolak'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function revokeAPIAccess(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            QueryAPI::update('penerbit', $id, [
+                'x_api_key' => null,
+                'jwt' => null,
+                'api_status' => 'REVOKED',
+                'is_api_enable' => 0,
+                'updateby' => session('username'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'updateterminal' => $request->ip(),
+            ], false);
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Akses API telah dicabut'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     public function sendEmailResetPassword(Request $request)

@@ -54,7 +54,7 @@
                                 <i class="ph-gear"></i>
                                 Aksi
                             </th>
-                            <th class="text-center text-nowrap" style="min-width: 100px">
+                            <th class="text-nowrap" style="min-width: 100px">
                                 <i class="ph-flag me-1"></i>
                                 Tanda
                             </th>
@@ -500,6 +500,155 @@
         onReloadTable();
     }
 
+    function approveAPIAccess(id) {
+        swalInit.fire({
+            title: 'Setujui Akses API?',
+            text: 'API Key akan digenerate dan dikirim ke pelaksana.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Setujui',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ url("coaching-supervision/executor-list/approve-api-access") }}',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        onLoading('show', 'body');
+                    },
+                    success: function(response) {
+                        onLoading('close', 'body');
+
+                        if(response.code == 200) {
+                            onReloadTable();
+                            notification('success', response.message);
+                        } else {
+                            swalInit.fire({
+                                title: 'Error',
+                                text: response.message,
+                                icon: 'error'
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        onLoading('close', 'body');
+                        responseError(response);
+                    }
+                });
+            }
+        });
+    }
+
+    function rejectAPIAccess(id) {
+        swalInit.fire({
+            title: 'Tolak Akses API?',
+            text: 'Masukkan alasan penolakan:',
+            input: 'textarea',
+            inputPlaceholder: 'Alasan penolakan...',
+            inputAttributes: {
+                'aria-label': 'Alasan penolakan'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Tolak',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Alasan penolakan harus diisi!'
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ url("coaching-supervision/executor-list/reject-api-access") }}',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id,
+                        reason: result.value
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        onLoading('show', 'body');
+                    },
+                    success: function(response) {
+                        onLoading('close', 'body');
+
+                        if(response.code == 200) {
+                            onReloadTable();
+                            notification('success', response.message);
+                        } else {
+                            swalInit.fire({
+                                title: 'Error',
+                                text: response.message,
+                                icon: 'error'
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        onLoading('close', 'body');
+                        responseError(response);
+                    }
+                });
+            }
+        });
+    }
+
+    function revokeAPIAccess(id) {
+        swalInit.fire({
+            title: 'Cabut Akses API?',
+            text: 'API Key akan dihapus dan pelaksana tidak dapat mengakses API lagi.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Cabut',
+            cancelButtonText: 'Batal',
+            dangerMode: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ url("coaching-supervision/executor-list/revoke-api-access") }}',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        onLoading('show', 'body');
+                    },
+                    success: function(response) {
+                        onLoading('close', 'body');
+
+                        if(response.code == 200) {
+                            onReloadTable();
+                            notification('success', response.message);
+                        } else {
+                            swalInit.fire({
+                                title: 'Error',
+                                text: response.message,
+                                icon: 'error'
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        onLoading('close', 'body');
+                        responseError(response);
+                    }
+                });
+            }
+        });
+    }
+
     function loadData() {
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
@@ -525,7 +674,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle' },
                 { orderable: false, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
