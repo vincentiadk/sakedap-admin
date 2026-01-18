@@ -158,7 +158,7 @@ class TutorialController extends Controller
 
                 if ($val->FILE_NAME) {
                     $media = '
-                        <a href="' . url('stream-file') . '?type=file_artikel&id=' . $val->ID . '&filename=' . $val->FILE_NAME . '" class="btn btn-success btn-sm">
+                        <a href="' . url('stream-file') . '?type=file_artikel&id=' . $val->ID . '&filename=' . $val->FILE_NAME . '" target="_blank" class="btn btn-success btn-sm">
                             <i class="ph-file me-1"></i>
                             Lihat Media
                         </a>
@@ -350,7 +350,7 @@ class TutorialController extends Controller
                             'type' => 'file_artikel',
                             'id' => $id,
                             'iszip' => 0,
-                            'file_name' => $request->file('media'),
+                            'file' => $request->file('media'),
                         ]);
 
                         if ($uploadFile) {

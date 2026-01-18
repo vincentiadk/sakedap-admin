@@ -111,7 +111,7 @@
                         <label class="form-label fw-semibold">
                             Upload Media
                         </label>
-                        <input type="file" class="form-control" name="media" id="media" accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx">
+                        <input type="file" class="form-control" name="media" id="media" accept="video/*,audio/*,.pdf,.png,.jpg,.jpeg">
                     </div>
                     <div id="media-preview-container" class="d-none">
                         <label class="form-label fw-semibold">Media Saat Ini</label>
@@ -474,11 +474,11 @@
                 $('#attachment_link').val(response.LAMPIRAN_LINK);
                 $('#summary').val(response.RINGKASAN);
 
-                if(response.MEDIA) {
+                if(response.FILE_NAME) {
                     var paramFile = {
                         id: response.ID,
                         type: 'file_artikel',
-                        filename: response.MEDIA,
+                        filename: response.FILE_NAME,
                         v: '{{ Str::random(40) }}'
                     };
 
