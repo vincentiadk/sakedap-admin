@@ -31,7 +31,7 @@ class TutorialController extends Controller
         $column = [
             'e_news.id',
             null,
-            'e_news.file',
+            'e_news.file_name',
             'e_news_kategori.name',
             'e_news.title',
             'e_news.lang',
@@ -156,9 +156,9 @@ class TutorialController extends Controller
                     </button>
                 ';
 
-                if ($val->FILE) {
+                if ($val->FILE_NAME) {
                     $media = '
-                        <a href="' . url('stream-file') . '?type=file_artikel&id=' . $val->ID . '&filename=' . $val->FILE . '" class="btn btn-success btn-sm">
+                        <a href="' . url('stream-file') . '?type=file_artikel&id=' . $val->ID . '&filename=' . $val->FILE_NAME . '" class="btn btn-success btn-sm">
                             <i class="ph-file me-1"></i>
                             Lihat Media
                         </a>
@@ -267,7 +267,7 @@ class TutorialController extends Controller
 
                         if ($uploadFile) {
                             QueryAPI::update('e_news', $createData->ID, [
-                                'file' => $uploadFile->FileName
+                                'file_name' => $uploadFile->FileName
                             ], false);
                         }
                     }
@@ -343,19 +343,19 @@ class TutorialController extends Controller
                         QueryAPI::removeFile([
                             'type' => 'file_artikel',
                             'id' => $id,
-                            'filename' => $query->FILE ?? ''
+                            'filename' => $query->FILE_NAME ?? ''
                         ]);
 
                         $uploadFile = QueryAPI::uploadFile([
                             'type' => 'file_artikel',
                             'id' => $id,
                             'iszip' => 0,
-                            'file' => $request->file('media'),
+                            'file_name' => $request->file('media'),
                         ]);
 
                         if ($uploadFile) {
                             QueryAPI::update('e_news', $id, [
-                                'file' => $uploadFile->FileName
+                                'file_name' => $uploadFile->FileName
                             ], false);
                         }
                     }
