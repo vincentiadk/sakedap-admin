@@ -29,7 +29,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('log-activity')->group(function () {
         Route::get('/', 'LogActivityController@index');
-        Route::get('datatable', 'LogActivityController@datatable');
+        Route::post('datatable', 'LogActivityController@datatable');
     });
 
     Route::get('notification', 'NotificationController@index');
@@ -41,9 +41,9 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('datatable-serverside')->group(function () {
-        Route::get('catalog', 'DataTableServersideController@catalog');
-        Route::get('catalog-parent', 'DataTableServersideController@catalogParent');
-        Route::get('catalog-history', 'DataTableServersideController@catalogHistory');
+        Route::post('catalog', 'DataTableServersideController@catalog');
+        Route::post('catalog-parent', 'DataTableServersideController@catalogParent');
+        Route::post('catalog-history', 'DataTableServersideController@catalogHistory');
     });
 
     Route::prefix('select2-serverside')->group(function () {
@@ -82,28 +82,28 @@ Route::middleware('authentication')->group(function () {
     Route::prefix('physical-delivery')->namespace('PhysicalDelivery')->group(function () {
         Route::prefix('delivery-verification')->group(function () {
             Route::get('/', 'DeliveryVerificationController@index');
-            Route::get('datatable', 'DeliveryVerificationController@datatable');
-            Route::get('datatable-collection', 'DeliveryVerificationController@datatableCollection');
+            Route::post('datatable', 'DeliveryVerificationController@datatable');
+            Route::post('datatable-collection', 'DeliveryVerificationController@datatableCollection');
             Route::post('checked-action', 'DeliveryVerificationController@checkedAction');
             Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
         });
 
         Route::prefix('delivery-to-destination')->group(function () {
             Route::get('/', 'DeliveryToDestinationController@index');
-            Route::get('datatable', 'DeliveryToDestinationController@datatable');
+            Route::post('datatable', 'DeliveryToDestinationController@datatable');
             Route::get('detail/{id}', 'DeliveryToDestinationController@detail');
         });
 
         Route::prefix('in-delivery')->group(function () {
             Route::get('/', 'InDeliveryController@index');
-            Route::get('datatable', 'InDeliveryController@datatable');
+            Route::post('datatable', 'InDeliveryController@datatable');
             Route::get('detail/{id}', 'InDeliveryController@detail');
             Route::post('mark-sent', 'InDeliveryController@markSent');
         });
 
         Route::prefix('accept')->group(function () {
             Route::get('/', 'AcceptController@index');
-            Route::get('datatable', 'AcceptController@datatable');
+            Route::post('datatable', 'AcceptController@datatable');
             Route::get('detail/{id}', 'AcceptController@detail');
             Route::get('print/{id}', 'AcceptController@print');
             Route::post('send-email', 'AcceptController@sendEmail');
@@ -163,33 +163,33 @@ Route::middleware('authentication')->group(function () {
     Route::prefix('physical-collection')->namespace('PhysicalCollection')->group(function () {
         Route::prefix('collection-on-delivery')->group(function () {
             Route::get('/', 'CollectionOnDeliveryController@index');
-            Route::get('datatable', 'CollectionOnDeliveryController@datatable');
+            Route::post('datatable', 'CollectionOnDeliveryController@datatable');
             Route::get('detail', 'CollectionOnDeliveryController@detail');
         });
 
         Route::prefix('collection-accept')->group(function () {
             Route::get('/', 'CollectionAcceptController@index');
-            Route::get('datatable', 'CollectionAcceptController@datatable');
+            Route::post('datatable', 'CollectionAcceptController@datatable');
             Route::get('detail', 'CollectionAcceptController@detail');
         });
 
         Route::prefix('collection-reject')->group(function () {
             Route::get('/', 'CollectionRejectController@index');
-            Route::get('datatable', 'CollectionRejectController@datatable');
+            Route::post('datatable', 'CollectionRejectController@datatable');
             Route::post('grant', 'CollectionRejectController@grant');
             Route::post('retur', 'CollectionRejectController@retur');
         });
 
         Route::prefix('collection-grant')->group(function () {
             Route::get('/', 'CollectionGrantController@index');
-            Route::get('datatable', 'CollectionGrantController@datatable');
+            Route::post('datatable', 'CollectionGrantController@datatable');
             Route::post('create-group', 'CollectionGrantController@createGroup');
             Route::post('out-group', 'CollectionGrantController@outGroup');
         });
 
         Route::prefix('collection-retur')->group(function () {
             Route::get('/', 'CollectionReturController@index');
-            Route::get('datatable', 'CollectionReturController@datatable');
+            Route::post('datatable', 'CollectionReturController@datatable');
             Route::post('grant', 'CollectionReturController@grant');
             Route::post('taken', 'CollectionReturController@taken');
         });
@@ -204,7 +204,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('label')->group(function () {
             Route::get('/', 'LabelController@index');
-            Route::get('datatable', 'LabelController@datatable');
+            Route::post('datatable', 'LabelController@datatable');
             Route::get('print/{type}', 'LabelController@print');
         });
     });
@@ -212,30 +212,30 @@ Route::middleware('authentication')->group(function () {
     Route::prefix('digital-storage-handover')->namespace('DigitalStorageHandover')->group(function () {
         Route::prefix('review')->group(function () {
             Route::get('/', 'ReviewController@index');
-            Route::get('datatable', 'ReviewController@datatable');
+            Route::post('datatable', 'ReviewController@datatable');
             Route::match(['get', 'post'], 'detail/{id}', 'ReviewController@detail');
         });
 
         Route::prefix('review-edition')->group(function () {
             Route::get('/', 'ReviewEditionController@index');
-            Route::get('datatable', 'ReviewEditionController@datatable');
+            Route::post('datatable', 'ReviewEditionController@datatable');
             Route::match(['get', 'post'], 'detail/{id}', 'ReviewEditionController@detail');
         });
 
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
-            Route::get('datatable', 'ProblemController@datatable');
+            Route::post('datatable', 'ProblemController@datatable');
         });
 
         Route::prefix('accept')->group(function () {
             Route::get('/', 'AcceptController@index');
-            Route::get('datatable', 'AcceptController@datatable');
+            Route::post('datatable', 'AcceptController@datatable');
             Route::get('detail/{id}', 'AcceptController@detail');
         });
 
         Route::prefix('reject')->group(function () {
             Route::get('/', 'RejectController@index');
-            Route::get('datatable', 'RejectController@datatable');
+            Route::post('datatable', 'RejectController@datatable');
         });
 
         Route::prefix('single-upload')->group(function () {
@@ -247,7 +247,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('bulk-upload')->group(function () {
             Route::get('/', 'BulkUploadController@index');
-            Route::get('datatable-bulk', 'BulkUploadController@datatableBulk');
+            Route::post('datatable-bulk', 'BulkUploadController@datatableBulk');
             Route::get('detail-bulk', 'BulkUploadController@detailBulk');
             Route::post('submitted', 'BulkUploadController@submitted');
         });
@@ -255,7 +255,7 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('bill-isbn')->group(function () {
         Route::get('/', 'BillISBNController@index');
-        Route::get('datatable', 'BillISBNController@datatable');
+        Route::post('datatable', 'BillISBNController@datatable');
     });
 
     Route::prefix('coaching-supervision')->namespace('CoachingSupervision')->group(function () {
@@ -266,7 +266,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('executor-list')->group(function () {
             Route::get('/', 'ExecutorListController@index');
-            Route::get('datatable', 'ExecutorListController@datatable');
+            Route::post('datatable', 'ExecutorListController@datatable');
             Route::get('show-data', 'ExecutorListController@showData');
             Route::post('update-data', 'ExecutorListController@updateData');
             Route::post('send-email-reset-password', 'ExecutorListController@sendEmailResetPassword');
@@ -278,12 +278,12 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
-            Route::get('datatable', 'ProblemController@datatable');
+            Route::post('datatable', 'ProblemController@datatable');
         });
 
         Route::prefix('review')->group(function () {
             Route::get('/', 'ReviewController@index');
-            Route::get('datatable', 'ReviewController@datatable');
+            Route::post('datatable', 'ReviewController@datatable');
             Route::get('show-data', 'ReviewController@showData');
             Route::post('update-data', 'ReviewController@updateData');
             Route::delete('destroy-data', 'ReviewController@destroyData');
@@ -303,7 +303,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('warning')->group(function () {
             Route::get('/', 'WarningController@index');
-            Route::get('datatable', 'WarningController@datatable');
+            Route::post('datatable', 'WarningController@datatable');
             Route::post('create-data', 'WarningController@createData');
             Route::get('show-data', 'WarningController@showData');
             Route::post('update-data', 'WarningController@updateData');
@@ -315,7 +315,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('executor-group')->group(function () {
             Route::get('/', 'ExecutorGroupController@index');
-            Route::get('datatable', 'ExecutorGroupController@datatable');
+            Route::post('datatable', 'ExecutorGroupController@datatable');
             Route::post('create-data', 'ExecutorGroupController@createData');
             Route::get('show-data', 'ExecutorGroupController@showData');
             Route::post('update-data', 'ExecutorGroupController@updateData');
@@ -324,7 +324,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('executor-access')->group(function () {
             Route::get('/', 'ExecutorAccessController@index');
-            Route::get('datatable', 'ExecutorAccessController@datatable');
+            Route::post('datatable', 'ExecutorAccessController@datatable');
             Route::post('create-data', 'ExecutorAccessController@createData');
             Route::get('show-data', 'ExecutorAccessController@showData');
             Route::post('update-data', 'ExecutorAccessController@updateData');
@@ -335,17 +335,17 @@ Route::middleware('authentication')->group(function () {
     Route::prefix('report')->namespace('Report')->group(function () {
         Route::prefix('delivery')->group(function () {
             Route::get('/', 'DeliveryController@index');
-            Route::get('datatable', 'DeliveryController@datatable');
+            Route::post('datatable', 'DeliveryController@datatable');
         });
 
         Route::prefix('promotion')->group(function () {
             Route::get('/', 'PromotionController@index');
-            Route::get('datatable', 'PromotionController@datatable');
+            Route::post('datatable', 'PromotionController@datatable');
         });
 
         Route::prefix('physical-reception')->group(function () {
             Route::get('/', 'PhysicalReceptionController@index');
-            Route::get('datatable', 'PhysicalReceptionController@datatable');
+            Route::post('datatable', 'PhysicalReceptionController@datatable');
         });
 
         Route::prefix('physical-recording')->group(function () {
@@ -354,28 +354,28 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('physical-alignment')->group(function () {
             Route::get('/', 'PhysicalAlignmentController@index');
-            Route::get('datatable', 'PhysicalAlignmentController@datatable');
+            Route::post('datatable', 'PhysicalAlignmentController@datatable');
         });
 
         Route::prefix('digital-empowerment')->group(function () {
             Route::get('/', 'DigitalEmpowermentController@index');
-            Route::get('datatable', 'DigitalEmpowermentController@datatable');
+            Route::post('datatable', 'DigitalEmpowermentController@datatable');
         });
 
         Route::prefix('physical-empowerment')->group(function () {
             Route::get('/', 'PhysicalEmpowermentController@index');
-            Route::get('datatable', 'PhysicalEmpowermentController@datatable');
+            Route::post('datatable', 'PhysicalEmpowermentController@datatable');
         });
 
         Route::prefix('manage')->group(function () {
             Route::get('/', 'ManageController@index');
-            Route::get('datatable', 'ManageController@datatable');
+            Route::post('datatable', 'ManageController@datatable');
             Route::get('detail/{id}', 'ManageController@detail');
         });
 
         Route::prefix('digital-manage')->group(function () {
             Route::get('/', 'DigitalManageController@index');
-            Route::get('datatable', 'DigitalManageController@datatable');
+            Route::post('datatable', 'DigitalManageController@datatable');
         });
 
         Route::prefix('service')->group(function () {
@@ -406,7 +406,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('promotion')->group(function () {
             Route::get('/', 'PromotionController@index');
-            Route::get('datatable', 'PromotionController@datatable');
+            Route::post('datatable', 'PromotionController@datatable');
             Route::post('create-data', 'PromotionController@createData');
             Route::get('show-data', 'PromotionController@showData');
             Route::post('update-data', 'PromotionController@updateData');
@@ -415,7 +415,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('template-email')->group(function () {
             Route::get('/', 'TemplateEmailController@index');
-            Route::get('datatable', 'TemplateEmailController@datatable');
+            Route::post('datatable', 'TemplateEmailController@datatable');
             Route::get('show-data', 'TemplateEmailController@showData');
             Route::post('update-data', 'TemplateEmailController@updateData');
         });
@@ -439,7 +439,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('news')->group(function () {
             Route::get('/', 'NewsController@index');
-            Route::get('datatable', 'NewsController@datatable');
+            Route::post('datatable', 'NewsController@datatable');
             Route::get('preview/{id}', 'NewsController@preview');
             Route::post('create-data', 'NewsController@createData');
             Route::get('show-data', 'NewsController@showData');
@@ -449,7 +449,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('event')->group(function () {
             Route::get('/', 'EventController@index');
-            Route::get('datatable', 'EventController@datatable');
+            Route::post('datatable', 'EventController@datatable');
             Route::get('preview/{id}', 'EventController@preview');
             Route::post('create-data', 'EventController@createData');
             Route::get('show-data', 'EventController@showData');
@@ -459,7 +459,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('tutorial')->group(function () {
             Route::get('/', 'TutorialController@index');
-            Route::get('datatable', 'TutorialController@datatable');
+            Route::post('datatable', 'TutorialController@datatable');
             Route::get('preview/{id}', 'TutorialController@preview');
             Route::post('create-data', 'TutorialController@createData');
             Route::get('show-data', 'TutorialController@showData');
@@ -474,7 +474,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('banner')->group(function () {
             Route::get('/', 'BannerController@index');
-            Route::get('datatable', 'BannerController@datatable');
+            Route::post('datatable', 'BannerController@datatable');
             Route::post('create-data', 'BannerController@createData');
             Route::get('show-data', 'BannerController@showData');
             Route::post('update-data', 'BannerController@updateData');
@@ -483,7 +483,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('faq')->group(function () {
             Route::get('/', 'FaqController@index');
-            Route::get('datatable', 'FaqController@datatable');
+            Route::post('datatable', 'FaqController@datatable');
             Route::post('create-data', 'FaqController@createData');
             Route::get('show-data', 'FaqController@showData');
             Route::post('update-data', 'FaqController@updateData');
@@ -500,7 +500,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('media-type')->group(function () {
             Route::get('/', 'MediaTypeController@index');
-            Route::get('datatable', 'MediaTypeController@datatable');
+            Route::post('datatable', 'MediaTypeController@datatable');
             Route::post('create-data', 'MediaTypeController@createData');
             Route::get('show-data', 'MediaTypeController@showData');
             Route::post('update-data', 'MediaTypeController@updateData');
@@ -509,7 +509,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('news-category')->group(function () {
             Route::get('/', 'NewsCategoryController@index');
-            Route::get('datatable', 'NewsCategoryController@datatable');
+            Route::post('datatable', 'NewsCategoryController@datatable');
             Route::post('create-data', 'NewsCategoryController@createData');
             Route::get('show-data', 'NewsCategoryController@showData');
             Route::post('update-data', 'NewsCategoryController@updateData');
@@ -518,7 +518,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('collection-category')->group(function () {
             Route::get('/', 'CollectionCategoryController@index');
-            Route::get('datatable', 'CollectionCategoryController@datatable');
+            Route::post('datatable', 'CollectionCategoryController@datatable');
             Route::post('create-data', 'CollectionCategoryController@createData');
             Route::get('show-data', 'CollectionCategoryController@showData');
             Route::post('update-data', 'CollectionCategoryController@updateData');
@@ -527,7 +527,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('compliance')->group(function () {
             Route::get('/', 'ComplianceController@index');
-            Route::get('datatable', 'ComplianceController@datatable');
+            Route::post('datatable', 'ComplianceController@datatable');
             Route::post('create-data', 'ComplianceController@createData');
             Route::get('show-data', 'ComplianceController@showData');
             Route::post('update-data', 'ComplianceController@updateData');
@@ -536,7 +536,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('problem')->group(function () {
             Route::get('/', 'ProblemController@index');
-            Route::get('datatable', 'ProblemController@datatable');
+            Route::post('datatable', 'ProblemController@datatable');
             Route::post('create-data', 'ProblemController@createData');
             Route::get('show-data', 'ProblemController@showData');
             Route::post('update-data', 'ProblemController@updateData');
@@ -545,7 +545,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('library')->group(function () {
             Route::get('/', 'LibraryController@index');
-            Route::get('datatable', 'LibraryController@datatable');
+            Route::post('datatable', 'LibraryController@datatable');
             Route::post('create-data', 'LibraryController@createData');
             Route::get('show-data', 'LibraryController@showData');
             Route::post('update-data', 'LibraryController@updateData');
@@ -554,7 +554,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('depo')->group(function () {
             Route::get('/', 'DepoController@index');
-            Route::get('datatable', 'DepoController@datatable');
+            Route::post('datatable', 'DepoController@datatable');
             Route::post('create-data', 'DepoController@createData');
             Route::get('show-data', 'DepoController@showData');
             Route::post('update-data', 'DepoController@updateData');
@@ -563,7 +563,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('leader')->group(function () {
             Route::get('/', 'LeaderController@index');
-            Route::get('datatable', 'LeaderController@datatable');
+            Route::post('datatable', 'LeaderController@datatable');
             Route::post('create-data', 'LeaderController@createData');
             Route::get('show-data', 'LeaderController@showData');
             Route::post('update-data', 'LeaderController@updateData');
@@ -572,7 +572,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('storage-space')->group(function () {
             Route::get('/', 'StorageSpaceController@index');
-            Route::get('datatable', 'StorageSpaceController@datatable');
+            Route::post('datatable', 'StorageSpaceController@datatable');
             Route::post('create-data', 'StorageSpaceController@createData');
             Route::get('show-data', 'StorageSpaceController@showData');
             Route::post('update-data', 'StorageSpaceController@updateData');
@@ -581,7 +581,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('size-weight-book')->group(function () {
             Route::get('/', 'SizeWeightBookController@index');
-            Route::get('datatable', 'SizeWeightBookController@datatable');
+            Route::post('datatable', 'SizeWeightBookController@datatable');
             Route::post('create-data', 'SizeWeightBookController@createData');
             Route::get('show-data', 'SizeWeightBookController@showData');
             Route::post('update-data', 'SizeWeightBookController@updateData');
@@ -598,7 +598,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('province')->group(function () {
             Route::get('/', 'ProvinceController@index');
-            Route::get('datatable', 'ProvinceController@datatable');
+            Route::post('datatable', 'ProvinceController@datatable');
             Route::post('create-data', 'ProvinceController@createData');
             Route::get('show-data', 'ProvinceController@showData');
             Route::post('update-data', 'ProvinceController@updateData');
@@ -607,7 +607,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('city')->group(function () {
             Route::get('/', 'CityController@index');
-            Route::get('datatable', 'CityController@datatable');
+            Route::post('datatable', 'CityController@datatable');
             Route::post('create-data', 'CityController@createData');
             Route::get('show-data', 'CityController@showData');
             Route::post('update-data', 'CityController@updateData');
@@ -616,7 +616,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('district')->group(function () {
             Route::get('/', 'DistrictController@index');
-            Route::get('datatable', 'DistrictController@datatable');
+            Route::post('datatable', 'DistrictController@datatable');
             Route::post('create-data', 'DistrictController@createData');
             Route::get('show-data', 'DistrictController@showData');
             Route::post('update-data', 'DistrictController@updateData');
@@ -625,7 +625,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('village')->group(function () {
             Route::get('/', 'VillageController@index');
-            Route::get('datatable', 'VillageController@datatable');
+            Route::post('datatable', 'VillageController@datatable');
             Route::post('create-data', 'VillageController@createData');
             Route::get('show-data', 'VillageController@showData');
             Route::post('update-data', 'VillageController@updateData');
@@ -635,13 +635,13 @@ Route::middleware('authentication')->group(function () {
 
     Route::prefix('request-file')->group(function () {
         Route::get('/', 'RequestFileController@index');
-        Route::get('datatable', 'RequestFileController@datatable');
+        Route::post('datatable', 'RequestFileController@datatable');
         Route::post('set-status', 'RequestFileController@setStatus');
     });
 
     Route::prefix('award')->group(function () {
         Route::get('/', 'AwardController@index');
-        Route::get('datatable', 'AwardController@datatable');
+        Route::post('datatable', 'AwardController@datatable');
         Route::post('create-data', 'AwardController@createData');
         Route::get('show-data', 'AwardController@showData');
         Route::post('update-data', 'AwardController@updateData');
@@ -649,7 +649,7 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('nomination/{id}')->group(function () {
             Route::match(['get', 'post'], '/', 'AwardController@nomination');
-            Route::get('datatable', 'AwardController@nominationDatatable');
+            Route::post('datatable', 'AwardController@nominationDatatable');
             Route::post('add', 'AwardController@nominationAdd');
             Route::delete('remove', 'AwardController@nominationRemove');
         });

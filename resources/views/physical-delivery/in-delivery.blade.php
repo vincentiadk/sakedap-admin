@@ -215,6 +215,10 @@
             ajax: {
                 url: '{{ url("physical-delivery/in-delivery/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: function (d) {
                     $('#form-filter').serializeArray().forEach(function(item) {
                         d[item.name] = item.value;

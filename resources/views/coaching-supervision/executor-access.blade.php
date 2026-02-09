@@ -204,6 +204,10 @@
             ajax: {
                 url: '{{ url("coaching-supervision/executor-access/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     publisher_group_id: $('#filter_publisher_group_id').val()
                 },

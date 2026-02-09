@@ -660,6 +660,10 @@
             ajax: {
                 url: '{{ url("coaching-supervision/executor-list/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     status: $('#filter_status').val()
                 },

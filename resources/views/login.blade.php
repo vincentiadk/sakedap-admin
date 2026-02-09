@@ -40,7 +40,7 @@
 									<div class="d-inline-flex align-items-center justify-content-center mb-3 mt-2">
 										<img src="{{ asset('assets/icon.png') }}" style="max-width:125px" alt="">
 									</div>
-									<h5 class="mb-0">Admin Panel</h5>
+									<h5 class="mb-0">ADMIN PANEL</h5>
 									<span class="d-block text-muted">Masukan Kredensial</span>
 								</div>
                                 @if($errors->any())

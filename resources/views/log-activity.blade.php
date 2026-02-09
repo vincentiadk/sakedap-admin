@@ -302,6 +302,10 @@
             ajax: {
                 url: '{{ url("log-activity/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     action: $('#action').val(),
                     action_by: $('#action_by').val(),

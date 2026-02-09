@@ -227,6 +227,10 @@
             ajax: {
                 url: '{{ url("administration-system/news-category/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
                 },

@@ -365,6 +365,10 @@
             ajax: {
                 url: '{{ url("award/nomination/$award->ID/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     title: $('#title').val(),
                     executor_id: $('#executor_id').val(),

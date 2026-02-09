@@ -285,6 +285,10 @@
             ajax: {
                 url: '{{ url("physical-delivery/delivery-verification/datatable-collection") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     letter_id: '{{ $letter->LETTER_ID }}'
                 },

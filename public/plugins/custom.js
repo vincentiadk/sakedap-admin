@@ -610,10 +610,15 @@ function lookup(options) {
             ajax: {
                 url: dtAjaxUrl,
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: function (d) {
                     if (typeof options.dtAjaxData === 'function') {
                         $.extend(d, options.dtAjaxData());
                     }
+
                     return d;
                 },
                 beforeSend: function () {

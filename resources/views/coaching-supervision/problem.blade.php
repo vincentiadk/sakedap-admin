@@ -93,6 +93,10 @@
             ajax: {
                 url: '{{ url("coaching-supervision/problem/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
                 },

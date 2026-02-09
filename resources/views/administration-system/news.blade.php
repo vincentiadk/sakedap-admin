@@ -348,6 +348,10 @@
             ajax: {
                 url: '{{ url("administration-system/news/datatable") }}',
                 dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     ownership: $('#filter_ownership').val(),
                     category: $('#filter_category').val(),

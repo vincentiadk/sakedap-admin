@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="url" content="{{ url('/') }}">
     <meta name="user-id" content="{{ session('id') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>SAKEDAP | Admin Panel</title>
     <link rel="shortcut icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/icon.png') }}?v={{ uniqid() }}">
