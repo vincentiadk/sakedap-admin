@@ -33,7 +33,7 @@
                                                         Pengiriman Fisik
                                                     </a>
                                                 </li>
-                                                @if(Main::isSuperAdmin())
+                                                @if(Main::isPerpusnas())
                                                     <li class="nav-item" role="presentation">
                                                         <a href="#menu-national-management" class="nav-link rounded {{ Request::segment(1) == 'national-management' ? 'active' : '' }}" data-bs-toggle="tab" aria-selected="{{ Request::segment(1) == 'national-management' ? 'true' : 'false' }}" role="tab">
                                                             <i class="ph-user-circle-gear me-2"></i>
