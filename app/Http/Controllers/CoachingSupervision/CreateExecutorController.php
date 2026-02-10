@@ -121,7 +121,7 @@ class CreateExecutorController extends Controller
                         'is_single' => 0,
                         'single_count' => 0,
                         'kuota_permohonan' => 0,
-                        'status' => 3,
+                        'status' => 2,
                         'tree_level' => $request->parent_id ? 2 : 1,
                     ], false);
 

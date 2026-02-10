@@ -10,7 +10,7 @@ class MonitoringController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.domain') . '/Sakedap_Monitoring/DataBuktiPemantauanList.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.domain') . '/DataBuktiPemantauanList.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

@@ -56,7 +56,7 @@ class ExecutorListController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "penerbit.status = '3'";
+        $whereCondition[] = "penerbit.status = '2'";
 
         if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
@@ -100,7 +100,7 @@ class ExecutorListController extends Controller
             from
                 penerbit
             where
-                status = '3'
+                status = '2'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

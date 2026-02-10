@@ -10,7 +10,7 @@ class ComplianceController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.domain') . '/Sakedap_Monitoring/DataPenerbit.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.domain') . '/DataPenerbit.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [
