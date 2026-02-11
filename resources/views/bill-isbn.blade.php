@@ -266,16 +266,16 @@
     $(function() {
         datePickerBasic('.date-range-picker');
 
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 1 || parseInt('{{ Main::isPerpusnas() }}') == 1) {
             select2Serverside('#province_id', 'location', {
-                for: 'province',
-                province_id: '{{ session("province_id") }}',
+                for: 'province'
             }, {
                 minimumInputLength: 0
             });
         } else {
             select2Serverside('#province_id', 'location', {
-                for: 'province'
+                for: 'province',
+                province_id: '{{ session("province_id") }}',
             }, {
                 minimumInputLength: 0
             });
