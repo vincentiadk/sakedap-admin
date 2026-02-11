@@ -137,6 +137,10 @@
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Terima
                             </th>
+                            <th class="text-nowrap" style="min-width: 120px" rowspan="2">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Buat
+                            </th>
                             <th class="text-nowrap" style="min-width: 180px" rowspan="2">
                                 <i class="ph-user me-1"></i>
                                 Pengirim
@@ -287,6 +291,7 @@
             },
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

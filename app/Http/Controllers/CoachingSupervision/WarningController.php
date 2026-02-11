@@ -5,7 +5,7 @@ namespace App\Http\Controllers\CoachingSupervision;
 use Carbon\Carbon;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
-use App\Helpers\Fonnte;
+use App\Helpers\Barantum;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -839,7 +839,7 @@ class WarningController extends Controller
                     }
                 }
 
-                $send = Fonnte::send($noTelp, $dataSend, $fileData);
+                $send = Barantum::send($noTelp, $dataSend, $fileData);
                 $response = $send;
             } else {
                 $response = [

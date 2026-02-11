@@ -29,6 +29,8 @@ class PhysicalReceptionController extends Controller
     {
         $column = [
             'letter_detail.letter_detail_id',
+            'letter.accept_date',
+            'letter_detail.create_date',
             'letter_detail.title',
             'penerbit.name',
             'branchs.name',
@@ -154,6 +156,8 @@ class PhysicalReceptionController extends Controller
                                 branchs.name as name_branch,
                                 letter.receipt_no as receipt_no_letter,
                                 letter.status as status_letter,
+                                letter.accept_date as accept_date_letter,
+                                letter.create_date as create_date_letter,
                                 letter.penerbit_id as penerbit_id_letter
                             from
                                 letter_detail
@@ -177,9 +181,28 @@ class PhysicalReceptionController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
+                $createDateHTML = '';
+                $acceptDateHTML = '';
+
+                if ($val->ACCEPT_DATE_LETTER ?: null) {
+                    $acceptDateHTML = '
+                        <div>' . Carbon::parse($val->ACCEPT_DATE_LETTER)->isoFormat('D MMM Y') . '</div>
+                        <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE_LETTER)->format('H:i') . ' WIB</small>
+                    ';
+                }
+
+                if ($val->CREATE_DATE_LETTER ?: null) {
+                    $createDateHTML = '
+                        <div>' . Carbon::parse($val->CREATE_DATE_LETTER)->isoFormat('D MMM Y') . '</div>
+                        <small class="text-muted">Jam : ' . Carbon::parse($val->CREATE_DATE_LETTER)->format('H:i') . ' WIB</small>
+                    ';
+                }
+
                 $data[] = [
                     $start + 1,
                     $val->TITLE,
+                    $acceptDateHTML,
+                    $createDateHTML,
                     $val->PENERBIT_ID_LETTER . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
