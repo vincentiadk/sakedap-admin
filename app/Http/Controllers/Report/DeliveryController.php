@@ -32,6 +32,7 @@ class DeliveryController extends Controller
             'l.letter_date',
             'l.letter_number',
             'l.accept_date',
+            'l.create_date',
             'l.sender',
             'l.phone',
             'p.name',
@@ -213,11 +214,29 @@ class DeliveryController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
+                $createDateHTML = '';
+                $acceptDateHTML = '';
+
+                if ($val->ACCEPT_DATE ?: null) {
+                    $acceptDateHTML = '
+                        <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
+                        <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
+                    ';
+                }
+
+                if ($val->CREATE_DATE ?: null) {
+                    $createDateHTML = '
+                        <div>' . Carbon::parse($val->CREATE_DATE)->isoFormat('D MMM Y') . '</div>
+                        <small class="text-muted">Jam : ' . Carbon::parse($val->CREATE_DATE)->format('H:i') . ' WIB</small>
+                    ';
+                }
+
                 $data[] = [
                     $start + 1,
                     $val->LETTER_DATE ? Carbon::parse($val->LETTER_DATE)->isoFormat('dddd, D MMMM Y') : '',
                     $val->LETTER_NUMBER,
-                    $val->ACCEPT_DATE ? Carbon::parse($val->ACCEPT_DATE)->isoFormat('dddd, D MMMM Y') : '',
+                    $acceptDateHTML,
+                    $createDateHTML,
                     $val->SENDER,
                     $val->PHONE,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
