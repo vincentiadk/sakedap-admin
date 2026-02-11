@@ -86,6 +86,13 @@ return [
             'level' => 'debug',
         ],
 
+        'barantum' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/barantum.log'),
+            'days' => 7,
+            'level' => 'debug',
+        ],
+
         'rajaongkir' => [
             'driver' => 'daily',
             'path' => storage_path('logs/rajaongkir.log'),

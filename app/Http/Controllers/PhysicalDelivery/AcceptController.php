@@ -4,8 +4,8 @@ namespace App\Http\Controllers\PhysicalDelivery;
 
 use Carbon\Carbon;
 use App\Helpers\Main;
-use App\Helpers\Fonnte;
 use Milon\Barcode\DNS2D;
+use App\Helpers\Barantum;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -512,7 +512,7 @@ class AcceptController extends Controller
         $bodyMessage .= "📍 Jl. Salemba Raya No. 28A Jakarta Pusat\n";
         $bodyMessage .= "🌐 https://www.perpusnas.go.id/";
 
-        $sendWhatsapp = Fonnte::send($targetNumber, $bodyMessage, $pdfPath);
+        $sendWhatsapp = Barantum::send($targetNumber, $bodyMessage, $pdfPath);
 
         if (file_exists($pdfPath)) {
             @unlink($pdfPath);

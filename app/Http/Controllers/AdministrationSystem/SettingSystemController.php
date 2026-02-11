@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\AdministrationSystem;
 
 use App\Helpers\Main;
-use App\Helpers\Fonnte;
+use App\Helpers\Barantum;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -290,7 +290,7 @@ class SettingSystemController extends Controller
     {
         $target = $request->target;
         $message = $request->body;
-        $send = Fonnte::send($target, $message);
+        $send = Barantum::send($target, $message);
 
         return response()->json($send);
     }
