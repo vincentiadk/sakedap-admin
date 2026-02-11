@@ -51,7 +51,7 @@ class InDeliveryController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "l.status in ('DIKIRIM', 'DALAM PENGIRIMAN')";
+        $whereCondition[] = "l.status in ('DIKIRIM', 'DALAM PENGIRIMAN', null)";
 
         if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');

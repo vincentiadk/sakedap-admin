@@ -61,7 +61,7 @@ class AcceptController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
+        $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
 
         if (!Main::isSuperAdmin()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
@@ -153,22 +153,22 @@ class AcceptController extends Controller
                                 nvl(td.total_eks_receipt, 0) as total_eks_receipt,
                                 nvl(td.total_title_receipt, 0) as total_title_receipt,
                                 case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
                                     then nvl(td.total_eks_delivery, 0)
                                     else 0
                                 end as total_eks_delivery,
                                 case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
                                     then nvl(td.total_title_delivery, 0)
                                     else 0
                                 end as total_title_delivery,
                                 case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
                                     then nvl(td.total_eks_grant, 0)
                                     else 0
                                 end as total_eks_grant,
                                 case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')
+                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
                                     then nvl(td.total_title_grant, 0)
                                     else 0
                                 end as total_title_grant
