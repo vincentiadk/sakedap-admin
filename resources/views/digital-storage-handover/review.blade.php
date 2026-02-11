@@ -68,7 +68,7 @@
                                 Provinsi
                             </label>
                             <select class="form-select" name="province_id" id="province_id">
-                                @if(!Main::isSuperAdmin())
+                                @if(!Main::isPerpusnas())
                                     <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                                 @endif
                             </select>
@@ -202,7 +202,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',
