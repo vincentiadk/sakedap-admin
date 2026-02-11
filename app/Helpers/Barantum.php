@@ -74,9 +74,11 @@ class Barantum
                 $payload['chats_message_text'] = $message;
             }
 
-            $response = Http::withToken(static::$token)
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post(static::$baseUrl, $payload);
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . static::$token
+            ])->post(static::$baseUrl, $payload);
 
             if ($response->successful()) {
                 return (object) [

@@ -118,6 +118,14 @@
                                 <i class="ph-book-open me-1"></i>
                                 Judul
                             </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Terima
+                            </th>
+                            <th class="text-nowrap" style="min-width: 250px">
+                                <i class="ph-calendar-plus me-1"></i>
+                                Tgl Buat
+                            </th>
                             <th class="text-nowrap" style="min-width: 180px">
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
@@ -287,6 +295,8 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
