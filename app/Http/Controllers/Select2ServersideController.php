@@ -6,6 +6,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class Select2ServersideController extends Controller
 {
@@ -71,6 +72,7 @@ class Select2ServersideController extends Controller
     {
         $whereClause = '';
         $provinceId = $request->province_id ?? null;
+
         $search = Str::upper($request->search);
 
         $response = [];
@@ -96,7 +98,7 @@ class Select2ServersideController extends Controller
                         propinsi.namapropinsi as namapropinsi
                     from
                         penerbit
-                    join
+                    left join
                         propinsi on propinsi.id = penerbit.province_id
                     $whereClause
                 )

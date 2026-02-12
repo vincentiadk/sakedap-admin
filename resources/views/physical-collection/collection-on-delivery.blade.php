@@ -175,7 +175,7 @@
     $(function() {
         datePickerBasic('#date');
 
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}'
             }, {

@@ -562,7 +562,7 @@
     $(function() {
         datePickerSingle('.date-picker-single');
 
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#city_id', 'location', {
                 for: 'city',
                 province_id: '{{ session("province_id") }}',

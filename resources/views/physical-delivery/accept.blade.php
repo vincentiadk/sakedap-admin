@@ -36,7 +36,12 @@
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </label>
-                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="executor_name" id="executor_name" placeholder="Cari berdasarkan nama pelaksana serah">
+                            </div>
                         </div>
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
@@ -210,21 +215,6 @@
 <script>
     $(function() {
         datePickerBasic('#date');
-
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
-            select2Serverside('#executor_id', 'executor', {
-                province_id: '{{ session("province_id") }}',
-            });
-
-            select2Serverside('#branch_id', 'branch', {
-                province_id: '{{ session("province_id") }}',
-            }, {
-                minimumInputLength: 0
-            });
-        } else {
-            select2Serverside('#executor_id', 'executor');
-            select2Serverside('#branch_id', 'branch');
-        }
 
         loadData();
     });

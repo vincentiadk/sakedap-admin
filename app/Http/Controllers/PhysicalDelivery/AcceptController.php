@@ -63,7 +63,7 @@ class AcceptController extends Controller
         $whereClause = '';
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isPerpusnas()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
 
@@ -76,8 +76,8 @@ class AcceptController extends Controller
             $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
         }
 
-        if ($request->executor_id) {
-            $whereCondition[] = "l.penerbit_id = $request->executor_id";
+        if ($request->executor_name) {
+            $whereCondition[] = "upper(p.name) LIKE '%" . strtoupper(trim($request->executor_name)) . "%'";
         }
 
         if ($request->branch_id) {
