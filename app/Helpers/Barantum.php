@@ -7,95 +7,72 @@ use Illuminate\Support\Facades\Http;
 
 class Barantum
 {
-    private static $token;
     private static $baseUrl;
     private static $companyUuid;
-    private static $channel;
+    private static $chatBotId;
+    private static $templateId;
 
-    /**
-     * initialize
-     *
-     * @return void
-     */
     public static function initialize()
     {
-        static::$token = config('barantum.token');
         static::$baseUrl = config('barantum.base_url');
         static::$companyUuid = config('barantum.company_uuid');
-        static::$channel = config('barantum.channel');
+        static::$chatBotId = config('barantum.chat_bot_id');
+        static::$templateId = config('barantum.template_id');
     }
 
-    /**
-     * send
-     *
-     * @param  mixed $target
-     * @param  mixed $message
-     * @param  mixed $attachment
-     * @return void
-     */
-    public static function send($target, $message, $attachment = null)
+    public static function send($number, $name, $variables = [], $attachmentUrl = null)
     {
         static::initialize();
 
         try {
-            $target = preg_replace('/[^0-9]/', '', $target);
+            $number = preg_replace('/[^0-9]/', '', $number);
 
-            if (substr($target, 0, 1) === '0') {
-                $target = '62' . substr($target, 1);
+            if (substr($number, 0, 1) === '0') {
+                $number = '62' . substr($number, 1);
+            }
+
+            $formattedVariables = [];
+
+            foreach ($variables as $index => $value) {
+                $formattedVariables["{{" . ($index + 1) . "}}"] = $value;
             }
 
             $payload = [
                 'company_uuid' => static::$companyUuid,
-                'chats_users_id' => $target,
-                'channel' => static::$channel,
+                'template_uuid' => static::$templateId,
+                'chat_bot_uuid' => static::$chatBotId,
+                'content_header' => $attachmentUrl ?? "",
+                'contacts' => [
+                    [
+                        'user_name' => $name,
+                        'number' => $number,
+                        'variabel' => $formattedVariables
+                    ]
+                ]
             ];
 
-            if ($attachment) {
-                $fileUrl = '';
-
-                if (is_string($attachment)) {
-                    $fileUrl = filter_var($attachment, FILTER_VALIDATE_URL) ? $attachment : asset(str_replace(public_path(), '', $attachment));
-                } else if (is_array($attachment) && isset($attachment['url'])) {
-                    $fileUrl = $attachment['url'];
-                }
-
-                if (empty($fileUrl)) {
-                    throw new \Exception("URL File tidak valid atau tidak ditemukan.");
-                }
-
-                $payload['type'] = 'media';
-                $payload['media'] = [
-                    'caption' => $message,
-                    'link' => $fileUrl,
-                    'filename' => basename($fileUrl)
-                ];
-            } else {
-                $payload['type'] = 'text';
-                $payload['chats_message_text'] = $message;
-            }
+            return $payload;
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . static::$token
             ])->post(static::$baseUrl, $payload);
 
             if ($response->successful()) {
                 return (object) [
-                    'code'    => 200,
-                    'message' => 'Pesan terkirim ke Barantum',
-                    'data'    => $response->json()
+                    'code' => 200,
+                    'message' => 'Sukses',
+                    'data' => $response->object()
                 ];
             }
 
-            throw new \Exception("Barantum API Error: " . $response->status() . " - " . $response->body());
+            throw new \Exception("Barantum API Error: " . $response->body());
         } catch (\Exception $e) {
-            Log::channel('barantum')->error('Barantum Gateway Error: ' . $e->getMessage());
+            Log::channel('barantum')->error('Barantum Custom Error: ' . $e->getMessage());
 
             return (object) [
                 'code' => 500,
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ];
         }
     }

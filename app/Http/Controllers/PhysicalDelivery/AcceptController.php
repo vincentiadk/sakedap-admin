@@ -497,8 +497,7 @@ class AcceptController extends Controller
 
         $leaderName = $leader->NAMA ?? '';
 
-        $bodyMessage = "*PERPUSTAKAAN NASIONAL REPUBLIK INDONESIA*\n\n";
-        $bodyMessage .= "📋 *BUKTI PENERIMAAN*\n";
+        $bodyMessage = "📋 *BUKTI PENERIMAAN*\n";
         $bodyMessage .= "*Karya Cetak / Karya Rekam*\n\n";
         $bodyMessage .= "Kepada Yth.\n";
         $bodyMessage .= "🙋 *{$leaderName}*\n\n";
@@ -507,12 +506,8 @@ class AcceptController extends Controller
         $bodyMessage .= "📅 *Tanggal Penerimaan:* {$acceptDate}\n\n";
         $bodyMessage .= "✅ Atas kerja sama dan kepatuhan Saudara dalam melaksanakan *UU No.13 Tahun 2018* tentang Serah Simpan Karya Cetak dan Karya Rekam, kami ucapkan terima kasih.\n\n";
         $bodyMessage .= "📄 *Bukti penerimaan terlampir dalam file PDF*\n\n";
-        $bodyMessage .= "Hormat kami,\n";
-        $bodyMessage .= "🏛️ *Perpustakaan Nasional RI*\n";
-        $bodyMessage .= "📍 Jl. Salemba Raya No. 28A Jakarta Pusat\n";
-        $bodyMessage .= "🌐 https://www.perpusnas.go.id/";
 
-        $sendWhatsapp = Barantum::send($targetNumber, $bodyMessage, $pdfPath);
+        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage], $pdfPath);
 
         if (file_exists($pdfPath)) {
             @unlink($pdfPath);

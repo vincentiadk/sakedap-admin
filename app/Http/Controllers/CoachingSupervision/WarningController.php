@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\CoachingSupervision;
 
-use Carbon\Carbon;
+use App\Helpers\Barantum;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
-use App\Helpers\Barantum;
 use App\Helpers\QueryAPI;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class WarningController extends Controller
@@ -826,20 +827,21 @@ class WarningController extends Controller
 
                         if ($responseStream->successful()) {
                             $binaryContent = $responseStream->body();
+                            $filename = $linkFile ?? 'Surat_Teguran_' . time() . '.pdf';
+                            $path = 'public/temp/' . $filename;
 
-                            $fileData = [
-                                'binary' => $binaryContent,
-                                'filename' => $linkFile ?? 'Surat Teguran.pdf'
-                            ];
+                            Storage::put($path, $binaryContent);
+
+                            $fileData = asset(Storage::url($path));
                         } else {
-                            Log::channel('fonnte')->error("Gagal mengambil stream file. Status: " . $responseStream->status());
+                            Log::channel('barantum')->error("Gagal mengambil stream file. Status: " . $responseStream->status());
                         }
                     } catch (\Exception $e) {
-                        Log::channel('fonnte')->error("Error saat fetch stream: " . $e->getMessage());
+                        Log::channel('barantum')->error("Error saat fetch stream: " . $e->getMessage());
                     }
                 }
 
-                $send = Barantum::send($noTelp, $dataSend, $fileData);
+                $send = Barantum::send($noTelp, $warning->NAME_PENERBIT ?? 'Penerbit', [$dataSend], $fileData);
                 $response = $send;
             } else {
                 $response = [
@@ -876,7 +878,6 @@ class WarningController extends Controller
                     $result .= "Mohon segera selesaikan kewajiban Anda melalui portal SAKEDAP:\n";
                     $result .= "🌐 https://sakedap.perpusnas.go.id\n\n";
                     $result .= "📄 *Dokumen Surat Teguran 1 resmi telah kami lampirkan bersama pesan ini.*\n\n";
-                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
 
                     break;
                 case '2':
@@ -893,7 +894,6 @@ class WarningController extends Controller
                     $result .= "🌐 Akses Portal: https://sakedap.perpusnas.go.id\n\n";
                     $result .= "📄 *Dokumen Surat Teguran 2 resmi telah kami lampirkan bersama pesan ini.*\n\n";
                     $result .= "Terima kasih atas kerja samanya.\n\n";
-                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
 
                     break;
                 case '3':
@@ -910,7 +910,6 @@ class WarningController extends Controller
                     $result .= "👉 Segera proses di: https://sakedap.perpusnas.go.id\n\n";
                     $result .= "📄 *Dokumen Surat Teguran 3 resmi telah kami lampirkan bersama pesan ini.*\n\n";
                     $result .= "Harap menjadi perhatian serius.\n\n";
-                    $result .= "“Perpustakaan Hadir Demi Martabat Bangsa”";
 
                     break;
                 default:
