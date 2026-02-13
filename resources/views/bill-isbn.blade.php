@@ -123,7 +123,7 @@
                                 Provinsi
                             </label>
                             <select class="form-select" name="province_id" id="province_id" data-placeholder="Pilih Provinsi">
-                                @if(!Main::isSuperAdmin())
+                                @if(!Main::isSuperAdmin() && !Main::isPerpusnas())
                                     <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                                 @endif
                             </select>

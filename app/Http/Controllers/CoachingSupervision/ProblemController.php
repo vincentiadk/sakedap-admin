@@ -49,7 +49,7 @@ class ProblemController extends Controller
         $whereClause = '';
         $whereCondition[] = "penerbit.status = '2'";
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 

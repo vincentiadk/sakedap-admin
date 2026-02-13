@@ -54,7 +54,7 @@ class CollectionOnDeliveryController extends Controller
         $whereClause = '';
         $whereCondition[] = "letter.status in ('DIKIRIM', 'DALAM PENGIRIMAN')";
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

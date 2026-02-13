@@ -106,7 +106,7 @@ class CreateReceiptController extends Controller
 
         return response()->json([
             'data' => $data,
-            'totalAccept' => !Main::isSuperAdmin() ? 1 : 2,
+            'totalAccept' => (!Main::isSuperAdmin() && !Main::isPerpusnas()) ? 1 : 2,
             'optionAccept' => $optionAccept,
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,

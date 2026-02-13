@@ -46,7 +46,7 @@ class ServiceController extends Controller
         $response = [];
         $conditions = ['penerbit.id is not null'];
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $conditions[] = 'propinsi.id = ' . session('province_id');
         }
 

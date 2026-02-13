@@ -242,7 +242,7 @@
 
 <script>
     $(function() {
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0 && parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#location_id', 'location', {
                 province_id: '{{ session("province_id") }}'
             });

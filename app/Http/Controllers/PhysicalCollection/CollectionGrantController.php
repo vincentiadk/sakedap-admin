@@ -55,7 +55,7 @@ class CollectionGrantController extends Controller
         $whereClause = '';
         $whereCondition[] = "hibah_detail.group_id is null";
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

@@ -51,7 +51,7 @@ class RequestFileController extends Controller
         $whereClause = '';
         $whereCondition = [];
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
 

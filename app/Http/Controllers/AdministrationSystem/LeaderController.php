@@ -55,7 +55,7 @@ class LeaderController extends Controller
         $whereClause = '';
         $whereCondition = [];
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

@@ -73,7 +73,7 @@
                                     User
                                 </label>
                                 <select class="form-select select2-basic" name="action_by" id="action_by" data-placeholder="Semua User">
-                                    @if(!Main::isSuperAdmin())
+                                    @if(!Main::isSuperAdmin() && !Main::isPerpusnas())
                                         <option value="{{ session('username') }}" selected>{{ session('username') }}</option>
                                     @else
                                         <option value=""></option>
@@ -215,7 +215,7 @@
                                     User
                                 </label>
                                 <select class="form-select select2-basic" name="de_action_by" id="de_action_by" data-placeholder="Semua User" data-dropdown-parent="#modal-download-excel">
-                                    @if(!Main::isSuperAdmin())
+                                    @if(!Main::isSuperAdmin() && !Main::isPerpusnas())
                                         <option value="{{ session('username') }}" selected>{{ session('username') }}</option>
                                     @else
                                         <option value=""></option>

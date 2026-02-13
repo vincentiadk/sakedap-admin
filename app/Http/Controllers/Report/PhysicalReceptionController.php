@@ -71,7 +71,7 @@ class PhysicalReceptionController extends Controller
         $whereClause = '';
         $whereCondition[] = "letter.status != 'DRAFT'";
 
-        if (!Main::isSuperAdmin()) {
+        if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
         }
 

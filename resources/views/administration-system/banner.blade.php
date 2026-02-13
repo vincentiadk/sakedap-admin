@@ -188,7 +188,7 @@
     $(function() {
         loadData();
 
-        if(parseInt('{{ Main::isSuperAdmin() }}') == 0) {
+        if(parseInt('{{ Main::isSuperAdmin() }}') == 0 && parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#promotion_id', 'promotion', {
                 province_id: '{{ session("province_id") }}',
             });
