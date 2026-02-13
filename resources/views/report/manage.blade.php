@@ -149,6 +149,14 @@
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-calendar me-1"></i>
+                                Periode
+                            </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-flow-arrow me-1"></i>
+                                Metode
+                            </th>
                             <th class="text-nowrap" style="min-width: 150px">
                                 <i class="ph-map-pin me-1"></i>
                                 Provinsi
@@ -162,8 +170,8 @@
                                 Judul
                             </th>
                             <th class="text-nowrap" style="min-width: 150px">
-                                <i class="ph-file me-1"></i>
-                                Jenis Media
+                                <i class="ph-file-text me-1"></i>
+                                Jenis
                             </th>
                             <th class="text-nowrap" style="min-width: 130px">
                                 <i class="ph-music-notes me-1"></i>
@@ -178,6 +186,14 @@
                                 Edisi
                             </th>
                             <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-barcode me-1"></i>
+                                Serial
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-tag me-1"></i>
+                                DDC
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
                                 <i class="ph-books me-1"></i>
                                 Volume
                             </th>
@@ -185,17 +201,57 @@
                                 <i class="ph-qr-code me-1"></i>
                                 Kode
                             </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-archive me-1"></i>
+                                Deposit
+                            </th>
                             <th class="text-center text-nowrap" style="min-width: 100px">
                                 <i class="ph-calendar me-1"></i>
-                                Tahun
+                                Tahun Terbit
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-copyright me-1"></i>
+                                Copyright
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 100px">
                                 <i class="ph-eye me-1"></i>
                                 Preview
                             </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-key me-1"></i>
+                                Kunci
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-book me-1"></i>
+                                Manual
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-lock-open me-1"></i>
+                                Akses
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-users me-1"></i>
+                                Kontributor
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-tag-simple me-1"></i>
+                                Subjek
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-file-arrow-down me-1"></i>
+                                Size File
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-file-doc me-1"></i>
+                                Jenis File
+                            </th>
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-check me-1"></i>
-                                Tgl Terima
+                                Tgl Diserahkan
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Tgl Diterima
                             </th>
                         </tr>
                     </thead>
@@ -391,6 +447,8 @@
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -400,9 +458,21 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

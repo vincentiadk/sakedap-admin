@@ -466,4 +466,60 @@ class Main
 
         return $text;
     }
+
+    /**
+     * serial
+     *
+     * @param  mixed $value
+     * @return void
+     */
+    public static function serial($value)
+    {
+        $text = '';
+
+        if ($value == 1) {
+            $text = 'Harian';
+        } else if ($value == 2) {
+            $text = 'Mingguan';
+        } else if ($value == 3) {
+            $text = 'Bulanan';
+        } else if ($value == 4) {
+            $text = '3 Bulan Sekali';
+        } else if ($value == 5) {
+            $text = '4 Bulan Sekali';
+        } else if ($value == 6) {
+            $text = '6 Bulan Sekali';
+        } else if ($value == 7) {
+            $text = 'Tahunan';
+        } else if ($value == 8) {
+            $text = '2 Tahun Sekali';
+        } else if ($value == 9) {
+            $text = '3 Tahun Sekali';
+        }
+
+        return $text;
+    }
+
+    /**
+     * access
+     *
+     * @param  mixed $value
+     * @return void
+     */
+    public static function access($value)
+    {
+        $text = '';
+
+        if ($value == 1) {
+            $text = 'Akses full file berwatermak secara online';
+        } else if ($value == 2) {
+            $text = 'Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN';
+        } else if ($value == 3) {
+            $text = 'Akses hanya file preview secara online, dan tidak didayagunakan di lingkungan Perpustakaan Nasional RI selama 5 tahun sejak diserahkan. Setelah 5 tahun, akan didayagunakan oleh Perpustakaan Nasional RI di jaringan internet LAN';
+        } else if ($value == 4) {
+            $text = 'Akses hanya file preview secara online selamanya dan tidak didayagunakan di mana pun';
+        }
+
+        return $text;
+    }
 }

@@ -56,6 +56,8 @@ class ManageController extends Controller
             'catalogs.id',
             null,
             'penerbit.name',
+            'e_collections.created_at',
+            'cfr.method',
             'propinsi.namapropinsi',
             'kabupaten.namakab',
             'catalogs.title',
@@ -63,10 +65,22 @@ class ManageController extends Controller
             'catalogs.album',
             'catalogs.series',
             'catalogs.edition',
+            'e_collections.serial',
+            'catalogs.deweyno',
             'catalogs.volume',
             'catalogs.isbn',
+            'catalogs.controlnumber',
             'catalogs.publishyear',
+            'catalogs.copyright',
             'catalogs.preview',
+            null,
+            'cfr.method',
+            'catalogs.akses',
+            'catalogs.author',
+            null,
+            'cfr.file_size',
+            'cfr.fileurl',
+            'e_collections.created_at',
             'catalogs.createdate',
         ];
 
@@ -163,6 +177,34 @@ class ManageController extends Controller
                 collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
+            left join
+                e_collections on e_collections.id = catalogs.edeposit_col_id
+            left join
+                (
+                    select
+                        cf.catalog_id,
+                        cf.id,
+                        cf.fileurl,
+                        cf.hash,
+                        cf.mime,
+                        cf.file_size,
+                        cf.method
+                    from (
+                        select
+                            cf.catalog_id,
+                            cf.id,
+                            cf.fileurl,
+                            cf.hash,
+                            cf.mime,
+                            cf.file_size,
+                            cf.method,
+                            ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) as rn
+                        from
+                            catalogfiles cf
+                    ) cf
+                    where
+                        rn = 1
+                ) cfr on cfr.catalog_id = catalogs.id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -176,21 +218,17 @@ class ManageController extends Controller
                     from
                         (
                             select
-                                catalogs.id,
-                                catalogs.title,
-                                catalogs.album,
-                                catalogs.series,
-                                catalogs.edition,
-                                catalogs.volume,
-                                catalogs.isbn,
-                                catalogs.publishyear,
-                                catalogs.preview,
-                                catalogs.createdate,
+                                catalogs.*,
+                                e_collections.created_at as created_at_e_collection,
+                                e_collections.serial as serial_e_collection,
                                 penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 propinsi.namapropinsi as namapropinsi,
                                 kabupaten.namakab as namakab,
-                                collectionmedias.name as name_media
+                                collectionmedias.name as name_media,
+                                cfr.fileurl as fileurl_catalogfiles,
+                                cfr.file_size as file_size_catalogfiles,
+                                cfr.method as method_catalogfiles
                             from
                                 catalogs
                             left join
@@ -203,6 +241,34 @@ class ManageController extends Controller
                                 collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
+                            left join
+                                e_collections on e_collections.id = catalogs.edeposit_col_id
+                            left join
+                                (
+                                    select
+                                        cf.catalog_id,
+                                        cf.id,
+                                        cf.fileurl,
+                                        cf.hash,
+                                        cf.mime,
+                                        cf.file_size,
+                                        cf.method
+                                    from (
+                                        select
+                                            cf.catalog_id,
+                                            cf.id,
+                                            cf.fileurl,
+                                            cf.hash,
+                                            cf.mime,
+                                            cf.file_size,
+                                            cf.method,
+                                            ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) as rn
+                                        from
+                                            catalogfiles cf
+                                    ) cf
+                                    where
+                                        rn = 1
+                                ) cfr on cfr.catalog_id = catalogs.id
                             $whereClause
                             $orderBy
                         ) data
@@ -226,6 +292,8 @@ class ManageController extends Controller
                     $start + 1,
                     $action,
                     $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
+                    Carbon::parse($val->CREATED_AT_E_COLLECTION)->isoFormat('D MMMM Y'),
+                    Main::method($val->METHOD_CATALOGFILES),
                     $val->NAMAPROPINSI,
                     $val->NAMAKAB,
                     $val->TITLE,
@@ -233,11 +301,23 @@ class ManageController extends Controller
                     $val->ALBUM,
                     $val->SERIES,
                     $val->EDITION,
+                    Main::serial($val->SERIAL_E_COLLECTION),
+                    $val->DEWEYNO,
                     $val->VOLUME,
                     $val->ISBN,
+                    $val->CONTROLNUMBER,
                     $val->PUBLISHYEAR,
+                    $val->COPYRIGHT,
                     $val->PREVIEW,
-                    Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
+                    'Tidak',
+                    $val->METHOD_CATALOGFILES == 4 ? 'Ya' : 'Tidak',
+                    Main::access($val->AKSES),
+                    $val->AUTHOR,
+                    '',
+                    Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
+                    strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
+                    Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('H:i'),
+                    Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
                 ];
 
                 $start++;
