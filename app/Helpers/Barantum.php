@@ -29,6 +29,8 @@ class Barantum
 
             if (substr($number, 0, 1) === '0') {
                 $number = '62' . substr($number, 1);
+            } else if (substr($number, 0, 1) === '8') {
+                $number = '62' . $number;
             }
 
             $formattedVariables = [];
@@ -50,8 +52,6 @@ class Barantum
                     ]
                 ]
             ];
-
-            return $payload;
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
