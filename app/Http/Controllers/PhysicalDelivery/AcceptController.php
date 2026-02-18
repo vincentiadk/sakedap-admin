@@ -239,9 +239,12 @@ class AcceptController extends Controller
                 $acceptDateHTML = '';
 
                 if ($val->ACCEPT_DATE ?: null) {
+                    //$acceptDateHTML = '
+                    //    <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
+                    //    <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
+                    //';
                     $acceptDateHTML = '
-                        <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
-                        <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
+                        <div>' . $val->ACCEPT_DATE. '</div>
                     ';
                 }
 
