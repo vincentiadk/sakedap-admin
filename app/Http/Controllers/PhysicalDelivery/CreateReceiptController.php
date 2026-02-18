@@ -313,7 +313,7 @@ class CreateReceiptController extends Controller
                                 'jenis_media' => $isbn->jenis_media,
                                 'collection_type_id' => 2,
                                 'penerbit_terbitan_id' => $isbn->ptid,
-                                'penerbit_id' => $isbn->PENERBIT_ID ?? null,
+                                'penerbit_id' => $isbn->penerbit_id ?? null,
                                 'nomorpanggiljilid' => $isbn->keterangan,
                                 'qrcbn' => $qrcbn,
                                 'isbd' => $isbd,
