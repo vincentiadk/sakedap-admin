@@ -66,9 +66,18 @@ class Barantum
                 ];
             }
 
-            throw new \Exception("Barantum API Error: " . $response->body());
+            Log::channel('barantum')->error('Error', [
+                'payload' => $payload,
+                'response' => $response->json() ?? $response->body(),
+            ]);
+
+            return (object) [
+                'code' => $response->status(),
+                'message' => 'Gagal mengirim pesan',
+                'data' => $response->json() ?? $response->body()
+            ];
         } catch (\Exception $e) {
-            Log::channel('barantum')->error('Barantum Custom Error: ' . $e->getMessage());
+            Log::channel('barantum')->error($e->getMessage() ?? 'Error tidak diketahui saat mengirim pesan');
 
             return (object) [
                 'code' => 500,

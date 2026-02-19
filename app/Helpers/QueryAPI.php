@@ -37,7 +37,7 @@ class QueryAPI
             ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
-                'op' => 'isloginvalid',
+                'op' => 'ispenerbitloginvalid',
                 'UserName' => $username,
                 'UserPassword' => $password,
             ])
@@ -72,7 +72,6 @@ class QueryAPI
 
         return $data;
     }
-
 
     /**
      * get
@@ -111,7 +110,11 @@ class QueryAPI
                     }
                 }
             } else {
-                Log::channel('sakedap-api')->error('Gagal kueri', [$response, $sql]);
+                Log::channel('sakedap-api')->error('Gagal kueri', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'sql' => $sql
+                ]);
             }
         }
 
@@ -170,7 +173,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = $response->Data;
             } else {
-                Log::channel('sakedap-api')->error('Gagal insert', $query->json());
+                Log::channel('sakedap-api')->error('Gagal insert', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'payload' => json_encode($bodyJson)
+                ]);
             }
         }
 
@@ -226,7 +233,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                Log::channel('sakedap-api')->error('Gagal update', $query->json());
+                Log::channel('sakedap-api')->error('Gagal update', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'payload' => json_encode($bodyJson)
+                ]);
             }
         }
 
@@ -261,7 +272,12 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                Log::channel('sakedap-api')->error('Gagal hapus', $query->json());
+                Log::channel('sakedap-api')->error('Gagal hapus', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'table' => $table,
+                    'id' => $id
+                ]);
             }
         }
 
@@ -310,7 +326,10 @@ class QueryAPI
         }
 
         if ($fileContent === null) {
-            Log::channel('sakedap-api')->error('Gagal upload: File content is NULL and cannot be processed.', $payload);
+            Log::channel('sakedap-api')->error('Gagal upload', [
+                'message' => 'File content is null or invalid',
+                'payload' => $payload
+            ]);
 
             return false;
         }
@@ -327,7 +346,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = isset($response->Data) ? $response->Data : true;
             } else {
-                Log::channel('sakedap-api')->error('Gagal upload file', $query->json());
+                Log::channel('sakedap-api')->error('Gagal upload file', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'payload' => $payload
+                ]);
             }
         }
 
@@ -357,7 +380,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                Log::channel('sakedap-api')->error('Gagal hapus file', $query->json());
+                Log::channel('sakedap-api')->error('Gagal hapus file', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'payload' => $payload
+                ]);
             }
         }
 
@@ -424,7 +451,7 @@ class QueryAPI
                 ]);
             }
         } catch (\Exception $e) {
-            Log::channel('sakedap-api')->error('GetFile Exception', [
+            Log::channel('sakedap-api')->error('GetFile Error', [
                 'message' => $e->getMessage(),
                 'payload' => $payload
             ]);
@@ -470,7 +497,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = true;
             } else {
-                Log::channel('sakedap-api')->error('Gagal verifikasi koleksi', $query->json());
+                Log::channel('sakedap-api')->error('Gagal verifikasi koleksi', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'id' => $id
+                ]);
             }
         }
 
@@ -503,7 +534,11 @@ class QueryAPI
             if ($response->Status == 'Success') {
                 $data = $response->Data;
             } else {
-                Log::channel('sakedap-api')->error('Gagal hash password', $query->json());
+                Log::channel('sakedap-api')->error('Gagal hash password', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'input' => $string
+                ]);
             }
         }
 

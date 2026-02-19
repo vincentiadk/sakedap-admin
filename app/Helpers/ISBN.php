@@ -4,7 +4,6 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 
 class ISBN
 {
@@ -40,18 +39,27 @@ class ISBN
             ->withoutVerifying()
             ->get($endpoint, $payload);
 
-        if ($query->status() == 200) {
-            $response = $query->object();
+        $response = $query->object();
 
-            if (count($response->data) > 0) {
-                if ($single == true) {
-                    $data = $response->data[0];
-                } else {
-                    $data = $response;
+        if ($query->status() == 200) {
+
+            if (isset($response->data)) {
+                if (count($response->data) > 0) {
+                    if ($single == true) {
+                        $data = $response->data[0];
+                    } else {
+                        $data = $response;
+                    }
                 }
+            } else {
+                $data = $response;
             }
         } else {
-            Log::channel('isbn-api')->error('Gagal get endpoint', $query->json());
+            Log::channel('isbn-api')->error('Gagal get endpoint', [
+                'payload' => $payload,
+                'response' => $response,
+                'message' => $query->body()
+            ]);
         }
 
         return $data;

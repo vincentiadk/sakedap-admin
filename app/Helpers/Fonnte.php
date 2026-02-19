@@ -102,10 +102,7 @@ class Fonnte
                 'data' => $response->object()
             ];
         } catch (\Exception $e) {
-            Log::channel('fonnte')->error('Gagal mengirim pesan', [
-                'error' => $e->getMessage(),
-                'target' => $target ?? null,
-            ]);
+            Log::channel('fonnte')->error($e->getMessage() ?? 'Error tidak diketahui saat mengirim pesan');
 
             return (object) [
                 'code' => 500,
