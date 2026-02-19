@@ -301,7 +301,7 @@ class CreateReceiptController extends Controller
                                 'publish_year' => $isbn->tahun_terbit,
                                 'isbn_status' => 'berISBN',
                                 'is_receivedate' => 1,
-                                'penerbit_isbn_id' => $isbn->penerbit_id,
+                                'penerbit_isbn_id' => $isbn->id ?? null,
                                 'catalog_id' => $isbn->is_kdt_valid == 1 ? $isbn->catalog_id : null,
                                 'qty_accept' => $qtyAccept,
                                 'qty_reject' => $qtyReject,
