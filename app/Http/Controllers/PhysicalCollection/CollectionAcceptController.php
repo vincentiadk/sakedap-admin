@@ -52,7 +52,7 @@ class CollectionAcceptController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
+        $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -168,11 +168,23 @@ class CollectionAcceptController extends Controller
                         Detail
                     </a>
                 ';
-
+                $identifier="";
+                if($val->ISBN != ""){
+                    $identifier .= "<br/>ISBN : " . $val->ISBN;
+                }
+                if($val->ISSN != ""){
+                    $identifier .= "<br/>ISSN : " . $val->ISSN;
+                }
+                if($val->QRCBN != ""){
+                    $identifier .= "<br/>QRCBN : " . $val->QRCBN;
+                }
+                if($val->ISRC != ""){
+                    $identifier .= "<br/>ISRC : " . $val->ISRC;
+                }
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->TITLE,
+                    $val->TITLE . $identifier,
                     $val->PENERBIT_ID_LETTER . ' | ' . $val->NAME_PENERBIT,
                     $val->NAME_BRANCH,
                     $val->NAME_JASA_PENGIRIMAN,
