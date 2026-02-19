@@ -8,6 +8,7 @@ use App\Helpers\QueryAPI;
 use App\Helpers\RajaOngkir;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class CollectionAcceptController extends Controller
 {
@@ -29,138 +30,152 @@ class CollectionAcceptController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'letter_detail.letter_detail_id',
+            'ld.letter_detail_id',
             null,
-            'letter_detail.title',
-            'penerbit.name',
-            'branchs.name',
-            'jasa_pengiriman.name',
-            'letter.receipt_no',
-            'letter_detail.qty_accept',
-            'letter_detail.jenis_media',
-            'letter.status',
+            'ld.title',
+            'p.name',
+            'b.name',
+            'jp.name',
+            'l.receipt_no',
+            'ld.qty_accept',
+            'ld.jenis_media',
+            'l.status',
         ];
 
-        $draw = intval($request->draw ?? 0);
-        $start = intval($request->start ?? 0);
-        $length = $start + intval($request->length ?? 0);
+        $draw   = intval($request->draw ?? 0);
+        $start  = intval($request->start ?? 0);              // offset
+        $limit  = intval($request->length ?? 10);            // page size
+        $endRow = $start + $limit;                           // rn <= endRow
 
         $data = [];
-        $search = strtoupper($request->search['value']);
+        $search = trim($request->search['value'] ?? '');
+        $search = strtoupper($search);
 
-        $orderBy = '';
-        $order = $request->order;
-
-        $whereClause = '';
-        $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
+        // --- WHERE conditions (dipakai untuk totalFiltered dan queryData) ---
+        $whereCondition = [];
+        $whereCondition[] = "l.status IN ('DITERIMA PENUH','DITERIMA PARSIAL','DITERIMA')";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
-            $whereCondition[] = 'branchs.province_id = ' . session('province_id');
+            $provinceId = intval(session('province_id'));
+            $whereCondition[] = "b.province_id = $provinceId";
         }
 
         if ($request->delivery_service_id) {
-            $whereCondition[] = "letter.jasa_pengiriman_id = $request->delivery_service_id";
+            $deliveryServiceId = intval($request->delivery_service_id);
+            $whereCondition[] = "l.jasa_pengiriman_id = $deliveryServiceId";
         }
 
         if ($request->status) {
-            $whereCondition[] = "letter.status = '$request->status'";
+            $status = str_replace("'", "''", $request->status);
+            $whereCondition[] = "l.status = '$status'";
         }
 
         if ($request->executor_id) {
-            $whereCondition[] = "letter.penerbit_id = $request->executor_id";
+            $executorId = intval($request->executor_id);
+            $whereCondition[] = "l.penerbit_id = $executorId";
         }
 
-        if ($request->date) {
-            $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+        if ($request->date && $request->date_type) {
+            $dateType = $request->date_type;
 
-            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
-        }
+            // whitelist kolom tanggal biar gak bisa injeksi "letter.$dateType"
+            $allowedDateType = ['accept_date', 'letter_date', 'createdate'];
+            if (in_array($dateType, $allowedDateType, true)) {
+                $explodeDate = explode(' - ', $request->date);
+                $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+                $endDate   = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-        if ($search) {
-            $terms = [];
-
-            foreach ($column as $c) {
-                if ($c) {
-                    $terms[] = "upper($c) like '%$search%'";
-                }
+                $whereCondition[] =
+                    "(l.$dateType >= to_date('$startDate','YYYY-MM-DD') AND l.$dateType < to_date('$endDate','YYYY-MM-DD') + 1)";
             }
-
-            $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
+        if ($search !== '') {
+            $safe = str_replace("'", "''", $search);
+
+            $terms = [];
+            // HATI-HATI: kolom numeric jangan di upper()
+            $terms[] = "upper(ld.title) LIKE '%$safe%'";
+            $terms[] = "upper(p.name) LIKE '%$safe%'";
+            $terms[] = "upper(b.name) LIKE '%$safe%'";
+            $terms[] = "upper(jp.name) LIKE '%$safe%'";
+            $terms[] = "upper(l.receipt_no) LIKE '%$safe%'";
+            $terms[] = "upper(l.status) LIKE '%$safe%'";
+            $terms[] = "to_char(ld.letter_detail_id) LIKE '%$safe%'";
+            $terms[] = "to_char(l.penerbit_id) LIKE '%$safe%'";
+
+            $whereCondition[] = '(' . implode(' OR ', $terms) . ')';
         }
 
-        if ($order) {
-            $orderColumnIndex = $order[0]['column'];
-            $orderDir = $order[0]['dir'];
-            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
+        $whereClause = 'WHERE ' . implode(' AND ', $whereCondition);
+
+        // --- ORDER BY untuk paging ---
+        $orderBy = "ld.letter_detail_id DESC"; // default
+
+        if (!empty($request->order)) {
+            $orderColumnIndex = intval($request->order[0]['column'] ?? 0);
+            $orderDir = strtolower($request->order[0]['dir'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
+
+            $orderCol = $column[$orderColumnIndex] ?? 'ld.letter_detail_id';
+            if ($orderCol) {
+                $orderBy = "$orderCol $orderDir";
+            }
         }
 
+        // recordsTotal: total semua letter_detail (tanpa filter)
         $totalData = QueryAPI::get("
-            select
-                count(*) as total
-            from
-                letter_detail
+            SELECT COUNT(*) AS total
+            FROM letter_detail
         ", true)->TOTAL ?? 0;
 
+        // recordsFiltered: total setelah filter/search (HARUS sama whereClause yang dipakai paging)
         $totalFiltered = QueryAPI::get("
-            select
-                count(*) as total
-            from
-                letter_detail
-            left join
-                letter on letter.letter_id = letter_detail.letter_id
-            left join
-                penerbit on penerbit.id = letter.penerbit_id
-            left join
-                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
-            left join
-                branchs on branchs.id = letter.branch_id
+            SELECT COUNT(*) AS total
+            FROM letter_detail ld
+            JOIN letter l ON l.letter_id = ld.letter_id
+            LEFT JOIN penerbit p ON p.id = l.penerbit_id
+            LEFT JOIN jasa_pengiriman jp ON jp.id = l.jasa_pengiriman_id
+            LEFT JOIN branchs b ON b.id = l.branch_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
+        // Data: 2-step (ambil ID dulu, baru join ambil detail)
         $queryData = QueryAPI::get("
-            select
-                *
-            from (
-                    select
-                        rownum as rnum,
-                        data.*
-                    from
-                        (
-                            select
-                                letter_detail.*,
-                                jasa_pengiriman.name as name_jasa_pengiriman,
-                                penerbit.name as name_penerbit,
-                                branchs.name as name_branch,
-                                letter.receipt_no as receipt_no_letter,
-                                letter.status as status_letter,
-                                letter.penerbit_id as penerbit_id_letter
-                            from
-                                letter_detail
-                            left join
-                                letter on letter.letter_id = letter_detail.letter_id
-                            left join
-                                penerbit on penerbit.id = letter.penerbit_id
-                            left join
-                                jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
-                            left join
-                                branchs on branchs.id = letter.branch_id
-                            $whereClause
-                            $orderBy
-                        ) data
-                    where
-                        rownum <= $length
+            SELECT
+                ld.*,
+                jp.name  AS name_jasa_pengiriman,
+                p.name   AS name_penerbit,
+                b.name   AS name_branch,
+                l.receipt_no  AS receipt_no_letter,
+                l.status      AS status_letter,
+                l.penerbit_id AS penerbit_id_letter
+            FROM (
+                SELECT letter_detail_id, letter_id
+                FROM (
+                    SELECT
+                        ld.letter_detail_id,
+                        ld.letter_id,
+                        ROW_NUMBER() OVER (ORDER BY $orderBy) AS rn
+                    FROM letter_detail ld
+                    JOIN letter l ON l.letter_id = ld.letter_id
+                    LEFT JOIN penerbit p ON p.id = l.penerbit_id
+                    LEFT JOIN jasa_pengiriman jp ON jp.id = l.jasa_pengiriman_id
+                    LEFT JOIN branchs b ON b.id = l.branch_id
+                    $whereClause
                 )
-            where
-                rnum > $start
+                WHERE rn > $start
+                AND rn <= $endRow
+            ) x
+            JOIN letter_detail ld ON ld.letter_detail_id = x.letter_detail_id
+            JOIN letter l         ON l.letter_id = x.letter_id
+            LEFT JOIN penerbit p  ON p.id = l.penerbit_id
+            LEFT JOIN jasa_pengiriman jp ON jp.id = l.jasa_pengiriman_id
+            LEFT JOIN branchs b   ON b.id = l.branch_id
+            ORDER BY $orderBy
         ");
 
         if ($queryData) {
+            $no = $start + 1;
             foreach ($queryData as $val) {
                 $action = '
                     <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="detail(' . $val->LETTER_DETAIL_ID . ')">
@@ -168,21 +183,15 @@ class CollectionAcceptController extends Controller
                         Detail
                     </a>
                 ';
-                $identifier="";
-                if($val->ISBN != ""){
-                    $identifier .= "<br/>ISBN : " . $val->ISBN;
-                }
-                if($val->ISSN != ""){
-                    $identifier .= "<br/>ISSN : " . $val->ISSN;
-                }
-                if($val->QRCBN != ""){
-                    $identifier .= "<br/>QRCBN : " . $val->QRCBN;
-                }
-                if($val->ISRC != ""){
-                    $identifier .= "<br/>ISRC : " . $val->ISRC;
-                }
+
+                $identifier = "";
+                if (!empty($val->ISBN))  $identifier .= "<br/>ISBN : " . $val->ISBN;
+                if (!empty($val->ISSN))  $identifier .= "<br/>ISSN : " . $val->ISSN;
+                if (!empty($val->QRCBN)) $identifier .= "<br/>QRCBN : " . $val->QRCBN;
+                if (!empty($val->ISRC))  $identifier .= "<br/>ISRC : " . $val->ISRC;
+
                 $data[] = [
-                    $start + 1,
+                    $no++,
                     $action,
                     $val->TITLE . $identifier,
                     $val->PENERBIT_ID_LETTER . ' | ' . $val->NAME_PENERBIT,
@@ -193,8 +202,6 @@ class CollectionAcceptController extends Controller
                     $val->JENIS_MEDIA,
                     $val->STATUS_LETTER,
                 ];
-
-                $start++;
             }
         }
 
