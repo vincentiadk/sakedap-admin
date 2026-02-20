@@ -221,7 +221,7 @@ class CreateReceiptController extends Controller
                     ];
 
                     $letterData = array_merge([
-                        'type_of_delivery' => ($deliveryService->NAME ?? null) ? 'pos' : 'datang langsung',
+                        'type_of_delivery' => ($deliveryService->NAME ?? null) ? 'Pos' : 'Datang Langsung',
                         'letter_date' => $letterDate,
                         'letter_number' => $request->cover_letter_number,
                         'accept_date' => $request->accept_date . ' ' . date('H:i:s', strtotime($now)),
