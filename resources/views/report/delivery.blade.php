@@ -65,7 +65,7 @@
                             <select class="form-select" name="date_type" id="date_type">
                                 <option value="accept_date">Tanggal Diterima</option>
                                 <option value="letter_date">Tanggal Pengiriman</option>
-                                <option value="createdate">Tanggal Dibuat</option>
+                                <option value="create_date">Tanggal Dibuat</option>
                             </select>
                         </div>
                         <div class="col-lg-4 col-md-6">
