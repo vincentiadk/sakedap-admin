@@ -37,7 +37,7 @@ class FaqController extends Controller
 
         $draw = intval($request->draw ?? 0);
         $start = intval($request->start ?? 0);
-        $length = $start + intval($request->length ?? 0);
+        $length = $start + intval($request->length ?? 10);
 
         $data = [];
         $search = strtoupper($request->search['value']);
