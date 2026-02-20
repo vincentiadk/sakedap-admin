@@ -21,7 +21,7 @@ class AuthController extends Controller
         if (session('id')) {
             return redirect('home');
         }
-        
+
         if ($request->_token == csrf_token()) {
             $rateLimitMaxAttempt = config('system.retry_login');
             $rateLimitInterval = config('system.retry_login_interval');
@@ -49,22 +49,24 @@ class AuthController extends Controller
             ]);
 
             if ($validation->fails()) {
-                RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
-                
+                // RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
+
                 return redirect('/')->withErrors($validation);
             } else {
                 $username = $request->username;
                 $password = $request->password;
                 $login = Main::login($username, $password);
+
                 if ($login) {
-                   // RateLimiter::clear($rateLimitKey);
+                    // RateLimiter::clear($rateLimitKey);
 
                     return redirect()->intended('home');
                 }
 
                 //RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
 
-                return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan, sisa percobaan login ' . $retriesLeft . 'x lagi']);
+                // return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan, sisa percobaan login ' . $retriesLeft . 'x lagi']);
+                return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan']);
             }
         }
 
@@ -276,11 +278,7 @@ class AuthController extends Controller
                                 from
                                     e_settings
                                 where
-                                    slug = 'GantiPassword' or
-                                    (
-                                        slug in ('Header','Footer') and
-                                        province_id = " . session('province_id') . "
-                                    )
+                                    slug in ('GantiPassword','Header','Footer')
                             ");
 
                             $templateEmailContent = null;
@@ -312,6 +310,10 @@ class AuthController extends Controller
                                     ->from(config('mail.from.address'), config('mail.from.name'))
                                     ->html(Main::parseTemplateEmail($bodyEmail, $templateEmailContent), 'text/html');
                             });
+
+                            QueryAPI::update('e_password_resets', $check->ID, [
+                                'expired_at' => date('Y-m-d H:i:s')
+                            ], false);
 
                             return redirect('/')->with([
                                 'success' => 'Password berhasil direset'

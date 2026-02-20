@@ -37,7 +37,7 @@ class QueryAPI
             ->timeout(0)
             ->withQueryParameters([
                 'token' => static::$token,
-                'op' => 'ispenerbitloginvalid',
+                'op' => 'isloginvalid',
                 'UserName' => $username,
                 'UserPassword' => $password,
             ])
