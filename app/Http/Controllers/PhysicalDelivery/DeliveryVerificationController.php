@@ -264,6 +264,7 @@ class DeliveryVerificationController extends Controller
 
                 $action = '
                     <button type="button" class="btn btn-primary btn-sm text-nowrap" data-url="' . $detailUrl . '" onclick="window.location.href = this.getAttribute(\'data-url\');"><i class="' . $iconClass . ' me-1"></i>' . $buttonText . '</button>
+                    <a href="javascript:void(0);" class="btn btn-danger btn-sm text-nowrap" onclick="destroyData(' . $val->LETTER_ID . ')"><i class="ph-trash me-1"></i>Hapus</a>
                 ';
 
                 $sentDateHTML = '
@@ -870,5 +871,26 @@ class DeliveryVerificationController extends Controller
 
             abort(500, 'Terjadi kesalahan sistem');
         }
+    }
+
+    public function destroyData(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            QueryAPI::delete('letter', $id);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
     }
 }

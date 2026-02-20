@@ -54,8 +54,8 @@ class CollectionRejectController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "letter.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL')";
-        $whereCondition[] = "letter_detail.qty_hibah is null";
-        $whereCondition[] = "letter_detail.qty_retur is null";
+        $whereCondition[] = "(letter_detail.qty_hibah is null or letter_detail.qty_hibah = 0)";
+        $whereCondition[] = "(letter_detail.qty_retur is null or letter_detail.qty_retur = 0)";
         $whereCondition[] = "letter_detail.qty_reject > 0";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
