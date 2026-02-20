@@ -66,7 +66,7 @@ class LabelController extends Controller
 
         if ($request->title) {
             $title = strtoupper($request->title);
-            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
+            $whereCondition[] = "upper(collections.title) like '%$title%'";
         }
 
         if ($request->executor_id) {
