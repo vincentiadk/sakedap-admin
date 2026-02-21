@@ -87,16 +87,8 @@ class CreateReceiptController extends Controller
             $optionAccept[] = '<option value="' . $i . '" ' . $optionSelected . '>' . $i . '</option>';
         }
 
-        $linkCover = asset('assets/no-file.jpg');
+        $linkCover = Main::getCoverISBN($data->cover_file_name ?? null);
         $title = $data->title ?? '';
-
-        if ($data) {
-            if (isset($data->cover_file_name)) {
-                if ($data->cover_file_name) {
-                    $linkCover = $data->cover_file_name;
-                }
-            }
-        }
 
         $fileCover = '
             <a href="' . $linkCover . '" data-lightbox="cover-' . $code . '" data-title="' . $title . '">

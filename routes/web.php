@@ -86,6 +86,7 @@ Route::middleware('authentication')->group(function () {
             Route::post('datatable-collection', 'DeliveryVerificationController@datatableCollection');
             Route::post('checked-action', 'DeliveryVerificationController@checkedAction');
             Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
+            Route::match(['get', 'post'], 'update-data/{id}', 'DeliveryVerificationController@updateData');
             Route::delete('destroy-data', 'DeliveryVerificationController@destroyData');
         });
 
