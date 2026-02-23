@@ -182,21 +182,24 @@ function configDataTable() {
                             {
                                 extend: 'excelHtml5',
                                 text: 'Semua Data Keseluruhan',
-                                exportOptions: {
-                                    modifier: {
-                                        page: 'all',
-                                        search: 'none',
-                                    }
-                                }
-                            },
-                            {
-                                extend: 'excelHtml5',
-                                text: 'Semua Data Dengan Pencarian',
-                                exportOptions: {
-                                    modifier: {
-                                        page: 'all',
-                                        search: 'applied',
-                                    }
+                                action: function (e, dt, button, config) {
+                                    var self = this;
+                                    var totalDataTerfilter = dt.page.info().recordsDisplay;
+
+                                    dt.one('preXhr', function (e, s, data) {
+                                        data.start = 0;
+                                        data.length = totalDataTerfilter;
+                                    });
+
+                                    dt.one('draw', function (e, settings) {
+                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+
+                                        setTimeout(function () {
+                                            dt.page.len(10).draw();
+                                        }, 500);
+                                    });
+
+                                    dt.ajax.reload();
                                 }
                             },
                             {

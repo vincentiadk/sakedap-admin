@@ -145,9 +145,13 @@
                                 <i class="ph-gear"></i>
                                 Aksi
                             </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-identification-card me-1"></i>
+                                ID Pelaksana Serah
+                            </th>
                             <th class="text-nowrap" style="min-width: 180px">
                                 <i class="ph-user-circle me-1"></i>
-                                Pelaksana Serah
+                                Nama Pelaksana Serah
                             </th>
                             <th class="text-nowrap" style="min-width: 180px">
                                 <i class="ph-calendar me-1"></i>
@@ -252,6 +256,10 @@
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Diterima
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-money me-1"></i>
+                                Harga
                             </th>
                         </tr>
                     </thead>
@@ -446,28 +454,30 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },

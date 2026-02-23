@@ -55,6 +55,7 @@ class ManageController extends Controller
         $column = [
             'catalogs.id',
             null,
+            'penerbit.id',
             'penerbit.name',
             'e_collections.created_at',
             'cfr.method',
@@ -82,6 +83,7 @@ class ManageController extends Controller
             'cfr.fileurl',
             'e_collections.created_at',
             'catalogs.createdate',
+            'e_collections.price',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -221,6 +223,7 @@ class ManageController extends Controller
                                 catalogs.*,
                                 e_collections.created_at as created_at_e_collection,
                                 e_collections.serial as serial_e_collection,
+                                e_collections.price as price_e_collection,
                                 penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
                                 propinsi.namapropinsi as namapropinsi,
@@ -291,7 +294,8 @@ class ManageController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
-                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
+                    $val->ID_PENERBIT,
+                    $val->NAME_PENERBIT,
                     Carbon::parse($val->CREATED_AT_E_COLLECTION)->isoFormat('D MMMM Y'),
                     Main::method($val->METHOD_CATALOGFILES),
                     $val->NAMAPROPINSI,
@@ -318,6 +322,7 @@ class ManageController extends Controller
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
                     Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('H:i'),
                     Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
+                    $val->PRICE_E_COLLECTION,
                 ];
 
                 $start++;
