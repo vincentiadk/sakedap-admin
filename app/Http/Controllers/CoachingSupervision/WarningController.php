@@ -817,6 +817,7 @@ class WarningController extends Controller
                 $arrears = $warning->TAGIHAN_KOLEKSI - $totalCollection;
                 $dataSend = $this->buildSendData('whatsapp', $warning, $warningTarget, $totalCollection, $arrears);
                 $fileData = null;
+                $waTemplateId = Main::BARANTUM_TEMPLATE_ID_GLOBAL;
 
                 if ($linkFile) {
                     try {
@@ -841,7 +842,7 @@ class WarningController extends Controller
                     }
                 }
 
-                $send = Barantum::send($noTelp, $warning->NAME_PENERBIT ?? 'Penerbit', [$dataSend], $fileData);
+                $send = Barantum::send($noTelp, $warning->NAME_PENERBIT ?? 'Penerbit', [$dataSend], $waTemplateId, $fileData);
                 $response = $send;
             } else {
                 $response = [
@@ -866,50 +867,15 @@ class WarningController extends Controller
         if ($type == 'whatsapp') {
             switch ($warningTarget) {
                 case '1':
-                    $result = "";
-                    $result .= "*PEMBERITAHUAN – TEGURAN 1*\n\n";
-                    $result .= "Kepada Yth. Pelaksana Serah:\n";
-                    $result .= "*$data->NAME_PENERBIT*:\n\n";
-                    $result .= "Sistem mencatat masih terdapat kewajiban serah simpan karya yang belum dipenuhi sesuai *UU No. 13 Tahun 2018*.\n\n";
-                    $result .= "📊 *Rekap Tagihan Saat Ini:*\n";
-                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
-                    $result .= "📚 Total Diterima: *$totalCollection*\n";
-                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
-                    $result .= "Mohon segera selesaikan kewajiban Anda melalui portal SAKEDAP:\n";
-                    $result .= "🌐 https://sakedap.perpusnas.go.id\n\n";
-                    $result .= "📄 *Dokumen Surat Teguran 1 resmi telah kami lampirkan bersama pesan ini.*\n\n";
+                    $result = "PEMBERITAHUAN SURAT TEGURAN I | Kepada Yth. Pelaksana Serah: $data->NAME_PENERBIT | Menindaklanjuti hasil audit sistem, kami menginformasikan bahwa masih terdapat kewajiban Serah Simpan Karya Cetak dan Karya Rekam yang belum dipenuhi sebagaimana diatur dalam Undang-Undang Nomor 13 Tahun 2018. | DATA REKAPITULASI: | 1. Total Koleksi Tertagih: $data->TAGIHAN_KOLEKSI | 2. Total Koleksi Diterima: $totalCollection | 3. Total Tunggakan: $arrears | Sehubungan dengan hal tersebut, dimohon untuk segera melakukan penyelesaian kewajiban melalui portal resmi SAKEDAP pada tautan: https://sakedap.perpusnas.go.id | Catatan: Dokumen resmi Surat Teguran 1 telah kami lampirkan bersama pesan ini sebagai dasar tindak lanjut. Terima kasih.";
 
                     break;
                 case '2':
-                    $result = "";
-                    $result .= "*PERINGATAN – TEGURAN 2*\n\n";
-                    $result .= "Kepada Yth. Pelaksana Serah:\n";
-                    $result .= "*$data->NAME_PENERBIT*:\n\n";
-                    $result .= "Menindaklanjuti surat sebelumnya, kami belum menerima penyelesaian kewajiban serah simpan karya sesuai *UU No. 13 Tahun 2018*.\n\n";
-                    $result .= "📊 *Status Tunggakan:*\n";
-                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
-                    $result .= "📚 Total Diterima: *$totalCollection*\n";
-                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
-                    $result .= "Kami mohon kerja sama Saudara untuk segera memenuhi kewajiban ini guna menghindari sanksi administratif.\n\n";
-                    $result .= "🌐 Akses Portal: https://sakedap.perpusnas.go.id\n\n";
-                    $result .= "📄 *Dokumen Surat Teguran 2 resmi telah kami lampirkan bersama pesan ini.*\n\n";
-                    $result .= "Terima kasih atas kerja samanya.\n\n";
+                    $result = "PERINGATAN – SURAT TEGURAN II | Kepada Yth. Pelaksana Serah: $data->NAME_PENERBIT | Menindaklanjuti Surat Teguran I yang telah dikirimkan sebelumnya, kami menginformasikan bahwa hingga saat ini kami belum menerima penyelesaian kewajiban Serah Simpan Karya sebagaimana diatur dalam Undang-Undang Nomor 13 Tahun 2018. | STATUS TUNGGAKAN SAAT INI: | 1. Total Koleksi Tertagih: $data->TAGIHAN_KOLEKSI | 2. Total Koleksi Diterima: $totalCollection | 3. Total Tunggakan: $arrears | Sehubungan dengan hal tersebut, kami menghimbau Saudara untuk segera memenuhi kewajiban ini guna menghindari sanksi administratif lebih lanjut sesuai ketentuan yang berlaku. | Akses Portal SAKEDAP: https://sakedap.perpusnas.go.id | Catatan: Dokumen resmi Surat Teguran 2 telah kami lampirkan bersama pesan ini sebagai dasar tindak lanjut segera. Terima kasih atas kerja sama Anda.";
 
                     break;
                 case '3':
-                    $result = "";
-                    $result .= "*PERINGATAN – TEGURAN 3 (TERAKHIR)*\n\n";
-                    $result .= "Kepada Yth. Pelaksana Serah:\n";
-                    $result .= "*$data->NAME_PENERBIT*:\n\n";
-                    $result .= "Ini adalah *Peringatan Terakhir*. Sampai saat ini kewajiban serah simpan karya Saudara belum terpenuhi.\n\n";
-                    $result .= "📊 *Total Kewajiban Tertunggak:*\n";
-                    $result .= "📚 Total Tertagih: *$data->TAGIHAN_KOLEKSI*\n";
-                    $result .= "📚 Total Diterima: *$totalCollection*\n";
-                    $result .= "📚 Total Tunggakan: *$arrears*\n\n";
-                    $result .= "Sesuai *UU No. 13 Tahun 2018*, mohon segera melakukan serah simpan sebelum dilakukan tindakan lebih lanjut sesuai ketentuan perundang-undangan.\n\n";
-                    $result .= "👉 Segera proses di: https://sakedap.perpusnas.go.id\n\n";
-                    $result .= "📄 *Dokumen Surat Teguran 3 resmi telah kami lampirkan bersama pesan ini.*\n\n";
-                    $result .= "Harap menjadi perhatian serius.\n\n";
+                    $result = "PERINGATAN – SURAT TEGURAN III (TERAKHIR) | Kepada Yth. Pelaksana Serah: $data->NAME_PENERBIT | Ini merupakan Peringatan Terakhir. Berdasarkan catatan kami, hingga saat ini kewajiban Serah Simpan Karya Saudara belum terpenuhi sesuai ketentuan Undang-Undang Nomor 13 Tahun 2018. | TOTAL KEWAJIBAN TERTUNGGAK: | 1. Total Koleksi Tertagih: $data->TAGIHAN_KOLEKSI | 2. Total Koleksi Diterima: $totalCollection | 3. Total Tunggakan: $arrears | Sehubungan dengan hal tersebut, kami instruksikan kepada Saudara untuk segera melakukan serah simpan sebelum dilakukan tindakan lebih lanjut sesuai dengan ketentuan perundang-undangan yang berlaku. | Proses Segera Melalui Portal SAKEDAP: https://sakedap.perpusnas.go.id | Penting: Dokumen resmi Surat Teguran 3 (Terakhir) telah kami lampirkan bersama pesan ini sebagai dasar tindakan. Mohon hal ini menjadi perhatian serius Saudara.";
 
                     break;
                 default:

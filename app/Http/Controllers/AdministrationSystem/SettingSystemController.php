@@ -290,7 +290,7 @@ class SettingSystemController extends Controller
     {
         $target = $request->target;
         $message = $request->body;
-        $send = Barantum::send($target, 'Tes Notif', [$message]);
+        $send = Barantum::send($target, 'Tes Notif', [$message], Main::BARANTUM_TEMPLATE_ID_TEST);
 
         return response()->json($send);
     }

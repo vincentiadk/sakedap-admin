@@ -10,17 +10,15 @@ class Barantum
     private static $baseUrl;
     private static $companyUuid;
     private static $chatBotId;
-    private static $templateId;
 
     public static function initialize()
     {
         static::$baseUrl = config('barantum.base_url');
         static::$companyUuid = config('barantum.company_uuid');
         static::$chatBotId = config('barantum.chat_bot_id');
-        static::$templateId = config('barantum.template_id');
     }
 
-    public static function send($number, $name, $variables = [], $attachmentUrl = null)
+    public static function send($number, $name, $variables = [], $templateId, $attachmentUrl = null)
     {
         static::initialize();
 
@@ -41,7 +39,7 @@ class Barantum
 
             $payload = [
                 'company_uuid' => static::$companyUuid,
-                'template_uuid' => static::$templateId,
+                'template_uuid' => $templateId,
                 'chat_bot_uuid' => static::$chatBotId,
                 'content_header' => $attachmentUrl ?? "",
                 'contacts' => [
