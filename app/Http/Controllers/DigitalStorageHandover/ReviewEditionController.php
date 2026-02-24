@@ -45,6 +45,7 @@ class ReviewEditionController extends Controller
             'e_collections.edition',
             'collectionmedias.name',
             'e_collections.code',
+            'e_collections.created_at',
             'e_collections.updated_at',
         ];
 
@@ -212,6 +213,7 @@ class ReviewEditionController extends Controller
                     $val->EDITION,
                     $val->NAME_MEDIA,
                     $val->CODE,
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
                     Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 

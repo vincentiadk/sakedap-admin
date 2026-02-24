@@ -187,6 +187,10 @@
                                 Kode
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-plus me-1"></i>
+                                Tgl Dibuat
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Update
                             </th>
@@ -233,7 +237,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [[7, 'asc']],
             ajax: {
                 url: '{{ url("digital-storage-handover/review/datatable") }}',
                 dataType: 'JSON',
@@ -264,6 +268,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {

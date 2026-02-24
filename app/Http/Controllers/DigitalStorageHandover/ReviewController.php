@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 
 class ReviewController extends Controller
 {
@@ -45,6 +44,7 @@ class ReviewController extends Controller
             'e_collections.title',
             'collectionmedias.name',
             'e_collections.code',
+            'e_collections.created_at',
             'e_collections.updated_at',
         ];
 
@@ -209,6 +209,7 @@ class ReviewController extends Controller
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_MEDIA,
                     $val->CODE,
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
                     Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 
