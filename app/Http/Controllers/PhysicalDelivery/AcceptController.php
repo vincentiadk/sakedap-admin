@@ -244,7 +244,7 @@ class AcceptController extends Controller
                     //    <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
                     //';
                     $acceptDateHTML = '
-                        <div>' . $val->ACCEPT_DATE. '</div>
+                        <div>' . $val->ACCEPT_DATE . '</div>
                     ';
                 }
 
@@ -499,18 +499,11 @@ class AcceptController extends Controller
         ", true);
 
         $leaderName = $leader->NAMA ?? '';
+        $waTemplateId = Main::BARANTUM_TEMPLATE_ID_GLOBAL;
 
-        $bodyMessage = "📋 *BUKTI PENERIMAAN*\n";
-        $bodyMessage .= "*Karya Cetak / Karya Rekam*\n\n";
-        $bodyMessage .= "Kepada Yth.\n";
-        $bodyMessage .= "🙋 *{$leaderName}*\n\n";
-        $bodyMessage .= "Dengan hormat,\n\n";
-        $bodyMessage .= "Kami informasikan bahwa telah menerima Karya Cetak/Karya Rekam yang Saudara kirimkan dengan rincian:\n\n";
-        $bodyMessage .= "📅 *Tanggal Penerimaan:* {$acceptDate}\n\n";
-        $bodyMessage .= "✅ Atas kerja sama dan kepatuhan Saudara dalam melaksanakan *UU No.13 Tahun 2018* tentang Serah Simpan Karya Cetak dan Karya Rekam, kami ucapkan terima kasih.\n\n";
-        $bodyMessage .= "📄 *Bukti penerimaan terlampir dalam file PDF*\n\n";
+        $bodyMessage = "BUKTI PENERIMAAN KARYA CETAK / KARYA REKAM | Kepada Yth. Sdr/i. $leaderName | Dengan hormat, kami menginformasikan bahwa kami telah menerima Karya Cetak/Karya Rekam yang Saudara kirimkan dengan rincian sebagai berikut: | 📅 Tanggal Penerimaan: $acceptDate | ✅ Atas kerja sama dan kepatuhan Saudara dalam melaksanakan amanat Undang-Undang Nomor 13 Tahun 2018 tentang Serah Simpan Karya Cetak dan Karya Rekam, kami menyampaikan apresiasi dan terima kasih yang sebesar-besarnya. | Catatan Penting: Dokumen resmi Bukti Penerimaan telah kami lampirkan dalam format PDF bersama pesan ini sebagai arsip Saudara.";
 
-        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage], $pdfPath);
+        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage], $waTemplateId, $pdfPath);
 
         if (file_exists($pdfPath)) {
             @unlink($pdfPath);

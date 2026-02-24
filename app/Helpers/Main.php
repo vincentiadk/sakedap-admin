@@ -6,6 +6,8 @@ use Carbon\Carbon;
 
 class Main
 {
+    const BARANTUM_TEMPLATE_ID_TEST = '9e04eb0f-b3ac-4a55-9db1-1ce08cc1f3ea';
+    const BARANTUM_TEMPLATE_ID_GLOBAL = '611eb626-90fe-49a5-8a63-96e35c233092';
     const COLLECTION_DIGITAL = 'KRD';
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
