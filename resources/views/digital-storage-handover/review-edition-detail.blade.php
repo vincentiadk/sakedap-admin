@@ -649,6 +649,12 @@
     let pdfScale = 1.0;
     let pdfIsRendering = false;
 
+    $(document).ready(function() {
+        $(document).on('contextmenu', function(e) {
+            return false;
+        });
+    });
+
     $(function() {
         datePickerSingle('#received_at, #publish_time, #edition_date');
 
@@ -685,6 +691,10 @@
     });
 
     $(document).ready(function() {
+        $(document).on('contextmenu', function(e) {
+            return false;
+        });
+
         const fileUrl = "{{ url('stream-file') }}?type=konten_digital&id={{ $collection->ID_CATALOGFILES ?? '' }}&filename={{ $collection->FILEURL_CATALOGFILES ?? '' }}";
         const rawFilename = "{{ $collection->FILEURL_CATALOGFILES ?? '' }}";
         const fileExtension = rawFilename.split('.').pop().toLowerCase();
