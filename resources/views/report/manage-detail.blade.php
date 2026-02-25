@@ -479,6 +479,24 @@
                         </div>
                         <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
                             <div id="viewer-content" style="width: 100%; height: 100%;">
+                                <div id="pdf-controls" class="bg-dark d-none justify-content-center align-items-center gap-3 p-2 border-bottom border-secondary">
+                                    <button type="button" class="btn btn-sm btn-light" id="pdf-prev">
+                                        <i class="ph-caret-left me-1"></i> Prev
+                                    </button>
+                                    <div class="text-white small">
+                                        Halaman: <span id="pdf-current-page">0</span> / <span id="pdf-total-pages">0</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-light" id="pdf-next">
+                                        Next <i class="ph-caret-right ms-1"></i>
+                                    </button>
+                                    <div class="vr mx-2 text-secondary"></div>
+                                    <button type="button" class="btn btn-sm btn-light" onclick="zoomPdf(0.1)" title="Zoom In">
+                                        <i class="ph-magnifying-glass-plus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-light" onclick="zoomPdf(-0.1)" title="Zoom Out">
+                                        <i class="ph-magnifying-glass-minus"></i>
+                                    </button>
+                                </div>
                                 <div id="pdf-viewer-container" style="overflow: auto; max-height: 600px; background: #525659; padding: 20px 0; display: none;"></div>
                                 <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
                                 <div id="epub-container" style="display: none; height: 600px; width: 100%; background: white;"></div>
@@ -540,6 +558,11 @@
     let watermarkSound = null;
     let animationFrameId = null;
     let audioAnimFrame = null;
+
+    let pdfDoc = null;
+    let pdfPageNum = 1;
+    let pdfScale = 1.0;
+    let pdfIsRendering = false;
 
     $(document).ready(function() {
         const fileUrl = "{{ url('stream-file') }}?type=konten_digital&id={{ $collection->ID_CATALOGFILES ?? '' }}&filename={{ $collection->FILEURL_CATALOGFILES ?? '' }}";
@@ -618,17 +641,16 @@
 
     function renderPdf(url) {
         const $container = $('#pdf-viewer-container');
+        const $controls = $('#pdf-controls');
+
+        pdfPageNum = 1;
+        pdfDoc = null;
 
         $container.css({
             'display': 'block',
             'width': '100%',
             'height': '600px',
-            'max-height': '600px',
-            'overflow-y': 'auto',
-            'overflow-x': 'hidden',
-            'padding': '20px 0',
-            'background': '#525659',
-            'box-sizing': 'border-box'
+            'background': '#525659'
         }).empty();
 
         $('#video-player, #epub-container, #audio-wrapper, #default-message').hide();
@@ -639,45 +661,46 @@
                 clearInterval(checkPdfLib);
 
                 window.pdfjsLib.getDocument(url).promise.then(function(pdf) {
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        renderPage(pdf, pageNum, $container);
-                    }
-                }).catch(function(error) {
-                    $('#default-message').show().find('span').text('Gagal memuat PDF.');
+                    pdfDoc = pdf;
 
+                    $controls.removeClass('d-none').addClass('d-flex');
+
+                    $('#pdf-total-pages').text(pdf.numPages);
+
+                    renderSinglePage(pdfPageNum);
+
+                }).catch(function(error) {
+                    console.error('PDF Error:', error);
+                    $('#default-message').show().find('span').text('Gagal memuat PDF.');
                     $container.hide();
+                    $controls.addClass('d-none');
                 });
             }
         }, 100);
     }
 
-    function renderPage(pdf, pageNumber, $container) {
-        pdf.getPage(pageNumber).then(function(page) {
-            let availableWidth = ($container[0].clientWidth || 800) - 40;
+    function renderSinglePage(num) {
+        if (!pdfDoc || pdfIsRendering) return;
 
+        pdfIsRendering = true;
+        const $container = $('#pdf-viewer-container');
+
+        pdfDoc.getPage(num).then(function(page) {
+            $container.empty();
+
+            let availableWidth = ($container[0].clientWidth || 800) - 60;
             if (availableWidth < 300) availableWidth = 300;
 
-            var unscaledViewport = page.getViewport({ scale: 1 });
-            var scale = availableWidth / unscaledViewport.width;
-            const viewport = page.getViewport({ scale: scale });
+            const unscaledViewport = page.getViewport({ scale: 1 });
+            const dynamicScale = (availableWidth / unscaledViewport.width) * pdfScale;
+            const viewport = page.getViewport({ scale: dynamicScale });
 
             const $pageWrapper = $('<div/>', {
-                class: 'pdf-page-wrapper',
-                style: `
-                    position: relative;
-                    margin: 0 auto 20px auto;
-                    display: block;
-                    overflow: hidden;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-                    width: ${viewport.width}px;
-                    height: ${viewport.height}px;
-                    background-color: white;
-                `
+                class: 'pdf-page-wrapper mx-auto shadow-lg',
+                style: `position: relative; width: ${viewport.width}px; height: ${viewport.height}px; background: white; margin-bottom: 20px;`
             });
 
-            const canvasId = 'pdf-page-' + pageNumber;
-            const $canvas = $('<canvas/>', { id: canvasId });
-            const canvas = $canvas[0];
+            const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
 
             canvas.height = viewport.height;
@@ -685,21 +708,15 @@
 
             const watermarkHtml = `
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;">
-                    <div style="position: absolute; bottom: 10px; left: 63px;  transform: rotate(-90deg); transform-origin: bottom left; width: ${viewport.height - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 13px;  line-height: 1.5;">
-                        <div style="font-weight: bold; text-transform: uppercase;">
-                            Pelaksanaan Undang - Undang Nomor 13 Tahun 2018.
-                        </div>
-                        <div style="font-weight: bold; text-transform: uppercase;">
-                            Tentang Serah Simpan Karya Cetak dan Karya Rekam
-                        </div>
-                        <div style="color: #d9534f; font-weight: bold; display: inline-block;">
-                            Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.
-                        </div>
+                    <div style="position: absolute; bottom: 10px; left: 63px; transform: rotate(-90deg); transform-origin: bottom left; width: ${viewport.height - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 11px; line-height: 1.5;">
+                        <div style="font-weight: bold; text-transform: uppercase;">Pelaksanaan Undang - Undang Nomor 13 Tahun 2018.</div>
+                        <div style="font-weight: bold; text-transform: uppercase;">Tentang Serah Simpan Karya Cetak dan Karya Rekam</div>
+                        <div style="color: #d9534f; font-weight: bold;">Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.</div>
                     </div>
                 </div>
             `;
 
-            $pageWrapper.append($canvas);
+            $pageWrapper.append(canvas);
             $pageWrapper.append(watermarkHtml);
             $container.append($pageWrapper);
 
@@ -707,8 +724,37 @@
                 canvasContext: context,
                 viewport: viewport
             };
-            page.render(renderContext);
+
+            page.render(renderContext).promise.then(() => {
+                pdfIsRendering = false;
+
+                $('#pdf-current-page').text(num);
+
+                $container.scrollTop(0);
+            });
         });
+    }
+
+    $('#pdf-prev').on('click', function() {
+        if (pdfPageNum <= 1 || pdfIsRendering) return;
+
+        pdfPageNum--;
+
+        renderSinglePage(pdfPageNum);
+    });
+
+    $('#pdf-next').on('click', function() {
+        if (!pdfDoc || pdfPageNum >= pdfDoc.numPages || pdfIsRendering) return;
+
+        pdfPageNum++;
+
+        renderSinglePage(pdfPageNum);
+    });
+
+    function zoomPdf(delta) {
+        pdfScale = Math.min(Math.max(pdfScale + delta, 0.5), 2.5);
+
+        renderSinglePage(pdfPageNum);
     }
 
     function renderVideo(url, ext) {
