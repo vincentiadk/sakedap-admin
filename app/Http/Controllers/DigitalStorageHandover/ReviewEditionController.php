@@ -438,10 +438,12 @@ class ReviewEditionController extends Controller
                         if ($isStatus3) {
                             $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
                             $updateData['problem'] = $request->problem;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
                         }
 
                         if ($isStatus5) {
                             $updateData['reject'] = $request->reject;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
                         }
                     }
 
