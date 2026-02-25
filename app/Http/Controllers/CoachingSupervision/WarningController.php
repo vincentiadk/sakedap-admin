@@ -766,7 +766,7 @@ class WarningController extends Controller
             select
                 e_publisher_warnings.*,
                 penerbit.name as name_penerbit,
-                penerbit.kontak1 as kontak_penerbit
+                penerbit.telp1 as kontak_penerbit
             from
                 e_publisher_warnings
             left join

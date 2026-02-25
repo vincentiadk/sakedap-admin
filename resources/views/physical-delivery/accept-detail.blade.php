@@ -105,11 +105,28 @@
                                         <i class="ph-buildings me-1"></i>
                                         Pelaksana Serah
                                     </label>
-                                    <div class="fw-semibold text-dark">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</div>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="ph-user-circle"></i></span>
+                                        <select class="form-select" name="executor_id" id="executor_id" data-width="1%">
+                                            @if($letter->NAME_PENERBIT)
+                                                <option value="{{ $letter->PENERBIT_ID }}" selected>
+                                                    {{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}
+                                                </option>
+                                            @endif
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="button" class="btn btn-warning" onclick="letterUpdate()">
+                        <i class="ph-floppy-disk me-1"></i>
+                        Simpan
+                    </button>
                 </div>
             </div>
         </div>
@@ -146,7 +163,7 @@
                                     <i class="ph-book-open me-1"></i>
                                     Judul
                                 </th>
-                                <th class="text-nowrap" rowspan="2" style="min-width: 130px">
+                                <th class="text-nowrap" rowspan="2" style="min-width: 200px">
                                     <i class="ph-identification-card me-1"></i>
                                     ISBN
                                 </th>
@@ -209,10 +226,11 @@
                                     <td class="align-middle text-wrap">
                                         <div class="fw-semibold">{{ $ld->TITLE }}</div>
                                     </td>
-                                    <td class="align-middle">
-                                        <span class="badge bg-primary bg-opacity-10 text-primary">
-                                            {{ $ld->ISBN ?: '-' }}
-                                        </span>
+                                    <td class="align-middle text-nowrap" style="min-width: 250px;">
+                                        <div class="input-group flex-nowrap">
+                                            <input type="text" class="form-control form-control-sm" id="field-isbn-{{ $ld->LETTER_DETAIL_ID }}" value="{{ $ld->ISBN ?: '' }}" style="width:150px; flex:none;">
+                                            <button type="button" class="btn btn-sm btn-warning" onclick="isbnNumbering({{ $ld->LETTER_DETAIL_ID }})">Simpan</button>
+                                        </div>
                                     </td>
                                     <td class="align-middle">{{ $ld->NOMORPANGGILJILID ?: '-' }}</td>
                                     <td class="align-middle">{{ $ld->EDISI_SERIAL ?: '-' }}</td>
@@ -255,6 +273,14 @@
 
 <script>
     $(function() {
+        if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
+            select2Serverside('#executor_id', 'executor', {
+                province_id: '{{ session("province_id") }}',
+            });
+        } else {
+            select2Serverside('#executor_id', 'executor');
+        }
+
         $('#datatable-client').DataTable({
             paging: true,
             lengthChange: true,
@@ -275,4 +301,95 @@
             ],
         });
     });
+
+    function isbnNumbering(id) {
+        swalInit.fire({
+            title: 'Penomoran ISBN',
+            text: 'Apakah anda yakin menambah/mengganti nomor ISBN pada data penerimaan ini? Menambahkan ISBN pada data penerimaan akan menghapus tagihan ISBN pelaksana serah ke {{ $letter->NAME_BRANCH }}',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, simpan!',
+            cancelButtonText: 'Tidak, batalkan!',
+        }).then(function(result) {
+            if(result.value) {
+                $.ajax({
+                    url: '{{ url("physical-delivery/accept/isbn-numbering") }}',
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        isbn: $('#field-isbn-' + id).val(),
+                        id: id
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        onLoading('show', 'body');
+                    },
+                    success: function(response) {
+                        onLoading('close', 'body');
+
+                        if(response.code == 200) {
+                            notification('success', response.message);
+                        } else if(response.code == 400) {
+                            $.each(response.error, function(i, val) {
+                                notification('error', val);
+                            });
+                        } else {
+                            swalInit.fire({
+                                title: 'Oops ...',
+                                text: response.message,
+                                icon: 'warning',
+                                showCloseButton: false
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        onLoading('close', 'body');
+                        responseError(response);
+                    }
+                });
+            }
+        });
+    }
+
+    function letterUpdate() {
+        $.ajax({
+            url: '{{ url("physical-delivery/accept/letter-update") }}',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                executor_id: $('#executor_id').val(),
+                id: '{{ $letter->LETTER_ID }}'
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            beforeSend: function() {
+                onLoading('show', 'body');
+            },
+            success: function(response) {
+                onLoading('close', 'body');
+
+                if(response.code == 200) {
+                    notification('success', response.message);
+                } else if(response.code == 400) {
+                    $.each(response.error, function(i, val) {
+                        notification('error', val);
+                    });
+                } else {
+                    swalInit.fire({
+                        title: 'Error',
+                        text: response.message,
+                        icon: 'error',
+                        showCloseButton: false
+                    });
+                }
+            },
+            error: function(response) {
+                onLoading('close', 'body');
+                responseError(response);
+            }
+        });
+    }
 </script>

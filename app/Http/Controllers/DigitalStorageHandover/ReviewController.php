@@ -434,13 +434,14 @@ class ReviewController extends Controller
                         if ($isStatus3) {
                             $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
                             $updateData['problem'] = $request->problem;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
                         }
 
                         if ($isStatus5) {
                             $updateData['reject'] = $request->reject;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
                         }
                     }
-
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 
@@ -448,12 +449,14 @@ class ReviewController extends Controller
                         if (($isStatus3 && $request->collection_problem) || $param == 'save') {
                             $problemsToCreate = [];
 
-                            foreach ($request->collection_problem as $cp) {
-                                $problemsToCreate[] = [
-                                    'problem_id' => $cp,
-                                    'collection_id' => $id,
-                                    'solved' => 0
-                                ];
+                            if ($request->collection_problem && is_array($request->collection_problem)) {
+                                foreach ($request->collection_problem as $cp) {
+                                    $problemsToCreate[] = [
+                                        'problem_id' => $cp,
+                                        'collection_id' => $id,
+                                        'solved' => 0
+                                    ];
+                                }
                             }
 
                             foreach ($problemsToCreate as $problemData) {

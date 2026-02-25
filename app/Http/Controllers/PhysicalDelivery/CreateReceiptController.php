@@ -519,11 +519,7 @@ class CreateReceiptController extends Controller
                             from
                                 e_settings
                             where
-                                slug = 'ResiPenerimaan' or
-                                (
-                                    slug in ('Header','Footer') and
-                                    province_id = " . session('province_id') . "
-                                )
+                                slug in ('Header','Footer','ResiPenerimaan')
                         ");
 
                         $templateEmailContent = null;

@@ -206,8 +206,12 @@
                                 Kode
                             </th>
                             <th class="text-nowrap" style="min-width: 120px">
-                                <i class="ph-archive me-1"></i>
+                                <i class="ph-identification-badge me-1"></i>
                                 Deposit
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-archive me-1"></i>
+                                INLIS
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 100px">
                                 <i class="ph-calendar me-1"></i>
@@ -468,6 +472,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
