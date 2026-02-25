@@ -379,7 +379,7 @@
                         success: function(response) {
                             onLoading('close', '.noty_bar');
 
-                            if(response.code == 201) {
+                            if(response.code == 200) {
                                 notyConfirm.close();
 
                                 swalInit.fire({

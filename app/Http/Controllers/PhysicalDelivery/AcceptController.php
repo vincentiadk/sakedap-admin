@@ -442,7 +442,7 @@ class AcceptController extends Controller
             select
                 letter.*,
                 penerbit.name as name_penerbit,
-                penerbit.kontak1 as kontak_penerbit
+                penerbit.telp1 as kontak_penerbit
             from
                 letter
             join
@@ -531,8 +531,7 @@ class AcceptController extends Controller
                 from
                     e_settings
                 where
-                    slug = 'ResiPenerimaan' or
-                    (slug in ('Header','Footer') and province_id = " . session('province_id') . ")
+                    slug in ('Header','Footer','ResiPenerimaan')
             ");
 
             $templateEmailContent = null;
