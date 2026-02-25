@@ -105,11 +105,28 @@
                                         <i class="ph-buildings me-1"></i>
                                         Pelaksana Serah
                                     </label>
-                                    <div class="fw-semibold text-dark">{{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}</div>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="ph-user-circle"></i></span>
+                                        <select class="form-select" name="executor_id" id="executor_id" data-width="1%">
+                                            @if($letter->NAME_PENERBIT)
+                                                <option value="{{ $letter->PENERBIT_ID }}" selected>
+                                                    {{ $letter->PENERBIT_ID }} | {{ $letter->NAME_PENERBIT }}
+                                                </option>
+                                            @endif
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="button" class="btn btn-warning" onclick="letterUpdate()">
+                        <i class="ph-floppy-disk me-1"></i>
+                        Simpan
+                    </button>
                 </div>
             </div>
         </div>
@@ -256,6 +273,14 @@
 
 <script>
     $(function() {
+        if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
+            select2Serverside('#executor_id', 'executor', {
+                province_id: '{{ session("province_id") }}',
+            });
+        } else {
+            select2Serverside('#executor_id', 'executor');
+        }
+
         $('#datatable-client').DataTable({
             paging: true,
             lengthChange: true,
@@ -324,6 +349,46 @@
                         responseError(response);
                     }
                 });
+            }
+        });
+    }
+
+    function letterUpdate() {
+        $.ajax({
+            url: '{{ url("physical-delivery/accept/letter-update") }}',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                executor_id: $('#executor_id').val(),
+                id: '{{ $letter->LETTER_ID }}'
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            beforeSend: function() {
+                onLoading('show', 'body');
+            },
+            success: function(response) {
+                onLoading('close', 'body');
+
+                if(response.code == 200) {
+                    notification('success', response.message);
+                } else if(response.code == 400) {
+                    $.each(response.error, function(i, val) {
+                        notification('error', val);
+                    });
+                } else {
+                    swalInit.fire({
+                        title: 'Error',
+                        text: response.message,
+                        icon: 'error',
+                        showCloseButton: false
+                    });
+                }
+            },
+            error: function(response) {
+                onLoading('close', 'body');
+                responseError(response);
             }
         });
     }

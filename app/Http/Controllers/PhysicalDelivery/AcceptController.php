@@ -736,4 +736,26 @@ class AcceptController extends Controller
 
         return response()->json($response);
     }
+
+    public function letterUpdate(Request $request)
+    {
+        $id = $request->id;
+        $update = QueryAPI::update('letter', $id, [
+            'penerbit_id' => $request->executor_id,
+        ], false);
+
+        if ($update) {
+            $response = [
+                'code' => 200,
+                'message' => 'Data berhasil diubah'
+            ];
+        } else {
+            $response = [
+                'code' => 500,
+                'message' => 'Data gagal di update'
+            ];
+        }
+
+        return response()->json($response);
+    }
 }
