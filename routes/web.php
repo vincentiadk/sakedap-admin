@@ -110,6 +110,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('print/{id}', 'AcceptController@print');
             Route::post('send-email', 'AcceptController@sendEmail');
             Route::post('send-whatsapp', 'AcceptController@sendWhatsapp');
+            Route::post('isbn-numbering', 'AcceptController@isbnNumbering');
         });
 
         Route::prefix('create-receipt')->group(function () {

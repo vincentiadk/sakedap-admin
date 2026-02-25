@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\PhysicalDelivery;
 
-use Carbon\Carbon;
-use App\Helpers\Main;
-use Milon\Barcode\DNS2D;
 use App\Helpers\Barantum;
+use App\Helpers\ISBN;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Milon\Barcode\DNS2D;
 
 class AcceptController extends Controller
 {
@@ -207,44 +208,37 @@ class AcceptController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $statusAccept = ['DITERIMA PENUH', 'DITERIMA PARSIAL'];
-
                 $action = '
                     <a href="' . url('physical-delivery/accept/detail/' . $val->LETTER_ID) . '" class="btn btn-primary btn-sm text-nowrap">
-                        <i class="' . (in_array($val->STATUS, $statusAccept) ? 'ph-info' : 'ph-check') . ' me-1"></i>
-                        ' . (in_array($val->STATUS, $statusAccept) ? 'Detail' : 'Verifikasi') . '
+                        <i class="ph-info me-1"></i>
+                        Detail
                     </a>
                 ';
 
-                if (in_array($val->STATUS, $statusAccept)) {
-                    $action .= '
-                        <a href="' . url('physical-delivery/accept/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm mt-1 text-nowrap" target="_blank">
-                            <i class="ph-printer me-1"></i>
-                            Resi Penerimaan
-                        </a>
-                    ';
+                $action .= '
+                    <a href="' . url('physical-delivery/accept/print/' . $val->LETTER_ID) . '" class="btn btn-success btn-sm mt-1 text-nowrap" target="_blank">
+                        <i class="ph-printer me-1"></i>
+                        Resi Penerimaan
+                    </a>
+                ';
 
-                    $action .= '
-                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="sendEmail(' . $val->LETTER_ID . ')">
-                            <i class="ph-envelope-open me-1"></i>
-                            Kirim Email
-                        </a>
-                        <a href="javascript:void(0);" class="btn btn-teal btn-sm mt-1 text-nowrap" onclick="sendWhatsapp(' . $val->LETTER_ID . ')">
-                            <i class="ph-whatsapp-logo me-1"></i>
-                            Kirim Whatsapp
-                        </a>
-                    ';
-                }
+                $action .= '
+                    <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="sendEmail(' . $val->LETTER_ID . ')">
+                        <i class="ph-envelope-open me-1"></i>
+                        Kirim Email
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-teal btn-sm mt-1 text-nowrap" onclick="sendWhatsapp(' . $val->LETTER_ID . ')">
+                        <i class="ph-whatsapp-logo me-1"></i>
+                        Kirim Whatsapp
+                    </a>
+                ';
 
                 $acceptDateHTML = '';
 
                 if ($val->ACCEPT_DATE ?: null) {
-                    //$acceptDateHTML = '
-                    //    <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
-                    //    <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
-                    //';
                     $acceptDateHTML = '
-                        <div>' . $val->ACCEPT_DATE . '</div>
+                       <div>' . Carbon::parse($val->ACCEPT_DATE)->isoFormat('D MMM Y') . '</div>
+                       <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
                     ';
                 }
 
@@ -277,7 +271,7 @@ class AcceptController extends Controller
         ]);
     }
 
-    public function detail(Request $request, $id)
+    public function detail($id)
     {
         $letterSql = "
             select
@@ -712,5 +706,34 @@ class AcceptController extends Controller
 
             return null;
         }
+    }
+
+    public function isbnNumbering(Request $request)
+    {
+        $id = $request->id;
+        $code = str_replace('-', '', $request->isbn);
+
+        $data = ISBN::get('search', [
+            'code' => $code
+        ], true);
+
+        if ($data) {
+            QueryAPI::update('letter_detail', $id, [
+                'isbn' => $data->isbn,
+                'penerbit_isbn_id' => $data->id ?? null,
+            ], false);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data berhasil diubah'
+            ];
+        } else {
+            $response = [
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ];
+        }
+
+        return response()->json($response);
     }
 }
