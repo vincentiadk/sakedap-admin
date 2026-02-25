@@ -429,15 +429,9 @@ class Main
     public static function formatFileSize($bytes, $precision = 2)
     {
         $bytes = (int) $bytes;
-        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $megabytes = $bytes / pow(1024, 2);
 
-        if ($bytes == 0) {
-            return '0 ' . $units[0];
-        }
-
-        $power = floor(log($bytes, 1024));
-
-        return round($bytes / pow(1024, $power), $precision) . ' ' . $units[$power];
+        return round($megabytes, $precision) . ' MB';
     }
 
     /**
