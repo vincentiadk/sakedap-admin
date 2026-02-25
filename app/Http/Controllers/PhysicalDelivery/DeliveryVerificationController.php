@@ -504,7 +504,7 @@ class DeliveryVerificationController extends Controller
         }
 
         $currentUsername = session('username');
-        $isAdmin = Main::isSuperAdmin();
+        $isAdmin = Main::isSuperAdmin() || Main::isPerpusnas();
         $noFileCover = asset('assets/no-file.jpg');
         $problemRejectDefault = 'Kelebihan jumlah eksempelar. Tidak sesuai aturan perundang-undangan.';
         $rowNumber = $start;
