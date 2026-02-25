@@ -171,18 +171,11 @@ class Main
     /**
      * generateNumberDeposit
      *
-     * @param  mixed $param
      * @return void
      */
-    public static function generateNumberDeposit($worksheetId, $year, $cityId)
+    public static function generateNumberDeposit()
     {
-        $branchId = session('branch_id');
-        $worksheet = QueryAPI::get("select depositformat_code as code from worksheet where id = $worksheetId", true);
-        $city = QueryAPI::get("select code_kab as code from kabupaten where id = $cityId", true);
         $seq = 1;
-
-        $cityCode = $branchId == 37 ? substr($city->CODE ?? '', 0, -3) : ($city->CODE ?? '');
-        $worksheetCode = $worksheet->CODE ?? '';
         $yearNow = date('Y');
 
         $data = QueryAPI::get("
@@ -201,18 +194,19 @@ class Main
             $seq = sprintf('%05d', $seq);
         }
 
-        return "$worksheetCode-$cityCode<br>$year-$seq";
+        $numbering = 'DEP' . date('Ymd') . $seq;
+
+        return $numbering;
     }
 
     /**
      * generateNumberCopy
      *
-     * @param  mixed $param
      * @return void
      */
-    public static function generateNumberCopy($param = null)
+    public static function generateNumberCopy()
     {
-        $date = Carbon::parse($param ?? date('Y-m-d'))->format('Ymd');
+        $date = date('Ymd');
         $seq = 1;
 
         $data = QueryAPI::get("

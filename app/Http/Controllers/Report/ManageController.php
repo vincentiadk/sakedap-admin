@@ -70,6 +70,7 @@ class ManageController extends Controller
             'catalogs.deweyno',
             'catalogs.volume',
             'catalogs.isbn',
+            'e_collections.deposit',
             'catalogs.controlnumber',
             'catalogs.publishyear',
             'catalogs.copyright',
@@ -221,6 +222,7 @@ class ManageController extends Controller
                         (
                             select
                                 catalogs.*,
+                                e_collections.deposit as deposit_e_collection,
                                 e_collections.created_at as created_at_e_collection,
                                 e_collections.serial as serial_e_collection,
                                 e_collections.price as price_e_collection,
@@ -309,6 +311,7 @@ class ManageController extends Controller
                     $val->DEWEYNO,
                     $val->VOLUME,
                     $val->ISBN,
+                    $val->DEPOSIT_E_COLLECTION,
                     $val->CONTROLNUMBER,
                     $val->PUBLISHYEAR,
                     $val->COPYRIGHT,

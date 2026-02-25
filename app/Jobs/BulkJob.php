@@ -186,6 +186,7 @@ class BulkJob implements ShouldQueue
                         'slug' => Str::slug($titleOri, '-'),
                         'series' => $seriesData,
                         'serial' => $serialData,
+                        'deposit' => Main::generateNumberDeposit(),
                         'code' => $codeData,
                         'code_type' => $codeTypeData,
                         'publication_month' => $publishMonth,
