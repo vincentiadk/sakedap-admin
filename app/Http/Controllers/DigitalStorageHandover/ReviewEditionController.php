@@ -452,12 +452,14 @@ class ReviewEditionController extends Controller
                         if (($isStatus3 && $request->collection_problem) || $param == 'save') {
                             $problemsToCreate = [];
 
-                            foreach ($request->collection_problem as $cp) {
-                                $problemsToCreate[] = [
-                                    'problem_id' => $cp,
-                                    'collection_id' => $id,
-                                    'solved' => 0
-                                ];
+                            if ($request->collection_problem && is_array($request->collection_problem)) {
+                                foreach ($request->collection_problem as $cp) {
+                                    $problemsToCreate[] = [
+                                        'problem_id' => $cp,
+                                        'collection_id' => $id,
+                                        'solved' => 0
+                                    ];
+                                }
                             }
 
                             foreach ($problemsToCreate as $problemData) {
