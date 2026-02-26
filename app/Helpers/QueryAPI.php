@@ -544,4 +544,37 @@ class QueryAPI
 
         return $data;
     }
+
+    public static function setReceiveDate($payload = [])
+    {
+        static::initialize();
+
+        $data = [];
+        $query = Http::connectTimeout(0)
+            ->timeout(0)
+            ->asForm()
+            ->post(static::$baseUrl, [
+                'token' => static::$token,
+                'op' => 'settanggalterima',
+                'actionby' => session('username'),
+                'terminal' => request()->ip(),
+                'ListTanggalTerima' => [json_encode($payload)]
+            ]);
+
+        if ($query->status() == 200) {
+            $response = $query->object();
+
+            if ($response->Status == 'Success') {
+                $data = $response->Data;
+            } else {
+                Log::channel('sakedap-api')->error('Gagal set tanggal terima', [
+                    'response' => $response,
+                    'message' => $query->body(),
+                    'payload' => [json_encode($payload)]
+                ]);
+            }
+        }
+
+        return $data;
+    }
 }

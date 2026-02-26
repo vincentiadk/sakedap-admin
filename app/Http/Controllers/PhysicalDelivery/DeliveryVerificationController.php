@@ -720,7 +720,19 @@ class DeliveryVerificationController extends Controller
         $checked = $request->checked;
         $verif = $request->verif;
 
-        $letterDetail = QueryAPI::get("select * from letter_detail where letter_detail_id = $letterDetailId", true);
+        $letterDetail = QueryAPI::get(
+            "
+            select
+                letter_detail.*,
+                letter.branch_id as branch_id_letter
+            from
+                letter_detail
+            left join
+                letter on letter.letter_id = letter_detail.letter_id
+            where
+                letter_detail.letter_detail_id = $letterDetailId",
+            true
+        );
 
         if (!$letterDetail) {
             return response()->json([
@@ -755,6 +767,16 @@ class DeliveryVerificationController extends Controller
         }
 
         QueryAPI::update('letter_detail', $letterDetailId, $payload, false);
+
+        if ($letterDetail->ISBN ?: null && $qtyAccept > 0) {
+            QueryAPI::setReceiveDate([
+                'LetterDetailId' => $letterDetailId,
+                'NomorISBN' => $letterDetail->ISBN,
+                'IsPerpusnas' => $letterDetail->BRANCH_ID_LETTER == 37 ? 1 : 0,
+                'IsProvinsi' => $letterDetail->BRANCH_ID_LETTER != 37 ? 1 : 0,
+                'TanggalTerima' => date('Y-m-d'),
+            ]);
+        }
 
         return response()->json([
             'code' => 200,
