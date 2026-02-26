@@ -229,7 +229,7 @@
                                     <td class="align-middle text-nowrap" style="min-width: 250px;">
                                         <div class="input-group flex-nowrap">
                                             <input type="text" class="form-control form-control-sm" id="field-isbn-{{ $ld->LETTER_DETAIL_ID }}" value="{{ $ld->ISBN ?: '' }}" style="width:150px; flex:none;">
-                                            <button type="button" class="btn btn-sm btn-warning" onclick="isbnNumbering({{ $ld->LETTER_DETAIL_ID }})">Simpan</button>
+                                            <button type="button" class="btn btn-sm btn-warning" onclick="isbnNumbering('{{ $ld->LETTER_DETAIL_ID }}')">Simpan</button>
                                         </div>
                                     </td>
                                     <td class="align-middle">{{ $ld->NOMORPANGGILJILID ?: '-' }}</td>
