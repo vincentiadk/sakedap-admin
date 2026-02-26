@@ -137,6 +137,10 @@ class AcceptController extends Controller
                 jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
             left join
                 branchs b on b.id = l.branch_id
+            left join
+                users u_create on l.create_by = u_create.username
+            left join
+                users u_verified on l.is_verification_by = u_verified.username
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -204,9 +208,9 @@ class AcceptController extends Controller
                                         letter_id
                                 ) td on td.letter_id = l.letter_id
                             left join
-                                users u_create on l.create_by = u_create.username 
+                                users u_create on l.create_by = u_create.username
                             left join
-                                users u_verified on l.is_verification_by = u_verified.username 
+                                users u_verified on l.is_verification_by = u_verified.username
                             $whereClause
                             $orderBy
                         ) data
@@ -254,7 +258,7 @@ class AcceptController extends Controller
                 }
                 $ps = '<b>' . $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT . '</b><br/>Provinsi: ' . $val->PROVINSI . ', Kab/Kota: ' . $val->CITY . '<br/>Telp: ' . $val->TELP1;
                 $val->TELP2 ? $ps .=  '<br/>Telp Alt:  ' . $val->TELP2  : '';
-                $ps .= '<br/>Email: ' .$val->EMAIL1 .'<br/>Email Alt:' .$val->EMAIL2;
+                $ps .= '<br/>Email: ' . $val->EMAIL1 . '<br/>Email Alt:' . $val->EMAIL2;
                 $data[] = [
                     $start + 1,
                     $action,
