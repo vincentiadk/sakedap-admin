@@ -18,33 +18,32 @@ class Framing
     public function handle(Request $request, Closure $next): Response
     {
         $framing = str_replace(' ', '+', $request->framing);
-        $response = $next($request);
-        $allowedDomain = config('system.iframe_domain');
-        $cspHeader = "frame-ancestors 'self' {$allowedDomain}";
-
-        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('Content-Security-Policy', $cspHeader);
 
         if ($framing) {
             $decode = Main::AESDecrypt($framing);
-            $param = [];
-
             parse_str($decode ?? '', $param);
 
-            $segment = isset($param['segment']) ? $param['segment'] : null;
-            $username = isset($param['username']) ? $param['username'] : null;
+            $segment = $param['segment'] ?? null;
+            $username = $param['username'] ?? null;
             $password = isset($param['password']) ? str_replace(' ', '+', $param['password']) : null;
 
             if ($segment && $username && $password) {
-                $login = Main::login($username, Main::AESDecrypt($password));
+                $decryptedPass = Main::AESDecrypt($password);
+                $login = Main::login($username, $decryptedPass);
 
                 if ($login) {
-                    return redirect($segment ?? '/');
+                    return redirect($segment);
                 }
 
                 return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan']);
             }
         }
+
+        $response = $next($request);
+        $allowedDomain = config('system.iframe_domain');
+
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        $response->headers->set('Content-Security-Policy', "frame-ancestors 'self' {$allowedDomain}");
 
         return $response;
     }
