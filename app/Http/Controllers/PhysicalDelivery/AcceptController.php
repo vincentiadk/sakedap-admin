@@ -63,7 +63,6 @@ class AcceptController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
-
         if (!Main::isPerpusnas()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }
@@ -84,7 +83,12 @@ class AcceptController extends Controller
         if ($request->branch_id) {
             $whereCondition[] = "l.branch_id = $request->branch_id";
         }
-
+        if ($request->create_by) {
+            $whereCondition[] = "upper(l.create_by) LIKE '%" . strtoupper(trim($request->create_by)) . "%' OR upper(u_create.fullname) LIKE '%" . strtoupper(trim($request->create_by)) . "%'";
+        }
+        if ($request->is_verification_by) {
+            $whereCondition[] = "upper(l.is_verification_by) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%' OR upper(u_verified.fullname) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%'";
+        }
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
@@ -154,6 +158,8 @@ class AcceptController extends Controller
                                 p.email1, p.email2, p.telp1, p.telp2, p.provinsi, p.city,
                                 nvl(td.total_eks_receipt, 0) as total_eks_receipt,
                                 nvl(td.total_title_receipt, 0) as total_title_receipt,
+                                u_create.fullname as createfullname,
+                                u_verified.fullname as verifiedfullname,
                                 case
                                     when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
                                     then nvl(td.total_eks_delivery, 0)
@@ -197,6 +203,10 @@ class AcceptController extends Controller
                                     group by
                                         letter_id
                                 ) td on td.letter_id = l.letter_id
+                            left join
+                                users u_create on l.create_by = u_create.username 
+                            left join
+                                users u_verified on l.is_verification_by = u_verified.username 
                             $whereClause
                             $orderBy
                         ) data
@@ -242,12 +252,14 @@ class AcceptController extends Controller
                        <small class="text-muted">Jam : ' . Carbon::parse($val->ACCEPT_DATE)->format('H:i') . ' WIB</small>
                     ';
                 }
-
+                $ps = '<b>' . $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT . '</b><br/>Provinsi: ' . $val->PROVINSI . ', Kab/Kota: ' . $val->CITY . '<br/>Telp: ' . $val->TELP1;
+                $val->TELP2 ? $ps .=  '<br/>Telp Alt:  ' . $val->TELP2  : '';
+                $ps .= '<br/>Email: ' .$val->EMAIL1 .'<br/>Email Alt:' .$val->EMAIL2;
                 $data[] = [
                     $start + 1,
                     $action,
                     $acceptDateHTML,
-                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT . '|' . $val->PROVINSI . '|' . $val->CITY . '|' . $val->TELP1 . '|' .$val->TELP2 . '|' .$val->EMAIL1 .'|' .$val->EMAIL2 ,
+                    $ps,
                     $val->RECEIPT_NO,
                     $val->TYPE_OF_DELIVERY . " | " . $val->NAME_JASA_PENGIRIMAN,
                     $val->NAME_BRANCH,
@@ -258,6 +270,8 @@ class AcceptController extends Controller
                     $val->TOTAL_TITLE_GRANT,
                     $val->TOTAL_EKS_GRANT,
                     $val->STATUS,
+                    $val->CREATE_BY . '<br/>' . $val->CREATEFULLNAME,
+                    $val->IS_VERIFICATION_BY . '<br/>' . $val->VERIFIEDFULLNAME
                 ];
 
                 $start++;

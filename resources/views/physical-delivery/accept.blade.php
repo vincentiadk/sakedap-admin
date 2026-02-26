@@ -77,7 +77,31 @@
                     </div>
                     <hr class="my-3">
                     <div class="row g-3">
-                        <div class="col-lg-6 col-md-6">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Dibuat Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="create_by" id="create_by" placeholder="Cari berdasarkan nama / username">
+                            </div>
+                        </div>
+                         <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Diverifikasi Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="is_verification_by" id="is_verification_by" placeholder="Cari berdasarkan nama / username">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-calendar-blank me-1"></i>
                                 Jenis Tanggal
@@ -88,7 +112,7 @@
                                 <option value="create_date">Tanggal Dibuat</option>
                             </select>
                         </div>
-                        <div class="col-lg-6 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-calendar me-1"></i>
                                 Tanggal
@@ -178,6 +202,14 @@
                                 <i class="ph-flag me-1"></i>
                                 Status
                             </th>
+                            <th class="text-center text-nowrap" rowspan="2" style="min-width: 120px">
+                                <i class="ph-user me-1"></i>
+                                Dibuat Oleh
+                            </th>
+                             <th class="text-center text-nowrap" rowspan="2" style="min-width: 120px">
+                                <i class="ph-user me-1"></i>
+                                Diverifikasi Oleh
+                            </th>
                         </tr>
                         <tr>
                             <th class="text-center text-nowrap" style="min-width: 100px">
@@ -264,6 +296,8 @@
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
