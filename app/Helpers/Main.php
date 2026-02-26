@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
+use App\Helpers\QueryAPI;
 
 class Main
 {
@@ -175,28 +175,29 @@ class Main
      */
     public static function generateNumberDeposit()
     {
-        $seq = 1;
         $yearNow = date('Y');
+        $datePrefix = date('Ymd');
 
-        $data = QueryAPI::get("
-            select
-                max(substr(deposit, -5)) as unique_code
-            from
+        $sql = "
+            SELECT
+                MAX(SUBSTR(deposit, -5)) AS UNIQUE_CODE
+            FROM
                 e_collections
-            where
-                deposit is not null and
-                to_char(created_at, 'YYYY') = '$yearNow'
-        ", true);
+            WHERE
+                deposit IS NOT NULL AND
+                TO_CHAR(created_at, 'YYYY') = '$yearNow'
+        ";
 
-        if ($data) {
-            $seq = (int) $data->UNIQUE_CODE;
-            $seq += 1;
-            $seq = sprintf('%05d', $seq);
+        $data = QueryAPI::get($sql, true);
+        $lastNumber = 0;
+
+        if ($data && isset($data->UNIQUE_CODE)) {
+            $lastNumber = (int) $data->UNIQUE_CODE;
         }
 
-        $numbering = 'DEP' . date('Ymd') . $seq;
+        $newSeq = sprintf('%05d', $lastNumber + 1);
 
-        return $numbering;
+        return 'DEP' . $datePrefix . $newSeq;
     }
 
     /**
