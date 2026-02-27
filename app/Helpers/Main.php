@@ -180,18 +180,19 @@ class Main
 
         $sql = "
             SELECT
-                MAX(SUBSTR(deposit, -5)) AS UNIQUE_CODE
+                MAX(TO_NUMBER(SUBSTR(TRIM(deposit), LENGTH(TRIM(deposit)) - 4))) AS UNIQUE_CODE
             FROM
                 e_collections
             WHERE
                 deposit IS NOT NULL AND
-                TO_CHAR(created_at, 'YYYY') = '$yearNow'
+                TRIM(deposit) LIKE 'DEP" . $yearNow . "%' AND
+                REGEXP_LIKE(TRIM(deposit), '^DEP[0-9]{8}[0-9]{5}$')
         ";
 
         $data = QueryAPI::get($sql, true);
         $lastNumber = 0;
 
-        if ($data && isset($data->UNIQUE_CODE)) {
+        if ($data && isset($data->UNIQUE_CODE) && $data->UNIQUE_CODE !== null) {
             $lastNumber = (int) $data->UNIQUE_CODE;
         }
 
