@@ -200,8 +200,8 @@ class AcceptController extends Controller
                                         sum(quantity) as total_title_delivery,
                                         sum(case when qty_accept > 0 then qty_accept else 0 end) as total_eks_receipt,
                                         sum(case when qty_accept > 0 then quantity else 0 end) as total_title_receipt,
-                                        sum(case when qty_hibah > 0 then qty_hibah else 0 end) as total_eks_grant,
-                                        sum(case when qty_hibah > 0 then quantity else 0 end) as total_title_grant
+                                        sum(case when qty_reject > 0 then qty_reject else 0 end) as total_eks_grant,
+                                        sum(case when qty_reject > 0 then quantity else 0 end) as total_title_grant
                                     from
                                         letter_detail
                                     group by
