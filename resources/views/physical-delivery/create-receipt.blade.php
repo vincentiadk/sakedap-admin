@@ -403,12 +403,35 @@
         }
 
         var searchValue = $('#search_isbn').val();
+        isbnValue = searchValue.replace(/[^0-9X\-]/gi, '');
 
         if(!searchValue) {
             swalInit.fire({
                 title: 'Peringatan',
                 text: 'Silakan masukkan nomor ISBN',
                 icon: 'warning',
+            });
+
+            return;
+        }
+
+        if (!isbnValue) {
+            swalInit.fire({
+                title: 'Perhatian',
+                text: 'Mohon masukkan nomor ISBN terlebih dahulu',
+                icon: 'warning'
+            });
+
+            return;
+        }
+
+        var cleanISBN = isbnValue.replace(/-/g, '');
+
+        if (cleanISBN.length !== 10 && cleanISBN.length !== 13) {
+            swalInit.fire({
+                title: 'Format ISBN Tidak Valid',
+                text: 'ISBN harus terdiri dari 10 atau 13 digit',
+                icon: 'warning'
             });
 
             return;
@@ -433,6 +456,26 @@
                 if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
                     if((response.data?.jenis_media ?? '').toLowerCase() == 'cetak') {
                         if(response.data?.penerbit_id == executorId) {
+                            var isDuplicate = false;
+
+                            $('#data-collection-isbn input[name="ci_code[]"]').each(function() {
+                                if ($(this).val() === (response.data.isbn ?? '')) {
+                                    isDuplicate = true;
+
+                                    return false;
+                                }
+                            });
+
+                            if (isDuplicate) {
+                                swalInit.fire({
+                                    title: 'ISBN Sudah Ditambahkan',
+                                    text: 'ISBN ini sudah ada dalam daftar tabel',
+                                    icon: 'warning'
+                                });
+
+                                return;
+                            }
+
                             if($('#data-collection-isbn tr td[colspan]').length > 0) {
                                 $('#empty-isbn-row').remove();
                             }
