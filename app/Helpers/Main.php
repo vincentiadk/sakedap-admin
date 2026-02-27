@@ -175,30 +175,12 @@ class Main
      */
     public static function generateNumberDeposit()
     {
-        $yearNow = date('Y');
-        $datePrefix = date('Ymd');
+        $now = microtime(true);
+        $dateTime = date('YmdHis'); // YYYYMMDDHHIISS
+        $micro = sprintf('%06d', ($now - floor($now)) * 1000000); // microsecond
+        $random = random_int(100, 999); // 3 digit random
 
-        $sql = "
-            SELECT
-                MAX(TO_NUMBER(SUBSTR(TRIM(deposit), LENGTH(TRIM(deposit)) - 4))) AS UNIQUE_CODE
-            FROM
-                e_collections
-            WHERE
-                deposit IS NOT NULL AND
-                TRIM(deposit) LIKE 'DEP" . $yearNow . "%' AND
-                REGEXP_LIKE(TRIM(deposit), '^DEP[0-9]{8}[0-9]{5}$')
-        ";
-
-        $data = QueryAPI::get($sql, true);
-        $lastNumber = 0;
-
-        if ($data && isset($data->UNIQUE_CODE) && $data->UNIQUE_CODE !== null) {
-            $lastNumber = (int) $data->UNIQUE_CODE;
-        }
-
-        $newSeq = sprintf('%05d', $lastNumber + 1);
-
-        return 'DEP' . $datePrefix . $newSeq;
+        return 'DEP' . $dateTime . $micro . $random;
     }
 
     /**
