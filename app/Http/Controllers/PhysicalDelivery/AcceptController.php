@@ -776,4 +776,25 @@ class AcceptController extends Controller
 
         return response()->json($response);
     }
+
+    public function destroyCollection(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            QueryAPI::delete('letter_detail', $id);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
+    }
 }

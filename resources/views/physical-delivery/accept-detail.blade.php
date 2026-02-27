@@ -152,6 +152,10 @@
                                     <i class="ph-hash"></i>
                                 </th>
                                 <th class="text-center text-nowrap" rowspan="2" style="width: 80px">
+                                    <i class="ph-gear"></i>
+                                    Aksi
+                                </th>
+                                <th class="text-center text-nowrap" rowspan="2" style="width: 80px">
                                     <i class="ph-check-square"></i>
                                     Check
                                 </th>
@@ -200,7 +204,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($letterDetail ?? [] as $key => $ld)
+                            @foreach($letterDetail ?? [] as $ld)
                                 @php
                                     $code = str_replace('-', '', $ld->ISBN);
                                     $getDataISBN = null;
@@ -211,8 +215,13 @@
                                         ], true);
                                     }
                                 @endphp
-                                <tr>
-                                    <td class="text-center fw-semibold">{{ $key + 1 }}</td>
+                                <tr id="tr-letter-detail-id-{{ $ld->LETTER_DETAIL_ID }}">
+                                    <td class="text-center fw-semibold"></td>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="destroyCollection({{ $ld->LETTER_DETAIL_ID }})">
+                                            <i class="ph-trash-simple"></i>
+                                        </a>
+                                    </td>
                                     <td class="text-center">
                                         <span class="badge bg-secondary bg-opacity-10 text-secondary">
                                             {{ $ld->RECEIVED_BY ?: '-' }}
@@ -272,6 +281,8 @@
 </div>
 
 <script>
+    var tableClient;
+
     $(function() {
         if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#executor_id', 'executor', {
@@ -281,7 +292,7 @@
             select2Serverside('#executor_id', 'executor');
         }
 
-        $('#datatable-client').DataTable({
+        tableClient = $('#datatable-client').DataTable({
             paging: true,
             lengthChange: true,
             pageLength: 25,
@@ -295,11 +306,28 @@
             order: [[0, 'asc']],
             columnDefs: [
                 {
-                    targets: [2],
+                    targets: 0,
+                    searchable: false,
+                    orderable: false,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    targets: [1, 2, 3],
                     orderable: false
                 }
             ],
         });
+
+        tableClient.on('order.dt search.dt', function () {
+            tableClient.column(0, {
+                search:'applied',
+                order:'applied'
+            }).nodes().each(function (cell, i) {
+                cell.innerHTML = i + 1;
+            });
+        }).draw();
     });
 
     function isbnNumbering(id) {
@@ -391,5 +419,59 @@
                 responseError(response);
             }
         });
+    }
+
+    function destroyCollection(id) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus Data?</h5><span class="text-muted">Data yang telah dihapus tidak dapat dikembalikan lagi</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Batal', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Hapus', 'btn btn-danger ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("physical-delivery/accept/destroy-collection") }}',
+                        type: 'DELETE',
+                        dataType: 'JSON',
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                notification('success', response.message);
+
+                                tableClient.row('#tr-letter-detail-id-' + id).remove().draw(false);
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
     }
 </script>
