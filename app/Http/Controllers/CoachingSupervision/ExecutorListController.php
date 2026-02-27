@@ -43,6 +43,7 @@ class ExecutorListController extends Controller
             'penerbit.telp1',
             'penerbit.registerdate',
             'penerbit.createdate',
+            'penerbit.isbn_user_name'
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -70,6 +71,10 @@ class ExecutorListController extends Controller
             } else if ($request->status == 3) {
                 $whereCondition[] = '(penerbit.is_lock = 2)';
             }
+        }
+
+        if ($request->source_db) {
+            $whereCondition[] = " penerbit.source_db = '$request->source_db' ";
         }
 
         if ($search) {
@@ -169,11 +174,11 @@ class ExecutorListController extends Controller
                 $lock = '';
 
                 if (is_null($val->IS_LOCK) || $val->IS_LOCK == 0) {
-                    $lock = 'Aktif';
+                    $lock = '<label style="color:green">Aktif</label>';
                 } else if ($val->IS_LOCK == 1) {
-                    $lock = 'Blokir';
+                    $lock = '<label style="color:red">Blokir</label>';
                 } else if ($val->IS_LOCK == 2) {
-                    $lock = 'Usulan Blokir';
+                    $lock = '<label style="color:brown">Usulan Blokir</label>';
                 }
 
                 $dataWarning = QueryAPI::get("select * from e_publisher_warnings where publisher_id = $val->ID and status = 'DALAM TEGURAN'") ?? [];
@@ -188,6 +193,7 @@ class ExecutorListController extends Controller
                     <div>Status : ' . $lock . '</div>
                     <div>Teguran : ' . $warning . '</div>
                     <div>Status API : ' . ucwords(strtolower(($val->API_STATUS ?: 'Belum Mengajukan'))) . '</div>
+                    <div>Sumber : ' . $val->SOURCE_DB . '</div>
                 ';
 
                 $data[] = [
@@ -195,7 +201,7 @@ class ExecutorListController extends Controller
                     $action,
                     $mark,
                     $val->ID,
-                    $val->NAME,
+                    '<div>Nama : ' . $val->NAME .'</div><div><i>Username : '. $val->ISBN_USER_NAME .'</i></div>',
                     $email,
                     $val->NAME_PENERBIT_KATEGORI,
                     $val->NAME_PENERBIT_JENIS,

@@ -10,7 +10,7 @@ class DepositCollectionListController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.base_url') . '/KoleksiListDeposit.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.inlis_enterprise') . '/KoleksiListDeposit.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [
