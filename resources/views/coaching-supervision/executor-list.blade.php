@@ -32,6 +32,16 @@
                         <span class="input-group-text">
                             <i class="ph-funnel"></i>
                         </span>
+                        <select class="form-select" name="filter_source_db" id="filter_source_db" onchange="loadData()" style="min-width: 150px;">
+                            <option value="">Semua Sumber</option>
+                            <option value="ISBN">ISBN</option>
+                            <option value="EDEPOSIT">EDEPOSIT</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
                         <select class="form-select" name="filter_status" id="filter_status" onchange="loadData()" style="min-width: 150px;">
                             <option value="">Semua Status</option>
                             <option value="1">Aktif</option>
@@ -665,7 +675,8 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: {
-                    status: $('#filter_status').val()
+                    status: $('#filter_status').val(),
+                    source_db: $('#filter_source_db').val()
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
