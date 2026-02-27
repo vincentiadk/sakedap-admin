@@ -10,7 +10,7 @@ class CardexListController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.base_url') . '/KatalogSerialList.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.inlis_enterprise') . '/KatalogSerialList.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [
