@@ -79,7 +79,7 @@ class SingleUploadController extends Controller
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
-                kabupaten on kabupaten.id = catalogs.city_id
+                kabupaten on kabupaten.id = e_collections.city_id
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join

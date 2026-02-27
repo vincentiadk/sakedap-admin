@@ -106,7 +106,9 @@ class DashboardController extends Controller
             left join
                 kabupaten on kabupaten.propinsiid = propinsi.id
             left join
-                catalogs on catalogs.city_id = kabupaten.id and
+                e_collections on e_collections.city_id = kabupaten.id
+            left join
+                catalogs on catalogs.edeposit_col_id = e_collections.id and
                 (catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id

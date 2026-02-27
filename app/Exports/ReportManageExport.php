@@ -98,7 +98,9 @@ class ReportManageExport implements FromView, ShouldAutoSize
             join
                 penerbit on penerbit.id = catalogs.penerbit_id
             join
-                kabupaten on kabupaten.id = catalogs.city_id
+                kabupaten on kabupaten.id = e_collections.city_id
+            join
+                e_collections on e_collections.id = catalogs.edeposit_col_id
             join
                 propinsi on propinsi.id = kabupaten.propinsiid
             join
