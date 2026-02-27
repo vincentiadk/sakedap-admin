@@ -10,8 +10,11 @@ class PhysicalRecordingController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.domain') . '/deposit/Report/rvRegisterDeposit?l=' . $credentialInlis;
-
+        if(Main::isPerpusnas()){
+            $framing = 'https://inlis.perpusnas.go.id/deposit/Report/rvRegisterDeposit?l=' . $credentialInlis;
+        } else {
+            $framing = config('inlis.domain') . '/deposit/Report/rvRegisterDeposit?l=' . $credentialInlis;
+        }
         return view('layouts.index', [
             'data' => [
                 'framing' => $framing,
