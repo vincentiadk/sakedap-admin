@@ -119,7 +119,7 @@ class ManageController extends Controller
         }
 
         if ($request->media_id) {
-            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
+            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -179,7 +179,7 @@ class ManageController extends Controller
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join
-                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+                collectionmedias on collectionmedias.id = e_collections.collection_media_id
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             left join
@@ -245,7 +245,7 @@ class ManageController extends Controller
                             left join
                                 propinsi on propinsi.id = kabupaten.propinsiid
                             left join
-                                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             left join
@@ -348,6 +348,7 @@ class ManageController extends Controller
                 p.name as name_penerbit,
                 k.namakab as namakab,
                 pr.namapropinsi as namapropinsi,
+                ec.collection_media_id as collection_media_id_e_collection,
                 ec.code_type as code_type_e_collection,
                 ec.serial as serial_e_collection,
                 ec.received_at as received_at_e_collection,

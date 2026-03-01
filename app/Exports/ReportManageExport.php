@@ -63,7 +63,7 @@ class ReportManageExport implements FromView, ShouldAutoSize
         }
 
         if ($request->media_id) {
-            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
+            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -104,7 +104,7 @@ class ReportManageExport implements FromView, ShouldAutoSize
             join
                 propinsi on propinsi.id = kabupaten.propinsiid
             join
-                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+                collectionmedias on collectionmedias.id = e_collections.collection_media_id
             $whereClause
         ");
 

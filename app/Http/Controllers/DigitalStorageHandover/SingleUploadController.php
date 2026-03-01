@@ -73,6 +73,7 @@ class SingleUploadController extends Controller
                 e_collections.currency as currency_e_collection,
                 e_collections.price as price_e_collection,
                 e_collections.jilid as jilid_e_collection,
+                e_collections.collection_media_id as collection_media_id_e_collection,
                 e_collections.description as description_e_collection
             from
                 catalogs

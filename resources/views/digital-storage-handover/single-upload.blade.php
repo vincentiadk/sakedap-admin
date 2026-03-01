@@ -659,7 +659,7 @@
                     `);
 
                     $('#worksheet_id').val(data.WORKSHEET_ID).change();
-                    $('#collection_media_id').val(data.COLLECTIONMEDIA_ID).change();
+                    $('#collection_media_id').val(data.COLLECTION_MEDIA_ID_E_COLLECTION).change();
                     $('#title').val(data.TITLE);
                     $('#code_type').val(data.CODE_TYPE_E_COLLECTION).change();
                     $('#code').val(data.ISBN);

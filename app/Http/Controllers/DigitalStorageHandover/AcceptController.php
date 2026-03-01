@@ -82,7 +82,7 @@ class AcceptController extends Controller
         }
 
         if ($request->media_id) {
-            $whereCondition[] = "catalogs.collectionmedia_id = $request->media_id";
+            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -145,7 +145,7 @@ class AcceptController extends Controller
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
             left join
-                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+                collectionmedias on collectionmedias.id = e_collections.collection_media_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -177,7 +177,7 @@ class AcceptController extends Controller
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             left join
-                                collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
+                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
                             $whereClause
                             $orderBy
                         ) data
@@ -228,6 +228,7 @@ class AcceptController extends Controller
                 k.namakab as namakab,
                 pr.namapropinsi as namapropinsi,
                 ec.code_type as code_type_e_collection,
+                ec.collection_media_id as collection_media_id_e_collection,
                 ec.serial as serial_e_collection,
                 ec.received_at as received_at_e_collection,
                 ec.price as price_e_collection,
