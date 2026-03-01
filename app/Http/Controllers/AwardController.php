@@ -414,9 +414,9 @@ class AwardController extends Controller
             join
                 penerbit on penerbit.id = catalogs.penerbit_id
             join
-                kabupaten on kabupaten.id = e_collections.city_id
-            join
                 e_collections on e_collections.id = catalogs.edeposit_col_id
+            join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
             join
                 worksheets on worksheets.id = catalogs.worksheet_id
             $whereClause
@@ -443,9 +443,9 @@ class AwardController extends Controller
                             join
                                 penerbit on penerbit.id = catalogs.penerbit_id
                             join
-                                kabupaten on kabupaten.id = e_collections.city_id
-                            join
                                 e_collections on e_collections.id = catalogs.edeposit_col_id
+                            join
+                                kabupaten on kabupaten.id = e_collections.kabupaten_id
                             join
                                 worksheets on worksheets.id = catalogs.worksheet_id
                             $whereClause

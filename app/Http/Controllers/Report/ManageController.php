@@ -173,15 +173,15 @@ class ManageController extends Controller
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
-                kabupaten on kabupaten.id = e_collections.city_id
+                e_collections on e_collections.id = catalogs.edeposit_col_id
+            left join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
             left join
                 collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
             left join
                 worksheets on worksheets.id = catalogs.worksheet_id
-            left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
             left join
                 (
                     select
@@ -239,15 +239,15 @@ class ManageController extends Controller
                             left join
                                 penerbit on penerbit.id = catalogs.penerbit_id
                             left join
-                                kabupaten on kabupaten.id = e_collections.city_id
+                                e_collections on e_collections.id = catalogs.edeposit_col_id
+                            left join
+                                kabupaten on kabupaten.id = e_collections.kabupaten_id
                             left join
                                 propinsi on propinsi.id = kabupaten.propinsiid
                             left join
                                 collectionmedias on collectionmedias.id = catalogs.collectionmedia_id
                             left join
                                 worksheets on worksheets.id = catalogs.worksheet_id
-                            left join
-                                e_collections on e_collections.id = catalogs.edeposit_col_id
                             left join
                                 (
                                     select
@@ -382,7 +382,7 @@ class ManageController extends Controller
             left join
                 penerbit p on p.id = c.penerbit_id
             left join
-                kabupaten k on k.id = ec.city_id
+                kabupaten k on k.id = ec.kabupaten_id
             left join
                 propinsi pr on pr.id = k.propinsiid
             left join

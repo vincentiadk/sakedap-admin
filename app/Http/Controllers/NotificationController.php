@@ -45,9 +45,9 @@ class NotificationController extends Controller
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
-                kabupaten on kabupaten.id = e_collections.city_id
-            left join
                 e_collections on e_collections.id = catalogs.edeposit_col_id
+            left join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
             where
                 e_collection_requests.status = 1 and
                 $provinceId

@@ -442,16 +442,16 @@ class Select2ServersideController extends Controller
                         c.isbn,
                         c.callnumber,
                         c.penerbit_id,
-                        ec.city_id,
+                        ec.kabupaten_id,
                         c.worksheet_id
                     from
                         catalogs c
                     left join
                         penerbit p on p.id = c.penerbit_id
                     left join
-                        kabupaten k on k.id = ec.city_id
-                    left join
                         e_collections ec on ec.id = c.edeposit_col_id
+                    left join
+                        kabupaten k on k.id = ec.kabupaten_id
                     left join
                         worksheets w on w.id = c.worksheet_id
                     $whereClause

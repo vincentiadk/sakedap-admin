@@ -79,11 +79,11 @@ class SingleUploadController extends Controller
             left join
                 penerbit on penerbit.id = catalogs.penerbit_id
             left join
-                kabupaten on kabupaten.id = e_collections.city_id
+                e_collections on e_collections.id = catalogs.edeposit_col_id
+            left join
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
                 propinsi on propinsi.id = kabupaten.propinsiid
-            left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
             where
                 catalogs.id = $id
         ", true);
