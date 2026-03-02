@@ -55,6 +55,7 @@ class ManageController extends Controller
         $column = [
             'catalogs.id',
             null,
+            'catalogs.id',
             'penerbit.id',
             'penerbit.name',
             'e_collections.created_at',
@@ -296,6 +297,7 @@ class ManageController extends Controller
                 $data[] = [
                     $start + 1,
                     $action,
+                    $val->ID,
                     $val->ID_PENERBIT,
                     $val->NAME_PENERBIT,
                     Carbon::parse($val->CREATED_AT_E_COLLECTION)->isoFormat('D MMMM Y'),

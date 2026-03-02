@@ -146,6 +146,10 @@
                                 Aksi
                             </th>
                             <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-archive-box me-1"></i>
+                                ID Katalog
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
                                 <i class="ph-identification-card me-1"></i>
                                 ID Pelaksana Serah
                             </th>
@@ -458,6 +462,7 @@
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
