@@ -197,7 +197,7 @@
                             <i class="ph-file-pdf me-2 text-danger"></i>
                             <h6 class="mb-0 fw-semibold">
                                 File Akta
-                                <span class="text-danger">*</span>
+                                
                             </h6>
                         </div>
                     </div>
@@ -213,7 +213,7 @@
                             <i class="ph-file-pdf me-2 text-danger"></i>
                             <h6 class="mb-0 fw-semibold">
                                 File Pernyataan
-                                <span class="text-danger">*</span>
+                                
                             </h6>
                         </div>
                     </div>
