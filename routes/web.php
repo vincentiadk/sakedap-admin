@@ -90,6 +90,17 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data', 'DeliveryVerificationController@destroyData');
         });
 
+     Route::prefix('delivery-verification2')->group(function () {
+            Route::get('/', 'DeliveryVerificationController2@index');
+            Route::post('datatable', 'DeliveryVerificationController2@datatable');
+            Route::post('datatable-collection', 'DeliveryVerificationController2@datatableCollection');
+            Route::post('checked-action', 'DeliveryVerificationController2@checkedAction');
+            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController2@detail');
+            Route::match(['get', 'post'], 'update-data/{id}', 'DeliveryVerificationController2@updateData');
+            Route::delete('destroy-data', 'DeliveryVerificationController2@destroyData');
+            Route::delete('destroy-data-ld', 'DeliveryVerificationController2@destroyDataLD');
+        });    
+
         Route::prefix('delivery-to-destination')->group(function () {
             Route::get('/', 'DeliveryToDestinationController@index');
             Route::post('datatable', 'DeliveryToDestinationController@datatable');
