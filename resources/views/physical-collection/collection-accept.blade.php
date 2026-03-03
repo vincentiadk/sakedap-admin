@@ -32,12 +32,36 @@
             <div class="card-body">
                 <form id="form-filter">
                     <div class="row g-3">
-                        <div class="col-lg-12 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </label>
                             <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Judul
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="title" id="title" placeholder="Cari judul">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                ISBN
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Cari ISBN">
+                            </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">

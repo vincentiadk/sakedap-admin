@@ -70,6 +70,15 @@ class CollectionAcceptController extends Controller
             $whereCondition[] = "l.status = '$status'";
         }
 
+        if ($request->title) {
+            $title = strtoupper(str_replace("'", "''", $request->title));
+            $whereCondition[] = "upper(ld.title) = '$title'";
+        }
+        if ($request->isbn) {
+            $isbn = strtoupper(str_replace("'", "''", $request->isbn));
+            $whereCondition[] = "replace(ld.ISBN,'-','') = '$isbn'";
+        }
+
         if ($request->executor_id) {
             $executorId = intval($request->executor_id);
             $whereCondition[] = "l.penerbit_id = $executorId";
