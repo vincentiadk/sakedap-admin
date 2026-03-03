@@ -177,7 +177,7 @@ class TutorialController extends Controller
                     $start + 1,
                     $action,
                     $media,
-                    $val->NAME_E_NEWS_KATEGORI,
+                    $val->NAME_E_NEWS_KATEGORI ?: '',
                     $val->TITLE,
                     $val->LANG,
                     $attachmentLink,
@@ -228,13 +228,11 @@ class TutorialController extends Controller
             'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
             'title' => 'required',
             'content' => 'required',
-            'category_id' => 'required',
         ], [
             'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
             'media.max' => 'Media maksimal 5 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
-            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {
@@ -310,13 +308,11 @@ class TutorialController extends Controller
             'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
             'title' => 'required',
             'content' => 'required',
-            'category_id' => 'required',
         ], [
             'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
             'media.max' => 'Media maksimal 5 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
-            'category_id.required' => 'Kategori tidak boleh kosong',
         ]);
 
         if ($validation->fails()) {

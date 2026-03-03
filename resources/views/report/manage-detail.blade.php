@@ -116,7 +116,7 @@
                         <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id" disabled>
                             <option value=""></option>
                             @foreach($media as $m)
-                                <option value="{{ $m->ID }}" {{ $collection->COLLECTION_MEDIA_ID_E_COLLECTION == $m->ID ? 'selected' : '' }}>{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
+                                <option value="{{ $m->ID }}" {{ $collection->CM_ID_E_COL == $m->ID ? 'selected' : '' }}>{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
                             @endforeach
                         </select>
                     </div>

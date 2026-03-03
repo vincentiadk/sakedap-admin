@@ -128,7 +128,6 @@
                                 <label class="form-label fw-semibold">
                                     <i class="ph-tag me-1"></i>
                                     Kategori Tutorial
-                                    <span class="text-danger">*</span>
                                 </label>
                                 <select class="form-select select2-basic" name="category_id" id="category_id" data-dropdown-parent="#modal-form" data-placeholder="Pilih kategori tutorial">
                                     <option value=""></option>
