@@ -558,7 +558,7 @@ class QueryAPI
                 'op' => 'settanggalterima',
                 'actionby' => session('username'),
                 'terminal' => request()->ip(),
-                'listtanggalterima' => [json_encode($payload)]
+                'listtanggalterima' => json_encode([$payload])
             ]);
 
         if ($query->status() == 200) {
