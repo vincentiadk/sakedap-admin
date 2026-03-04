@@ -36,7 +36,7 @@ class PhysicalReceptionController extends Controller
             'branchs.name',
             'jasa_pengiriman.name',
             'letter.receipt_no',
-            'letter_detail.copyt',
+            'letter_detail.copy',
             'letter_detail.qty_accept',
             'letter_detail.qty_reject',
             'letter_detail.qty_hibah',
