@@ -545,6 +545,12 @@ class QueryAPI
         return $data;
     }
 
+    /**
+     * setReceiveDate
+     *
+     * @param  mixed $payload
+     * @return void
+     */
     public static function setReceiveDate($payload = [])
     {
         static::initialize();
