@@ -206,6 +206,7 @@
                     <label class="col-form-label col-md-2 fw-semibold">
                         <i class="ph-calendar-check me-1"></i>
                         Waktu Terbit
+                        <span class="text-danger">*</span>
                     </label>
                     <div class="col-md-10">
                         <div class="input-group">
@@ -235,6 +236,7 @@
                     <label class="col-form-label col-md-2 fw-semibold">
                         <i class="ph-eye me-1"></i>
                         Preview
+                        <span class="text-danger">*</span>
                     </label>
                     <div class="col-md-10">
                         <input type="text" class="form-control" name="preview" id="preview" placeholder="cth : 1-5 / 00:01-00:20">
@@ -271,6 +273,7 @@
                     <label class="col-form-label col-md-2 fw-semibold">
                         <i class="ph-tag me-1"></i>
                         Harga
+                        <span class="text-danger">*</span>
                     </label>
                     <div class="col-md-10">
                         <div class="input-group">
@@ -378,6 +381,7 @@
                     <label class="col-form-label col-md-2 fw-semibold">
                         <i class="ph-note me-1"></i>
                         Sinopsis
+                        <span class="text-danger">*</span>
                     </label>
                     <div class="col-md-10">
                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Masukkan sinopsis atau deskripsi"></textarea>
@@ -405,7 +409,7 @@
             <div class="card-header border-bottom">
                 <div class="d-flex align-items-center">
                     <i class="ph-users me-2 text-primary"></i>
-                    <h6 class="mb-0 fw-semibold">Kontributor</h6>
+                    <h6 class="mb-0 fw-semibold">Kontributor <span class="text-danger">*</span></h6>
                 </div>
             </div>
             <div class="card-body">
