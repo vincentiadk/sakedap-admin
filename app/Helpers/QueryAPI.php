@@ -570,7 +570,7 @@ class QueryAPI
                 Log::channel('sakedap-api')->error('Gagal set tanggal terima', [
                     'response' => $response,
                     'message' => $query->body(),
-                    'payload' => [json_encode($payload)]
+                    'payload' => json_encode([$payload])
                 ]);
             }
         }
