@@ -417,36 +417,28 @@ class ReviewEditionController extends Controller
                         $updateData['status'] = $status;
 
                         if ($isStatus2) {
-                            $updateData['deposit'] = Main::generateNumberDeposit(
-                                $request->worksheet_id,
-                                $request->year ?? date('Y'),
-                                $request->city_id
-                            );
+                            if (empty($collection->DEPOSIT ?: null)) {
+                                $updateData['deposit'] = Main::generateNumberDeposit();
+                            }
 
                             $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
                             $updateData['received_by'] = $sessionId;
                             $updateData['validated_at'] = $currentDateTime;
                             $updateData['validated_by'] = $sessionId;
+                        } else if ($isStatus3) {
+                            $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
+                            $updateData['problem'] = $request->problem;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:s');
+                        } else if ($isStatus5) {
+                            $updateData['reject'] = $request->reject;
+                            $updateData['rejected_at'] = date('Y-m-d H:i:s');
                         } else {
-                            $updateData['deposit'] = null;
                             $updateData['received_at'] = null;
                             $updateData['received_by'] = null;
                             $updateData['validated_at'] = null;
                             $updateData['validated_by'] = null;
                         }
-
-                        if ($isStatus3) {
-                            $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
-                            $updateData['problem'] = $request->problem;
-                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
-                        }
-
-                        if ($isStatus5) {
-                            $updateData['reject'] = $request->reject;
-                            $updateData['rejected_at'] = date('Y-m-d H:i:S');
-                        }
                     }
-
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 

@@ -200,7 +200,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [[7, 'desc']],
             ajax: {
                 url: '{{ url("digital-storage-handover/reject/datatable") }}',
                 dataType: 'JSON',

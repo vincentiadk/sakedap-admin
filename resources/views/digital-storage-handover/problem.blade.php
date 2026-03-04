@@ -214,7 +214,7 @@
             deferRender: true,
             scrollX: true,
             destroy: true,
-            order: [[0, 'desc']],
+            order: [[8, 'desc']],
             ajax: {
                 url: '{{ url("digital-storage-handover/problem/datatable") }}',
                 dataType: 'JSON',
