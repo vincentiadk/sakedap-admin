@@ -552,14 +552,14 @@ class QueryAPI
         $data = [];
         $query = Http::connectTimeout(0)
             ->timeout(0)
-            ->asForm()
-            ->post(static::$baseUrl, [
+            ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'settanggalterima',
                 'actionby' => session('username'),
                 'terminal' => request()->ip(),
                 'listtanggalterima' => json_encode([$payload])
-            ]);
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
