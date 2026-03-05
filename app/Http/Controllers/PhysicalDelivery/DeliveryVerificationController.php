@@ -386,7 +386,7 @@ class DeliveryVerificationController extends Controller
             select
                 count(*) as total
             from
-                letter_detail
+                letter_detail where letter_id=$request->letter_id
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
@@ -439,20 +439,23 @@ class DeliveryVerificationController extends Controller
             ->values();
 
         $isbnData = [];
+        $search = $isbnCodes->implode(',');
+        $result = ISBN::get('search', [
+            'code' => $search,
+            'start' => 0,
+            'length' => 5000
+        ]);
+        $isbnDataCollection = collect();
 
-        if ($isbnCodes->isNotEmpty()) {
-            $isbnDataCollection = collect();
-
-            foreach ($isbnCodes as $code) {
-                $result = ISBN::get('search', ['code' => $code], true);
-
-                if ($result) {
-                    $isbnDataCollection->put($code, $result);
+        if ($result && !empty($result->data)) {
+            foreach ($result->data as $row) {
+                $code = str_replace('-', '', $row->code ?? $row->isbn ?? '');
+                if ($code) {
+                    $isbnDataCollection->put($code, $row);
                 }
             }
-
-            $isbnData = $isbnDataCollection;
         }
+        $isbnData = $isbnDataCollection;
 
         $letterDetails = [];
 
