@@ -560,11 +560,41 @@
     </div>
 </div>
 
+<style>
+    .edition-item input.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+    }
+    .edition-item input[type="file"].is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        background-image: none;
+    }
+    .edition-item .invalid-label {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 4px;
+        display: block;
+    }
+</style>
+
 <script>
     let existingEditionsTable = null;
 
     $(function() {
         datePickerSingle('.date-picker-single');
+
+        $(document).on('change', '#data-edition input[name="cc_edition_date[]"]', function() {
+            $(this).removeClass('is-invalid');
+        });
+
+        $(document).on('change', '#data-edition input[name="cc_edition_content[]"]', function() {
+            $(this).removeClass('is-invalid');
+        });
 
         if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#city_id', 'location', {
@@ -1019,9 +1049,10 @@
                                         <label class="col-form-label col-md-12 fw-semibold">
                                             <i class="ph-calendar me-1"></i>
                                             Tanggal Terbit Edisi
+                                            <span class="text-danger">*</span>
                                         </label>
                                         <div class="col-md-12">
-                                            <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly>
+                                            <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly required>
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -1038,9 +1069,10 @@
                                         <label class="col-form-label col-md-12 fw-semibold">
                                             <i class="ph-file me-1"></i>
                                             File Konten
+                                            <span class="text-danger">*</span>
                                         </label>
                                         <div class="col-md-12">
-                                            <input type="file" class="form-control" name="cc_edition_content[]" accept=".pdf,.epub,.mp3,.mp4,.wav">
+                                            <input type="file" class="form-control" name="cc_edition_content[]" accept=".pdf,.epub,.mp3,.mp4,.wav" required>
                                             <small class="text-muted">Format: PDF, EPUB, MP3, MP4, WAV</small>
                                         </div>
                                     </div>
@@ -1180,15 +1212,81 @@
     }
 
     function submitted() {
+        const form = $('#form-data')[0];
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+
+            return;
+        }
+
         if (!$('input[name="has_edition"]').is(':checked')) {
             $('input[name="has_edition"]').val(0);
+        }
+
+        if ($('input[name="has_edition"]').is(':checked')) {
+            const editionItems = $('#data-edition .edition-item');
+
+            if (editionItems.length === 0) {
+                swalInit.fire({
+                    title: 'Edisi Kosong',
+                    text: 'Anda mengaktifkan edisi serial, namun belum menambahkan edisi apapun.',
+                    icon: 'warning',
+                    confirmButtonText: '<i class="ph-check me-1"></i> Mengerti',
+                });
+
+                return;
+            }
+
+            let editionErrors = [];
+
+            editionItems.each(function(index) {
+                const editionNumber = index + 1;
+                const $item = $(this);
+
+                const dateVal   = $item.find('input[name="cc_edition_date[]"]').val();
+                const fileInput = $item.find('input[name="cc_edition_content[]"]')[0];
+                const hasFile   = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                $item.find('input[name="cc_edition_date[]"]').removeClass('is-invalid');
+                $item.find('input[name="cc_edition_content[]"]').removeClass('is-invalid');
+
+                if (!dateVal) {
+                    $item.find('input[name="cc_edition_date[]"]').addClass('is-invalid');
+                    editionErrors.push(`Edisi #${editionNumber}: Tanggal terbit wajib diisi`);
+                }
+
+                if (!hasFile) {
+                    $item.find('input[name="cc_edition_content[]"]').addClass('is-invalid');
+                    editionErrors.push(`Edisi #${editionNumber}: File konten wajib diisi`);
+                }
+            });
+
+            if (editionErrors.length > 0) {
+                const errorListHtml = editionErrors.map(e => `<li class="text-start">${e}</li>`).join('');
+
+                swalInit.fire({
+                    title: 'Edisi Belum Lengkap',
+                    html: `<ul class="mb-0 ps-3">${errorListHtml}</ul>`,
+                    icon: 'warning',
+                    confirmButtonText: '<i class="ph-check me-1"></i> Oke, Saya Perbaiki',
+                });
+
+                const firstError = $('#data-edition .edition-item .is-invalid').first();
+
+                if (firstError.length) {
+                    $('html, body').animate({ scrollTop: firstError.closest('.edition-item').offset().top - 100 }, 400);
+                }
+
+                return;
+            }
         }
 
         $.ajax({
             url: '{{ url("digital-storage-handover/single-upload/submitted") }}',
             type: 'POST',
             dataType: 'JSON',
-            data: new FormData($('#form-data')[0]),
+            data: new FormData(form),
             contentType: false,
             processData: false,
             cache: false,

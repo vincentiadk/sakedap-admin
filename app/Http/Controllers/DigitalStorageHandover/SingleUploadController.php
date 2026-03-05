@@ -253,50 +253,25 @@ class SingleUploadController extends Controller
                     }
 
                     if ($request->cc_edition && $request->has_edition) {
-                        $filesToUpload = [];
-
                         foreach ($request->cc_edition as $key => $cce) {
                             $editionTitle = $request->cc_edition_title[$key] ?? null;
-                            $editionDate = $request->cc_edition_date[$key] ?? null;
-                            $articleTitle = $request->cc_edition_article_title[$key] ?? null;
-                            $articleContributor = $request->cc_edition_article_contributor[$key] ?? null;
-                            $articleAbstract = $request->cc_edition_article_abstract[$key] ?? null;
-                            $articleSubject = $request->cc_edition_article_subject[$key] ?? null;
-                            $articleOriginalLink = $request->cc_edition_article_original_link[$key] ?? null;
-                            $articlePublishDate = $request->cc_edition_article_publish_date[$key] ?? null;
-                            $articleDoi = $request->cc_edition_article_doi[$key] ?? null;
+                            $editionDate  = $request->cc_edition_date[$key] ?? null;
 
-                            $editionCover = null;
-                            $editionContent = null;
-
-                            if ($request->hasFile('cc_edition_cover') && isset($request->file('cc_edition_cover')[$key])) {
-                                $editionCover = $request->file('cc_edition_cover')[$key];
-                            }
-                            if ($request->hasFile('cc_edition_content') && isset($request->file('cc_edition_content')[$key])) {
-                                $editionContent = $request->file('cc_edition_content')[$key];
-                            }
-
-                            if ($editionTitle && $editionDate && $editionCover && $editionContent && $editionCover->isValid() && $editionContent->isValid()) {
+                            if ($editionTitle && $editionDate) {
                                 $editionData = $baseCollectionData;
                                 $editionData['deposit'] = Main::generateNumberDeposit();
                                 $editionData['parent_id'] = $createCollection->ID;
                                 $editionData['edition'] = $editionTitle;
                                 $editionData['edition_date'] = date('Y-m-d H:i:s', strtotime($editionDate));
-                                $editionData['publication_month'] = date('m', strtotime($editionDate));
-                                $editionData['publication_year'] = date('Y', strtotime($editionDate));
-                                $editionData['publication_day'] = date('d', strtotime($editionDate));
-                                $editionData['jilid'] = $request->binding;
-                                $editionData['currency'] = $request->currency ?? 'IDR';
-                                $editionData['jenis_isi'] = $request->content_type;
-                                $editionData['jenis_wadah'] = $request->container_type;
-                                $editionData['jenis_media'] = $request->media_type;
-                                $editionData['article_title'] = $articleTitle;
-                                $editionData['article_contributor'] = $articleContributor;
-                                $editionData['article_abstract'] = $articleAbstract;
-                                $editionData['article_subject'] = $articleSubject;
-                                $editionData['article_original_link'] = $articleOriginalLink;
-                                $editionData['article_publish_date'] = $articlePublishDate ? date('Y-m-d', strtotime($articlePublishDate)) : null;
-                                $editionData['article_doi'] = $articleDoi;
+
+                                $editionData['article_title'] = $request->cc_edition_article_title[$key] ?? null;
+                                $editionData['article_contributor'] = $request->cc_edition_article_contributor[$key] ?? null;
+                                $editionData['article_abstract'] = $request->cc_edition_article_abstract[$key] ?? null;
+                                $editionData['article_subject'] = $request->cc_edition_article_subject[$key] ?? null;
+                                $editionData['article_original_link'] = $request->cc_edition_article_original_link[$key] ?? null;
+                                $editionData['article_publish_date'] = $request->cc_edition_article_publish_date[$key] ? date('Y-m-d', strtotime($request->cc_edition_article_publish_date[$key])) : null;
+                                $editionData['article_doi'] = $request->cc_edition_article_doi[$key] ?? null;
+
                                 $createEdition = QueryAPI::create('e_collections', $editionData);
 
                                 if ($createEdition) {
@@ -304,47 +279,52 @@ class SingleUploadController extends Controller
                                         foreach ($request->category as $categoryId) {
                                             QueryAPI::create('e_collection_categories', [
                                                 'collection_id' => $createEdition->ID,
-                                                'category_id' => $categoryId
+                                                'category_id'   => $categoryId
                                             ]);
                                         }
                                     }
 
-                                    $filesToUpload[] = [
-                                        'collection_id' => $createEdition->ID,
-                                        'slug' => $createEdition->SLUG,
-                                        'cover' => $editionCover,
-                                        'content' => $editionContent,
-                                    ];
+                                    $coverFiles   = $request->file('cc_edition_cover') ?? [];
+                                    $contentFiles = $request->file('cc_edition_content') ?? [];
+
+                                    $fileCoverEdition   = $coverFiles[$key] ?? null;
+                                    $fileContentEdition = $contentFiles[$key] ?? null;
+
+                                    if ($fileCoverEdition) {
+                                        if ($fileCoverEdition->isValid()) {
+                                            QueryAPI::uploadFile([
+                                                'type' => 'cover',
+                                                'id' => $createEdition->ID,
+                                                'status' => 1,
+                                                'hash' => md5('FILE-COVER-' . $createEdition->SLUG . $key),
+                                                'mime' => $fileCoverEdition->getMimeType(),
+                                                'filesize' => $fileCoverEdition->getSize(),
+                                                'method' => 4,
+                                                'iszip' => false,
+                                                'file' => $fileCoverEdition,
+                                            ]);
+                                        }
+                                    }
+
+                                    if ($fileContentEdition) {
+                                        if ($fileContentEdition->isValid()) {
+                                            QueryAPI::uploadFile([
+                                                'type' => 'konten_digital',
+                                                'id' => $createEdition->ID,
+                                                'status' => 1,
+                                                'hash' => md5('FILE-KONTEN-' . $createEdition->SLUG . $key),
+                                                'mime' => $fileContentEdition->getMimeType(),
+                                                'filesize' => $fileContentEdition->getSize(),
+                                                'method' => 4,
+                                                'iszip' => false,
+                                                'file' => $fileContentEdition,
+                                            ]);
+                                        }
+                                    }
+
+                                    QueryAPI::verificationCollection($createEdition->ID);
                                 }
                             }
-                        }
-
-                        foreach ($filesToUpload as $fileData) {
-                            QueryAPI::uploadFile([
-                                'type' => 'cover',
-                                'id' => $fileData['collection_id'],
-                                'status' => 1,
-                                'hash' => md5('FILE-COVER-' . $fileData['slug']),
-                                'mime' => $fileData['cover']->getMimeType(),
-                                'filesize' => $fileData['cover']->getSize(),
-                                'method' => 4,
-                                'iszip' => false,
-                                'file' => $fileData['cover'],
-                            ]);
-
-                            QueryAPI::uploadFile([
-                                'type' => 'konten_digital',
-                                'id' => $fileData['collection_id'],
-                                'status' => 1,
-                                'hash' => md5('FILE-KONTEN-' . $fileData['slug']),
-                                'mime' => $fileData['content']->getMimeType(),
-                                'filesize' => $fileData['content']->getSize(),
-                                'method' => 4,
-                                'iszip' => false,
-                                'file' => $fileData['content'],
-                            ]);
-
-                            QueryAPI::verificationCollection($fileData['collection_id']);
                         }
                     }
 
