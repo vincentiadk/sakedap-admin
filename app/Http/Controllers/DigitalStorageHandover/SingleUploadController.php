@@ -364,7 +364,9 @@ class SingleUploadController extends Controller
                         QueryAPI::query("update catalogfiles set e_col_id = $createCollection->ID where upload_id = $uploadIDContent");
                     }
 
-                    QueryAPI::verificationCollection($createCollection->ID);
+                    if (!$request->cc_edition && !$request->has_edition) {
+                        QueryAPI::verificationCollection($createCollection->ID);
+                    }
 
                     $response = [
                         'code' => 200,

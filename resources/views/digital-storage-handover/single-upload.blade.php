@@ -1040,9 +1040,10 @@
                                         <label class="col-form-label col-md-12 fw-semibold">
                                             <i class="ph-tag me-1"></i>
                                             Edisi / Volume
+                                            <span class="text-danger">*</span>
                                         </label>
                                         <div class="col-md-12">
-                                            <input type="text" class="form-control" name="cc_edition_title[]" placeholder="Contoh: Vol 1 No 1">
+                                            <input type="text" class="form-control" name="cc_edition_title[]" placeholder="Contoh: Vol 1 No 1" required>
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -1244,12 +1245,19 @@
                 const editionNumber = index + 1;
                 const $item = $(this);
 
-                const dateVal   = $item.find('input[name="cc_edition_date[]"]').val();
+                const titleVal = $item.find('input[name="cc_edition_title[]"]').val();
+                const dateVal = $item.find('input[name="cc_edition_date[]"]').val();
                 const fileInput = $item.find('input[name="cc_edition_content[]"]')[0];
-                const hasFile   = fileInput && fileInput.files && fileInput.files.length > 0;
+                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
+                $item.find('input[name="cc_edition_title[]"]').removeClass('is-invalid');
                 $item.find('input[name="cc_edition_date[]"]').removeClass('is-invalid');
                 $item.find('input[name="cc_edition_content[]"]').removeClass('is-invalid');
+
+                if (!titleVal) {
+                    $item.find('input[name="cc_edition_title[]"]').addClass('is-invalid');
+                    editionErrors.push(`Edisi #${editionNumber}: Judul edisi wajib diisi`);
+                }
 
                 if (!dateVal) {
                     $item.find('input[name="cc_edition_date[]"]').addClass('is-invalid');
