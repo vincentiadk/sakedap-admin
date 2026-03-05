@@ -478,20 +478,16 @@
                             <div><b>Metode :</b> {{ Main::method($collection->METHOD_CATALOGFILES ?? 0) }}</div>
                         </div>
                         <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
-                            <div id="viewer-content" style="width: 100%; height: 100%;">
-                                <div id="pdf-controls" class="bg-dark d-none justify-content-center align-items-center gap-3 p-2 border-bottom border-secondary">
-                                    <div class="text-white small fs-6">
-                                        Halaman: <span id="pdf-current-page">1</span> / <span id="pdf-total-pages">0</span>
+                            <div id="viewer-content" style="width: 100%; height: 100%; position: relative;">
+                                <div id="pdf-controls" style="display: none; position: absolute; top: 15px; right: 25px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center;">
+                                    <span id="pdf-info" style="color: white; font-size: 13px; font-weight: 500; border-right: 1px solid #555; padding-right: 12px;">Halaman: <span id="current-page-num">-</span> / <span id="total-pages-num">-</span></span>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="btn btn-sm btn-light" id="btn-pdf-zoom-out" title="Zoom Out"><i class="ph-magnifying-glass-minus text-dark"></i></button>
+                                        <button type="button" class="btn btn-sm btn-light" id="btn-pdf-fit" title="Fit Layout"><i class="ph-corners-out text-dark"></i></button>
+                                        <button type="button" class="btn btn-sm btn-light" id="btn-pdf-zoom-in" title="Zoom In"><i class="ph-magnifying-glass-plus text-dark"></i></button>
                                     </div>
-                                    <div class="vr mx-2 text-secondary"></div>
-                                    <button type="button" class="btn btn-sm btn-light" onclick="zoomPdf(0.1)" title="Zoom In">
-                                        <i class="ph-magnifying-glass-plus"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-light" onclick="zoomPdf(-0.1)" title="Zoom Out">
-                                        <i class="ph-magnifying-glass-minus"></i>
-                                    </button>
                                 </div>
-                                <div id="pdf-viewer-container" style="overflow: auto; max-height: 600px; background: #525659; padding: 20px 0; display: none;"></div>
+                                <div id="pdf-viewer-container" style="overflow: auto; max-height: 600px; background: #525659; padding: 20px 0; display: none; scroll-snap-type: y mandatory; scroll-behavior: smooth;"></div>
                                 <video id="video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
                                 <div id="epub-container" style="display: none; height: 600px; width: 100%; background: white;"></div>
                                 <div id="epub-controls" style="display: none; position: absolute; top: 50%; left: 0; width: 100%; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 10000; transform: translateY(-50%);">
@@ -555,6 +551,7 @@
 
     let pdfDoc = null;
     let pdfScale = 1.0;
+    let currentPdfScaleMultiplier = 1;
 
     $(document).ready(function() {
         $(document).on('contextmenu', function(e) {
@@ -594,7 +591,7 @@
             watermarkSound = null;
         }
 
-        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
+        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message, #pdf-controls').hide();
         $('#video-player').hide();
         $('#watermark-overlay').css('display', 'flex');
 
@@ -637,75 +634,90 @@
 
     function renderPdf(url) {
         const $container = $('#pdf-viewer-container');
-        const $controls = $('#pdf-controls');
 
-        pdfDoc = null;
+        if (typeof onLoading === 'function') {
+            onLoading('show', '#viewer-content');
+        }
 
         $container.css({
             'display': 'block',
             'width': '100%',
             'height': '600px',
+            'overflow-y': 'auto',
+            'scroll-snap-type': 'y mandatory',
             'background': '#525659',
-            'overflow-y': 'auto'
+            'padding': '20px 0'
         }).empty();
 
         $('#video-player, #epub-container, #audio-wrapper, #default-message').hide();
-        $('#watermark-overlay').hide();
+        $('#pdf-controls').hide();
 
-        $container.off('scroll').on('scroll', function() {
-            const scrollTop = $(this).scrollTop();
-            const containerHeight = $(this).height();
-            const midPoint = scrollTop + (containerHeight / 2);
-
-            $('.pdf-page-wrapper').each(function() {
-                const pageTop = this.offsetTop;
-                const pageBottom = pageTop + $(this).outerHeight();
-
-                if (midPoint >= pageTop && midPoint <= pageBottom) {
-                    const pageNum = $(this).attr('id').replace('page-section-', '');
-                    $('#pdf-current-page').text(pageNum);
-                    return false;
-                }
-            });
-        });
+        currentPdfScaleMultiplier = 1;
 
         const checkPdfLib = setInterval(function() {
             if (window.pdfjsLib) {
                 clearInterval(checkPdfLib);
 
-                window.pdfjsLib.getDocument(url).promise.then(async function(pdf) {
-                    pdfDoc = pdf;
-                    $controls.removeClass('d-none').addClass('d-flex');
-                    $('#pdf-total-pages').text(pdf.numPages);
-                    $('#pdf-current-page').text(1);
+                const loadingTask = window.pdfjsLib.getDocument(url);
 
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        await renderPageToScroll(pageNum);
+                loadingTask.promise.then(function(pdf) {
+                    $('#pdf-controls').css('display', 'flex');
+                    $('#total-pages-num').text(pdf.numPages);
+                    $('#current-page-num').text(1);
+
+                    async function startRendering() {
+                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                            await renderPage(pdf, pageNum, $container);
+
+                            if (pageNum === 1 && typeof onLoading === 'function') {
+                                onLoading('close', '#viewer-content');
+                            }
+                        }
                     }
+                    startRendering();
 
                 }).catch(function(error) {
-                    console.error('PDF Error:', error);
-                    $('#default-message').show().find('span').text('Gagal memuat PDF.');
+                    if (error.name !== 'AbortException') {
+                        if (typeof onLoading === 'function') onLoading('close', '#viewer-content');
+
+                        $('#default-message').show().find('span').text('Gagal memuat PDF. Pastikan file tersedia.');
+
+                        $container.hide();
+                    }
                 });
             }
-        }, 100);
+        }, 200);
     }
 
-    async function renderPageToScroll(num) {
-        if (!pdfDoc) return;
-        const $container = $('#pdf-viewer-container');
+    function renderPage(pdf, pageNumber, $container) {
+        return pdf.getPage(pageNumber).then(function(page) {
+            let availableWidth = ($container[0].clientWidth || 800) - 40;
+            let availableHeight = 600 - 40;
 
-        try {
-            const page = await pdfDoc.getPage(num);
-            let availableWidth = ($container[0].clientWidth || 800) - 60;
-            const unscaledViewport = page.getViewport({ scale: 1 });
-            const dynamicScale = (availableWidth / unscaledViewport.width) * pdfScale;
-            const viewport = page.getViewport({ scale: dynamicScale });
+            var unscaledViewport = page.getViewport({ scale: 1 });
+            var scaleX = availableWidth / unscaledViewport.width;
+            var scaleY = availableHeight / unscaledViewport.height;
+
+            var baseScale = Math.min(scaleX, scaleY);
+            const viewport = page.getViewport({ scale: baseScale });
 
             const $pageWrapper = $('<div/>', {
-                class: 'pdf-page-wrapper mx-auto shadow-lg mb-4',
-                id: 'page-section-' + num,
-                style: `position: relative; width: ${viewport.width}px; height: ${viewport.height}px; background: white;`
+                class: 'pdf-page-wrapper',
+                id: 'pdf-page-wrapper-' + pageNumber,
+                'data-orig-width': viewport.width,
+                'data-orig-height': viewport.height,
+                style: `
+                    position: relative;
+                    margin: 0 auto 20px auto;
+                    display: flex;
+                    justify-content: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                    width: ${viewport.width}px;
+                    height: ${viewport.height}px;
+                    background-color: white;
+                    scroll-snap-align: center;
+                    flex-shrink: 0;
+                `
             });
 
             const canvas = document.createElement('canvas');
@@ -714,39 +726,103 @@
             canvas.width = viewport.width;
 
             const watermarkHtml = `
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;">
-                    <div style="position: absolute; bottom: 10px; left: 63px; transform: rotate(-90deg); transform-origin: bottom left; width: ${viewport.height - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 11px; line-height: 1.5;">
+                <div class="watermark-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; transform-origin: top left;">
+                    <div style="position: absolute; bottom: 10px; left: 63px; transform: rotate(-90deg); transform-origin: bottom left; width: ${viewport.height - 40}px; text-align: left; white-space: nowrap; opacity: 0.4; color: #333; font-family: 'Arial', sans-serif; font-size: 11px;">
                         <div style="font-weight: bold; text-transform: uppercase;">Pelaksanaan Undang - Undang Nomor 13 Tahun 2018.</div>
-                        <div style="font-weight: bold; text-transform: uppercase;">Tentang Serah Simpan Karya Cetak dan Karya Rekam</div>
-                        <div style="color: #d9534f; font-weight: bold;">Peringatan : Dilarang menggandakan, mencetak, mengunduh, atau mendistribusikan kembali tanpa izin.</div>
+                        <div style="color: #d9534f; font-weight: bold;">Dilarang menggandakan atau mendistribusikan tanpa izin.</div>
                     </div>
                 </div>
             `;
 
-            $pageWrapper.append(canvas);
-            $pageWrapper.append(watermarkHtml);
+            $pageWrapper.append(canvas).append(watermarkHtml);
             $container.append($pageWrapper);
 
-            await page.render({ canvasContext: context, viewport: viewport }).promise;
-        } catch (err) {
-            console.error("Error rendering page " + num, err);
-        }
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            return page.render(renderContext).promise;
+        });
     }
 
-    function zoomPdf(delta) {
-        pdfScale = Math.min(Math.max(pdfScale + delta, 0.5), 2.5);
+    $('#pdf-viewer-container').on('scroll', function() {
+        let currentPage = 1;
+        let minDistance = Infinity;
+        const containerTop = $(this).offset().top;
 
-        const $container = $('#pdf-viewer-container');
-        $container.empty();
+        $('.pdf-page-wrapper').each(function(index) {
+            let topPos = Math.abs($(this).offset().top - containerTop);
+            if (topPos < minDistance) {
+                minDistance = topPos;
+                currentPage = index + 1;
+            }
+        });
+        $('#current-page-num').text(currentPage);
+    });
 
-        if (pdfDoc) {
-            (async () => {
-                for (let i = 1; i <= pdfDoc.numPages; i++) {
-                    await renderPageToScroll(i);
-                }
-            })();
-        }
+    function getCurrentlyViewedPdfPage() {
+        let currentPage = 1;
+        let minDistance = Infinity;
+        const containerTop = $('#pdf-viewer-container').offset().top;
+
+        $('.pdf-page-wrapper').each(function(index) {
+            let topPos = Math.abs($(this).offset().top - containerTop);
+
+            if (topPos < minDistance) {
+                minDistance = topPos;
+                currentPage = index + 1;
+            }
+        });
+
+        return currentPage;
     }
+
+    function applyPdfZoom() {
+        if (typeof onLoading === 'function') onLoading('show', '#viewer-content');
+
+        const currentPage = parseInt($('#current-page-num').text());
+
+        $('.pdf-page-wrapper').each(function() {
+            const originalWidth = $(this).data('orig-width');
+            const originalHeight = $(this).data('orig-height');
+
+            $(this).css({
+                width: (originalWidth * currentPdfScaleMultiplier) + 'px',
+                height: (originalHeight * currentPdfScaleMultiplier) + 'px'
+            });
+
+            $(this).find('.watermark-container').css({
+                transform: `scale(${currentPdfScaleMultiplier})`
+            });
+        });
+
+        $('#pdf-viewer-container').css('scroll-snap-type', currentPdfScaleMultiplier === 1 ? 'y mandatory' : 'none');
+
+        setTimeout(() => {
+            const $targetPage = $('#pdf-page-wrapper-' + currentPage);
+
+            if ($targetPage.length) {
+                $targetPage[0].scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+
+            if (typeof onLoading === 'function') onLoading('close', '#viewer-content');
+        }, 200);
+    }
+
+    $(document).ready(function() {
+        $(document).on('click', '#btn-pdf-zoom-in', function() {
+            if (currentPdfScaleMultiplier < 3) { currentPdfScaleMultiplier += 0.25; applyPdfZoom(); }
+        });
+
+        $(document).on('click', '#btn-pdf-zoom-out', function() {
+            if (currentPdfScaleMultiplier > 0.5) { currentPdfScaleMultiplier -= 0.25; applyPdfZoom(); }
+        });
+
+        $(document).on('click', '#btn-pdf-fit', function() {
+            currentPdfScaleMultiplier = 1; applyPdfZoom();
+        });
+    });
 
     function renderVideo(url, ext) {
         Howler.unload();
@@ -761,7 +837,7 @@
 
         const watermarkSrc = "{{ asset('assets/audio-wm.mp3') }}";
 
-        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message').hide();
+        $('#pdf-canvas, #epub-container, #audio-wrapper, #default-message, #pdf-controls').hide();
 
         const $videoEl = $('#video-player');
 
