@@ -194,6 +194,10 @@
                                 <i class="ph-flag me-1"></i>
                                 Status
                             </th>
+                            <th class="text-center text-nowrap" style="min-width: 120px">
+                                <i class="ph-image me-1"></i>
+                                Cover
+                            </th>
                             <th class="text-nowrap" style="min-width: 250px">
                                 <i class="ph-book me-1"></i>
                                 Judul
@@ -315,6 +319,7 @@
             },
             columns: [
                 { orderable: false, className: 'align-middle text-center fw-semibold' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },

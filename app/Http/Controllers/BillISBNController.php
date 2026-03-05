@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Helpers\ISBN;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class BillISBNController extends Controller
 {
@@ -158,9 +159,16 @@ class BillISBNController extends Controller
                     ';
                 }
 
+                $cover = '
+                    <a href="' . Main::getCoverISBN($val->cover_file_name ?? null) . '" data-lightbox="cover-' . $isbn . '" data-title="' . $val->title . '">
+                        <img src="' . Main::getCoverISBN($val->cover_file_name ?? null) . '" class="img-fluid img-thumbnail shadow-sm" style="max-width: 70px; max-height: 100px; object-fit: cover;">
+                    </a>
+                ';
+
                 $data[] = [
                     $start +  1,
                     $status,
+                    $cover,
                     isset($val->title) ? $val->title : '',
                     $author,
                     isset($val->nama_penerbit) ? $executorId . $val->nama_penerbit : '',
