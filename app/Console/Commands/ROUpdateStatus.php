@@ -64,7 +64,7 @@ class ROUpdateStatus extends Command
 
             return 0;
         } catch (\Exception $e) {
-            Log::error('Letter status update failed', [
+            Log::channel('rajaongkir')->error('Letter status update failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -111,7 +111,7 @@ class ROUpdateStatus extends Command
     {
         try {
             if (empty($letter->RECEIPT_NO) || empty($letter->CODE_JASA_PENGIRIMAN)) {
-                Log::warning('Invalid letter data', [
+                Log::channel('rajaongkir')->warning('Invalid letter data', [
                     'letter_id' => $letter->LETTER_ID ?? 'unknown',
                     'receipt_no' => $letter->RECEIPT_NO ?? null,
                     'courier_code' => $letter->CODE_JASA_PENGIRIMAN ?? null
@@ -126,7 +126,7 @@ class ROUpdateStatus extends Command
             );
 
             if (!$trackingData) {
-                Log::warning('No tracking data received', [
+                Log::channel('rajaongkir')->warning('No tracking data received', [
                     'letter_id' => $letter->LETTER_ID,
                     'receipt_no' => $letter->RECEIPT_NO
                 ]);
@@ -142,7 +142,7 @@ class ROUpdateStatus extends Command
 
             return false;
         } catch (\Exception $e) {
-            Log::error('Failed to update letter', [
+            Log::channel('rajaongkir')->error('Failed to update letter', [
                 'letter_id' => $letter->LETTER_ID ?? 'unknown',
                 'error' => $e->getMessage()
             ]);
@@ -174,7 +174,7 @@ class ROUpdateStatus extends Command
 
             return $response->data;
         } catch (\Exception $e) {
-            Log::error('RajaOngkir API failed', [
+            Log::channel('rajaongkir')->error('RajaOngkir API failed', [
                 'receipt_no' => $receiptNo,
                 'courier' => $courierCode,
                 'error' => $e->getMessage()
@@ -212,7 +212,7 @@ class ROUpdateStatus extends Command
             $manifest = $trackingData->manifest[0] ?? null;
 
             if (!$manifest) {
-                Log::warning('No manifest data available', [
+                Log::channel('rajaongkir')->warning('No manifest data available', [
                     'letter_id' => $letter->LETTER_ID
                 ]);
 
@@ -225,7 +225,7 @@ class ROUpdateStatus extends Command
             );
 
             if (!$sentDate) {
-                Log::warning('Invalid sent date', [
+                Log::channel('rajaongkir')->warning('Invalid sent date', [
                     'letter_id' => $letter->LETTER_ID,
                     'manifest_date' => $manifest->manifest_date ?? null,
                     'manifest_time' => $manifest->manifest_time ?? null
@@ -242,18 +242,18 @@ class ROUpdateStatus extends Command
             $result = QueryAPI::update('letter', $letter->LETTER_ID, $updateData, false);
 
             if ($result) {
-                Log::info('Letter marked as delivered', [
+                Log::channel('rajaongkir')->info('Letter marked as delivered', [
                     'letter_id' => $letter->LETTER_ID,
                     'sent_date' => $sentDate,
                     'receipt_no' => $letter->RECEIPT_NO
                 ]);
             } else {
-                Log::error('Failed to update letter status in database', [
+                Log::channel('rajaongkir')->error('Failed to update letter status in database', [
                     'letter_id' => $letter->LETTER_ID
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Error marking letter as delivered', [
+            Log::channel('rajaongkir')->error('Error marking letter as delivered', [
                 'letter_id' => $letter->LETTER_ID,
                 'error' => $e->getMessage()
             ]);
@@ -279,7 +279,7 @@ class ROUpdateStatus extends Command
 
             return $dateTime->format('Y-m-d H:i:s');
         } catch (\Exception $e) {
-            Log::warning('Failed to parse date', [
+            Log::channel('rajaongkir')->warning('Failed to parse date', [
                 'date' => $date,
                 'time' => $time,
                 'error' => $e->getMessage()
