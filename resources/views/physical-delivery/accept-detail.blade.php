@@ -327,6 +327,7 @@
     });
 
     function isbnNumbering(id) {
+        var tujuan ='{{$letter->BRANCH_ID}}';
         swalInit.fire({
             title: 'Penomoran ISBN',
             text: 'Apakah anda yakin menambah/mengganti nomor ISBN pada data penerimaan ini? Menambahkan ISBN pada data penerimaan akan menghapus tagihan ISBN pelaksana serah ke {{ $letter->NAME_BRANCH }}',
@@ -342,7 +343,10 @@
                     dataType: 'JSON',
                     data: {
                         isbn: $('#field-isbn-' + id).val(),
-                        id: id
+                        id: id,
+                        tanggalterima: "{{ \Carbon\Carbon::parse($letter->LETTER_DATE)->format('Y-m-d') }}",
+                        isPerpusnas: tujuan === '37' ? '1' : '0',
+                        isProvinsi: tujuan !== '37' ? '1' : '0',
                     },
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'

@@ -193,6 +193,7 @@ class CollectionAcceptController extends Controller
                     </a>
                 ';
 
+
                 $identifier = "";
                 if (!empty($val->ISBN))  $identifier .= "<br/>ISBN : " . $val->ISBN;
                 if (!empty($val->ISSN))  $identifier .= "<br/>ISSN : " . $val->ISSN;
@@ -277,6 +278,53 @@ class CollectionAcceptController extends Controller
             'history' => $history ?? [],
             'data' => $data,
             'awb' => $trackingDelivery
+        ]);
+    }
+
+    public function setReceived($id)
+    {
+        $id = (int) $id;
+
+        $sql = "
+            SELECT
+                ld.letter_detail_id,
+                ld.isbn AS isbn,
+                l.branch_id AS branch_id,
+                l.accept_date AS accept_date
+            FROM letter_detail ld
+            JOIN letter l ON ld.letter_id = l.letter_id
+            WHERE ld.letter_detail_id = {$id}
+        ";
+
+        $ld = QueryAPI::get($sql, true);
+
+        if (!$ld) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Data gagal ditandai (data tidak ditemukan)'
+            ]);
+        }
+
+        if (empty($ld->ISBN)) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Data ISBN tidak ditemukan'
+            ]);
+        }
+
+        QueryAPI::setReceiveDate([
+            'LetterDetailId' => $ld->LETTER_DETAIL_ID,
+            'NomorISBN'      => $ld->ISBN,
+            'isProvinsi'     => ((int)$ld->BRANCH_ID === 37) ? 1 : 0,
+            'isPerpusnas'    => ((int)$ld->BRANCH_ID !== 37) ? 1 : 0,
+            'TanggalTerima'  => !empty($ld->ACCEPT_DATE)
+                ? Carbon::parse($ld->ACCEPT_DATE)->format('Y-m-d')
+                : Carbon::now()->format('Y-m-d'),
+        ]);
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Data berhasil ditandai'
         ]);
     }
 }

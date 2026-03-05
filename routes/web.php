@@ -187,6 +187,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'CollectionAcceptController@index');
             Route::post('datatable', 'CollectionAcceptController@datatable');
             Route::get('detail', 'CollectionAcceptController@detail');
+            Route::post('set-received/{id}', 'CollectionAcceptController@setReceived');
         });
 
         Route::prefix('collection-reject')->group(function () {

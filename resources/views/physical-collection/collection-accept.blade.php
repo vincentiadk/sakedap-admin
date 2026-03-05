@@ -478,4 +478,52 @@
             }
         });
     }
+    function isbnNumbering(id) {
+        swalInit.fire({
+            title: 'Penomoran ISBN',
+            text: 'Apakah Anda yakin ingin menandai nomor ISBN berikut sebagai telah diterima? Tindakan ini akan memperbarui status penerimaan pada sistem.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, simpan!',
+            cancelButtonText: 'Tidak, batalkan!',
+        }).then(function(result) {
+            if(result.value) {
+                $.ajax({
+                    url: '{{ url("physical-collection/collection-accept/set-received") }}' + '/' + id,
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id: id,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        onLoading('show', 'body');
+                    },
+                    success: function(response) {
+                        onLoading('close', 'body');
+                        if(response.code == 200) {
+                            notification('success', response.message);
+                        } else if(response.code == 400) {
+                            $.each(response.error, function(i, val) {
+                                notification('error', val);
+                            });
+                        } else {
+                            swalInit.fire({
+                                title: 'Oops ...',
+                                text: response.message,
+                                icon: 'warning',
+                                showCloseButton: false
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        onLoading('close', 'body');
+                        responseError(response);
+                    }
+                });
+            }
+        });
+    }
 </script>

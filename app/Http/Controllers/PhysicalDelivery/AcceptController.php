@@ -754,6 +754,13 @@ class AcceptController extends Controller
         $data = ISBN::get('search', [
             'code' => $code
         ], true);
+        QueryAPI::setReceiveDate([
+            'LetterDetailId' => $id,
+            'NomorISBN' => $request->isbn,
+            'isProvinsi'=>$request->isProvinsi,
+            'isPerpusnas'=>$request->isPerpusnas,
+            "TanggalTerima" =>$request->tanggalterima,
+        ]);
 
         if ($data) {
             QueryAPI::update('letter_detail', $id, [
