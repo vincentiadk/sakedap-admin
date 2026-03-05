@@ -207,13 +207,7 @@
                             @foreach($letterDetail ?? [] as $ld)
                                 @php
                                     $code = str_replace('-', '', $ld->ISBN);
-                                    $getDataISBN = null;
-
-                                    if ($code) {
-                                        $getDataISBN = ISBN::get('search', [
-                                            'code' => $code
-                                        ], true);
-                                    }
+                                    $getDataISBN = $code ? ($isbnMap[$code] ?? null) : null;
                                 @endphp
                                 <tr id="tr-letter-detail-id-{{ $ld->LETTER_DETAIL_ID }}">
                                     <td class="text-center fw-semibold"></td>
@@ -228,8 +222,10 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ Main::getCoverISBN($getDataISBN->cover_file_name ?? null) }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
-                                            <img src="{{ Main::getCoverISBN($getDataISBN->cover_file_name ?? null) }}" class="img-fluid img-thumbnail shadow-sm" style="max-width: 70px; max-height: 100px; object-fit: cover;">
+                                         @php $cover = Main::getCoverISBN($getDataISBN->cover_file_name ?? null); @endphp
+                                        <a href="{{ $cover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
+                                            <img src="{{ $cover }}" class="img-fluid img-thumbnail shadow-sm"
+                                                style="max-width: 70px; max-height: 100px; object-fit: cover;">
                                         </a>
                                     </td>
                                     <td class="align-middle text-wrap">
