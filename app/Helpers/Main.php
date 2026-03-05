@@ -505,7 +505,7 @@ class Main
      */
     public static function getCoverISBN($fileUrl = null)
     {
-        $baseUrl = config('inlis.base_url');
+        $baseUrl = 'https://admin-isbn.perpusnas.go.id/files/cover/';
 
         if ($fileUrl) {
             $link = $baseUrl . $fileUrl;
