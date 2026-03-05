@@ -61,9 +61,9 @@
                                 <i class="ph-calendar-blank me-1"></i>
                                 Tahun Terbit
                             </label>
-                            <select class="form-select" name="year" id="year">
-                                <option value="">Semua Tahun</option>
-                                @for($i = 2019; $i <= date('Y'); $i++)
+                            <select class="form-select select2-basic" name="year" id="year" data-placeholder="Semua Tahun">
+                                <option value=""></option>
+                                @for($i = date('Y'); $i >= 1998; $i--)
                                     <option value="{{ $i }}">{{ $i }}</option>
                                 @endfor
                             </select>
@@ -122,7 +122,7 @@
                                 <i class="ph-map-trifold me-1"></i>
                                 Provinsi
                             </label>
-                            <select class="form-select" name="province_id" id="province_id" data-placeholder="Pilih Provinsi">
+                            <select class="form-select" name="province_id" id="province_id" data-placeholder="Semua Provinsi">
                                 @if(!Main::isSuperAdmin() && !Main::isPerpusnas())
                                     <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
                                 @endif
@@ -137,7 +137,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
-                                <input type="text" class="form-control date-range-picker" name="received_date_kckr" id="received_date_kckr" placeholder="Pilih tanggal" readonly>
+                                <input type="text" class="form-control date-range-picker" name="received_date_kckr" id="received_date_kckr" placeholder="Semua tanggal" readonly>
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
@@ -149,7 +149,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
-                                <input type="text" class="form-control date-range-picker" name="received_date_province" id="received_date_province" placeholder="Pilih tanggal" readonly>
+                                <input type="text" class="form-control date-range-picker" name="received_date_province" id="received_date_province" placeholder="Semua tanggal" readonly>
                             </div>
                         </div>
                     </div>
@@ -319,10 +319,10 @@
             },
             columns: [
                 { orderable: false, className: 'align-middle text-center fw-semibold' },
-                { orderable: false, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center', export: false },
+                { orderable: false, className: 'align-middle text-center', export: false },
                 { orderable: false, className: 'align-middle text-wrap' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center', export: false },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
@@ -332,7 +332,7 @@
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center', export: false },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },

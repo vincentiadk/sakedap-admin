@@ -384,3 +384,33 @@
     <div class="page-content">
         <div class="content-wrapper">
             <div class="content-inner">
+                <div class="modal fade" id="modal-datatable-download" data-bs-backdrop="static" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-body text-center p-4">
+                                <div class="mb-3" id="download-icon-container">
+                                    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
+                                </div>
+                                <h5 id="modal-datatable-download-status">Menyiapkan Data...</h5>
+                                <div class="progress mb-2" style="height: 20px;">
+                                    <div id="modal-datatable-download-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <small id="modal-datatable-download-progress-count" class="text-muted">0 / 0 Data</small>
+                                    <small id="modal-datatable-download-progress-percent" class="text-muted">0%</small>
+                                </div>
+                                <div id="download-controls">
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-download">
+                                        <i class="ph-x me-1"></i> Batal
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-sm d-none" id="btn-resume-download">
+                                        <i class="ph-play me-1"></i> Lanjutkan
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-sm d-none" id="btn-retry-download">
+                                        <i class="ph-arrows-counter-clockwise me-1"></i> Ulangi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>

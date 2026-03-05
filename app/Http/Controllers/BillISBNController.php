@@ -20,6 +20,7 @@ class BillISBNController extends Controller
                     'daterangepicker',
                     'select2',
                     'datatable',
+                    'lightbox',
                 ]
             ]
         ]);

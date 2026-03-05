@@ -41,5 +41,6 @@
     @stack('epubjs-js')
     @stack('videojs-js')
     @stack('lookup-js')
+	<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 	<script src="{{ asset('plugins/custom.js') }}?v={{ uniqid() }}"></script>
 </head>

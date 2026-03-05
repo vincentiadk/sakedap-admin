@@ -180,26 +180,182 @@ function configDataTable() {
                         text: '<i class="ph-microsoft-excel-logo me-1"></i> Download Excel',
                         buttons: [
                             {
-                                extend: 'excelHtml5',
-                                text: 'Semua Data Keseluruhan',
+                                text: 'Semua Data',
                                 action: function (e, dt, button, config) {
                                     var self = this;
-                                    var totalDataTerfilter = dt.page.info().recordsDisplay;
+                                    var info = dt.page.info();
+                                    var totalRecords = info.recordsDisplay;
+                                    var chunkSize = 50;
+                                    var allData = [];
+                                    var start = 0;
+                                    var currentRequest = null;
+                                    var isCancelled = false;
+                                    var isPaused = false;
 
-                                    dt.one('preXhr', function (e, s, data) {
-                                        data.start = 0;
-                                        data.length = totalDataTerfilter;
+                                    var modalEl = document.getElementById('modal-datatable-download');
+                                    var modalProg = new bootstrap.Modal(modalEl);
+
+                                    function setUIProcessing() {
+                                        isPaused = false;
+                                        isCancelled = false;
+
+                                        $('#modal-datatable-download-status').text('Proses Download...');
+                                        $('.spinner-border').addClass('text-success').removeClass('text-danger').show();
+                                        $('#btn-resume-download, #btn-retry-download').addClass('d-none');
+                                        $('#btn-cancel-download').removeClass('d-none');
+                                    }
+
+                                    function setUIError(message) {
+                                        isPaused = true;
+
+                                        $('#modal-datatable-download-status').text(message);
+                                        $('.spinner-border').hide();
+                                        $('#btn-resume-download, #btn-retry-download').removeClass('d-none');
+
+                                        swalInit.fire({
+                                            title: 'Koneksi Terputus',
+                                            text: 'Gagal mengambil data. Silakan klik "Lanjutkan" untuk mencoba lagi.',
+                                            icon: 'error',
+                                            confirmButtonText: 'Siap'
+                                        });
+                                    }
+
+                                    $('#modal-datatable-download-progress').css('width', '0%').text('0%').addClass('bg-success').removeClass('bg-info');
+                                    $('#modal-datatable-download-progress-count').text('0 / ' + totalRecords + ' Data');
+
+                                    setUIProcessing();
+                                    modalProg.show();
+
+                                    $('#btn-cancel-download').off('click').on('click', function () {
+                                        isCancelled = true;
+
+                                        if (currentRequest) currentRequest.abort();
+                                        modalProg.hide();
+
+                                        swalInit.fire({
+                                            title: 'Dibatalkan',
+                                            text: 'Proses download telah dihentikan.',
+                                            icon: 'info',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
                                     });
 
-                                    dt.one('draw', function (e, settings) {
-                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+                                    $('#btn-resume-download').off('click').on('click', function () {
+                                        setUIProcessing();
+                                        fetchNextBatch();
+                                    });
+
+                                    $('#btn-retry-download').off('click').on('click', function () {
+                                        allData = [];
+                                        start = 0;
+
+                                        $('#modal-datatable-download-progress').css('width', '0%').text('0%');
+
+                                        setUIProcessing();
+                                        fetchNextBatch();
+                                    });
+
+                                    function fetchNextBatch() {
+                                        if (isCancelled || isPaused) return;
+                                        var params = dt.ajax.params();
+
+                                        params.start = start;
+                                        params.length = chunkSize;
+
+                                        currentRequest = $.ajax({
+                                            url: dt.ajax.url(),
+                                            dataType: 'JSON',
+                                            type: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                            },
+                                            data: params,
+                                            success: function (json) {
+                                                if (isCancelled) return;
+
+                                                allData = allData.concat(json.data);
+                                                var percentage = Math.round((allData.length / totalRecords) * 100);
+
+                                                $('#modal-datatable-download-progress').css('width', percentage + '%').text(percentage + '%');
+                                                $('#modal-datatable-download-progress-percent').text(percentage + '%');
+                                                $('#modal-datatable-download-progress-count').text(allData.length + ' / ' + totalRecords + ' Data');
+
+                                                if (allData.length < totalRecords && json.data.length > 0) {
+                                                    start += chunkSize;
+
+                                                    setTimeout(fetchNextBatch, 100);
+                                                } else {
+                                                    generateExcelFile(allData, modalProg);
+                                                }
+                                            },
+                                            error: function (xhr, status) {
+                                                if (status !== 'abort') {
+                                                    setUIError('Koneksi Terputus atau Macet!');
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    function generateExcelFile(combinedData, modalInstance) {
+                                        if (isCancelled) return;
+
+                                        $('#modal-datatable-download-status').text('Menyusun File Excel...');
+                                        $('.spinner-border').removeClass('text-success').addClass('text-info').show();
+                                        $('#modal-datatable-download-progress').addClass('bg-info').removeClass('bg-success');
+                                        $('#btn-cancel-download, #btn-resume-download, #btn-retry-download').addClass('d-none');
 
                                         setTimeout(function () {
-                                            dt.page.len(10).draw();
-                                        }, 500);
-                                    });
+                                            try {
+                                                var reportData = combinedData.map(function (item, index) {
+                                                    var rowObject = {
+                                                        "No": index + 1
+                                                    };
 
-                                    dt.ajax.reload();
+                                                    dt.columns(':visible').every(function (idx) {
+                                                        var colDef = dt.column(idx).settings()[0].aoColumns[idx];
+
+                                                        if (colDef.export !== false) {
+                                                            var headerText = $(this.header()).text().trim();
+                                                            var dataKey = this.dataSrc();
+
+                                                            if (dataKey) {
+                                                                rowObject[headerText] = item[dataKey];
+                                                            }
+                                                        }
+                                                    });
+
+                                                    return rowObject;
+                                                });
+
+                                                var ws = XLSX.utils.json_to_sheet(reportData);
+                                                var wb = XLSX.utils.book_new();
+
+                                                XLSX.utils.book_append_sheet(wb, ws, 'Data Export');
+                                                XLSX.writeFile(wb, 'Download_Excel_Sakedap_' + new Date().getTime() + ".xlsx");
+
+                                                modalInstance.hide();
+
+                                                swalInit.fire({
+                                                    title: 'Berhasil!',
+                                                    text: 'Sebanyak ' + combinedData.length + ' data berhasil diunduh.',
+                                                    icon: 'success',
+                                                    confirmButtonText: 'Oke'
+                                                });
+
+                                            } catch (err) {
+                                                modalInstance.hide();
+
+                                                swalInit.fire({
+                                                    title: 'Error',
+                                                    text: 'Gagal menyusun file Excel: ' + err.message,
+                                                    icon: 'error'
+                                                });
+                                            }
+                                        }, 500);
+                                    }
+
+                                    fetchNextBatch();
                                 }
                             },
                             {

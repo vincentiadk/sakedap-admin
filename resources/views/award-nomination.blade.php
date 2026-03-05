@@ -433,6 +433,7 @@
                 icon: 'warning',
                 showCloseButton: false
             });
+
             return;
         }
 
