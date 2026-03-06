@@ -225,12 +225,12 @@ class TutorialController extends Controller
     public function createData(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
+            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:20480',
             'title' => 'required',
             'content' => 'required',
         ], [
             'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
-            'media.max' => 'Media maksimal 5 MB',
+            'media.max' => 'Media maksimal 20 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
         ]);
@@ -305,12 +305,12 @@ class TutorialController extends Controller
     {
         $id = $request->table_id;
         $validation = Validator::make($request->all(), [
-            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:5120',
+            'media' => 'nullable|mimes:png,jpg,jpeg,pdf,mkv,mp4|max:20480',
             'title' => 'required',
             'content' => 'required',
         ], [
             'media.mimes' => 'Media harus png, jpg, jpeg, pdf, mkv, mp4',
-            'media.max' => 'Media maksimal 5 MB',
+            'media.max' => 'Media maksimal 20 MB',
             'title.required' => 'Judul tidak boleh kosong',
             'content.required' => 'Konten tidak boleh kosong',
         ]);
