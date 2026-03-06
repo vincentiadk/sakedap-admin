@@ -81,36 +81,21 @@
                                 <i class="ph-user-plus me-1"></i>
                                 Create By
                             </label>
-                            <select class="form-select select2-basic" name="create_by" id="create_by" data-placeholder="Semua">
-                                <option value=""></option>
-                                @foreach($createBy as $cb)
-                                    <option value="{{ $cb->CREATE_BY }}">{{ $cb->CREATE_BY }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" name="create_by" id="create_by" placeholder="Cari nama / username">
                         </div>
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-package me-1"></i>
                                 Received By
                             </label>
-                            <select class="form-select select2-basic" name="received_by" id="received_by" data-placeholder="Semua">
-                                <option value=""></option>
-                                @foreach($receivedBy as $rb)
-                                    <option value="{{ $rb->RECEIVED_BY }}">{{ $rb->RECEIVED_BY }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" name="received_by" id="received_by" placeholder="Cari nama / username">
                         </div>
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-check me-1"></i>
                                 Verified By
                             </label>
-                            <select class="form-select select2-basic" name="verified_by" id="verified_by" data-placeholder="Semua">
-                                <option value=""></option>
-                                @foreach($verifiedBy as $vb)
-                                    <option value="{{ $vb->VERIFIED_BY }}">{{ $vb->VERIFIED_BY }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" name="verified_by" id="verified_by" placeholder="Cari nama / username">
                         </div>
                     </div>
                 </form>
@@ -369,9 +354,9 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

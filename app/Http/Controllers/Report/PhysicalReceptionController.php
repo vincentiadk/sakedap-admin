@@ -15,9 +15,6 @@ class PhysicalReceptionController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
-                'createBy' => QueryAPI::get("select distinct(create_by) from letter where create_by is not null") ?? [],
-                'receivedBy' => QueryAPI::get("select distinct(received_by) from letter_detail where received_by is not null") ?? [],
-                'verifiedBy' => QueryAPI::get("select distinct(verified_by) from letter_detail where verified_by is not null") ?? [],
                 'content' => 'report.physical-reception',
                 'plugins' => [
                     'datatable',
@@ -76,6 +73,7 @@ class PhysicalReceptionController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "letter.status != 'DRAFT'";
+        $orCondition[] = "";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -94,15 +92,15 @@ class PhysicalReceptionController extends Controller
         }
 
         if ($request->create_by) {
-            $whereCondition[] = "letter.create_by = '$request->create_by'";
+            $whereCondition[] = "(upper(u_create.fullname) like upper('$request->create_by') or upper(letter_detail.create_by) like upper('%$request->create_by%'))";
         }
 
         if ($request->received_by) {
-            $whereCondition[] = "letter_detail.received_by = '$request->received_by'";
+            $whereCondition[] = "(upper(u_received.fullname) like upper('$request->received_by') or upper(letter_detail.received_by) like upper('%$request->received_by%'))";
         }
 
         if ($request->verified_by) {
-            $whereCondition[] = "letter_detail.verified_by = '$request->verified_by'";
+            $whereCondition[] = "(upper(u_verified.fullname) like upper('$request->verified_by') or upper(letter_detail.verified_by) like upper('%$request->verified_by%'))";
         }
 
         if ($request->date) {
@@ -124,9 +122,16 @@ class PhysicalReceptionController extends Controller
 
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
+        if (count($whereCondition) > 0 || count($orCondition) > 0) {
+            $whereClause = " where ";
+        }
+        if (count($whereCondition) > 0) {
+            $whereClause .= implode(' and ', $whereCondition);
+        }
 
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
+        if (count($orCondition) > 1) {
+            $conditions = array_slice($orCondition, 1);
+            $whereClause .= " and (" . implode(' or ', $conditions) . ")";
         }
 
         if ($order) {
@@ -155,10 +160,16 @@ class PhysicalReceptionController extends Controller
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
             left join
                 branchs on branchs.id = letter.branch_id
+            left join
+                users u_create on letter.create_by = u_create.username
+            left join
+                users u_received on letter_detail.received_by = u_received.username
+            left join
+                users u_verified on letter_detail.verified_by = u_verified.username
             $whereClause
         ", true)->TOTAL ?? 0;
 
-        $queryData = QueryAPI::get("
+        $sql = "
             select
                 *
             from (
@@ -177,7 +188,10 @@ class PhysicalReceptionController extends Controller
                                 letter.accept_date as accept_date_letter,
                                 letter.create_date as create_date_letter,
                                 letter.penerbit_id as penerbit_id_letter,
-                                letter.create_by as create_by_letter
+                                letter.create_by as create_by_letter,
+                                u_create.fullname as fullname_create,
+                                u_received.fullname as fullname_received,
+                                u_verified.fullname as fullname_verified
                             from
                                 letter_detail
                             left join
@@ -188,6 +202,12 @@ class PhysicalReceptionController extends Controller
                                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
                             left join
                                 branchs on branchs.id = letter.branch_id
+                            left join
+                                users u_create on letter.create_by = u_create.username
+                            left join
+                                users u_received on letter_detail.received_by = u_received.username
+                            left join
+                                users u_verified on letter_detail.verified_by = u_verified.username
                             $whereClause
                             $orderBy
                         ) data
@@ -196,7 +216,9 @@ class PhysicalReceptionController extends Controller
                 )
             where
                 rnum > $start
-        ");
+        ";
+
+        $queryData = QueryAPI::get($sql);
 
         if ($queryData) {
             foreach ($queryData as $val) {
@@ -216,6 +238,21 @@ class PhysicalReceptionController extends Controller
                         <small class="text-muted">Jam : ' . Carbon::parse($val->CREATE_DATE_LETTER)->format('H:i') . ' WIB</small>
                     ';
                 }
+
+                $createBy = '
+                    <div><small>Username: ' . $val->CREATE_BY_LETTER . '</small></div>
+                    <div><small>Nama: ' . $val->FULLNAME_CREATE . '</small></div>
+                ';
+
+                $receivedBy = '
+                    <div><small>Username: ' . $val->RECEIVED_BY . '</small></div>
+                    <div><small>Nama: ' . $val->FULLNAME_RECEIVED . '</small></div>
+                ';
+
+                $verifiedBy = '
+                    <div><small>Username: ' . $val->VERIFIED_BY . '</small></div>
+                    <div><small>Nama: ' . $val->FULLNAME_VERIFIED . '</small></div>
+                ';
 
                 $data[] = [
                     $start + 1,
@@ -246,9 +283,9 @@ class PhysicalReceptionController extends Controller
                     $val->NOMORPANGGILJILID,
                     $val->QRCBN,
                     $val->ISBD,
-                    $val->CREATE_BY_LETTER,
-                    $val->RECEIVED_BY,
-                    $val->VERIFIED_BY,
+                    $createBy,
+                    $receivedBy,
+                    $verifiedBy,
                 ];
 
                 $start++;
