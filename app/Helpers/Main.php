@@ -388,13 +388,28 @@ class Main
      */
     public static function base64File($url)
     {
-        $getContent = file_get_contents($url);
-        $base64 = base64_encode($getContent);
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_buffer($finfo, $getContent);
-        $link = "data:$mimeType;base64," . $base64;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.37');
 
-        return $link;
+        $getContent = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($getContent === false || $httpCode !== 200) {
+            return '';
+        }
+
+        $base64 = base64_encode($getContent);
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($getContent);
+
+        return "data:$mimeType;base64," . $base64;
     }
 
     /**
