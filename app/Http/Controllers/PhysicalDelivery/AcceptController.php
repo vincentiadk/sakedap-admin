@@ -331,7 +331,7 @@ class AcceptController extends Controller
 
         if ($codes->isNotEmpty()) {
             $result = ISBN::get('search', [
-                'code' => $codes->implode(','), 
+                'code' => $codes->implode(','),
                 'start' => 0,
                 'length' => 5000
             ]);
@@ -598,7 +598,7 @@ class AcceptController extends Controller
                 $imgFooter = Main::base64File($urlFooter);
             }
 
-            $branchId = session('branch_id');
+            $branchId = $letter->BRANCH_ID ?? 0;
             $dateNow = date('Y-m-d');
             $signatureTable = '<br><br><br>';
 
@@ -678,7 +678,7 @@ class AcceptController extends Controller
                     ld.letter_id,
                     l.accept_date as accept_date_letter,
                     ld.title,
-                    ld.jenis_media,
+                    cm.name as name_cm,
                     ld.isbn,
                     case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept,
                     c.noinduk as noinduk_collection, c.mark_province as mark_province_collection
@@ -686,6 +686,8 @@ class AcceptController extends Controller
                     letter_detail ld
                 left join
                     letter l on l.letter_id = ld.letter_id
+                left join
+                    collectionmedias cm on cm.id = ld.collection_type_id
                 cross join
                     (select level as lvl from dual connect by level <= 1000) t
                 left join
@@ -715,7 +717,7 @@ class AcceptController extends Controller
                     $htmlCollections .= '<td align="center">' . ($key + 1) . '</td>';
                     $htmlCollections .= '<td align="center">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
                     $htmlCollections .= '<td>' . ($c->TITLE ?? '-') . '</td>';
-                    $htmlCollections .= '<td align="center">' . ($c->JENIS_MEDIA ?? '-') . '</td>';
+                    $htmlCollections .= '<td align="center">' . ($c->NAME_CM ?? '-') . '</td>';
                     $htmlCollections .= '<td align="center">' . ($c->ISBN ?? '-') . '</td>';
                     $htmlCollections .= '<td align="center">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
                     $htmlCollections .= '</tr>';
@@ -757,9 +759,9 @@ class AcceptController extends Controller
         QueryAPI::setReceiveDate([
             'LetterDetailId' => $id,
             'NomorISBN' => $request->isbn,
-            'isProvinsi'=>$request->isProvinsi,
-            'isPerpusnas'=>$request->isPerpusnas,
-            "TanggalTerima" =>$request->tanggalterima,
+            'isProvinsi' => $request->isProvinsi,
+            'isPerpusnas' => $request->isPerpusnas,
+            "TanggalTerima" => $request->tanggalterima,
         ]);
 
         if ($data) {
