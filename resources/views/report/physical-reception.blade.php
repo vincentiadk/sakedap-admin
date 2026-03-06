@@ -32,14 +32,14 @@
             <div class="card-body">
                 <form id="form-filter">
                     <div class="row g-3">
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-4 col-md-12">
                             <label class="form-label fw-semibold">
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </label>
                             <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-calendar-blank me-1"></i>
                                 Tanggal
@@ -53,7 +53,7 @@
                                 <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-truck me-1"></i>
                                 Jasa Kirim
@@ -74,6 +74,42 @@
                                 <option value="">Semua Status</option>
                                 <option value="DITERIMA PARSIAL">Diterima Parsial</option>
                                 <option value="DITERIMA PENUH">Diterima Penuh</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-plus me-1"></i>
+                                Create By
+                            </label>
+                            <select class="form-select select2-basic" name="create_by" id="create_by" data-placeholder="Semua">
+                                <option value=""></option>
+                                @foreach($createBy as $cb)
+                                    <option value="{{ $cb->CREATE_BY }}">{{ $cb->CREATE_BY }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-package me-1"></i>
+                                Received By
+                            </label>
+                            <select class="form-select select2-basic" name="received_by" id="received_by" data-placeholder="Semua">
+                                <option value=""></option>
+                                @foreach($receivedBy as $rb)
+                                    <option value="{{ $rb->RECEIVED_BY }}">{{ $rb->RECEIVED_BY }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-check me-1"></i>
+                                Verified By
+                            </label>
+                            <select class="form-select select2-basic" name="verified_by" id="verified_by" data-placeholder="Semua">
+                                <option value=""></option>
+                                @foreach($verifiedBy as $vb)
+                                    <option value="{{ $vb->VERIFIED_BY }}">{{ $vb->VERIFIED_BY }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -222,6 +258,18 @@
                                 <i class="ph-list me-1"></i>
                                 ISBD
                             </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-user-plus me-1"></i>
+                                Create By
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-package me-1"></i>
+                                Received By
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-check me-1"></i>
+                                Verified By
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -321,6 +369,9 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

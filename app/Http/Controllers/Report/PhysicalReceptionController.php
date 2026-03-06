@@ -15,6 +15,9 @@ class PhysicalReceptionController extends Controller
         return view('layouts.index', [
             'data' => [
                 'deliveryService' => QueryAPI::get("select * from jasa_pengiriman") ?? [],
+                'createBy' => QueryAPI::get("select distinct(create_by) from letter where create_by is not null") ?? [],
+                'receivedBy' => QueryAPI::get("select distinct(received_by) from letter_detail where received_by is not null") ?? [],
+                'verifiedBy' => QueryAPI::get("select distinct(verified_by) from letter_detail where verified_by is not null") ?? [],
                 'content' => 'report.physical-reception',
                 'plugins' => [
                     'datatable',
@@ -56,6 +59,9 @@ class PhysicalReceptionController extends Controller
             'letter_detail.nomorpanggiljilid',
             'letter_detail.qrcbn',
             'letter_detail.isbd',
+            'letter.create_by',
+            'letter_detail.received_by',
+            'letter_detail.verified_by',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -85,6 +91,18 @@ class PhysicalReceptionController extends Controller
 
         if ($request->executor_id) {
             $whereCondition[] = "letter.penerbit_id = $request->executor_id";
+        }
+
+        if ($request->create_by) {
+            $whereCondition[] = "letter.create_by = '$request->create_by'";
+        }
+
+        if ($request->received_by) {
+            $whereCondition[] = "letter_detail.received_by = '$request->received_by'";
+        }
+
+        if ($request->verified_by) {
+            $whereCondition[] = "letter_detail.verified_by = '$request->verified_by'";
         }
 
         if ($request->date) {
@@ -158,7 +176,8 @@ class PhysicalReceptionController extends Controller
                                 letter.status as status_letter,
                                 letter.accept_date as accept_date_letter,
                                 letter.create_date as create_date_letter,
-                                letter.penerbit_id as penerbit_id_letter
+                                letter.penerbit_id as penerbit_id_letter,
+                                letter.create_by as create_by_letter
                             from
                                 letter_detail
                             left join
@@ -227,6 +246,9 @@ class PhysicalReceptionController extends Controller
                     $val->NOMORPANGGILJILID,
                     $val->QRCBN,
                     $val->ISBD,
+                    $val->CREATE_BY_LETTER,
+                    $val->RECEIVED_BY,
+                    $val->VERIFIED_BY,
                 ];
 
                 $start++;
