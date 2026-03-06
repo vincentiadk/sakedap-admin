@@ -58,7 +58,7 @@ class DownloadController extends Controller
         echo '
             <script>
                 alert("Link unduhan tidak valid atau telah kadaluwarsa, silakan buat permintaan baru!");
-                document.location.href = "https://edeposit.perpusnas.go.id";
+                window.close();
             </script>
         ';
     }

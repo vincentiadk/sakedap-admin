@@ -294,7 +294,7 @@ class ReviewController extends Controller
                     echo '
                         <script>
                             alert("Koleksi sedang di tinjau oleh ' . $reviewBy . '");
-                            window.location.href = "' . url('digital-storage-handover/review') . '";
+                            window.close();
                         </script>
                     ';
 
