@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class PhysicalReceptionController extends Controller
 {
@@ -56,6 +57,8 @@ class PhysicalReceptionController extends Controller
             'letter_detail.nomorpanggiljilid',
             'letter_detail.qrcbn',
             'letter_detail.isbd',
+            'u_create.fullname',
+            'u_verified.fullname'
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -70,6 +73,7 @@ class PhysicalReceptionController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "letter.status != 'DRAFT'";
+        $orCondition[] = "";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'branchs.province_id = ' . session('province_id');
@@ -94,7 +98,12 @@ class PhysicalReceptionController extends Controller
 
             $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
-
+        if ($request->create_by) {
+            $orCondition[] = "upper(letter.create_by) LIKE '%" . strtoupper(trim($request->create_by)) . "%' OR upper(u_create.fullname) LIKE '%" . strtoupper(trim($request->create_by)) . "%'";
+        }
+        if ($request->is_verification_by) {
+            $orCondition[] = "upper(letter.is_verification_by) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%' OR upper(u_verified.fullname) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%'";
+        }
         if ($search) {
             $terms = [];
 
@@ -106,11 +115,18 @@ class PhysicalReceptionController extends Controller
 
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
-
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
+        if(count($whereCondition) > 0 || count($orCondition) > 0 ) {
+            $whereClause = " where ";
+        }
+        if (count($whereCondition) > 0) {
+            $whereClause .= implode(' and ', $whereCondition);
         }
 
+        if (count($orCondition) > 1) {
+            $conditions = array_slice($orCondition, 1);
+            $whereClause .= " and (" . implode(' or ', $conditions) . ")";
+        }
+        
         if ($order) {
             $orderColumnIndex = $order[0]['column'];
             $orderDir = $order[0]['dir'];
@@ -137,10 +153,13 @@ class PhysicalReceptionController extends Controller
                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
             left join
                 branchs on branchs.id = letter.branch_id
+            left join
+                users u_create on letter.create_by = u_create.username
+            left join
+                users u_verified on letter.is_verification_by = u_verified.username             
             $whereClause
         ", true)->TOTAL ?? 0;
-
-        $queryData = QueryAPI::get("
+        $sql = "
             select
                 *
             from (
@@ -158,7 +177,9 @@ class PhysicalReceptionController extends Controller
                                 letter.status as status_letter,
                                 letter.accept_date as accept_date_letter,
                                 letter.create_date as create_date_letter,
-                                letter.penerbit_id as penerbit_id_letter
+                                letter.penerbit_id as penerbit_id_letter, 
+                                u_create.fullname as createfullname,
+                                u_verified.fullname as verifiedfullname
                             from
                                 letter_detail
                             left join
@@ -169,6 +190,11 @@ class PhysicalReceptionController extends Controller
                                 jasa_pengiriman on jasa_pengiriman.id = letter.jasa_pengiriman_id
                             left join
                                 branchs on branchs.id = letter.branch_id
+                            left join
+                                users u_create on letter.create_by = u_create.username
+                            left join
+                                users u_verified on letter.is_verification_by = u_verified.username 
+
                             $whereClause
                             $orderBy
                         ) data
@@ -177,8 +203,9 @@ class PhysicalReceptionController extends Controller
                 )
             where
                 rnum > $start
-        ");
-
+        ";
+        $queryData = QueryAPI::get($sql);
+        Log::info($sql);
         if ($queryData) {
             foreach ($queryData as $val) {
                 $createDateHTML = '';
@@ -227,6 +254,8 @@ class PhysicalReceptionController extends Controller
                     $val->NOMORPANGGILJILID,
                     $val->QRCBN,
                     $val->ISBD,
+                    $val->CREATEFULLNAME,
+                    $val->VERIFIEDFULLNAME
                 ];
 
                 $start++;

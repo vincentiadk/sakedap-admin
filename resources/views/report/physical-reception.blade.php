@@ -77,6 +77,33 @@
                             </select>
                         </div>
                     </div>
+                    <hr class="my-3">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Dibuat Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="create_by" id="create_by" placeholder="Cari berdasarkan nama / username">
+                            </div>
+                        </div>
+                         <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Diverifikasi Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="is_verification_by" id="is_verification_by" placeholder="Cari berdasarkan nama / username">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="card-footer border-top">
@@ -222,6 +249,14 @@
                                 <i class="ph-list me-1"></i>
                                 ISBD
                             </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-qr-code me-1"></i>
+                                Dibuat oleh
+                            </th>
+                            <th class="text-nowrap" style="min-width: 150px">
+                                <i class="ph-list me-1"></i>
+                                Diverifikasi Oleh
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -317,6 +352,8 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
