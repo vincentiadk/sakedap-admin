@@ -88,6 +88,7 @@ Route::middleware('authentication')->group(function () {
             Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController@detail');
             Route::match(['get', 'post'], 'update-data/{id}', 'DeliveryVerificationController@updateData');
             Route::delete('destroy-data', 'DeliveryVerificationController@destroyData');
+            Route::delete('destroy-data-ld/{id}', 'DeliveryVerificationController@destroyDataLD');
         });
 
      Route::prefix('delivery-verification2')->group(function () {

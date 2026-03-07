@@ -156,8 +156,7 @@
                                 <th class="text-nowrap">Judul</th>
                                 <th class="text-nowrap" width="100">Edisi</th>
                                 <th class="text-nowrap" width="100">Jilid</th>
-                                <th class="text-nowrap" width="120">QRCBN</th>
-                                <th class="text-nowrap" width="120">ISBD</th>
+                                <th class="text-nowrap" width="120">Eks Dikirim</th>
                                 <th class="text-center text-nowrap" width="80">Aksi</th>
                             </tr>
                         </thead>
@@ -169,11 +168,7 @@
                                         $getDataISBN = null;
                                         $receivedBy = $ci->RECEIVED_BY ?: '';
 
-                                        if ($code) {
-                                            $getDataISBN = ISBN::get('search', [
-                                                'code' => $code
-                                            ], true);
-                                        }
+                                        $getDataISBN = $code ? ($isbnMap[$code] ?? null) : null;
                                     @endphp
 
                                     <tr class="animate__animated animate__fadeIn">
@@ -197,16 +192,13 @@
                                             <input type="text" class="form-control form-control-sm" name="ci_jilid[]" value="{{ $ci->JILID ?? '' }}" {{ $receivedBy ? 'readonly' : '' }}>
                                         </td>
                                         <td class="align-middle">
-                                            <input type="text" class="form-control form-control-sm" name="ci_qrcbn[]" value="{{ $ci->QRCBN ?? '' }}" placeholder="QRCBN" {{ $receivedBy ? 'readonly' : '' }}>
-                                        </td>
-                                        <td class="align-middle">
-                                            <input type="text" class="form-control form-control-sm" name="ci_isbd[]" value="{{ $ci->ISBD ?? '' }}" placeholder="ISBD" {{ $receivedBy ? 'readonly' : '' }}>
+                                            <input type="text" class="form-control form-control-sm" name="ci_copy[]" value="{{ $ci->COPY ?? '' }}" placeholder="COPY" {{ $receivedBy ? 'readonly' : '' }}>
                                         </td>
                                         <td class="text-center align-middle">
                                             @if($receivedBy)
                                                 <span class="badge bg-success-subtle text-success">Terverifikasi: {{ $receivedBy }}</span>
                                             @else
-                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item" data-id="{{ $ci->LETTER_DETAIL_ID }}">
                                                     <i class="ph-trash"></i>
                                                 </button>
                                             @endif
@@ -631,7 +623,7 @@
                             }
 
                             $('#data-collection-isbn').append(`
-                                <tr class="animate__animated animate__fadeIn">
+                                <tr class="animate__animated animate__fadeIn" style="background-color:#fef3ed">
                                     <input type="hidden" name="ci[]" value="1">
                                     <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
                                     <input type="hidden" name="ci_editable[]" value="1">
@@ -644,14 +636,12 @@
                                         <div class="fw-semibold">${ response.data.title }</div>
                                     </td>
                                     <td class="align-middle">${ response.data.edisi ?? '-' }</td>
+                                    <td class="align-middle">${ response.data.keterangan ?? '-' }</td>
                                     <td class="align-middle">
-                                        <input type="text" class="form-control form-control-sm" name="ci_qrcbn[]" placeholder="QRCBN">
-                                    </td>
-                                    <td class="align-middle">
-                                        <input type="text" class="form-control form-control-sm" name="ci_isbd[]" placeholder="ISBD">
+                                        <input type="text" class="form-control form-control-sm" name="ci_copy[]" placeholder="Jumlah Eks">
                                     </td>
                                     <td class="text-center align-middle">
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus item" data-id="new${randStr}">
                                             <i class="ph-trash"></i>
                                         </button>
                                     </td>
@@ -701,6 +691,7 @@
     }
 
     function removeItem(param) {
+        var id = $(param).attr('data-id');
         swalInit.fire({
             title: 'Konfirmasi Hapus',
             text: 'Apakah Anda yakin ingin menghapus item ini?',
@@ -711,6 +702,27 @@
             reverseButtons: true,
             allowOutsideClick: false,
             allowEscapeKey: false,
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return $.ajax({
+                    url: `/physical-delivery/delivery-verification/destroy-data-ld/` + id,
+                    type: 'POST', // atau DELETE, tergantung route Laravel kamu
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _method: 'DELETE' // hapus ini kalau route kamu memang POST biasa
+                    }
+                }).then(function(response) {
+                    return response;
+                }).catch(function(xhr) {
+                    let message = 'Terjadi kesalahan saat menghapus data';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.showValidationMessage(message);
+                });
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 var $tbody = $(param).closest('tbody');
@@ -719,15 +731,39 @@
                 $(param).closest('tr').fadeOut(300, function() {
                     $(this).remove();
 
-                    if($tbody.find('tr').length === 0) {
+                    if ($tbody.find('tr').length === 0) {
                         var emptyMessage = '';
 
-                        if(tbodyId === 'data-collection-isbn') {
-                            emptyMessage = '<tr id="empty-isbn-row"><td colspan="13" class="text-center text-muted py-5"><i class="ph-book-open ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi ISBN</h6><p class="mb-0">Gunakan fitur pencarian di atas untuk menambahkan koleksi</p></td></tr>';
-                        } else if(tbodyId === 'data-collection-non-isbn') {
-                            emptyMessage = '<tr id="empty-non-isbn-row"><td class="text-center text-muted py-5"><i class="ph-books ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Koleksi Non ISBN</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan koleksi</p></td></tr>';
-                        } else if(tbodyId === 'data-collection-periodicals') {
-                            emptyMessage = '<tr id="empty-periodicals-row"><td class="text-center text-muted py-5"><i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i><h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6><p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p></td></tr>';
+                        if (tbodyId === 'data-collection-isbn') {
+                            emptyMessage = `
+                                <tr id="empty-isbn-row">
+                                    <td colspan="13" class="text-center text-muted py-5">
+                                        <i class="ph-book-open ph-4x d-block mb-3 opacity-50"></i>
+                                        <h6 class="fw-semibold">Belum Ada Data Koleksi ISBN</h6>
+                                        <p class="mb-0">Gunakan fitur pencarian di atas untuk menambahkan koleksi</p>
+                                    </td>
+                                </tr>
+                            `;
+                        } else if (tbodyId === 'data-collection-non-isbn') {
+                            emptyMessage = `
+                                <tr id="empty-non-isbn-row">
+                                    <td colspan="13" class="text-center text-muted py-5">
+                                        <i class="ph-books ph-4x d-block mb-3 opacity-50"></i>
+                                        <h6 class="fw-semibold">Belum Ada Data Koleksi Non ISBN</h6>
+                                        <p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan koleksi</p>
+                                    </td>
+                                </tr>
+                            `;
+                        } else if (tbodyId === 'data-collection-periodicals') {
+                            emptyMessage = `
+                                <tr id="empty-periodicals-row">
+                                    <td colspan="13" class="text-center text-muted py-5">
+                                        <i class="ph-newspaper-clipping ph-4x d-block mb-3 opacity-50"></i>
+                                        <h6 class="fw-semibold">Belum Ada Data Terbitan Berkala</h6>
+                                        <p class="mb-0">Klik tombol "Tambah" di bawah untuk menambahkan terbitan berkala</p>
+                                    </td>
+                                </tr>
+                            `;
                         }
 
                         $tbody.html(emptyMessage);

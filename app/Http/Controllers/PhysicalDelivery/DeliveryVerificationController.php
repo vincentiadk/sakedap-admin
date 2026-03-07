@@ -930,10 +930,29 @@ class DeliveryVerificationController extends Controller
                 where
                     letter_id = $id
             ";
+            
 
             $letter = QueryAPI::get($letterSql, true);
             $letterDetail = QueryAPI::get($letterDetailSql);
+            $isbnMap = collect();
 
+            $codes = collect($letterDetail ?? [])
+                ->pluck('ISBN')
+                ->map(fn($x) => str_replace('-', '', (string) $x))
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($codes->isNotEmpty()) {
+                $result = ISBN::get('search', [
+                    'code' => $codes->implode(','),
+                    'start' => 0,
+                    'length' => 5000
+                ]);
+
+                $isbnMap = collect($result->data ?? [])
+                    ->keyBy(fn($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
+            }
             if (!$letter) {
                 abort(404, 'Letter not found');
             }
@@ -948,7 +967,7 @@ class DeliveryVerificationController extends Controller
 
                     if ($letterDetailNotVerified) {
                         foreach ($letterDetailNotVerified as $ldnv) {
-                            QueryAPI::delete('letter_detail', $ldnv->LETTER_DETAIL_ID);
+                           // QueryAPI::delete('letter_detail', $ldnv->LETTER_DETAIL_ID);
                         }
                     }
 
@@ -956,64 +975,58 @@ class DeliveryVerificationController extends Controller
                         foreach ($request->ci as $key => $ci) {
                             $code = $request->ci_code[$key] ?? null;
                             $editable = $request->ci_editable[$key] ?? false;
+                            Log::info($request->ci_copy[$key]);
+                            if($request->ci_copy[$key]) {
+                                if (!$code || $editable == false) continue;
 
-                            if (!$code || $editable == false) continue;
-
-                            $isbnCacheKey = "isbn:{$code}";
-                            $isbn = Cache::remember($isbnCacheKey, $cacheDuration, function () use ($code) {
-                                return ISBN::get('search', ['code' => $code], true);
-                            });
-
-                            if (!$isbn) {
-                                continue;
-                            }
-
-                            $qrcbn = ($request->ci_qrcbn[$key] ?? null);
-                            $isbd = ($request->ci_isbd[$key] ?? null);
-                            $catalog = null;
-
-                            $totalPackage++;
-
-                            if ($isbn->is_kdt_valid == 1) {
-                                $catalogId = $isbn->catalog_id;
-                                $catalogCacheKey = "catalog:{$catalogId}";
-
-                                $catalog = Cache::remember($catalogCacheKey, $cacheDuration, function () use ($catalogId) {
-                                    return QueryAPI::get("select * from catalogs where id = {$catalogId}", true);
+                                $isbnCacheKey = "isbn:{$code}";
+                                $isbn = Cache::remember($isbnCacheKey, $cacheDuration, function () use ($code) {
+                                    return ISBN::get('search', ['code' => $code], true);
                                 });
+
+                                if (!$isbn) {
+                                    continue;
+                                }
+
+                                $catalog = null;
+
+                                $totalPackage++;
+
+                                if ($isbn->is_kdt_valid == 1) {
+                                    $catalogId = $isbn->catalog_id;
+                                    $catalogCacheKey = "catalog:{$catalogId}";
+
+                                    $catalog = Cache::remember($catalogCacheKey, $cacheDuration, function () use ($catalogId) {
+                                        return QueryAPI::get("select * from catalogs where id = {$catalogId}", true);
+                                    });
+                                }
+
+                                $letterDetailData = [
+                                    'title' => $isbn->title,
+                                    'copy' => $request->ci_copy[$key],
+                                    'quantity' => 1,
+                                    'letter_id' => $letter->LETTER_ID ?? null,
+                                    'author' => $isbn->kepeng,
+                                    'publisher' => $isbn->nama_penerbit,
+                                    'isbn' => $code,
+                                    'publish_year' => $isbn->tahun_terbit,
+                                    'isbn_status' => 'berISBN',
+                                    'penerbit_isbn_id' => $isbn->id ?? null,
+                                    'catalog_id' => $isbn->is_kdt_valid == 1 ? $isbn->catalog_id : null,
+                                    'province_id' => $isbn->province_id,
+                                    'kab_id' => $catalog->CITY_ID ?? null,
+                                    'deskripsifisik' => $catalog->DESCRIPTION ?? null,
+                                    'sinopsis' => $isbn->sinopsis,
+                                    'cleaning_note' => $isbn->keterangan,
+                                    'jenis_media' => $isbn->jenis_media,
+                                    'collection_type_id' => 2,
+                                    'penerbit_terbitan_id' => $isbn->ptid,
+                                    'penerbit_id' => $isbn->penerbit_id ?? null,
+                                    'nomorpanggiljilid' => $isbn->keterangan,
+                                ];
+
+                                QueryAPI::create('letter_detail', $letterDetailData, false);
                             }
-
-                            $letterDetailData = [
-                                'title' => $isbn->title,
-                                'copy' => $letter->BRANCH_ID == 37 ? 2 : 1,
-                                'quantity' => 1,
-                                'letter_id' => $letter->LETTER_ID ?? null,
-                                'author' => $isbn->kepeng,
-                                'publisher' => $isbn->nama_penerbit,
-                                'isbn' => $code,
-                                'publish_year' => $isbn->tahun_terbit,
-                                'isbn_status' => 'berISBN',
-                                'is_receivedate' => 1,
-                                'penerbit_isbn_id' => $isbn->id ?? null,
-                                'catalog_id' => $isbn->is_kdt_valid == 1 ? $isbn->catalog_id : null,
-                                'province_id' => $isbn->province_id,
-                                'kab_id' => $catalog->CITY_ID ?? null,
-                                'deskripsifisik' => $catalog->DESCRIPTION ?? null,
-                                'sinopsis' => $isbn->sinopsis,
-                                'cleaning_note' => $isbn->keterangan,
-                                'jenis_media' => $isbn->jenis_media,
-                                'collection_type_id' => 2,
-                                'penerbit_terbitan_id' => $isbn->ptid,
-                                'penerbit_id' => $isbn->penerbit_id ?? null,
-                                'nomorpanggiljilid' => $isbn->keterangan,
-                                'qrcbn' => $qrcbn,
-                                'isbd' => $isbd,
-                                'received_by' => $currentUser,
-                                'received_date' => $now,
-                                'checked' => 1,
-                            ];
-
-                            QueryAPI::create('letter_detail', $letterDetailData, false);
                         }
                     }
 
@@ -1242,6 +1255,7 @@ class DeliveryVerificationController extends Controller
                     'collectionISBN' => $collectionISBN,
                     'collectionSerial' => $collectionSerial,
                     'collectionNonISBN' => $collectionNonISBN,
+                    'isbnMap'   => $isbnMap,
                     'acceptDefault' => 2,
                     'media' => $media ?? [],
                     'content' => 'physical-delivery.delivery-verification-update-data',
@@ -1271,6 +1285,30 @@ class DeliveryVerificationController extends Controller
 
         try {
             QueryAPI::delete('letter', $id);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function destroyDataLD(Request $request, $id)
+    {
+        $id = $request->id;
+        if(Str::contains($id, 'new')){
+            return;
+        }
+
+        try {
+            QueryAPI::delete('letter_detail', $id);
 
             $response = [
                 'code' => 200,
