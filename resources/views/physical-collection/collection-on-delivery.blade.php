@@ -57,8 +57,8 @@
                             </label>
                             <div class="input-group">
                                 <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type">
-                                    <option value="letter_date">Tanggal Pengiriman</option>
-                                    <option value="create_date">Tanggal Dibuat</option>
+                                    <option value="letter.letter_date">Tanggal Pengiriman</option>
+                                    <option value="letter.create_date">Tanggal Dibuat</option>
                                 </select>
                                 <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
                             </div>
