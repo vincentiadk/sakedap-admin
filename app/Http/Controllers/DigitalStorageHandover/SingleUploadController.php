@@ -23,6 +23,7 @@ class SingleUploadController extends Controller
     {
         $uploadIDCover = $request->upload_id_cover;
         $uploadIDContent = $request->upload_id_content;
+        $uploadID = $request->upload_id;
 
         return view('layouts.index', [
             'data' => [
@@ -35,6 +36,7 @@ class SingleUploadController extends Controller
                 'bigClass' => QueryAPI::get("select * from master_kelas_besar") ?? [],
                 'uploadIDCover' => $uploadIDCover,
                 'uploadIDContent' => $uploadIDContent,
+                'uploadID' => $uploadID,
                 'content' => 'digital-storage-handover.single-upload',
                 'plugins' => [
                     'select2',
@@ -182,6 +184,7 @@ class SingleUploadController extends Controller
 
                     $uploadIDCover = $request->upload_id_cover;
                     $uploadIDContent = $request->upload_id_content;
+                    $uploadID = $request->upload_id;
 
                     $baseCollectionData = [
                         'id_old' => 0,
@@ -360,8 +363,9 @@ class SingleUploadController extends Controller
                     }
 
                     if ($uploadIDCover && $uploadIDContent) {
-                        QueryAPI::query("update catalogcovers set e_col_id = $createCollection->ID where upload_id = $uploadIDCover");
-                        QueryAPI::query("update catalogfiles set e_col_id = $createCollection->ID where upload_id = $uploadIDContent");
+                        QueryAPI::update('catalogcovers', $uploadIDCover, ['e_col_id' => $createCollection->ID]);
+                        QueryAPI::update('catalogfiles', $uploadIDContent, ['e_col_id' => $createCollection->ID]);
+                        QueryAPI::update('e_collection_uploads', $uploadID, ['e_col_id' => $createCollection->ID]);
                     }
 
                     if (!$request->cc_edition && !$request->has_edition) {
