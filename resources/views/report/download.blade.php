@@ -64,12 +64,12 @@
                                             Unduh
                                         </a>
                                     @elseif($r['status'] == 'failed')
-                                        <button type="button" class="btn btn-danger btn-sm" disabled>
+                                        <button type="button" class="btn btn-danger btn-sm" readonly>
                                             <i class="ph-x me-1"></i>
                                             Gagal
                                         </button>
                                     @else
-                                        <button type="button" class="btn btn-primary btn-sm" disabled>
+                                        <button type="button" class="btn btn-primary btn-sm" readonly>
                                             <i class="ph-hourglass-medium me-1"></i>
                                             Proses
                                         </button>

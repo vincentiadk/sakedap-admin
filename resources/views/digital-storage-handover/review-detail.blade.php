@@ -102,7 +102,7 @@
                             <label class="col-form-label col-md-2">Kode</label>
                             <div class="col-md-10">
                                 <div class="input-group">
-                                    <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" disabled>
+                                    <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" readonly>
                                         <option value="">Tidak Ada</option>
                                         <option value="1" {{ $collection->CODE_TYPE == 1 ? 'selected' : ''  }}>ISBN</option>
                                         <option value="2" {{ $collection->CODE_TYPE == 2 ? 'selected' : ''  }}>ISMN</option>
@@ -110,7 +110,7 @@
                                         <option value="4" {{ $collection->CODE_TYPE == 4 ? 'selected' : ''  }}>ISSN</option>
                                         <option value="5" {{ $collection->CODE_TYPE == 5 ? 'selected' : ''  }}>ISAN</option>
                                     </select>
-                                    <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->CODE) ? '-' : $collection->CODE }}" placeholder="...................." disabled>
+                                    <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->CODE) ? '-' : $collection->CODE }}" placeholder="...................." readonly>
                                 </div>
                             </div>
                         </div>
@@ -141,11 +141,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <label>
-                                            <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('disabled', true) : $('#qrcbn').attr('disabled', false)" @if(empty($collection->QRCBN)) checked @endif>
+                                            <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('readonly', true) : $('#qrcbn').attr('readonly', false)" @if(empty($collection->QRCBN)) checked @endif>
                                             Tidak Ada
                                         </label>
                                     </span>
-                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN)) disabled @endif>
+                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN)) readonly @endif>
                                 </div>
                             </div>
                         </div>
@@ -155,11 +155,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <label>
-                                            <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#series').attr('disabled', true) : $('#series').attr('disabled', false)" @if(empty($collection->SERIES)) checked @endif>
+                                            <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#series').attr('readonly', true) : $('#series').attr('readonly', false)" @if(empty($collection->SERIES)) checked @endif>
                                             Tidak Ada
                                         </label>
                                     </span>
-                                    <input type="text" class="form-control" name="series" id="series" value="{{ $collection->SERIES }}" placeholder="...................." @if(empty($collection->SERIES)) disabled @endif>
+                                    <input type="text" class="form-control" name="series" id="series" value="{{ $collection->SERIES }}" placeholder="...................." @if(empty($collection->SERIES)) readonly @endif>
                                 </div>
                             </div>
                         </div>
@@ -178,13 +178,13 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Preview</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="preview" id="preview" value="{{ $collection->PREVIEW }}" placeholder="cth : 1-5 / 00:01-00:20" disabled>
+                                <input type="text" class="form-control" name="preview" id="preview" value="{{ $collection->PREVIEW }}" placeholder="cth : 1-5 / 00:01-00:20" readonly>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Akses</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" readonly disabled>
+                                <select class="form-select select2-basic" name="access" id="access" data-placeholder="Pilih" readonly readonly>
                                     <option value=""></option>
                                     <option value="1" {{ $collection->AKSES == 1 ? 'selected' : '' }}>Akses full file berwatermak secara online</option>
                                     <option value="2" {{ $collection->AKSES == 2 ? 'selected' : '' }}>Akses hanya preview file secara online, namun tetap dapat di dayagunakan di lingkungan perpustakaan nasional RI dengan jaringan internet LAN</option>
@@ -196,7 +196,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Mata Uang</label>
                             <div class="col-md-10">
-                                <select class="form-select" name="currency" id="currency" disabled>
+                                <select class="form-select" name="currency" id="currency" readonly>
                                     @if($collection->CURRENCY)
                                         <option value="{{ $collection->CURRENCY }}" selected>{{ $collection->CURRENCY }}</option>
                                     @endif
@@ -206,7 +206,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Harga</label>
                             <div class="col-md-10">
-                                <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="...................." disabled>
+                                <input type="number" class="form-control" name="price" id="price" value="{{ $collection->PRICE }}" placeholder="...................." readonly>
                             </div>
                         </div>
                         <div class="form-group row">

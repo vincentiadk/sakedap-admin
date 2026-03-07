@@ -347,7 +347,7 @@
 						</div>
 						<div class="dropdown-menu-scrollable pb-2" id="notification-header-executor-list"></div>
 						<div class="d-flex border-top py-2 px-3">
-							<a href="{{ url('coaching-supervision/review') }}" class="text-body mx-auto disabled">
+							<a href="{{ url('coaching-supervision/review') }}" class="text-body mx-auto readonly">
 								Lihat Selengkapnya
 								<i class="ph-arrow-circle-right ms-1"></i>
 							</a>

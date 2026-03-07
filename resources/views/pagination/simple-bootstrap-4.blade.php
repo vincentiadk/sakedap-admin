@@ -3,7 +3,7 @@
         <ul class="pagination">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
-                <li class="page-item disabled" aria-disabled="true">
+                <li class="page-item readonly" aria-readonly="true">
                     <span class="page-link">@lang('pagination.previous')</span>
                 </li>
             @else
@@ -18,7 +18,7 @@
                     <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next">@lang('pagination.next')</a>
                 </li>
             @else
-                <li class="page-item disabled" aria-disabled="true">
+                <li class="page-item readonly" aria-readonly="true">
                     <span class="page-link">@lang('pagination.next')</span>
                 </li>
             @endif

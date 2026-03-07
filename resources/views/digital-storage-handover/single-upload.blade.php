@@ -158,11 +158,11 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 <label class="mb-0">
-                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('disabled', true) : $('#qrcbn').attr('disabled', false)" checked>
+                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('readonly', true) : $('#qrcbn').attr('readonly', false)" checked>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Masukkan QRCBN" disabled>
+                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Masukkan QRCBN" readonly>
                         </div>
                     </div>
                 </div>
@@ -175,11 +175,11 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 <label class="mb-0">
-                                    <input type="checkbox" class="form-check-input mt-0 me-1" id="series_checkbox" onchange="$(this).is(':checked') ? $('#series').attr('disabled', true) : $('#series').attr('disabled', false)" checked>
+                                    <input type="checkbox" class="form-check-input mt-0 me-1" id="series_checkbox" onchange="$(this).is(':checked') ? $('#series').attr('readonly', true) : $('#series').attr('readonly', false)" checked>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="series" id="series" placeholder="Masukkan seri" disabled>
+                            <input type="text" class="form-control" name="series" id="series" placeholder="Masukkan seri" readonly>
                         </div>
                     </div>
                 </div>
@@ -1187,12 +1187,12 @@
 
         $('#code').val('');
         $('#btn-check-isbn').hide();
-        $('#code').attr('disabled', false);
+        $('#code').attr('readonly', false);
 
         if(codeType == 1) {
             $('#btn-check-isbn').show();
         } else if(codeType == '') {
-            $('#code').attr('disabled', true);
+            $('#code').attr('readonly', true);
         }
     }
 

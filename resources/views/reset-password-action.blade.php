@@ -103,7 +103,7 @@
                                     </div>
                                 </div>
 								<div class="mt-3">
-                                    <button type="submit" class="btn btn-primary w-100" id="btn-submit" disabled>
+                                    <button type="submit" class="btn btn-primary w-100" id="btn-submit" readonly>
                                         Reset Pasword
                                     </button>
 								</div>
@@ -173,7 +173,7 @@
                 const isConfirmValid = checkConfirmPassword(newPassValue, confirmPassValue);
                 const finalValidation = isNewPassValid && isConfirmValid;
 
-                $submitButton.prop('disabled', !finalValidation);
+                $submitButton.prop('readonly', !finalValidation);
 
                 return finalValidation;
             }

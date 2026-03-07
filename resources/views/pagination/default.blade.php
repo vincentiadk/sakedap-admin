@@ -3,7 +3,7 @@
         <ul class="pagination">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
-                <li class="disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
+                <li class="readonly" aria-readonly="true" aria-label="@lang('pagination.previous')">
                     <span aria-hidden="true">&lsaquo;</span>
                 </li>
             @else
@@ -16,7 +16,7 @@
             @foreach ($elements as $element)
                 {{-- "Three Dots" Separator --}}
                 @if (is_string($element))
-                    <li class="disabled" aria-disabled="true"><span>{{ $element }}</span></li>
+                    <li class="readonly" aria-readonly="true"><span>{{ $element }}</span></li>
                 @endif
 
                 {{-- Array Of Links --}}
@@ -37,7 +37,7 @@
                     <a href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">&rsaquo;</a>
                 </li>
             @else
-                <li class="disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
+                <li class="readonly" aria-readonly="true" aria-label="@lang('pagination.next')">
                     <span aria-hidden="true">&rsaquo;</span>
                 </li>
             @endif

@@ -380,11 +380,11 @@
 
         if(deliveryServiceId == 1) {
             $('#receipt').val('');
-            $('#receipt').attr('disabled', true);
+            $('#receipt').attr('readonly', true);
             $('#receipt').attr('placeholder', 'Auto Generate');
         } else {
             $('#receipt').val('');
-            $('#receipt').attr('disabled', false);
+            $('#receipt').attr('readonly', false);
             $('#receipt').attr('placeholder', 'Masukkan nomor resi');
         }
     }
@@ -729,7 +729,7 @@
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text">Total</span>
-                                            <input type="number" class="form-control cni-total-${ randStr }" disabled>
+                                            <input type="number" class="form-control cni-total-${ randStr }" readonly>
                                             <span class="input-group-text">Terima</span>
                                             <select class="form-select cni-accept-${ randStr }" name="cni_qty_accept[]" style="max-width: 100px;" onchange="calculateQtyTotal('.cni-total-${ randStr }', '.cni-accept-${ randStr }', '.cni-reject-${ randStr }', '.cni-description-${ randStr }')">
                                                 <option value="0" selected>0</option>
@@ -1022,7 +1022,7 @@
                         </label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text">Total</span>
-                            <input type="number" class="form-control cpe-total-${ randStr }" disabled>
+                            <input type="number" class="form-control cpe-total-${ randStr }" readonly>
                             <span class="input-group-text">Terima</span>
                             <select class="form-select cpe-accept-${ randStr }" name="cpe_qty_accept[][]" onchange="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                                 <option value="0" selected>0</option>
@@ -1099,10 +1099,10 @@
         let total = parseInt(accept + reject);
 
         if(reject > 0) {
-            $(selectorDescription).prop('disabled', false);
+            $(selectorDescription).prop('readonly', false);
         } else {
             $(selectorDescription).val('').change();
-            $(selectorDescription).prop('disabled', true);
+            $(selectorDescription).prop('readonly', true);
         }
 
         $(selectorTotal).val(total);

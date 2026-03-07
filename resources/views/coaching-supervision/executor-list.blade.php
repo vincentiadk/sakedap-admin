@@ -173,7 +173,7 @@
                                         Nama
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control" name="name" id="name" placeholder="Nama pelaksana serah" disabled>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="Nama pelaksana serah" readonly>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="form-label fw-semibold">
@@ -268,7 +268,7 @@
                                         <i class="ph-map-trifold me-1"></i>
                                         Alamat
                                     </label>
-                                    <input type="text" class="form-control" name="address" id="address" placeholder="Alamat lengkap" disabled>
+                                    <input type="text" class="form-control" name="address" id="address" placeholder="Alamat lengkap" readonly>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="form-label fw-semibold">
