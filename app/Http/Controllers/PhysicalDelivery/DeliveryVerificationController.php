@@ -963,14 +963,14 @@ class DeliveryVerificationController extends Controller
                     $currentUser = session('username');
                     $cacheDuration = 60;
                     $totalPackage = 0;
-                    $letterDetailNotVerified = QueryAPI::get("select * from letter_detail where letter_id = $id and received_by is null");
+                    /*$letterDetailNotVerified = QueryAPI::get("select * from letter_detail where letter_id = $id and received_by is null");
 
                     if ($letterDetailNotVerified) {
                         foreach ($letterDetailNotVerified as $ldnv) {
-                           // QueryAPI::delete('letter_detail', $ldnv->LETTER_DETAIL_ID);
+                           QueryAPI::delete('letter_detail', $ldnv->LETTER_DETAIL_ID);
                         }
                     }
-
+                    */
                     if ($request->ci && is_array($request->ci)) {
                         foreach ($request->ci as $key => $ci) {
                             $code = $request->ci_code[$key] ?? null;
