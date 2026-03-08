@@ -93,7 +93,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
-                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6">

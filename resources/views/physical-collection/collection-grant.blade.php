@@ -110,7 +110,7 @@
                                 <option value="letter.createdate">Tanggal Dibuat</option>
                                 <option value="hibah_detail.createdate">Tanggal Hibah</option>
                             </select>
-                            <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                            <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6">

@@ -58,7 +58,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="ph-calendar"></i></span>
-                            <input type="text" class="form-control date-single" name="accept_date" id="accept_date" value="{{ date('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
+                            <input type="text" class="form-control date-single" name="accept_date" id="accept_date" value="{{ date('Y/m/d') }}" placeholder="Pilih Tanggal">
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -1008,13 +1008,13 @@
                         <label class="form-label small">
                             <i class="ph-calendar me-1"></i>TTES Awal
                         </label>
-                        <input type="text" class="form-control form-control-sm date-single" name="cpe_first_ttes[][]" placeholder="Pilih tanggal" readonly>
+                        <input type="text" class="form-control form-control-sm date-single" name="cpe_first_ttes[][]" placeholder="Pilih tanggal">
                     </div>
                     <div class="col-lg-2">
                         <label class="form-label small">
                             <i class="ph-calendar-check me-1"></i>TTES Akhir
                         </label>
-                        <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" placeholder="Pilih tanggal" readonly>
+                        <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" placeholder="Pilih tanggal">
                     </div>
                     <div class="col-lg-4">
                         <label class="form-label small">

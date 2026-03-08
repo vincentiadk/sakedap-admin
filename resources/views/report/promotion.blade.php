@@ -41,7 +41,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar"></i>
                                 </span>
-                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6">
@@ -202,7 +202,7 @@
                             <span class="input-group-text">
                                 <i class="ph-calendar"></i>
                             </span>
-                            <input type="text" class="form-control" name="de_date" id="de_date" placeholder="Pilih tanggal" readonly>
+                            <input type="text" class="form-control" name="de_date" id="de_date" placeholder="Pilih tanggal">
                         </div>
                     </div>
                     <div class="col-md-3">

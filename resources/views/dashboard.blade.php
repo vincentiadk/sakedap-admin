@@ -13,7 +13,7 @@
                             <i class="ph-calendar me-1"></i>
                             Tanggal
                         </span>
-                        <input type="text" class="form-control wmin-200" name="date" id="date" value="{{ date('Y/01/01') }} - {{ date('Y/m/d') }}" placeholder="Pilih Tanggal" readonly>
+                        <input type="text" class="form-control wmin-200" name="date" id="date" value="{{ date('Y/01/01') }} - {{ date('Y/m/d') }}" placeholder="Pilih Tanggal">
                     </div>
                     <button type="button" class="btn btn-light ms-2" onclick="loadAllStatistic()" title="Refresh Data">
                         <i class="ph-arrows-clockwise"></i>

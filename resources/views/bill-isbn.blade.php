@@ -137,7 +137,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
-                                <input type="text" class="form-control date-range-picker" name="received_date_kckr" id="received_date_kckr" placeholder="Semua tanggal" readonly>
+                                <input type="text" class="form-control date-range-picker" name="received_date_kckr" id="received_date_kckr" placeholder="Semua tanggal">
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
@@ -149,7 +149,7 @@
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
-                                <input type="text" class="form-control date-range-picker" name="received_date_province" id="received_date_province" placeholder="Semua tanggal" readonly>
+                                <input type="text" class="form-control date-range-picker" name="received_date_province" id="received_date_province" placeholder="Semua tanggal">
                             </div>
                         </div>
                     </div>

@@ -209,7 +209,7 @@
                                     <span class="input-group-text">
                                         <i class="ph-calendar"></i>
                                     </span>
-                                    <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih tanggal" readonly>
+                                    <input type="text" class="form-control date-single" name="warning_date" id="warning_date" placeholder="Pilih tanggal">
                                 </div>
                             </div>
                         </div>
@@ -237,7 +237,7 @@
                                     <span class="input-group-text">
                                         <i class="ph-calendar"></i>
                                     </span>
-                                    <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih tanggal" readonly>
+                                    <input type="text" class="form-control date-single" name="warning_date_2" id="warning_date_2" placeholder="Pilih tanggal">
                                 </div>
                             </div>
                         </div>
@@ -265,7 +265,7 @@
                                     <span class="input-group-text">
                                         <i class="ph-calendar"></i>
                                     </span>
-                                    <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih tanggal" readonly>
+                                    <input type="text" class="form-control date-single" name="warning_date_3" id="warning_date_3" placeholder="Pilih tanggal">
                                 </div>
                             </div>
                         </div>

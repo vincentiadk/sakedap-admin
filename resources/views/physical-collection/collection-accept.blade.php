@@ -86,7 +86,7 @@
                                     <option value="letter_date">Tanggal Pengiriman</option>
                                     <option value="create_date">Tanggal Dibuat</option>
                                 </select>
-                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-6">

@@ -73,7 +73,7 @@
                                 <i class="ph-calendar-blank me-1"></i>
                                 Tanggal
                             </label>
-                            <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal" readonly>
+                            <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">

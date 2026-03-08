@@ -469,11 +469,11 @@
                                                             </div>
                                                             <div class="col-lg-4">
                                                                 <label class="form-label small"><i class="ph-calendar me-1"></i>TTES Awal</label>
-                                                                <input type="text" class="form-control form-control-sm date-single" name="cp_first_ttes[]" placeholder="Pilih tanggal" value="{{ ($cp->TTES_AWAL ?: '') ? date('Y/m/d', strtotime($cp->TTES_AWAL)) : '' }}" readonly {{ $receivedBy ? 'readonly' : '' }}>
+                                                                <input type="text" class="form-control form-control-sm date-single" name="cp_first_ttes[]" placeholder="Pilih tanggal" value="{{ ($cp->TTES_AWAL ?: '') ? date('Y/m/d', strtotime($cp->TTES_AWAL)) : '' }}" {{ $receivedBy ? 'readonly' : '' }}>
                                                             </div>
                                                             <div class="col-lg-4">
                                                                 <label class="form-label small"><i class="ph-calendar-check me-1"></i>TTES Akhir</label>
-                                                                <input type="text" class="form-control form-control-sm date-single" name="cp_end_ttes[]" placeholder="Pilih tanggal" value="{{ ($cp->TTES_AKHIR ?: '') ? date('Y/m/d', strtotime($cp->TTES_AKHIR)) : '' }}" readonly {{ $receivedBy ? 'readonly' : '' }}>
+                                                                <input type="text" class="form-control form-control-sm date-single" name="cp_end_ttes[]" placeholder="Pilih tanggal" value="{{ ($cp->TTES_AKHIR ?: '') ? date('Y/m/d', strtotime($cp->TTES_AKHIR)) : '' }}" {{ $receivedBy ? 'readonly' : '' }}>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -719,7 +719,7 @@
             if (result.isConfirmed) {
                 var $tbody = $(param).closest('tbody');
                 var tbodyId = $tbody.attr('id');
-                var letter_detail_id = $(param).attr('data-letter-detail'); 
+                var letter_detail_id = $(param).attr('data-letter-detail');
 
                 $(param).closest('tr').fadeOut(300, function() {
                     $(this).remove();
@@ -1052,11 +1052,11 @@
                                         </div>
                                         <div class="col-lg-4">
                                             <label class="form-label small"><i class="ph-calendar me-1"></i>TTES Awal</label>
-                                            <input type="text" class="form-control form-control-sm date-single" name="cp_first_ttes[]" placeholder="Pilih tanggal" readonly>
+                                            <input type="text" class="form-control form-control-sm date-single" name="cp_first_ttes[]" placeholder="Pilih tanggal">
                                         </div>
                                         <div class="col-lg-4">
                                             <label class="form-label small"><i class="ph-calendar-check me-1"></i>TTES Akhir</label>
-                                            <input type="text" class="form-control form-control-sm date-single" name="cp_end_ttes[]" placeholder="Pilih tanggal" readonly>
+                                            <input type="text" class="form-control form-control-sm date-single" name="cp_end_ttes[]" placeholder="Pilih tanggal">
                                         </div>
                                     </div>
                                 </div>

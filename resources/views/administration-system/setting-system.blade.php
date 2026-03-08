@@ -192,7 +192,7 @@
                                     <span class="input-group-text">
                                         <i class="ph-calendar-blank"></i>
                                     </span>
-                                    <input type="text" class="form-control datepicker-single" name="executor_start_date" id="executor_start_date" value="{{ $settingParameter->firstWhere('NAME', 'ETglKepatuhanPenerbit')->VALUE ?? '' }}" placeholder="Pilih Tanggal" readonly>
+                                    <input type="text" class="form-control datepicker-single" name="executor_start_date" id="executor_start_date" value="{{ $settingParameter->firstWhere('NAME', 'ETglKepatuhanPenerbit')->VALUE ?? '' }}" placeholder="Pilih Tanggal">
                                 </div>
                             </div>
                         </div>

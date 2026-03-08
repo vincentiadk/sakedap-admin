@@ -214,7 +214,7 @@
                             <span class="input-group-text">
                                 <i class="ph-calendar-blank"></i>
                             </span>
-                            <input type="text" class="form-control date-picker-single" name="publish_time" id="publish_time" placeholder="Pilih Tanggal" readonly>
+                            <input type="text" class="form-control date-picker-single" name="publish_time" id="publish_time" placeholder="Pilih Tanggal">
                         </div>
                     </div>
                 </div>
@@ -229,7 +229,7 @@
                             <span class="input-group-text">
                                 <i class="ph-calendar-blank"></i>
                             </span>
-                            <input type="text" class="form-control date-picker-single" name="received_at" id="received_at" placeholder="Pilih Tanggal" readonly>
+                            <input type="text" class="form-control date-picker-single" name="received_at" id="received_at" placeholder="Pilih Tanggal">
                         </div>
                     </div>
                 </div>
@@ -1054,7 +1054,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <div class="col-md-12">
-                                            <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" readonly required>
+                                            <input type="text" class="form-control date-picker-edition" name="cc_edition_date[]" placeholder="Pilih Tanggal" required>
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -1141,7 +1141,7 @@
                                             Tanggal Publikasi Artikel
                                         </label>
                                         <div class="col-md-12">
-                                            <input type="text" class="form-control date-picker-edition-article" name="cc_edition_article_publish_date[]" placeholder="Pilih Tanggal" readonly>
+                                            <input type="text" class="form-control date-picker-edition-article" name="cc_edition_article_publish_date[]" placeholder="Pilih Tanggal">
                                         </div>
                                     </div>
                                     <div class="form-group row">

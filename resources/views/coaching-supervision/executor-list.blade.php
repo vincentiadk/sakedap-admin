@@ -358,7 +358,7 @@
                                         <span class="input-group-text">
                                             <i class="ph-calendar-blank"></i>
                                         </span>
-                                        <input type="text" class="form-control" name="jwt_expired" id="jwt_expired" placeholder="Pilih tanggal expired" readonly>
+                                        <input type="text" class="form-control" name="jwt_expired" id="jwt_expired" placeholder="Pilih tanggal expired">
                                     </div>
                                 </div>
                                 <div class="col-12">
