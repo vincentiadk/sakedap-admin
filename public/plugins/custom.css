@@ -81,3 +81,36 @@
 .dt-top-scroll-wrapper>div {
     height: 1px;
 }
+
+input[readonly] {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    cursor: default;
+}
+
+input:disabled {
+    background-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+select[readonly]+.select2-container .select2-selection {
+    background-color: #f1f5f9 !important;
+    cursor: default !important;
+}
+
+select[readonly]+.select2-container .select2-selection__arrow {
+    display: none !important;
+}
+
+select[readonly]+.select2-container .select2-selection__rendered {
+    color: #1e293b !important;
+    padding-left: 10px !important;
+}
+
+select:disabled+.select2-container .select2-selection {
+    background-color: #e2e8f0 !important;
+    opacity: 0.6;
+    cursor: not-allowed !important;
+}

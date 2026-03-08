@@ -14,6 +14,18 @@ $(function () {
     iframeable();
     notificationHeader();
 
+    $(document).on('select2:opening', function (e) {
+        if ($(e.target).attr('readonly')) {
+            e.preventDefault();
+
+            return false;
+        }
+    });
+
+    $('select[readonly]').each(function () {
+        $(this).next('.select2-container').addClass('is-readonly');
+    });
+
     $(document).on('init.dt', function (e, settings) {
         if (!settings.oInit.scrollX) {
             return;
@@ -485,6 +497,13 @@ function select2Serverside(selector, endpoint, payload = {}, additionalConfig = 
                 dataType: 'JSON',
                 delay: 250,
                 language: 'id',
+                transport: function (params, success, failure) {
+                    if ($(this).attr('readonly')) {
+                        return null;
+                    }
+
+                    return $.ajax(params).done(success).fail(failure);
+                },
                 data: function (params) {
                     return $.extend({
                         search: params.term,
@@ -528,6 +547,13 @@ function select2ServersideTag(selector, endpoint, payload = {}, additionalConfig
                 dataType: 'JSON',
                 delay: 250,
                 language: 'id',
+                transport: function (params, success, failure) {
+                    if ($(this).attr('readonly')) {
+                        return null;
+                    }
+
+                    return $.ajax(params).done(success).fail(failure);
+                },
                 data: function (params) {
                     return $.extend({
                         search: params.term,
