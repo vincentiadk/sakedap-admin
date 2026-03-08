@@ -476,7 +476,7 @@
         } else {
             select2Serverside('#branch_id', 'branch');
 
-            select2Serverside('#city_id', 'city', {
+            select2Serverside('#city_id', 'location', {
                 for: 'city'
             }, {
                 minimumInputLength: 0
