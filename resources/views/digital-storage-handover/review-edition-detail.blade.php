@@ -645,7 +645,9 @@
     });
 
     $(function() {
-        datePickerSingle('#received_at, #publish_time, #edition_date');
+        datePickerSingle('#received_at');
+        datePickerSingle('#publish_time');
+        datePickerSingle('#edition_date');
 
         if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#branch_id', 'branch', {

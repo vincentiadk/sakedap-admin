@@ -455,6 +455,9 @@ function datePickerBasic(selector, additionalConfig = {}) {
         return false;
     }
 
+    $(selector).attr('autocomplete', 'off');
+    $(selector).attr('autocomplete', 'one-time-code');
+
     if (typeof $.fn.daterangepicker !== 'undefined') {
         moment.locale('id');
 
@@ -488,6 +491,9 @@ function datePickerSingle(selector, additionalConfig = {}) {
 
         return false;
     }
+
+    $(selector).attr('autocomplete', 'off');
+    $(selector).attr('autocomplete', 'one-time-code');
 
     if (typeof $.fn.daterangepicker !== 'undefined') {
         moment.locale('id');

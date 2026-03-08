@@ -458,7 +458,8 @@
     let currentPdfScaleMultiplier = 1;
 
     $(function() {
-        datePickerSingle('#received_at, #publish_time');
+        datePickerSingle('#received_at');
+        datePickerSingle('#publish_time');
 
         if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#branch_id', 'branch', {

@@ -1164,7 +1164,8 @@
 
         $('#empty-edition-message').addClass('d-none');
 
-        datePickerSingle('.date-picker-edition, .date-picker-edition-article');
+        datePickerSingle('.date-picker-edition');
+        datePickerSingle('.date-picker-edition-article');
     }
 
     function removeEditionItem(button) {
