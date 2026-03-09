@@ -92,7 +92,7 @@ class PhysicalReceptionController extends Controller
         }
 
         if ($request->create_by) {
-            $whereCondition[] = "(upper(u_create.fullname) like upper('$request->create_by') or upper(letter_detail.create_by) like upper('%$request->create_by%'))";
+            $whereCondition[] = "(upper(u_create.fullname) like upper('$request->create_by') or upper(letter.create_by) like upper('%$request->create_by%'))";
         }
 
         if ($request->received_by) {
