@@ -30,7 +30,7 @@ class PhysicalReceptionController extends Controller
         $column = [
             'letter_detail.letter_detail_id',
             'letter.accept_date',
-            'letter_detail.create_date',
+            'letter.create_date',
             'letter_detail.title',
             'penerbit.name',
             'branchs.name',
