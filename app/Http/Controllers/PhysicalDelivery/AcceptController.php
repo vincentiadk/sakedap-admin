@@ -248,6 +248,13 @@ class AcceptController extends Controller
                     </a>
                 ';
 
+                $action .= '
+                    <a href="javascript:void(0);" onclick="destroyLetter(' . $val->LETTER_ID . ')" class="btn btn-warning btn-sm mt-1 text-nowrap">
+                        <i class="ph-trash me-1"></i>
+                        Hapus
+                    </a>
+                ';
+
                 $acceptDateHTML = '';
 
                 if ($val->ACCEPT_DATE ?: null) {
@@ -311,48 +318,52 @@ class AcceptController extends Controller
         ";
 
         $letter = QueryAPI::get($letterSql, true);
+        Log::info($letter);
+        if($letter) {
+            $letterDetail = QueryAPI::get("
+                select
+                    *
+                from
+                    letter_detail
+                where
+                    letter_id = $id
+            ");
+            $isbnMap = collect();
 
-        $letterDetail = QueryAPI::get("
-            select
-                *
-            from
-                letter_detail
-            where
-                letter_id = $id
-        ");
-        $isbnMap = collect();
+            $codes = collect($letterDetail ?? [])
+                ->pluck('ISBN')
+                ->map(fn($x) => str_replace('-', '', (string) $x))
+                ->filter()
+                ->unique()
+                ->values();
 
-        $codes = collect($letterDetail ?? [])
-            ->pluck('ISBN')
-            ->map(fn($x) => str_replace('-', '', (string) $x))
-            ->filter()
-            ->unique()
-            ->values();
+            if ($codes->isNotEmpty()) {
+                $result = ISBN::get('search', [
+                    'code' => $codes->implode(','),
+                    'start' => 0,
+                    'length' => 5000
+                ]);
 
-        if ($codes->isNotEmpty()) {
-            $result = ISBN::get('search', [
-                'code' => $codes->implode(','),
-                'start' => 0,
-                'length' => 5000
-            ]);
+                $isbnMap = collect($result->data ?? [])
+                    ->keyBy(fn($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
+            }
 
-            $isbnMap = collect($result->data ?? [])
-                ->keyBy(fn($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
-        }
-
-        return view('layouts.index', [
-            'data' => [
-                'letter' => $letter,
-                'letterDetail' => $letterDetail,
-                'isbnMap' => $isbnMap,
-                'content' => 'physical-delivery.accept-detail',
-                'plugins' => [
-                    'select2',
-                    'datatable',
-                    'lightbox',
+            return view('layouts.index', [
+                'data' => [
+                    'letter' => $letter,
+                    'letterDetail' => $letterDetail,
+                    'isbnMap' => $isbnMap,
+                    'content' => 'physical-delivery.accept-detail',
+                    'plugins' => [
+                        'select2',
+                        'datatable',
+                        'lightbox',
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+        } else {
+            return view('errors.404');
+        }
     }
 
     public function print($id)
@@ -812,6 +823,27 @@ class AcceptController extends Controller
 
         try {
             QueryAPI::delete('letter_detail', $id);
+
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function destroyLetter(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            QueryAPI::delete('letter', $id);
 
             $response = [
                 'code' => 200,

@@ -125,6 +125,7 @@ Route::middleware('authentication')->group(function () {
             Route::post('isbn-numbering', 'AcceptController@isbnNumbering');
             Route::post('letter-update', 'AcceptController@letterUpdate');
             Route::delete('destroy-collection', 'AcceptController@destroyCollection');
+            Route::delete('destroy-letter/{id}', 'AcceptController@destroyLetter');
         });
 
         Route::prefix('create-receipt')->group(function () {
