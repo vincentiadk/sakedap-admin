@@ -72,7 +72,7 @@ class CollectionAcceptController extends Controller
 
         if ($request->title) {
             $title = strtoupper(str_replace("'", "''", $request->title));
-            $whereCondition[] = "upper(ld.title) = '$title'";
+            $whereCondition[] = "upper(ld.title) like '%$title%'";
         }
         if ($request->isbn) {
             $isbn = strtoupper(str_replace("'", "''", $request->isbn));
