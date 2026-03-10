@@ -142,13 +142,16 @@ class BillISBNController extends Controller
 
                 $letterDetail = QueryAPI::get("
                     select
-                        letter_id
+                        letter_detail.letter_id
                     from
                         letter_detail
+                    join letter on letter.letter_id = letter_detail.letter_id
                     where
-                        isbn = '$isbn' and
-                        qty_accept > 0 and
+                        letter_detail.isbn = '$isbn' and
+                        letter_detail.qty_accept > 0 and
                         rownum = 1
+                        and letter.status in ('DITERIMA', 'DITERIMA PARSIAL', 'DITERIMA PENUH')
+
                 ", true);
 
                 if ($letterDetail) {
