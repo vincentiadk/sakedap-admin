@@ -318,7 +318,7 @@ class AcceptController extends Controller
         ";
 
         $letter = QueryAPI::get($letterSql, true);
-        Log::info($letter);
+
         if($letter) {
             $letterDetail = QueryAPI::get("
                 select
