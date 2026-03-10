@@ -166,7 +166,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Waktu Terbit</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal" readonly>
+                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal">
                             </div>
                         </div>
                         <div class="form-group row">
