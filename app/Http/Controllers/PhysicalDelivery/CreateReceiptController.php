@@ -314,7 +314,17 @@ class CreateReceiptController extends Controller
                                 'checked' => 1,
                             ];
 
-                            QueryAPI::create('letter_detail', $letterDetailData, false);
+                            $letterDetail = QueryAPI::create('letter_detail', $letterDetailData, false);
+
+                            if ($qtyAccept > 0) {
+                                QueryAPI::setReceiveDate([
+                                    'LetterDetailId' => $letterDetail->ID ?? '',
+                                    'NomorISBN' => $letterDetail->ISBN ?? '',
+                                    'IsPerpusnas' => ($letterDetail->BRANCH_ID_LETTER ?? 0) == 37 ? 1 : 0,
+                                    'IsProvinsi' => ($letterDetail->BRANCH_ID_LETTER ?? 0) != 37 ? 1 : 0,
+                                    'TanggalTerima' => date('Y-m-d'),
+                                ]);
+                            }
                         }
                     }
 
