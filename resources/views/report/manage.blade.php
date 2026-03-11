@@ -2,13 +2,13 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Laporan - <span class="fw-normal">Pengelolaan</span>
+                Laporan - <span class="fw-normal">Penerimaan Digital</span>
             </h4>
         </div>
         <div class="d-lg-flex ms-lg-auto">
             <div class="d-flex align-items-center">
                 <span class="badge bg-info p-2 bg-opacity-10 text-info">
-                    Laporan Pengelolaan
+                    Laporan Penerimaan Digital
                 </span>
             </div>
         </div>
@@ -95,6 +95,18 @@
                                     <i class="ph-hash"></i>
                                 </span>
                                 <input type="number" class="form-control" name="year" id="year" placeholder="Cari berdasarkan tahun">
+                            </div>
+                        </div>
+                         <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar-blank me-1"></i>
+                                Diterima Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="fullname" id="fullname" placeholder="Cari nama user">
                             </div>
                         </div>
                     </div>
@@ -269,6 +281,10 @@
                                 <i class="ph-money me-1"></i>
                                 Harga
                             </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-money me-1"></i>
+                                DIterima Oleh
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -430,12 +446,15 @@
     }
 
     function loadData() {
+        if ($.fn.DataTable.isDataTable('#datatable-serverside')) {
+            window.gDataTable.ajax.reload();
+            return;
+        }
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
             serverSide: true,
             deferRender: true,
             scrollX: true,
-            destroy: true,
             order: [[0, 'desc']],
             ajax: {
                 url: '{{ url("report/manage/datatable") }}',
@@ -493,6 +512,7 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -514,8 +534,6 @@
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
-
-        window.gDataTable.columns.adjust().draw();
     }
 
     function updateRecordCount(count) {
