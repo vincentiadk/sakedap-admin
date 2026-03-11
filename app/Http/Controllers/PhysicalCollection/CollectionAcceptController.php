@@ -76,7 +76,7 @@ class CollectionAcceptController extends Controller
         }
         if ($request->isbn) {
             $isbn = strtoupper(str_replace("'", "''", $request->isbn));
-            $isbn = strtoupper(str_replace("-", "", $request->isbn));
+            $isbn = strtoupper(str_replace("-", "", $isbn));
             $whereCondition[] = "replace(ld.ISBN,'-','') = '$isbn'";
         }
 
