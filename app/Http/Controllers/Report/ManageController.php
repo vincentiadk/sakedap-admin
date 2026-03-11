@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Jobs\ExcelDownloadBackgroundJob;
@@ -53,39 +54,40 @@ class ManageController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'catalogs.id',
+            'c.id',
             null,
-            'catalogs.id',
+            'c.id',
             'penerbit.id',
             'penerbit.name',
             'e_collections.created_at',
             'cfr.method',
             'propinsi.namapropinsi',
             'kabupaten.namakab',
-            'catalogs.title',
+            'c.title',
             'collectionmedias.name',
-            'catalogs.album',
-            'catalogs.series',
-            'catalogs.edition',
+            'c.album',
+            'c.series',
+            'c.edition',
             'e_collections.serial',
-            'catalogs.deweyno',
-            'catalogs.volume',
-            'catalogs.isbn',
+            'c.deweyno',
+            'c.volume',
+            'c.isbn',
             'e_collections.deposit',
-            'catalogs.controlnumber',
-            'catalogs.publishyear',
-            'catalogs.copyright',
-            'catalogs.preview',
+            'c.controlnumber',
+            'c.publishyear',
+            'c.copyright',
+            'c.preview',
             null,
             'cfr.method',
-            'catalogs.akses',
-            'catalogs.author',
+            'c.akses',
+            'c.author',
             null,
             'cfr.file_size',
             'cfr.fileurl',
             'e_collections.created_at',
-            'catalogs.createdate',
+            'c.createdate',
             'e_collections.price',
+            'u_receive.fullname'
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -99,28 +101,28 @@ class ManageController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "(catalogs.isdelete = 0 or catalogs.isdelete is null)";
-        $whereCondition[] = "catalogs.edeposit_col_id is not null";
+        $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null)";
+        $whereCondition[] = "c.edeposit_col_id is not null";
 
         if ($request->title) {
             $title = strtoupper($request->title);
-            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
+            $whereCondition[] = "upper(c.title) like '%$title%'";
         }
 
         if ($request->executor_id) {
-            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
+            $whereCondition[] = "c.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {
-            $whereCondition[] = "kabupaten.propinsiid = $request->province_id";
+            $whereCondition[] = "kb.propinsiid = $request->province_id";
         }
 
         if ($request->year) {
-            $whereCondition[] = "catalogs.publishyear = $request->year";
+            $whereCondition[] = "c.publishyear = $request->year";
         }
 
         if ($request->media_id) {
-            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
+            $whereCondition[] = "e.collection_media_id = $request->media_id";
         }
 
         if ($request->date) {
@@ -128,9 +130,11 @@ class ManageController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(catalogs.createdate >= to_date('$startDate', 'YYYY-MM-DD') and catalogs.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(c.createdate >= to_date('$startDate', 'YYYY-MM-DD') and c.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
-
+        if ($request->fullname) {
+            $whereCondition[] = " upper(u_receive.fullname) LIKE '%". strtoupper($request->fullname) ."%' ";
+        }
         if ($search) {
             $terms = [];
 
@@ -157,32 +161,32 @@ class ManageController extends Controller
             select
                 count(*) as total
             from
-                catalogs
+                catalogs c
             where
                 (
-                    isdelete = 0 or
-                    isdelete is null
+                    c.isdelete = 0 or
+                    c.isdelete is null
                 ) and
                 edeposit_col_id is not null
         ", true)->TOTAL ?? 0;
-
-        $totalFiltered = QueryAPI::get("
+        $sqlFiltered = "
             select
                 count(*) as total
             from
-                catalogs
+                catalogs c
             left join
-                penerbit on penerbit.id = catalogs.penerbit_id
+                penerbit p on p.id = c.penerbit_id
             left join
-                e_collections on e_collections.id = catalogs.edeposit_col_id
+                e_collections e on e.id = c.edeposit_col_id
             left join
-                kabupaten on kabupaten.id = e_collections.kabupaten_id
+                kabupaten kb on kb.id = e.kabupaten_id
             left join
-                propinsi on propinsi.id = kabupaten.propinsiid
+                propinsi pr on pr.id = kb.propinsiid
             left join
-                collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                collectionmedias cm on cm.id = e.collection_media_id
             left join
-                worksheets on worksheets.id = catalogs.worksheet_id
+                worksheets w on w.id = c.worksheet_id
+            LEFT JOIN users u_receive ON u_receive.id = e.received_by
             left join
                 (
                     select
@@ -208,82 +212,86 @@ class ManageController extends Controller
                     ) cf
                     where
                         rn = 1
-                ) cfr on cfr.catalog_id = catalogs.id
+                ) cfr on cfr.catalog_id = c.id
             $whereClause
-        ", true)->TOTAL ?? 0;
+        ";
+        $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
 
-        $queryData = QueryAPI::get("
-            select
-                *
-            from (
-                    select
-                        rownum as rnum,
-                        data.*
-                    from
-                        (
-                            select
-                                catalogs.*,
-                                e_collections.deposit as deposit_e_collection,
-                                e_collections.created_at as created_at_e_collection,
-                                e_collections.serial as serial_e_collection,
-                                e_collections.price as price_e_collection,
-                                penerbit.id as id_penerbit,
-                                penerbit.name as name_penerbit,
-                                propinsi.namapropinsi as namapropinsi,
-                                kabupaten.namakab as namakab,
-                                collectionmedias.name as name_media,
-                                cfr.fileurl as fileurl_catalogfiles,
-                                cfr.file_size as file_size_catalogfiles,
-                                cfr.method as method_catalogfiles
-                            from
-                                catalogs
-                            left join
-                                penerbit on penerbit.id = catalogs.penerbit_id
-                            left join
-                                e_collections on e_collections.id = catalogs.edeposit_col_id
-                            left join
-                                kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            left join
-                                propinsi on propinsi.id = kabupaten.propinsiid
-                            left join
-                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
-                            left join
-                                worksheets on worksheets.id = catalogs.worksheet_id
-                            left join
-                                (
-                                    select
-                                        cf.catalog_id,
-                                        cf.id,
-                                        cf.fileurl,
-                                        cf.hash,
-                                        cf.mime,
-                                        cf.file_size,
-                                        cf.method
-                                    from (
-                                        select
-                                            cf.catalog_id,
-                                            cf.id,
-                                            cf.fileurl,
-                                            cf.hash,
-                                            cf.mime,
-                                            cf.file_size,
-                                            cf.method,
-                                            ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) as rn
-                                        from
-                                            catalogfiles cf
-                                    ) cf
-                                    where
-                                        rn = 1
-                                ) cfr on cfr.catalog_id = catalogs.id
-                            $whereClause
-                            $orderBy
-                        ) data
-                    where
-                        rownum <= $length
-                )
-            where
-                rnum > $start
-        ");
+        $sql = "
+                    SELECT
+                        c.*,
+                        e.deposit AS deposit_e_collection,
+                        e.created_at AS created_at_e_collection,
+                        e.serial AS serial_e_collection,
+                        e.price AS price_e_collection,
+                        p.id AS id_penerbit,
+                        p.name AS name_penerbit,
+                        pr.namapropinsi AS namapropinsi,
+                        kb.namakab AS namakab,
+                        cm.name AS name_media,
+                        cfr.fileurl AS fileurl_catalogfiles,
+                        cfr.file_size AS file_size_catalogfiles,
+                        cfr.method AS method_catalogfiles,
+                        u_receive.fullname
+                    FROM (
+                        SELECT *
+                        FROM (
+                            SELECT
+                                rownum AS rnum,
+                                base.*
+                            FROM (
+                                SELECT
+                                    c.* 
+                                FROM
+                                    catalogs c
+                                LEFT JOIN penerbit p ON p.id = c.penerbit_id
+                                LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                                LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+                                LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+                                LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+                                LEFT JOIN worksheets w ON w.id = c.worksheet_id
+                                LEFT JOIN users u_receive ON u_receive.id = e.received_by
+                                $whereClause
+                                $orderBy
+                            ) base
+                            WHERE rownum <= " . ($start + $length) . "
+                        )
+                        WHERE rnum > " . (int)$start . "
+                    ) c
+                    LEFT JOIN penerbit p ON p.id = c.penerbit_id
+                    LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                    LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+                    LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+                    LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+                    LEFT JOIN worksheets w ON w.id = c.worksheet_id
+                    LEFT JOIN (
+                        SELECT
+                            cf.catalog_id,
+                            cf.id,
+                            cf.fileurl,
+                            cf.hash,
+                            cf.mime,
+                            cf.file_size,
+                            cf.method
+                        FROM (
+                            SELECT
+                                cf.catalog_id,
+                                cf.id,
+                                cf.fileurl,
+                                cf.hash,
+                                cf.mime,
+                                cf.file_size,
+                                cf.method,
+                                ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
+                            FROM catalogfiles cf
+                        ) cf
+                        WHERE cf.rn = 1
+                    ) cfr ON cfr.catalog_id = c.id
+                    LEFT JOIN users u_receive ON u_receive.id = e.received_by
+                    ORDER BY c.rnum
+                ";
+
+        $queryData = QueryAPI::get($sql);
 
         if ($queryData) {
             foreach ($queryData as $val) {
@@ -328,6 +336,7 @@ class ManageController extends Controller
                     Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('H:i'),
                     Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
                     $val->PRICE_E_COLLECTION,
+                    $val->FULLNAME
                 ];
 
                 $start++;
