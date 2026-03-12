@@ -80,10 +80,9 @@ class DeliveryVerificationController extends Controller
             $whereCondition[] = "l.status = '$request->status'";
         }
 
-        if ($request->executor_id) {
-            $whereCondition[] = "l.penerbit_id = $request->executor_id";
+        if ($request->executor_name) {
+            $whereCondition[] = "upper(p.name) LIKE '%" . strtoupper(trim($request->executor_name)) . "%'";
         }
-
         if ($request->branch_id) {
             $whereCondition[] = "l.branch_id = $request->branch_id";
         }

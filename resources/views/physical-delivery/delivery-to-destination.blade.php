@@ -36,7 +36,12 @@
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </label>
-                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-hash"></i>
+                                </span>
+                                <input type="text" class="form-control" name="executor_name" id="executor_name" placeholder="Cari berdasarkan nama pelaksana serah">
+                            </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
@@ -179,15 +184,15 @@
         datePickerBasic('#date');
 
         if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
-            select2Serverside('#executor_id', 'executor', {
-                province_id: '{{ session("province_id") }}',
-            });
+            //select2Serverside('#executor_id', 'executor', {
+            //    province_id: '{{ session("province_id") }}',
+            //});
 
             select2Serverside('#branch_id', 'branch', {
                 province_id: '{{ session("province_id") }}',
             });
         } else {
-            select2Serverside('#executor_id', 'executor');
+            //select2Serverside('#executor_id', 'executor');
             select2Serverside('#branch_id', 'branch');
         }
 
@@ -211,6 +216,7 @@
                 },
                 data: {
                     executor_id: $('#executor_id').val(),
+                    executor_name: $('#executor_name').val(),
                     delivery_service_id: $('#delivery_service_id').val(),
                     date: $('#date').val(),
                     date_type: $('#date_type').val(),

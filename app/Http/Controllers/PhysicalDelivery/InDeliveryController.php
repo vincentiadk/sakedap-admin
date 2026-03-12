@@ -65,11 +65,9 @@ class InDeliveryController extends Controller
         if ($request->delivery_service_id) {
             $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
         }
-
-        if ($request->executor_id) {
-            $whereCondition[] = "l.penerbit_id = $request->executor_id";
+        if ($request->executor_name) {
+            $whereCondition[] = "upper(p.name) LIKE '%" . strtoupper(trim($request->executor_name)) . "%'";
         }
-
         if ($request->branch_id) {
             $whereCondition[] = "l.branch_id = $request->branch_id";
         }
