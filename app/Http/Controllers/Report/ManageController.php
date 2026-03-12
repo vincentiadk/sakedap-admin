@@ -59,7 +59,7 @@ class ManageController extends Controller
             'c.id',
             'penerbit.id',
             'penerbit.name',
-            'e_collections.created_at',
+            'e.created_at',
             'cfr.method',
             'propinsi.namapropinsi',
             'kabupaten.namakab',
@@ -130,10 +130,15 @@ class ManageController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(c.createdate >= to_date('$startDate', 'YYYY-MM-DD') and c.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
         if ($request->fullname) {
-            $whereCondition[] = " upper(u_receive.fullname) LIKE '%". strtoupper($request->fullname) ."%' ";
+            $whereCondition[] = " UPPER(
+                    CASE
+                        WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+                        ELSE u_receive.fullname
+                    END
+                  ) LIKE '%". strtoupper($request->fullname) ."%' ";
         }
         if ($search) {
             $terms = [];
@@ -186,7 +191,13 @@ class ManageController extends Controller
                 collectionmedias cm on cm.id = e.collection_media_id
             left join
                 worksheets w on w.id = c.worksheet_id
-            LEFT JOIN users u_receive ON u_receive.id = e.received_by
+            LEFT JOIN users u_receive
+                                    ON u_receive.id = e.received_by
+                                LEFT JOIN e_users eu_receive
+                                    ON eu_receive.id = e.received_by
+                                AND eu_receive.userable_type = 'admins'
+                                LEFT JOIN e_admins ea_receive
+                                    ON ea_receive.id = eu_receive.userable_id
             left join
                 (
                     select
@@ -215,6 +226,7 @@ class ManageController extends Controller
                 ) cfr on cfr.catalog_id = c.id
             $whereClause
         ";
+        
         $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
 
         $sql = "
@@ -222,6 +234,7 @@ class ManageController extends Controller
                         c.*,
                         e.deposit AS deposit_e_collection,
                         e.created_at AS created_at_e_collection,
+                        e.received_at,
                         e.serial AS serial_e_collection,
                         e.price AS price_e_collection,
                         p.id AS id_penerbit,
@@ -232,7 +245,10 @@ class ManageController extends Controller
                         cfr.fileurl AS fileurl_catalogfiles,
                         cfr.file_size AS file_size_catalogfiles,
                         cfr.method AS method_catalogfiles,
-                        u_receive.fullname
+                        CASE
+                            WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+                            ELSE u_receive.fullname
+                        END AS fullname
                     FROM (
                         SELECT *
                         FROM (
@@ -250,7 +266,13 @@ class ManageController extends Controller
                                 LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
                                 LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
                                 LEFT JOIN worksheets w ON w.id = c.worksheet_id
-                                LEFT JOIN users u_receive ON u_receive.id = e.received_by
+                                LEFT JOIN users u_receive
+                                    ON u_receive.id = e.received_by
+                                LEFT JOIN e_users eu_receive
+                                    ON eu_receive.id = e.received_by
+                                AND eu_receive.userable_type = 'admins'
+                                LEFT JOIN e_admins ea_receive
+                                    ON ea_receive.id = eu_receive.userable_id
                                 $whereClause
                                 $orderBy
                             ) base
@@ -287,6 +309,13 @@ class ManageController extends Controller
                         ) cf
                         WHERE cf.rn = 1
                     ) cfr ON cfr.catalog_id = c.id
+                    LEFT JOIN users u_receive
+                        ON u_receive.id = e.received_by
+                    LEFT JOIN e_users eu_receive
+                        ON eu_receive.id = e.received_by
+                    AND eu_receive.userable_type = 'admins'
+                    LEFT JOIN e_admins ea_receive
+                        ON ea_receive.id = eu_receive.userable_id
                     LEFT JOIN users u_receive ON u_receive.id = e.received_by
                     ORDER BY c.rnum
                 ";
@@ -333,7 +362,7 @@ class ManageController extends Controller
                     '',
                     Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
-                    Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('H:i'),
+                    Carbon::parse($val->RECEIVED_AT)->format('d-m-Y') . ', ' . Carbon::parse($val->RECEIVED_AT)->format('H:i'),
                     Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
                     $val->PRICE_E_COLLECTION,
                     $val->FULLNAME
