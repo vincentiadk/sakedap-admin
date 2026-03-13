@@ -222,7 +222,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                         @php $cover = Main::getCoverISBN($getDataISBN->cover_file_name ?? null); @endphp
+                                        @php $cover = Main::getCoverISBN($getDataISBN->cover_file_name ?? null); @endphp
                                         <a href="{{ $cover }}" data-lightbox="cover-{{ $code }}" data-title="{{ $ld->TITLE }}">
                                             <img src="{{ $cover }}" class="img-fluid img-thumbnail shadow-sm"
                                                 style="max-width: 70px; max-height: 100px; object-fit: cover;">

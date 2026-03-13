@@ -962,19 +962,12 @@ class DeliveryVerificationController extends Controller
                     $currentUser = session('username');
                     $cacheDuration = 60;
                     $totalPackage = 0;
-                    /*$letterDetailNotVerified = QueryAPI::get("select * from letter_detail where letter_id = $id and received_by is null");
 
-                    if ($letterDetailNotVerified) {
-                        foreach ($letterDetailNotVerified as $ldnv) {
-                           QueryAPI::delete('letter_detail', $ldnv->LETTER_DETAIL_ID);
-                        }
-                    }
-                    */
                     if ($request->ci && is_array($request->ci)) {
                         foreach ($request->ci as $key => $ci) {
                             $code = $request->ci_code[$key] ?? null;
                             $editable = $request->ci_editable[$key] ?? false;
-                            Log::info($request->ci_copy[$key]);
+                            
                             if($request->ci_copy[$key]) {
                                 if (!$code || $editable == false) continue;
 
@@ -1023,8 +1016,19 @@ class DeliveryVerificationController extends Controller
                                     'penerbit_id' => $isbn->penerbit_id ?? null,
                                     'nomorpanggiljilid' => $isbn->keterangan,
                                 ];
-
-                                QueryAPI::create('letter_detail', $letterDetailData, false);
+                                $detailId = $request->ci_detail_id[$key] ?? null;
+                                if ($detailId) {
+                                    QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
+                                } else {
+                                    $exists = QueryAPI::get("
+                                        select * from letter_detail
+                                        where letter_id = {$letter->LETTER_ID}
+                                        and replace(trim(isbn), '-', '') = '{$code}'
+                                    ", true);
+                                    if (!$exists) {
+                                        QueryAPI::create('letter_detail', $letterDetailData, false);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1114,8 +1118,12 @@ class DeliveryVerificationController extends Controller
                                 'received_date' => $now,
                                 'checked' => 1,
                             ];
-
-                            QueryAPI::create('letter_detail', $letterDetailData, false);
+                            $detailId = $request->cni_detail_id[$key] ?? null;
+                            if ($detailId) {
+                                QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
+                            } else {
+                                QueryAPI::create('letter_detail', $letterDetailData, false);
+                            }    
                         }
                     }
 
@@ -1187,7 +1195,12 @@ class DeliveryVerificationController extends Controller
                                 'checked' => 1,
                             ];
 
-                            QueryAPI::create('letter_detail', $letterDetailData, false);
+                            $detailId = $request->cp_detail_id[$key] ?? null;
+                            if ($detailId) {
+                                QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
+                            } else {
+                                QueryAPI::create('letter_detail', $letterDetailData, false);
+                            }   
                         }
                     }
 
