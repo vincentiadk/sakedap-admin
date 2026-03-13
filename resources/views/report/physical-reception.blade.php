@@ -46,9 +46,9 @@
                             </label>
                             <div class="input-group">
                                 <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type" style="max-width: 130px;">
-                                    <option value="letter.accept_date">Diterima</option>
-                                    <option value="letter.letter_date">Pengiriman</option>
-                                    <option value="letter.createdate">Dibuat</option>
+                                    <option value="accept_date">Diterima</option>
+                                    <option value="letter_date">Pengiriman</option>
+                                    <option value="createdate">Dibuat</option>
                                 </select>
                                 <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
                             </div>
@@ -65,7 +65,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-flag me-1"></i>
                                 Status
@@ -76,37 +76,62 @@
                                 <option value="DITERIMA PENUH">Diterima Penuh</option>
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-user-plus me-1"></i>
-                                Create By
+                                Nama Pengguna
                             </label>
-                            <input type="text" class="form-control" name="create_by" id="create_by" placeholder="Cari nama / username">
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Cari nama pengguna">
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="ph-package me-1"></i>
-                                Received By
-                            </label>
-                            <input type="text" class="form-control" name="received_by" id="received_by" placeholder="Cari nama / username">
-                        </div>
-                        <!--div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="ph-check me-1"></i>
-                                Verified By
-                            </label>
-                            <input type="text" class="form-control" name="verified_by" id="verified_by" placeholder="Cari nama / username">
-                        </div-->
+                        
                     </div>
                 </form>
             </div>
+            </div> <!-- card filter selesai -->
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header border-bottom">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="ph-chart-bar me-1 text-success"></i>
+                <h6 class="mb-0 fw-semibold">Summary Penerimaan Fisik</h6>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select form-select-sm" id="summary_period" style="width: 160px;">
+                    <option value="daily">Harian</option>
+                    <option value="monthly">Bulanan</option>
+                    <option value="yearly">Tahunan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered w-100" id="datatable-summary">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:60px">No</th>
+                        <th>Nama Orang</th>
+                        <th>Periode</th>
+                        <th class="text-center">Total Judul</th>
+                        <th class="text-center">Total Eks</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header border-bottom">
+        ...
             <div class="card-footer border-top">
                 <div class="d-flex justify-content-end gap-2">
                     <a href="{{ url('report/physical-reception') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
                         <i class="ph-arrow-counter-clockwise me-1"></i>
                         Reset Filter
                     </a>
-                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                    <button type="button" class="btn btn-primary" onclick="reloadReport()">
                         <i class="ph-magnifying-glass me-1"></i>
                         Cari Data
                     </button>
@@ -293,6 +318,10 @@
         }
 
         loadData();
+        loadSummary();
+    });
+    $(document).on('change', '#summary_period', function () {
+        loadSummary();
     });
 
     function loadData() {
@@ -386,5 +415,58 @@
 
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
+    }
+    function loadSummary() {
+        if ($.fn.DataTable.isDataTable('#datatable-summary')) {
+            window.gSummaryTable.ajax.reload();
+            return;
+        }
+
+        window.gSummaryTable = $('#datatable-summary').DataTable({
+            processing: true,
+            serverSide: true,
+            deferRender: true,
+            scrollX: true,
+            destroy: true,
+            order: [[2, 'desc'], [1, 'asc']],
+            ajax: {
+                url: '{{ url("report/physical-reception/datatable-summary") }}',
+                dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    d.period = $('#summary_period').val();
+
+                    return d;
+                },
+                beforeSend: function() {
+                    onLoading('show', '#datatable-summary_wrapper');
+                },
+                error: function(response) {
+                    onLoading('close', '#datatable-summary_wrapper');
+                    responseError(response);
+                }
+            },
+            columns: [
+                { orderable: false, className: 'align-middle text-center fw-semibold' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+            ]
+        }).on('draw.dt', function() {
+            onLoading('close', '#datatable-summary_wrapper');
+        });
+    }
+
+    function reloadReport() {
+        loadSummary();
+        loadData();
     }
 </script>

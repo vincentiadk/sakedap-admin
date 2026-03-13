@@ -365,6 +365,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('physical-reception')->group(function () {
             Route::get('/', 'PhysicalReceptionController@index');
             Route::post('datatable', 'PhysicalReceptionController@datatable');
+            Route::post('datatable-summary', 'PhysicalReceptionController@datatableSummary');
         });
 
         Route::prefix('physical-recording')->group(function () {
