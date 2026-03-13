@@ -90,13 +90,13 @@
                             </label>
                             <input type="text" class="form-control" name="received_by" id="received_by" placeholder="Cari nama / username">
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        <!--div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-check me-1"></i>
                                 Verified By
                             </label>
                             <input type="text" class="form-control" name="verified_by" id="verified_by" placeholder="Cari nama / username">
-                        </div>
+                        </div-->
                     </div>
                 </form>
             </div>

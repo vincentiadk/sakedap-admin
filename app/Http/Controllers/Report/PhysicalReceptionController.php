@@ -92,15 +92,15 @@ class PhysicalReceptionController extends Controller
         }
 
         if ($request->create_by) {
-            $whereCondition[] = "(upper(u_create.fullname) like upper('$request->create_by') or upper(letter.create_by) like upper('%$request->create_by%'))";
+            $orCondition[] = "(upper(u_create.fullname) like upper('$request->create_by') or upper(letter.create_by) like upper('%$request->create_by%'))";
         }
 
         if ($request->received_by) {
-            $whereCondition[] = "(upper(u_received.fullname) like upper('$request->received_by') or upper(letter_detail.received_by) like upper('%$request->received_by%'))";
+            $orCondition[] = "(upper(u_received.fullname) like upper('$request->received_by') or upper(letter_detail.received_by) like upper('%$request->received_by%'))";
         }
 
         if ($request->verified_by) {
-            $whereCondition[] = "(upper(u_verified.fullname) like upper('$request->verified_by') or upper(letter_detail.verified_by) like upper('%$request->verified_by%'))";
+            $orCondition[] = "(upper(u_verified.fullname) like upper('$request->verified_by') or upper(letter_detail.verified_by) like upper('%$request->verified_by%'))";
         }
 
         if ($request->date) {
