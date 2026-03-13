@@ -172,6 +172,7 @@
                                     @endphp
 
                                     <tr class="animate__animated animate__fadeIn">
+                                        <input type="hidden" name="ci_detail_id[]" value="{{ $ci->LETTER_DETAIL_ID }}">
                                         <input type="hidden" name="ci[]" value="1">
                                         <input type="hidden" name="ci_code[]" value="{{ $code }}">
                                         <input type="hidden" name="ci_editable[]" value="{{ $receivedBy ? 0 : 1 }}">
@@ -246,6 +247,7 @@
                                         $randStr = Str::random(10);
                                     @endphp
                                     <tr class="animate__animated animate__fadeIn">
+                                        <input type="hidden" name="cni_detail_id[]" value="{{ $cni->LETTER_DETAIL_ID }}">
                                         <input type="hidden" name="cni[]" value="1">
                                         <input type="hidden" name="cni_editable[]" value="{{ $receivedBy ? 0 : 1 }}">
 
@@ -411,6 +413,7 @@
                                     @endphp
 
                                     <tr class="periodical-row-{{ $randStr }} animate__animated animate__fadeIn">
+                                        <input type="hidden" name="c[_detail_id[]" value="{{ $cp->LETTER_DETAIL_ID }}">
                                         <input type="hidden" name="cp[]" value="1">
                                         <input type="hidden" name="cp_editable[]" value="{{ $receivedBy ? 0 : 1 }}">
 
@@ -624,6 +627,7 @@
 
                             $('#data-collection-isbn').append(`
                                 <tr class="animate__animated animate__fadeIn" style="background-color:#fef3ed">
+                                    <input type="hidden" name="ci_detail_id[]" value="">
                                     <input type="hidden" name="ci[]" value="1">
                                     <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
                                     <input type="hidden" name="ci_editable[]" value="1">
@@ -810,6 +814,7 @@
 
             $('#data-collection-non-isbn').append(`
                 <tr class="animate__animated animate__fadeIn">
+                    <input type="hidden" name="cni_detail_id[]" value="">
                     <input type="hidden" name="cni[]" value="1">
                     <input type="hidden" name="cni_editable[]" value="1">
 
@@ -1007,6 +1012,7 @@
 
             var htmlRow = `
                 <tr class="${rowClass} animate__animated animate__fadeIn">
+                    <input type="hidden" name="cp_detail_id[]" value="">
                     <input type="hidden" name="cp[]" value="1">
                     <input type="hidden" name="cp_editable[]" value="1">
 
