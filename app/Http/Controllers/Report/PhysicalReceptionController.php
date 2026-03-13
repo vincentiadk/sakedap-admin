@@ -33,7 +33,6 @@ class PhysicalReceptionController extends Controller
             'letter_detail.title',
             'letter.accept_date',
             'letter.create_date',
-            'letter_detail.title',
             'penerbit.name',
             'branchs.name',
             'jasa_pengiriman.name',
@@ -44,7 +43,7 @@ class PhysicalReceptionController extends Controller
             'letter_detail.qty_hibah',
             'letter_detail.qty_retur',
             'letter_detail.qty_verif',
-            'letter_detail.jenis_media',
+            'collectionmedias.name',
             'letter.status',
             'letter_detail.price',
             'letter_detail.isbn',
@@ -168,6 +167,8 @@ class PhysicalReceptionController extends Controller
                 users u_received on letter_detail.received_by = u_received.username
             left join
                 users u_verified on letter_detail.verified_by = u_verified.username
+            left join 
+                collectionmedias on collectionmedias.id = letter_detail.collection_type_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -193,7 +194,8 @@ class PhysicalReceptionController extends Controller
                                 letter.create_by as create_by_letter,
                                 u_create.fullname as fullname_create,
                                 u_received.fullname as fullname_received,
-                                u_verified.fullname as fullname_verified
+                                u_verified.fullname as fullname_verified,
+                                collectionmedias.name as media_name
                             from
                                 letter_detail
                             left join
@@ -210,6 +212,8 @@ class PhysicalReceptionController extends Controller
                                 users u_received on letter_detail.received_by = u_received.username
                             left join
                                 users u_verified on letter_detail.verified_by = u_verified.username
+                            left join 
+                                collectionmedias on collectionmedias.id = letter_detail.collection_type_id
                             $whereClause
                             $orderBy
                         ) data
@@ -271,7 +275,7 @@ class PhysicalReceptionController extends Controller
                     $val->QTY_HIBAH,
                     $val->QTY_RETUR,
                     $val->QTY_VERIF,
-                    $val->JENIS_MEDIA,
+                    $val->MEDIA_NAME, //$val->JENIS_MEDIA,
                     $val->STATUS_LETTER,
                     'Rp ' . number_format($val->PRICE ?: 0),
                     $val->ISBN,
