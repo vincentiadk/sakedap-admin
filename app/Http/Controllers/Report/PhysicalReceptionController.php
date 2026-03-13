@@ -94,9 +94,9 @@ class PhysicalReceptionController extends Controller
 
         if ($request->name) {
             $name = strtoupper(trim($request->name));
-            $orCondition[] = "(upper(u_create.fullname) like '$name' or upper(letter.create_by) like '%$name%')";
-            $orCondition[] = "(upper(u_received.fullname) like '$name' or upper(letter_detail.received_by) like '%$name%')";
-            $orCondition[] = "(upper(u_verified.fullname) like '$name' or upper(letter_detail.verified_by) like '%$name%')";
+            $orCondition[] = "(upper(u_create.fullname) like '%$name%' or upper(letter.create_by) like '%$name%')";
+            $orCondition[] = "(upper(u_received.fullname) like '%$name%' or upper(letter_detail.received_by) like '%$name%')";
+            $orCondition[] = "(upper(u_verified.fullname) like '%$name%' or upper(letter_detail.verified_by) like '%$name%')";
         }
 
         if ($request->date) {
@@ -220,7 +220,7 @@ class PhysicalReceptionController extends Controller
         ";
 
         $queryData = QueryAPI::get($sql);
-
+        
         if ($queryData) {
             foreach ($queryData as $val) {
                 $createDateHTML = '';
@@ -303,12 +303,20 @@ class PhysicalReceptionController extends Controller
 
     public function datatableSummary(Request $request)
     {
+        $column = [
+            'nama_orang',
+            'periode',
+            'total_judul',
+            'total_eks',
+        ];
+
         $draw   = intval($request->draw ?? 0);
         $start  = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
 
         $data = [];
-
+        $orderBy = '';
+        $order = $request->order;
         /*
         |--------------------------------------------------------------------------
         | Periode grouping
@@ -374,19 +382,26 @@ class PhysicalReceptionController extends Controller
         | Sub Query (semua role)
         |--------------------------------------------------------------------------
         */
-        $baseQuery = "
-            SELECT
+       $baseQuery = "
+        SELECT 
+            nama_orang,
+            periode,
+            COUNT(letter_detail_id) AS total_judul,
+            SUM(qty_accept) AS total_eks
+        FROM (
+            SELECT DISTINCT
                 nama_orang,
                 periode,
-                COUNT(*) total_judul,
-                SUM(qty_accept) total_eks
+                letter_detail_id,
+                qty_accept
             FROM (
-            
+
                 -- pembuat
                 SELECT
                     NVL(u_create.fullname,l.create_by) nama_orang,
                     $periodLabel periode,
-                    ld.qty_accept
+                    ld.qty_accept,
+                    ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
@@ -401,7 +416,8 @@ class PhysicalReceptionController extends Controller
                 SELECT
                     NVL(u_received.fullname,ld.received_by) nama_orang,
                     $periodLabel periode,
-                    ld.qty_accept
+                    ld.qty_accept,
+                    ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
@@ -416,7 +432,8 @@ class PhysicalReceptionController extends Controller
                 SELECT
                     NVL(u_verified.fullname,ld.verified_by) nama_orang,
                     $periodLabel periode,
-                    ld.qty_accept
+                    ld.qty_accept,
+                    ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
@@ -428,7 +445,6 @@ class PhysicalReceptionController extends Controller
             )
             WHERE nama_orang IS NOT NULL
         ";
-
         /*
         |--------------------------------------------------------------------------
         | Filter nama
@@ -437,13 +453,8 @@ class PhysicalReceptionController extends Controller
         $nameFilter = '';
         if ($request->name) {
            $name = strtoupper(trim($request->name));
-           $nameFilter = " AND UPPER(nama_orang) LIKE '%$name%' ";
+           $nameFilter .= " WHERE UPPER(nama_orang) LIKE '%$name%' ";
         }
-
-        $baseQuery .= "
-            $nameFilter
-            GROUP BY nama_orang,periode
-        ";
 
         /*
         |--------------------------------------------------------------------------
@@ -455,6 +466,8 @@ class PhysicalReceptionController extends Controller
             FROM (
                 $baseQuery
             )
+            $nameFilter
+            GROUP BY nama_orang,periode )
         ", true)->TOTAL ?? 0;
 
         /*
@@ -470,7 +483,10 @@ class PhysicalReceptionController extends Controller
                     data.*
                 FROM (
                     $baseQuery
-                    ORDER BY periode DESC,nama_orang ASC
+                    )
+                    $nameFilter
+                    GROUP BY nama_orang,periode
+                    $orderBy
                 ) data
                 WHERE ROWNUM <= " . ($start + $length) . "
             )
@@ -478,7 +494,7 @@ class PhysicalReceptionController extends Controller
         ";
 
         $queryData = QueryAPI::get($sql);
-
+        
         /*
         |--------------------------------------------------------------------------
         | Result
