@@ -297,6 +297,10 @@
     }
 
     function loadData() {
+        if ($.fn.DataTable.isDataTable('#datatable-serverside')) {
+            window.gDataTable.ajax.reload();
+            return;
+        }
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
             serverSide: true,
@@ -364,8 +368,6 @@
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
-
-        window.gDataTable.columns.adjust().draw();
     }
 
     function updateRecordCount(count) {

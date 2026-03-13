@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class PhysicalReceptionController extends Controller
 {
@@ -29,6 +30,7 @@ class PhysicalReceptionController extends Controller
     {
         $column = [
             'letter_detail.letter_detail_id',
+            'letter_detail.title',
             'letter.accept_date',
             'letter.create_date',
             'letter_detail.title',

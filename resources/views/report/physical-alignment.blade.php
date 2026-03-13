@@ -257,12 +257,15 @@
     });
 
     function loadData() {
+        if ($.fn.DataTable.isDataTable('#datatable-serverside')) {
+            window.gDataTable.ajax.reload();
+            return;
+        }
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
             serverSide: true,
             deferRender: true,
             scrollX: true,
-            destroy: true,
             order: [[0, 'desc']],
             ajax: {
                 url: '{{ url("report/physical-alignment/datatable") }}',
@@ -322,8 +325,6 @@
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
-
-        window.gDataTable.columns.adjust().draw();
     }
 
     function updateRecordCount(count) {
