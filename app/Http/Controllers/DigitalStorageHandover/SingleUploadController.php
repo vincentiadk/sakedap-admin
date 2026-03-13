@@ -174,7 +174,7 @@ class SingleUploadController extends Controller
                     $currentTime = date('Y-m-d H:i:s');
                     $userId = session('id');
                     $publishTime = $request->publish_time ? strtotime($request->publish_time) : time();
-                    $receivedTime = strtotime($request->received_at);
+                    $receivedTime = strtotime($request->received_at) ?: time();
                     $catalogId = $request->catalog_id;
                     $catalog = null;
 
@@ -258,7 +258,7 @@ class SingleUploadController extends Controller
                     if ($request->cc_edition && $request->has_edition) {
                         foreach ($request->cc_edition as $key => $cce) {
                             $editionTitle = $request->cc_edition_title[$key] ?? null;
-                            $editionDate  = $request->cc_edition_date[$key] ?? null;
+                            $editionDate  = $editionDate ? date('Y-m-d H:i:s', strtotime($editionDate)) : null;
 
                             if ($editionTitle && $editionDate) {
                                 $editionData = $baseCollectionData;
@@ -266,6 +266,7 @@ class SingleUploadController extends Controller
                                 $editionData['parent_id'] = $createCollection->ID;
                                 $editionData['edition'] = $editionTitle;
                                 $editionData['edition_date'] = date('Y-m-d H:i:s', strtotime($editionDate));
+                                $editionData['slug'] = Str::slug($request->title, '-') . '-' . Str::slug($editionTitle, '-');
 
                                 $editionData['article_title'] = $request->cc_edition_article_title[$key] ?? null;
                                 $editionData['article_contributor'] = $request->cc_edition_article_contributor[$key] ?? null;
@@ -368,7 +369,9 @@ class SingleUploadController extends Controller
                         QueryAPI::update('e_collection_uploads', $uploadID, ['e_col_id' => $createCollection->ID]);
                     }
 
-                    if (!$request->cc_edition && !$request->has_edition) {
+                    $hasEdition = $request->boolean('has_edition') || $request->has_edition === 'on';
+
+                    if (!$hasEdition || !$request->cc_edition) {
                         QueryAPI::verificationCollection($createCollection->ID);
                     }
 

@@ -655,6 +655,8 @@
             $('#section-file-cover').addClass('d-none');
             $('#section-file-content').addClass('d-none');
             $('#has_edition').prop('checked', true);
+
+            toggleEditionSection();
         } else {
             $('#form-parent').addClass('d-none');
             $('#column-edition').addClass('d-none');
@@ -662,6 +664,10 @@
             $('#card-edition').addClass('d-none');
             $('#section-file-cover').removeClass('d-none');
             $('#section-file-content').removeClass('d-none');
+            $('#has_edition').prop('checked', false);
+            $('#content-edition-copy').hide();
+            $('#data-edition').empty();
+            $('#empty-edition-message').show();
         }
 
         $('#card-edition #data-edition').html('');
@@ -715,12 +721,10 @@
                     $('input[name="physical_description[sizes]"]').val(data.SIZES);
                     $('#description').val(data.DESCRIPTION_E_COLLECTION).change();
 
-                    if(data.NAMAKAB && data.NAMAPROPINSI) {
-                        $('#city_id').html(`
-                            <option value="${data.CITY_ID}" selected>
-                                ${data.NAMAPROPINSI} -> ${data.NAMAKAB}
-                            </option>
-                        `);
+                    if (data.CITY_ID) {
+                        const label = (data.NAMAPROPINSI && data.NAMAKAB) ? `${data.NAMAPROPINSI} -> ${data.NAMAKAB}` : data.CITY_ID;
+
+                        $('#city_id').html(`<option value="${data.CITY_ID}" selected>${label}</option>`);
                     }
 
                     if(copy && copy.length > 0) {
@@ -998,9 +1002,9 @@
     }
 
     function addEdition() {
-        var total = $('#add-number-edition').val();
+        var total = parseInt($('#add-number-edition').val(), 10);
 
-        if(total < 1 || total > 10) {
+        if(isNaN(total) || total < 1 || total > 10) {
             swalInit.fire({
                 title: 'Peringatan',
                 text: 'Jumlah baris harus antara 1-10',
