@@ -316,12 +316,9 @@ class ManageController extends Controller
                     AND eu_receive.userable_type = 'admins'
                     LEFT JOIN e_admins ea_receive
                         ON ea_receive.id = eu_receive.userable_id
-                    LEFT JOIN users u_receive ON u_receive.id = e.received_by
                     ORDER BY c.rnum
                 ";
-
         $queryData = QueryAPI::get($sql);
-
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
