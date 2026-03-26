@@ -334,7 +334,7 @@ class ManageController extends Controller
                     $val->ID,
                     $val->ID_PENERBIT,
                     $val->NAME_PENERBIT,
-                    Carbon::parse($val->CREATED_AT_E_COLLECTION)->isoFormat('D MMMM Y'),
+                    Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y'),
                     Main::method($val->METHOD_CATALOGFILES),
                     $val->NAMAPROPINSI,
                     $val->NAMAKAB,
@@ -359,8 +359,8 @@ class ManageController extends Controller
                     '',
                     Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
-                    Carbon::parse($val->RECEIVED_AT)->format('d-m-Y') . ', ' . Carbon::parse($val->RECEIVED_AT)->format('H:i'),
                     Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
+                    Carbon::parse($val->RECEIVED_AT)->format('d-m-Y') . ', ' . Carbon::parse($val->RECEIVED_AT)->format('H:i'),
                     $val->PRICE_E_COLLECTION,
                     $val->FULLNAME
                 ];
