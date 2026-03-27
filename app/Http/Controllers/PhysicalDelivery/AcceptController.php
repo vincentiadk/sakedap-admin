@@ -319,7 +319,7 @@ class AcceptController extends Controller
 
         $letter = QueryAPI::get($letterSql, true);
 
-        if($letter) {
+        if ($letter) {
             $letterDetail = QueryAPI::get("
                 select
                     *
@@ -547,7 +547,7 @@ class AcceptController extends Controller
 
         $bodyMessage = "BUKTI PENERIMAAN KARYA CETAK / KARYA REKAM | Kepada Yth. Sdr/i. $leaderName | Dengan hormat, kami menginformasikan bahwa kami telah menerima Karya Cetak/Karya Rekam yang Saudara kirimkan dengan rincian sebagai berikut: | 📅 Tanggal Penerimaan: $acceptDate | ✅ Atas kerja sama dan kepatuhan Saudara dalam melaksanakan amanat Undang-Undang Nomor 13 Tahun 2018 tentang Serah Simpan Karya Cetak dan Karya Rekam, kami menyampaikan apresiasi dan terima kasih yang sebesar-besarnya. | Catatan Penting: Dokumen resmi Bukti Penerimaan telah kami lampirkan dalam format PDF bersama pesan ini sebagai arsip Saudara.";
 
-        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage], $waTemplateId, $pdfPath);
+        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage, 'Lampiran : ' . $pdfPath], $waTemplateId, $pdfPath);
 
         if (file_exists($pdfPath)) {
             @unlink($pdfPath);
