@@ -842,7 +842,7 @@ class WarningController extends Controller
                     }
                 }
 
-                $send = Barantum::send($noTelp, $warning->NAME_PENERBIT ?? 'Penerbit', [$dataSend], $waTemplateId, $fileData);
+                $send = Barantum::send($noTelp, $warning->NAME_PENERBIT ?? 'Penerbit', [$dataSend, 'Lampiran : ' . $fileData], $waTemplateId, $fileData);
                 $response = $send;
             } else {
                 $response = [
