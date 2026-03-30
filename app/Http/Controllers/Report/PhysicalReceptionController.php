@@ -218,7 +218,6 @@ class PhysicalReceptionController extends Controller
             where
                 rnum > $start
         ";
-
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {
@@ -303,11 +302,11 @@ class PhysicalReceptionController extends Controller
 
     public function datatableSummary(Request $request)
     {
-        $column = [
-            'nama_orang',
-            'periode',
-            'total_judul',
-            'total_eks',
+        $columns = [
+            1 => 'nama_orang',
+            2 => 'periode',
+            3 => 'total_judul',
+            4 => 'total_eks',
         ];
 
         $draw   = intval($request->draw ?? 0);
@@ -315,203 +314,242 @@ class PhysicalReceptionController extends Controller
         $length = intval($request->length ?? 10);
 
         $data = [];
-        $orderBy = '';
-        $order = $request->order;
+
         /*
         |--------------------------------------------------------------------------
-        | Periode grouping
+        | Periode
         |--------------------------------------------------------------------------
         */
-        $periodGroup = "TRUNC(l.accept_date)";
-        $periodLabel = "TO_CHAR(TRUNC(l.accept_date),'YYYY-MM-DD')";
+        $periodLabel = "TO_CHAR(TRUNC(l.accept_date), 'YYYY-MM-DD')";
 
-        if ($request->period == 'monthly') {
-            $periodGroup = "TRUNC(l.accept_date,'MM')";
-            $periodLabel = "TO_CHAR(TRUNC(l.accept_date,'MM'),'YYYY-MM')";
-        }
-
-        if ($request->period == 'yearly') {
-            $periodGroup = "TRUNC(l.accept_date,'YYYY')";
-            $periodLabel = "TO_CHAR(TRUNC(l.accept_date,'YYYY'),'YYYY')";
+        if ($request->period === 'monthly') {
+            $periodLabel = "TO_CHAR(TRUNC(l.accept_date, 'MM'), 'YYYY-MM')";
+        } elseif ($request->period === 'yearly') {
+            $periodLabel = "TO_CHAR(TRUNC(l.accept_date, 'YYYY'), 'YYYY')";
         }
 
         /*
         |--------------------------------------------------------------------------
-        | WHERE CONDITION
+        | Date field whitelist
         |--------------------------------------------------------------------------
         */
-        $whereCondition = [];
-        $whereCondition[] = "l.status != 'DRAFT'";
-        $whereCondition[] = "l.accept_date IS NOT NULL";
+        $allowedDateFields = [
+            'letter.accept_date' => 'l.accept_date',
+            'letter.letter_date' => 'l.letter_date',
+            'letter.createdate'  => 'l.createdate',
+            'letter.create_date' => 'l.create_date',
+        ];
+
+        $dateField = 'l.accept_date';
+        if ($request->date_type && isset($allowedDateFields[$request->date_type])) {
+            $dateField = $allowedDateFields[$request->date_type];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Base where
+        |--------------------------------------------------------------------------
+        */
+        $whereConditions = [];
+        $whereConditions[] = "l.status != 'DRAFT'";
+        $whereConditions[] = "l.accept_date IS NOT NULL";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
-            $whereCondition[] = "branchs.province_id = " . session('province_id');
+            $provinceId = (int) session('province_id');
+            $whereConditions[] = "b.province_id = {$provinceId}";
         }
 
-        if ($request->delivery_service_id) {
-            $whereCondition[] = "l.jasa_pengiriman_id = $request->delivery_service_id";
+        if ($request->delivery_service_id !== null && $request->delivery_service_id !== '') {
+            $deliveryServiceId = (int) $request->delivery_service_id;
+            $whereConditions[] = "l.jasa_pengiriman_id = {$deliveryServiceId}";
         }
 
         if ($request->status) {
-            $whereCondition[] = "l.status = '$request->status'";
+            $status = str_replace("'", "''", trim($request->status));
+            $whereConditions[] = "l.status = '{$status}'";
         }
 
-        if ($request->executor_id) {
-            $whereCondition[] = "l.penerbit_id = $request->executor_id";
+        if ($request->executor_id !== null && $request->executor_id !== '') {
+            $executorId = (int) $request->executor_id;
+            $whereConditions[] = "l.penerbit_id = {$executorId}";
         }
 
         if ($request->date) {
-
             $explodeDate = explode(' - ', $request->date);
 
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate   = Carbon::parse($explodeDate[1])->format('Y-m-d');
+            if (count($explodeDate) === 2) {
+                $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+                $endDate   = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "
-                (
-                    l.$request->date_type >= TO_DATE('$startDate','YYYY-MM-DD')
-                    AND l.$request->date_type < TO_DATE('$endDate','YYYY-MM-DD') + 1
-                )
-            ";
+                $whereConditions[] = "(
+                    {$dateField} >= TO_DATE('{$startDate}', 'YYYY-MM-DD')
+                    AND {$dateField} < TO_DATE('{$endDate}', 'YYYY-MM-DD') + 1
+                )";
+            }
         }
 
-        $whereClause = implode(' AND ', $whereCondition);
+        $whereClause = implode(' AND ', $whereConditions);
 
         /*
         |--------------------------------------------------------------------------
-        | Sub Query (semua role)
+        | Name filter per role
         |--------------------------------------------------------------------------
         */
-       $baseQuery = "
-        SELECT 
-            nama_orang,
-            periode,
-            COUNT(letter_detail_id) AS total_judul,
-            SUM(qty_accept) AS total_eks
-        FROM (
-            SELECT DISTINCT
+        $nameCreateWhere   = '';
+        $nameReceivedWhere = '';
+        $nameVerifiedWhere = '';
+
+        if ($request->name) {
+            $name = strtoupper(trim($request->name));
+            $name = str_replace("'", "''", $name);
+
+            $nameCreateWhere = " AND (
+                UPPER(NVL(u_create.fullname, '')) LIKE '%{$name}%'
+                OR UPPER(NVL(l.create_by, '')) LIKE '%{$name}%'
+            )";
+
+            $nameReceivedWhere = " AND (
+                UPPER(NVL(u_received.fullname, '')) LIKE '%{$name}%'
+                OR UPPER(NVL(ld.received_by, '')) LIKE '%{$name}%'
+            )";
+
+            $nameVerifiedWhere = " AND (
+                UPPER(NVL(u_verified.fullname, '')) LIKE '%{$name}%'
+                OR UPPER(NVL(ld.verified_by, '')) LIKE '%{$name}%'
+            )";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Final summary query
+        |--------------------------------------------------------------------------
+        */
+        $finalQuery = "
+            SELECT
                 nama_orang,
                 periode,
-                letter_detail_id,
-                qty_accept
+                COUNT(DISTINCT letter_detail_id) AS total_judul,
+                SUM(qty_accept) AS total_eks
             FROM (
-
                 -- pembuat
                 SELECT
-                    NVL(u_create.fullname,l.create_by) nama_orang,
-                    $periodLabel periode,
+                    NVL(u_create.fullname, l.create_by) AS nama_orang,
+                    {$periodLabel} AS periode,
                     ld.qty_accept,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
                 LEFT JOIN users u_create
                     ON u_create.username = l.create_by
-                WHERE $whereClause
-                AND NVL(l.create_by,'x') IS NOT NULL
+                WHERE {$whereClause}
+                AND NVL(l.create_by, 'x') IS NOT NULL
+                {$nameCreateWhere}
 
                 UNION ALL
 
                 -- penerima
                 SELECT
-                    NVL(u_received.fullname,ld.received_by) nama_orang,
-                    $periodLabel periode,
+                    NVL(u_received.fullname, ld.received_by) AS nama_orang,
+                    {$periodLabel} AS periode,
                     ld.qty_accept,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
                 LEFT JOIN users u_received
                     ON u_received.username = ld.received_by
-                WHERE $whereClause
-                AND NVL(ld.received_by,'x') IS NOT NULL
+                WHERE {$whereClause}
+                AND NVL(ld.received_by, 'x') IS NOT NULL
+                {$nameReceivedWhere}
 
                 UNION ALL
 
                 -- verifikator
                 SELECT
-                    NVL(u_verified.fullname,ld.verified_by) nama_orang,
-                    $periodLabel periode,
+                    NVL(u_verified.fullname, ld.verified_by) AS nama_orang,
+                    {$periodLabel} AS periode,
                     ld.qty_accept,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
                     ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
                 LEFT JOIN users u_verified
                     ON u_verified.username = ld.verified_by
-                WHERE $whereClause
-                AND NVL(ld.verified_by,'x') IS NOT NULL
-
+                WHERE {$whereClause}
+                AND NVL(ld.verified_by, 'x') IS NOT NULL
+                {$nameVerifiedWhere}
             )
-            WHERE nama_orang IS NOT NULL
+            GROUP BY nama_orang, periode
         ";
+
         /*
         |--------------------------------------------------------------------------
-        | Filter nama
+        | Ordering
         |--------------------------------------------------------------------------
         */
-        $nameFilter = '';
-        if ($request->name) {
-           $name = strtoupper(trim($request->name));
-           $nameFilter .= " WHERE UPPER(nama_orang) LIKE '%$name%' ";
+        $orderBy = " ORDER BY periode DESC, nama_orang ASC ";
+        if (!empty($request->order) && isset($request->order[0])) {
+            $orderColumnIndex = (int) $request->order[0]['column'];
+            $orderDir = strtolower($request->order[0]['dir'] ?? 'asc');
+            $orderDir = $orderDir === 'desc' ? 'DESC' : 'ASC';
+
+            if (isset($columns[$orderColumnIndex])) {
+                $orderBy = " ORDER BY {$columns[$orderColumnIndex]} {$orderDir} ";
+            }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Total Filtered
+        | Count filtered
         |--------------------------------------------------------------------------
         */
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(*) total
+            SELECT COUNT(*) AS total
             FROM (
-                $baseQuery
+                {$finalQuery}
             )
-            $nameFilter
-            GROUP BY nama_orang,periode )
         ", true)->TOTAL ?? 0;
 
         /*
         |--------------------------------------------------------------------------
-        | Pagination Oracle
+        | Paging
         |--------------------------------------------------------------------------
         */
+       $endRow = $start + $length;
+
         $sql = "
             SELECT *
             FROM (
                 SELECT
-                    ROWNUM rnum,
+                    ROW_NUMBER() over(Order by periode desc, nama_orang asc) as rnum,
                     data.*
                 FROM (
-                    $baseQuery
-                    )
-                    $nameFilter
-                    GROUP BY nama_orang,periode
-                    $orderBy
-                ) data
-                WHERE ROWNUM <= " . ($start + $length) . "
+                    {$finalQuery}
+                    {$orderBy}
+                ) data 
             )
-            WHERE rnum > $start
+            WHERE rnum > {$start} and rnum <= {$endRow}
         ";
 
+
         $queryData = QueryAPI::get($sql);
-        
-        /*
-        |--------------------------------------------------------------------------
-        | Result
-        |--------------------------------------------------------------------------
-        */
+
         if ($queryData) {
-
             foreach ($queryData as $val) {
-
                 $data[] = [
                     $start + 1,
                     $val->NAMA_ORANG,
                     $val->PERIODE,
                     $val->TOTAL_JUDUL,
-                    $val->TOTAL_EKS
+                    $val->TOTAL_EKS,
                 ];
-
                 $start++;
             }
         }
@@ -520,7 +558,7 @@ class PhysicalReceptionController extends Controller
             'draw' => $draw,
             'recordsTotal' => $totalFiltered,
             'recordsFiltered' => $totalFiltered,
-            'data' => $data
+            'data' => $data,
         ]);
     }
 }

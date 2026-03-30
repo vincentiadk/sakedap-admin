@@ -24,6 +24,9 @@
 							<img src="{{ asset('themes/images/error_bg.svg') }}" class="img-fluid mb-3" height="230" alt="">
 							<h1 class="display-3 fw-semibold lh-1 mb-3">@yield('code')</h1>
 							<h4 class="mx-md-auto">@yield('message')</h4>
+							<p style="color: #6c757d; font-size: 14px;">
+								Terima kasih atas kesabaran Anda 🙏
+							</p>
 						</div>
 						<div class="text-center">
 							<a href="{{ url('/') }}" class="btn btn-primary">
