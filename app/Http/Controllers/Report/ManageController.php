@@ -195,56 +195,73 @@ class ManageController extends Controller
         ", true)->TOTAL ?? 0;
 
         $sqlFiltered = "
-            select
-                count(*) as total
-            from
-                catalogs c
-            left join
-                penerbit p on p.id = c.penerbit_id
-            left join
-                e_collections e on e.id = c.edeposit_col_id
-            left join
-                kabupaten kb on kb.id = e.kabupaten_id
-            left join
-                propinsi pr on pr.id = kb.propinsiid
-            left join
-                collectionmedias cm on cm.id = e.collection_media_id
-            left join
-                worksheets w on w.id = c.worksheet_id
-            LEFT JOIN
-                users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN
-                e_users eu_receive ON eu_receive.id = e.received_by
-                AND eu_receive.userable_type = 'admins'
-            LEFT JOIN
-                e_admins ea_receive ON ea_receive.id = eu_receive.userable_id
-            left join
-                (
-                    select
+            SELECT
+                count(*) AS total
+            FROM (
+                SELECT *
+                FROM (
+                    SELECT
+                        rownum AS rnum,
+                        base.*
+                    FROM (
+                        SELECT
+                            c.*
+                        FROM
+                            catalogs c
+                        LEFT JOIN penerbit p ON p.id = c.penerbit_id
+                        LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+                        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+                        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+                        LEFT JOIN worksheets w ON w.id = c.worksheet_id
+                        LEFT JOIN users u_receive
+                            ON u_receive.id = e.received_by
+                        LEFT JOIN e_users eu_receive
+                            ON eu_receive.id = e.received_by
+                        AND eu_receive.userable_type = 'admins'
+                        LEFT JOIN e_admins ea_receive
+                            ON ea_receive.id = eu_receive.userable_id
+                        $whereClause
+                        $orderBy
+                    ) base
+                )
+            ) c
+            LEFT JOIN penerbit p ON p.id = c.penerbit_id
+            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+            LEFT JOIN worksheets w ON w.id = c.worksheet_id
+            LEFT JOIN (
+                SELECT
+                    cf.catalog_id,
+                    cf.id,
+                    cf.fileurl,
+                    cf.hash,
+                    cf.mime,
+                    cf.file_size,
+                    cf.method
+                FROM (
+                    SELECT
                         cf.catalog_id,
                         cf.id,
                         cf.fileurl,
                         cf.hash,
                         cf.mime,
                         cf.file_size,
-                        cf.method
-                    from (
-                        select
-                            cf.catalog_id,
-                            cf.id,
-                            cf.fileurl,
-                            cf.hash,
-                            cf.mime,
-                            cf.file_size,
-                            cf.method,
-                            ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) as rn
-                        from
-                            catalogfiles cf
-                    ) cf
-                    where
-                        rn = 1
-                ) cfr on cfr.catalog_id = c.id
-            $whereClause
+                        cf.method,
+                        ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
+                    FROM catalogfiles cf
+                ) cf
+                WHERE cf.rn = 1
+            ) cfr ON cfr.catalog_id = c.id
+            LEFT JOIN users u_receive
+                ON u_receive.id = e.received_by
+            LEFT JOIN e_users eu_receive
+                ON eu_receive.id = e.received_by
+            AND eu_receive.userable_type = 'admins'
+            LEFT JOIN e_admins ea_receive
+                ON ea_receive.id = eu_receive.userable_id
         ";
 
         $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
