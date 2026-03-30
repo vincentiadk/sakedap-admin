@@ -303,6 +303,8 @@ function configDataTable() {
                                             success: function (json) {
                                                 if (isCancelled) return;
 
+                                                var newData = json.data || [];
+
                                                 if (allData.length < totalRecords) {
                                                     var remaining = totalRecords - allData.length;
                                                     var dataToAdd = newData.slice(0, remaining);
