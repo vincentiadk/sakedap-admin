@@ -287,7 +287,7 @@ function configDataTable() {
 
                                     function fetchNextBatch() {
                                         if (isCancelled || isPaused) return;
-                                        var params = dt.ajax.params();
+                                        var params = $.extend(true, {}, dt.ajax.params());
 
                                         params.start = start;
                                         params.length = chunkSize;
@@ -303,14 +303,19 @@ function configDataTable() {
                                             success: function (json) {
                                                 if (isCancelled) return;
 
-                                                allData = allData.concat(json.data);
+                                                if (allData.length < totalRecords) {
+                                                    var remaining = totalRecords - allData.length;
+                                                    var dataToAdd = newData.slice(0, remaining);
+                                                    allData = allData.concat(dataToAdd);
+                                                }
+
                                                 var percentage = Math.round((allData.length / totalRecords) * 100);
 
                                                 $('#modal-datatable-download-progress').css('width', percentage + '%').text(percentage + '%');
                                                 $('#modal-datatable-download-progress-percent').text(percentage + '%');
                                                 $('#modal-datatable-download-progress-count').text(allData.length + ' / ' + totalRecords + ' Data');
 
-                                                if (allData.length < totalRecords && json.data.length > 0) {
+                                                if (allData.length < totalRecords && newData.length > 0) {
                                                     start += chunkSize;
 
                                                     setTimeout(fetchNextBatch, 100);
