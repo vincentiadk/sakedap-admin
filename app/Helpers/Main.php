@@ -175,12 +175,11 @@ class Main
      */
     public static function generateNumberDeposit()
     {
-        $now = microtime(true);
-        $dateTime = date('YmdHis'); // YYYYMMDDHHIISS
-        $micro = sprintf('%06d', ($now - floor($now)) * 1000000); // microsecond
-        $random = random_int(100, 999); // 3 digit random
+        $dateTime = date('YmdHis');
+        $random = rand(0, 9999999);
+        $sprintf = sprintf('%07d', $random);
 
-        return 'DEP' . $dateTime . $micro . $random;
+        return 'DEP' . $dateTime . $sprintf . $random;
     }
 
     /**
