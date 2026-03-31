@@ -90,7 +90,7 @@ class ManageController extends Controller
             null,
             'cfr.file_size',
             'cfr.fileurl',
-            'e_collections.created_at',
+            'e.created_at',
             'c.createdate',
             'e.price',
             'u_receive.fullname'
