@@ -197,12 +197,13 @@ class ManageController extends Controller
             $whereClause = "where " . implode(' and ', $whereCondition);
         }
 
+        $orderBy = "order by c.id DESC";
         if ($order) {
             $orderColumnIndex = $order[0]['column'];
             $orderDir         = strtoupper($order[0]['dir']) === 'DESC' ? 'DESC' : 'ASC';
             $orderCol         = $column[$orderColumnIndex] ?? null;
             if ($orderCol) {
-                $orderBy = "order by $orderCol $orderDir";
+                $orderBy = "order by $orderCol $orderDir, c.id DESC";
             }
         }
 
