@@ -309,7 +309,7 @@ class ManageController extends Controller
                     '',
                     Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
-                    $val->CREATEDATE ? \Carbon\Carbon::parse($val->CREATEDATE)->format('d-m-Y, H:i') : '-',
+                    $val->CREATED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y, H:i') : '-',
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->format('d-m-Y, H:i') : '-',
                     $val->PRICE_E_COLLECTION,
                     $val->FULLNAME
