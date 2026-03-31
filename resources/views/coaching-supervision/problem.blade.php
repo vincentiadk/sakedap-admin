@@ -126,14 +126,13 @@
                     table.search(this.value).draw();
                 }, 500));
 
-                updateRecordCount(json.recordsFiltered);
+                updateRecordCount(json ? json.recordsFiltered : 0);
             },
             drawCallback: function(settings) {
                 var api = this.api();
-
-                updateRecordCount(api.page.info().recordsFiltered);
+                updateRecordCount(api.page.info().recordsDisplay);
             }
-        }).on('draw.dt', function() {
+                    }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
 
