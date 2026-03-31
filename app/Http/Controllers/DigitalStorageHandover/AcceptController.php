@@ -164,6 +164,7 @@ class AcceptController extends Controller
                                 catalogs.isbn,
                                 catalogs.createdate,
                                 catalogs.penerbit_id,
+                                e_collections.received_at as received_at_e_collection,
                                 penerbit.name as name_penerbit,
                                 collectionmedias.name as name_media
                             from
@@ -204,7 +205,7 @@ class AcceptController extends Controller
                     $val->TITLE,
                     $val->NAME_MEDIA,
                     $val->ISBN,
-                    Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
+                    Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;
