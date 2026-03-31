@@ -179,7 +179,7 @@ class Main
         $random = rand(0, 9999999);
         $sprintf = sprintf('%07d', $random);
 
-        return 'DEP' . $dateTime . $sprintf . $random;
+        return 'DEP' . $dateTime . $sprintf;
     }
 
     /**
