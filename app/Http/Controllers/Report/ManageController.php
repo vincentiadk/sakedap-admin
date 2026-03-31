@@ -126,25 +126,13 @@ class ManageController extends Controller
 
         $draw    = intval($request->draw ?? 0);
         $start   = intval($request->start ?? 0);
-        $length  = $start + intval($request->length ?? 10);
+        $length  = intval($request->length ?? 10);
+        $search  = strtoupper($request->search['value'] ?? '');
 
-        $data   = [];
-        $search = strtoupper($request->search['value'] ?? '');
-
-        $orderBy = '';
-        $order   = $request->order;
-
-        $whereClause    = '';
         $whereCondition = [];
-
-        $whereCondition[] = "
-            (
-                c.isdelete = 0 or
-                c.isdelete is null
-            ) and
-            w.category = '$this->worksheetCategory' and
-            c.edeposit_col_id is not null
-        ";
+        $whereCondition[] = "(c.isdelete = 0 or c.isdelete is null)
+                         and w.category = '$this->worksheetCategory'
+                         and c.edeposit_col_id is not null";
 
         if ($request->title) {
             $title = strtoupper($request->title);
@@ -169,20 +157,17 @@ class ManageController extends Controller
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
-            $startDate   = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate     = Carbon::parse($explodeDate[1])->format('Y-m-d');
-            $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $startDate   = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate     = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
+            $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD')
+                             and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($request->fullname) {
-            $whereCondition[] = "
-                UPPER(
-                    CASE
-                        WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                        ELSE u_receive.fullname
-                    END
-                ) LIKE '%" . strtoupper($request->fullname) . "%'
-            ";
+            $fnReq = strtoupper($request->fullname);
+            $whereCondition[] = "UPPER(CASE WHEN ea_receive.fullname IS NOT NULL
+                             THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+                             ELSE u_receive.fullname END) LIKE '%$fnReq%'";
         }
 
         if ($search) {
@@ -193,70 +178,40 @@ class ManageController extends Controller
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
-        }
+        $whereClause = $whereCondition ? "where " . implode(' and ', $whereCondition) : '';
 
-        $orderBy = "order by c.id DESC";
-        if ($order) {
-            $orderColumnIndex = $order[0]['column'];
-            $orderDir         = strtoupper($order[0]['dir']) === 'DESC' ? 'DESC' : 'ASC';
-            $orderCol         = $column[$orderColumnIndex] ?? null;
-            if ($orderCol) {
-                $orderBy = "order by $orderCol $orderDir, c.id DESC";
-            }
+        $orderDir = 'DESC';
+        $orderCol = 'c.id';
+        if ($request->order) {
+            $orderColumnIndex = $request->order[0]['column'];
+            $orderDir = strtoupper($request->order[0]['dir']) === 'DESC' ? 'DESC' : 'ASC';
+            $orderCol = $column[$orderColumnIndex] ?? 'c.id';
         }
 
         $joinEUsers = "
-        LEFT JOIN users u_receive
-            ON u_receive.id = e.received_by
+        LEFT JOIN users u_receive ON u_receive.id = e.received_by
         LEFT JOIN (
-            SELECT
-                eu.id,
-                eu.userable_id,
-                ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
-            FROM e_users eu
-            WHERE eu.userable_type = 'admins'
-        ) eu_receive
-            ON eu_receive.id = e.received_by
-            AND eu_receive.rn_eu = 1
-        LEFT JOIN e_admins ea_receive
-            ON ea_receive.id = eu_receive.userable_id
-    ";
+            SELECT eu.id, eu.userable_id,
+            ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
+            FROM e_users eu WHERE eu.userable_type = 'admins'
+        ) eu_receive ON eu_receive.id = e.received_by AND eu_receive.rn_eu = 1
+        LEFT JOIN e_admins ea_receive ON ea_receive.id = eu_receive.userable_id";
 
         $joinCatalogFiles = "
         LEFT JOIN (
-            SELECT
-                cf.catalog_id,
-                cf.id,
-                cf.fileurl,
-                cf.hash,
-                cf.mime,
-                cf.file_size,
-                cf.method
+            SELECT cf.catalog_id, cf.file_size, cf.fileurl, cf.method
             FROM (
-                SELECT
-                    cf.catalog_id,
-                    cf.id,
-                    cf.fileurl,
-                    cf.hash,
-                    cf.mime,
-                    cf.file_size,
-                    cf.method,
-                    ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
-                FROM catalogfiles cf
-            ) cf
-            WHERE cf.rn = 1
-        ) cfr ON cfr.catalog_id = c.id
-    ";
+                SELECT catalog_id, file_size, fileurl, method,
+                ROW_NUMBER() OVER (PARTITION BY catalog_id ORDER BY id DESC) AS rn
+                FROM catalogfiles
+            ) cf WHERE cf.rn = 1
+        ) cfr ON cfr.catalog_id = c.id";
 
         $baseJoins = "
         FROM catalogs c
         LEFT JOIN penerbit p ON p.id = c.penerbit_id
         LEFT JOIN (
-            SELECT
-                ec.*,
-                ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
+            SELECT ec.*, ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
             FROM e_collections ec
         ) e ON e.id = c.edeposit_col_id AND e.rn_ec = 1
         LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
@@ -264,98 +219,72 @@ class ManageController extends Controller
         LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
         LEFT JOIN worksheets w ON w.id = c.worksheet_id
         $joinCatalogFiles
-        $joinEUsers
-    ";
+        $joinEUsers";
 
         $totalData = QueryAPI::get("
-        select count(*) as total
-        from catalogs
-        left join worksheets on worksheets.id = catalogs.worksheet_id
-        where
-            (catalogs.isdelete = 0 or catalogs.isdelete is null)
-            and worksheets.category = '$this->worksheetCategory'
-            and catalogs.edeposit_col_id is not null
+        SELECT COUNT(DISTINCT catalogs.id) AS total
+        FROM catalogs
+        JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+        WHERE (catalogs.isdelete = 0 or catalogs.isdelete is null)
+        AND worksheets.category = '$this->worksheetCategory'
+        AND catalogs.edeposit_col_id is not null
     ", true)->TOTAL ?? 0;
 
-        $sqlFiltered = "
-        SELECT COUNT(*) AS total
-        $baseJoins
-        $whereClause
-    ";
-
-        $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
+        $totalFiltered = QueryAPI::get("SELECT COUNT(DISTINCT c.id) AS total $baseJoins $whereClause", true)->TOTAL ?? 0;
 
         $sql = "
-        SELECT
-            c.*,
-            e.deposit       AS deposit_e_collection,
-            e.created_at    AS created_at_e_collection,
-            e.received_at,
-            e.serial        AS serial_e_collection,
-            e.price         AS price_e_collection,
-            p.id            AS id_penerbit,
-            p.name          AS name_penerbit,
-            pr.namapropinsi AS namapropinsi,
-            kb.namakab      AS namakab,
-            cm.name         AS name_media,
-            cfr.fileurl     AS fileurl_catalogfiles,
-            cfr.file_size   AS file_size_catalogfiles,
-            cfr.method      AS method_catalogfiles,
-            CASE
-                WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                ELSE u_receive.fullname
-            END AS fullname
-        FROM (
-            SELECT *
-            FROM (
-                SELECT
-                    rownum AS rnum,
-                    base.*
-                FROM (
-                    SELECT c.id
-                    $baseJoins
-                    $whereClause
-                    $orderBy
-                ) base
-                WHERE rownum <= " . ($start + $length) . "
-            )
-            WHERE rnum > " . (int)$start . "
-        ) paged
-        JOIN catalogs c ON c.id = paged.id
-        LEFT JOIN penerbit p ON p.id = c.penerbit_id
-        LEFT JOIN (
-            SELECT
-                ec.*,
-                ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
-            FROM e_collections ec
-        ) e ON e.id = c.edeposit_col_id AND e.rn_ec = 1
-        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-        LEFT JOIN worksheets w ON w.id = c.worksheet_id
-        $joinCatalogFiles
-        $joinEUsers
-        ORDER BY paged.rnum
-    ";
+    SELECT
+        c.*, e.deposit AS deposit_e_collection, e.created_at AS created_at_e_collection,
+        e.received_at, e.serial AS serial_e_collection, e.price AS price_e_collection,
+        p.id AS id_penerbit, p.name AS name_penerbit, pr.namapropinsi, kb.namakab,
+        cm.name AS name_media, cfr.fileurl AS fileurl_catalogfiles,
+        cfr.file_size AS file_size_catalogfiles, cfr.method AS method_catalogfiles,
+        CASE WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+             ELSE u_receive.fullname END AS fullname
+    FROM (
+        SELECT * FROM (
+            SELECT rownum AS rnum, inner_table.base_id AS id FROM (
+                SELECT c.id as base_id
+                $baseJoins
+                $whereClause
+                GROUP BY c.id, $orderCol
+                ORDER BY $orderCol $orderDir, c.id DESC
+            ) inner_table
+            WHERE rownum <= " . ($start + $length) . "
+        ) WHERE rnum > " . (int)$start . "
+    ) paged
+    JOIN catalogs c ON c.id = paged.id
+    LEFT JOIN penerbit p ON p.id = c.penerbit_id
+    LEFT JOIN (
+        SELECT ec.*, ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
+        FROM e_collections ec
+    ) e ON e.id = c.edeposit_col_id AND e.rn_ec = 1
+    LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+    LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+    LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+    LEFT JOIN worksheets w ON w.id = c.worksheet_id
+    $joinCatalogFiles
+    $joinEUsers
+    ORDER BY paged.rnum";
 
         $queryData = QueryAPI::get($sql);
 
+        $finalData = [];
         if ($queryData) {
+            $counter = $start + 1;
             foreach ($queryData as $val) {
                 $action = '
                 <a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
-                    <i class="ph-info me-1"></i>
-                    Detail
-                </a>
-            ';
+                    <i class="ph-info me-1"></i> Detail
+                </a>';
 
-                $data[] = [
-                    $start + 1,
+                $finalData[] = [
+                    $counter,
                     $action,
                     $val->ID,
                     $val->ID_PENERBIT,
                     $val->NAME_PENERBIT,
-                    Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y'),
+                    $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y') : '-',
                     Main::method($val->METHOD_CATALOGFILES),
                     $val->NAMAPROPINSI,
                     $val->NAMAKAB,
@@ -380,13 +309,12 @@ class ManageController extends Controller
                     '',
                     Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES, PATHINFO_EXTENSION)),
-                    Carbon::parse($val->CREATEDATE)->format('d-m-Y') . ', ' . Carbon::parse($val->CREATEDATE)->format('H:i'),
-                    Carbon::parse($val->RECEIVED_AT)->format('d-m-Y') . ', ' . Carbon::parse($val->RECEIVED_AT)->format('H:i'),
+                    $val->CREATEDATE ? \Carbon\Carbon::parse($val->CREATEDATE)->format('d-m-Y, H:i') : '-',
+                    $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->format('d-m-Y, H:i') : '-',
                     $val->PRICE_E_COLLECTION,
                     $val->FULLNAME
                 ];
-
-                $start++;
+                $counter++;
             }
         }
 
@@ -394,7 +322,7 @@ class ManageController extends Controller
             'draw'            => $draw,
             'recordsTotal'    => $totalData,
             'recordsFiltered' => $totalFiltered,
-            'data'            => $data,
+            'data'            => $finalData,
         ]);
     }
 
