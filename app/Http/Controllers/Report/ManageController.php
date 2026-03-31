@@ -196,7 +196,7 @@ class ManageController extends Controller
 
         $sqlFiltered = "
             SELECT
-                count(*) AS total
+                count(distinct c.id) AS total
             FROM (
                 SELECT *
                 FROM (
@@ -267,7 +267,7 @@ class ManageController extends Controller
         $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
 
         $sql = "
-            SELECT
+            SELECT distinct
                 c.*,
                 e.deposit AS deposit_e_collection,
                 e.created_at AS created_at_e_collection,

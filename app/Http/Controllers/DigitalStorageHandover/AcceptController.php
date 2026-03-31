@@ -158,7 +158,7 @@ class AcceptController extends Controller
                         data.*
                     from
                         (
-                            select
+                            select distinct
                                 catalogs.id,
                                 catalogs.title,
                                 catalogs.isbn,
