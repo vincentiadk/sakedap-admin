@@ -219,8 +219,22 @@ class ManageController extends Controller
         $sql = "
             SELECT * FROM (
                 SELECT a.*, rownum AS rnum FROM (
-                    SELECT DISTINCT
-                        c.*,
+                    SELECT
+                        c.ID,
+                        CAST(DBMS_LOB.SUBSTR(c.TITLE, 4000, 1) AS VARCHAR2(4000)) AS TITLE,
+                        c.ALBUM,
+                        c.SERIES,
+                        c.EDITION,
+                        c.DEWEYNO,
+                        c.VOLUME,
+                        c.ISBN,
+                        c.CONTROLNUMBER,
+                        c.PUBLISHYEAR,
+                        c.COPYRIGHT,
+                        CAST(DBMS_LOB.SUBSTR(c.PREVIEW, 4000, 1) AS VARCHAR2(4000)) AS PREVIEW,
+                        c.AKSES,
+                        c.AUTHOR,
+                        c.CREATEDATE,
                         e.deposit AS deposit_e_collection,
                         e.created_at AS created_at_e_collection,
                         e.received_at,
