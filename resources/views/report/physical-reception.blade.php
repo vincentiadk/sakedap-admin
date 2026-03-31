@@ -114,7 +114,8 @@
                         <th>Nama Orang</th>
                         <th>Periode</th>
                         <th class="text-center">Total Judul</th>
-                        <th class="text-center">Total Eks</th>
+                        <th class="text-center">Total Eks Diterima</th>
+                        <th class="text-center">Total Eks Ditolak</th>
                     </tr>
                 </thead>
             </table>
@@ -309,6 +310,11 @@
     $(function() {
         datePickerBasic('#date');
 
+        const today = moment().format('YYYY/MM/DD');
+        if (!$('#date').val()) {
+            $('#date').val(today + ' - ' + today);
+        }
+
         if(parseInt('{{ Main::isSuperAdmin() }}') == 0 && parseInt('{{ Main::isPerpusnas() }}') == 0) {
             select2Serverside('#executor_id', 'executor', {
                 province_id: '{{ session("province_id") }}',
@@ -456,6 +462,7 @@
                 { orderable: false, className: 'align-middle text-center fw-semibold' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-nowrap' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
             ]

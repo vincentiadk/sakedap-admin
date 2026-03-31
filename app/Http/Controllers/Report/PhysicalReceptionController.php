@@ -107,6 +107,26 @@ class PhysicalReceptionController extends Controller
             $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
+        $dateType = in_array($request->date_type, ['accept_date', 'letter_date', 'createdate']) 
+            ? $request->date_type 
+            : 'accept_date';
+
+        if ($request->date) {
+            $explodeDate = explode(' - ', $request->date);
+            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+            $whereCondition[] = "(
+                letter.$dateType >= TO_DATE('$startDate', 'YYYY-MM-DD')
+                AND letter.$dateType < TO_DATE('$endDate', 'YYYY-MM-DD') + 1
+            )";
+        } else {
+            $whereCondition[] = "(
+                letter.$dateType >= TRUNC(SYSDATE)
+                AND letter.$dateType < TRUNC(SYSDATE) + 1
+            )";
+        }
+
         if ($search) {
             $terms = [];
 
@@ -307,6 +327,7 @@ class PhysicalReceptionController extends Controller
             2 => 'periode',
             3 => 'total_judul',
             4 => 'total_eks',
+            5 => 'total_eks_ditolak'
         ];
 
         $draw   = intval($request->draw ?? 0);
@@ -385,7 +406,17 @@ class PhysicalReceptionController extends Controller
                     {$dateField} >= TO_DATE('{$startDate}', 'YYYY-MM-DD')
                     AND {$dateField} < TO_DATE('{$endDate}', 'YYYY-MM-DD') + 1
                 )";
+            } else {
+                $whereConditions[] = "(
+                    {$dateField} >= TRUNC(SYSDATE)
+                    AND {$dateField} < TRUNC(SYSDATE) + 1
+                )";
             }
+        } else {
+            $whereConditions[] = "(
+                {$dateField} >= TRUNC(SYSDATE)
+                AND {$dateField} < TRUNC(SYSDATE) + 1
+            )";
         }
 
         $whereClause = implode(' AND ', $whereConditions);
@@ -424,18 +455,26 @@ class PhysicalReceptionController extends Controller
         | Final summary query
         |--------------------------------------------------------------------------
         */
-        $finalQuery = "
+        /*$finalQuery = "
             SELECT
                 nama_orang,
                 periode,
-                COUNT(DISTINCT letter_detail_id) AS total_judul,
-                SUM(qty_accept) AS total_eks
+                COUNT(*) AS total_judul,
+                SUM(qty_accept) AS total_eks,
+                SUM(qty_reject) AS total_eks_ditolak
+            FROM (
+            SELECT
+                nama_orang,
+                periode,
+                letter_detail_id,
+                MAX(qty_accept) AS qty_accept,
+                MAX(qty_reject) AS qty_reject
             FROM (
                 -- pembuat
                 SELECT
                     NVL(u_create.fullname, l.create_by) AS nama_orang,
                     {$periodLabel} AS periode,
-                    ld.qty_accept,
+                    ld.qty_accept,ld.qty_reject,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
@@ -454,7 +493,7 @@ class PhysicalReceptionController extends Controller
                 SELECT
                     NVL(u_received.fullname, ld.received_by) AS nama_orang,
                     {$periodLabel} AS periode,
-                    ld.qty_accept,
+                    ld.qty_accept,ld.qty_reject,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
@@ -473,7 +512,7 @@ class PhysicalReceptionController extends Controller
                 SELECT
                     NVL(u_verified.fullname, ld.verified_by) AS nama_orang,
                     {$periodLabel} AS periode,
-                    ld.qty_accept,
+                    ld.qty_accept,ld.qty_reject,
                     ld.letter_detail_id
                 FROM letter_detail ld
                 LEFT JOIN letter l
@@ -485,10 +524,82 @@ class PhysicalReceptionController extends Controller
                 WHERE {$whereClause}
                 AND NVL(ld.verified_by, 'x') IS NOT NULL
                 {$nameVerifiedWhere}
+            ) GROUP BY nama_orang, periode, letter_detail_id
             )
             GROUP BY nama_orang, periode
-        ";
+        "; */
+        $finalQuery = "SELECT
+            nama_orang,
+            periode,
+            COUNT(*) AS total_judul,
+            SUM(qty_accept) AS total_eks,
+            SUM(qty_reject) AS total_eks_ditolak
+        FROM (
+            SELECT
+                nama_orang,
+                periode,
+                letter_detail_id,
+                MAX(qty_accept) AS qty_accept,
+                MAX(qty_reject) AS qty_reject
+            FROM (
+                -- pembuat
+                SELECT
+                    u_create.fullname AS nama_orang,
+                    {$periodLabel} AS periode,
+                    ld.qty_accept,
+                    ld.qty_reject,
+                    ld.letter_detail_id
+                FROM letter_detail ld
+                LEFT JOIN letter l
+                    ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
+                JOIN users u_create
+                    ON u_create.username = l.create_by
+                WHERE {$whereClause}
+                {$nameCreateWhere}
 
+                UNION ALL
+
+                -- penerima
+                SELECT
+                    u_received.fullname AS nama_orang,
+                    {$periodLabel} AS periode,
+                    ld.qty_accept,
+                    ld.qty_reject,
+                    ld.letter_detail_id
+                FROM letter_detail ld
+                LEFT JOIN letter l
+                    ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
+                JOIN users u_received
+                    ON u_received.username = ld.received_by
+                WHERE {$whereClause}
+                {$nameReceivedWhere}
+
+                UNION ALL
+
+                -- verifikator
+                SELECT
+                    u_verified.fullname AS nama_orang,
+                    {$periodLabel} AS periode,
+                    ld.qty_accept,
+                    ld.qty_reject,
+                    ld.letter_detail_id
+                FROM letter_detail ld
+                LEFT JOIN letter l
+                    ON l.letter_id = ld.letter_id
+                LEFT JOIN branchs b
+                    ON b.id = l.branch_id
+                JOIN users u_verified
+                    ON u_verified.username = ld.verified_by
+                WHERE {$whereClause}
+                {$nameVerifiedWhere}
+            )
+            GROUP BY nama_orang, periode, letter_detail_id
+        )
+        GROUP BY nama_orang, periode";
         /*
         |--------------------------------------------------------------------------
         | Ordering
@@ -537,8 +648,7 @@ class PhysicalReceptionController extends Controller
             )
             WHERE rnum > {$start} and rnum <= {$endRow}
         ";
-
-
+        
         $queryData = QueryAPI::get($sql);
 
         if ($queryData) {
@@ -549,6 +659,7 @@ class PhysicalReceptionController extends Controller
                     $val->PERIODE,
                     $val->TOTAL_JUDUL,
                     $val->TOTAL_EKS,
+                    $val->TOTAL_EKS_DITOLAK
                 ];
                 $start++;
             }
