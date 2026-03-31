@@ -194,83 +194,121 @@ class ManageController extends Controller
                 catalogs.edeposit_col_id is not null
         ", true)->TOTAL ?? 0;
 
-        $sqlFiltered = "
-            SELECT count(distinct c.id) AS total
-            FROM catalogs c
+        $deduplicatedInner = "
+            SELECT DISTINCT c.id AS catalog_id
+            FROM
+                catalogs c
             LEFT JOIN penerbit p ON p.id = c.penerbit_id
             LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
             LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
             LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
             LEFT JOIN worksheets w ON w.id = c.worksheet_id
-            LEFT JOIN users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN e_users eu_receive ON eu_receive.id = e.received_by AND eu_receive.userable_type = 'admins'
-            LEFT JOIN e_admins ea_receive ON ea_receive.id = eu_receive.userable_id
-            LEFT JOIN (
-                SELECT catalog_id, id, fileurl, file_size, method,
-                    ROW_NUMBER() OVER (PARTITION BY catalog_id ORDER BY id DESC) AS rn
-                FROM catalogfiles
-            ) cfr ON cfr.catalog_id = c.id AND cfr.rn = 1
+            LEFT JOIN users u_receive
+                ON u_receive.id = e.received_by
+            LEFT JOIN e_users eu_receive
+                ON eu_receive.id = e.received_by
+                AND eu_receive.userable_type = 'admins'
+            LEFT JOIN e_admins ea_receive
+                ON ea_receive.id = eu_receive.userable_id
             $whereClause
+        ";
+
+        $sqlFiltered = "
+            SELECT count(*) AS total
+            FROM ($deduplicatedInner) dedup
         ";
 
         $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
 
         $sql = "
-            SELECT * FROM (
-                SELECT a.*, rownum AS rnum FROM (
+            SELECT
+                c.*,
+                e.deposit AS deposit_e_collection,
+                e.created_at AS created_at_e_collection,
+                e.received_at,
+                e.serial AS serial_e_collection,
+                e.price AS price_e_collection,
+                p.id AS id_penerbit,
+                p.name AS name_penerbit,
+                pr.namapropinsi AS namapropinsi,
+                kb.namakab AS namakab,
+                cm.name AS name_media,
+                cfr.fileurl AS fileurl_catalogfiles,
+                cfr.file_size AS file_size_catalogfiles,
+                cfr.method AS method_catalogfiles,
+                CASE
+                    WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+                    ELSE u_receive.fullname
+                END AS fullname
+            FROM (
+                SELECT *
+                FROM (
                     SELECT
-                        c.ID,
-                        CAST(DBMS_LOB.SUBSTR(c.TITLE, 4000, 1) AS VARCHAR2(4000)) AS TITLE,
-                        c.ALBUM,
-                        c.SERIES,
-                        c.EDITION,
-                        c.DEWEYNO,
-                        c.VOLUME,
-                        c.ISBN,
-                        c.CONTROLNUMBER,
-                        c.PUBLISHYEAR,
-                        c.COPYRIGHT,
-                        CAST(DBMS_LOB.SUBSTR(c.PREVIEW, 4000, 1) AS VARCHAR2(4000)) AS PREVIEW,
-                        c.AKSES,
-                        c.AUTHOR,
-                        c.CREATEDATE,
-                        e.deposit AS deposit_e_collection,
-                        e.created_at AS created_at_e_collection,
-                        e.received_at,
-                        e.serial AS serial_e_collection,
-                        e.price AS price_e_collection,
-                        p.id AS id_penerbit,
-                        p.name AS name_penerbit,
-                        pr.namapropinsi,
-                        kb.namakab,
-                        cm.name AS name_media,
-                        cfr.fileurl AS fileurl_catalogfiles,
-                        cfr.file_size AS file_size_catalogfiles,
-                        cfr.method AS method_catalogfiles,
-                        CASE
-                            WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                            ELSE u_receive.fullname
-                        END AS fullname_receive
-                    FROM catalogs c
-                    LEFT JOIN penerbit p ON p.id = c.penerbit_id
-                    LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-                    LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-                    LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-                    LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-                    LEFT JOIN worksheets w ON w.id = c.worksheet_id
-                    LEFT JOIN users u_receive ON u_receive.id = e.received_by
-                    LEFT JOIN e_users eu_receive ON eu_receive.id = e.received_by AND eu_receive.userable_type = 'admins'
-                    LEFT JOIN e_admins ea_receive ON ea_receive.id = eu_receive.userable_id
-                    LEFT JOIN (
-                        SELECT catalog_id, id, fileurl, file_size, method,
-                            ROW_NUMBER() OVER (PARTITION BY catalog_id ORDER BY id DESC) AS rn
-                        FROM catalogfiles
-                    ) cfr ON cfr.catalog_id = c.id AND cfr.rn = 1
-                    $whereClause
-                    $orderBy
-                ) a WHERE rownum <= " . ($start + $length) . "
-            ) WHERE rnum > $start
+                        rownum AS rnum,
+                        base.*
+                    FROM (
+                        SELECT DISTINCT c.id
+                        FROM
+                            catalogs c
+                        LEFT JOIN penerbit p ON p.id = c.penerbit_id
+                        LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+                        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+                        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+                        LEFT JOIN worksheets w ON w.id = c.worksheet_id
+                        LEFT JOIN users u_receive
+                            ON u_receive.id = e.received_by
+                        LEFT JOIN e_users eu_receive
+                            ON eu_receive.id = e.received_by
+                            AND eu_receive.userable_type = 'admins'
+                        LEFT JOIN e_admins ea_receive
+                            ON ea_receive.id = eu_receive.userable_id
+                        $whereClause
+                        $orderBy
+                    ) base
+                    WHERE rownum <= " . ($start + $length) . "
+                )
+                WHERE rnum > " . (int)$start . "
+            ) paged
+            JOIN catalogs c ON c.id = paged.id
+            LEFT JOIN penerbit p ON p.id = c.penerbit_id
+            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+            LEFT JOIN worksheets w ON w.id = c.worksheet_id
+            LEFT JOIN (
+                SELECT
+                    cf.catalog_id,
+                    cf.id,
+                    cf.fileurl,
+                    cf.hash,
+                    cf.mime,
+                    cf.file_size,
+                    cf.method
+                FROM (
+                    SELECT
+                        cf.catalog_id,
+                        cf.id,
+                        cf.fileurl,
+                        cf.hash,
+                        cf.mime,
+                        cf.file_size,
+                        cf.method,
+                        ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
+                    FROM catalogfiles cf
+                ) cf
+                WHERE cf.rn = 1
+            ) cfr ON cfr.catalog_id = c.id
+            LEFT JOIN users u_receive
+                ON u_receive.id = e.received_by
+            LEFT JOIN e_users eu_receive
+                ON eu_receive.id = e.received_by
+                AND eu_receive.userable_type = 'admins'
+            LEFT JOIN e_admins ea_receive
+                ON ea_receive.id = eu_receive.userable_id
+            ORDER BY paged.rnum
         ";
 
         $queryData = QueryAPI::get($sql);
