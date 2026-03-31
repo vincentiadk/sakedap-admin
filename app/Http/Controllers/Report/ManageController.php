@@ -206,9 +206,16 @@ class ManageController extends Controller
             LEFT JOIN worksheets w ON w.id = c.worksheet_id
             LEFT JOIN users u_receive
                 ON u_receive.id = e.received_by
-            LEFT JOIN e_users eu_receive
+            LEFT JOIN (
+                SELECT
+                    eu.id,
+                    eu.userable_id,
+                    ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
+                FROM e_users eu
+                WHERE eu.userable_type = 'admins'
+            ) eu_receive
                 ON eu_receive.id = e.received_by
-                AND eu_receive.userable_type = 'admins'
+                AND eu_receive.rn_eu = 1
             LEFT JOIN e_admins ea_receive
                 ON ea_receive.id = eu_receive.userable_id
             $whereClause
@@ -259,9 +266,16 @@ class ManageController extends Controller
                         LEFT JOIN worksheets w ON w.id = c.worksheet_id
                         LEFT JOIN users u_receive
                             ON u_receive.id = e.received_by
-                        LEFT JOIN e_users eu_receive
+                        LEFT JOIN (
+                            SELECT
+                                eu.id,
+                                eu.userable_id,
+                                ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
+                            FROM e_users eu
+                            WHERE eu.userable_type = 'admins'
+                        ) eu_receive
                             ON eu_receive.id = e.received_by
-                            AND eu_receive.userable_type = 'admins'
+                            AND eu_receive.rn_eu = 1
                         LEFT JOIN e_admins ea_receive
                             ON ea_receive.id = eu_receive.userable_id
                         $whereClause
@@ -303,9 +317,16 @@ class ManageController extends Controller
             ) cfr ON cfr.catalog_id = c.id
             LEFT JOIN users u_receive
                 ON u_receive.id = e.received_by
-            LEFT JOIN e_users eu_receive
+            LEFT JOIN (
+                SELECT
+                    eu.id,
+                    eu.userable_id,
+                    ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
+                FROM e_users eu
+                WHERE eu.userable_type = 'admins'
+            ) eu_receive
                 ON eu_receive.id = e.received_by
-                AND eu_receive.userable_type = 'admins'
+                AND eu_receive.rn_eu = 1
             LEFT JOIN e_admins ea_receive
                 ON ea_receive.id = eu_receive.userable_id
             ORDER BY paged.rnum
