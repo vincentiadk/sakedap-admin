@@ -74,11 +74,11 @@ class ManageController extends Controller
             'c.album',
             'c.series',
             'c.edition',
-            'ec.serial',
+            'e.serial',
             'c.deweyno',
             'c.volume',
             'c.isbn',
-            'ec.deposit',
+            'e.deposit',
             'c.controlnumber',
             'c.publishyear',
             'c.copyright',
@@ -92,7 +92,7 @@ class ManageController extends Controller
             'cfr.fileurl',
             'e_collections.created_at',
             'c.createdate',
-            'ec.price',
+            'e.price',
             'u_receive.fullname'
         ];
 
