@@ -96,17 +96,47 @@ class ManageController extends Controller
             'u_receive.fullname'
         ];
 
-        $draw = intval($request->draw ?? 0);
-        $start = intval($request->start ?? 0);
-        $length = $start + intval($request->length ?? 10);
+        $searchableColumns = [
+            'c.id',
+            'p.id',
+            'p.name',
+            'e.created_at',
+            'pr.namapropinsi',
+            'kb.namakab',
+            'c.title',
+            'cm.name',
+            'c.album',
+            'c.series',
+            'c.edition',
+            'e.serial',
+            'c.deweyno',
+            'c.volume',
+            'c.isbn',
+            'e.deposit',
+            'c.controlnumber',
+            'c.publishyear',
+            'c.copyright',
+            'c.preview',
+            'c.akses',
+            'c.author',
+            'cfr.file_size',
+            'cfr.fileurl',
+            'e.price',
+        ];
 
-        $data = [];
-        $search = strtoupper($request->search['value']);
+        $draw    = intval($request->draw ?? 0);
+        $start   = intval($request->start ?? 0);
+        $length  = $start + intval($request->length ?? 10);
+
+        $data   = [];
+        $search = strtoupper($request->search['value'] ?? '');
 
         $orderBy = '';
-        $order = $request->order;
+        $order   = $request->order;
 
-        $whereClause = '';
+        $whereClause    = '';
+        $whereCondition = [];
+
         $whereCondition[] = "
             (
                 c.isdelete = 0 or
@@ -139,9 +169,8 @@ class ManageController extends Controller
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
-
+            $startDate   = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate     = Carbon::parse($explodeDate[1])->format('Y-m-d');
             $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
@@ -158,13 +187,9 @@ class ManageController extends Controller
 
         if ($search) {
             $terms = [];
-
-            foreach ($column as $c) {
-                if ($c) {
-                    $terms[] = "upper($c) like '%$search%'";
-                }
+            foreach ($searchableColumns as $col) {
+                $terms[] = "upper($col) like '%$search%'";
             }
-
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
@@ -174,125 +199,41 @@ class ManageController extends Controller
 
         if ($order) {
             $orderColumnIndex = $order[0]['column'];
-            $orderDir = $order[0]['dir'];
-            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
+            $orderDir         = strtoupper($order[0]['dir']) === 'DESC' ? 'DESC' : 'ASC';
+            $orderCol         = $column[$orderColumnIndex] ?? null;
+            if ($orderCol) {
+                $orderBy = "order by $orderCol $orderDir";
+            }
         }
 
-        $totalData = QueryAPI::get("
-            select
-                count(*) as total
-            from
-                catalogs
-            left join
-                worksheets on worksheets.id = catalogs.worksheet_id
-            where
-                (
-                    catalogs.isdelete = 0 or
-                    catalogs.isdelete is null
-                ) and
-                worksheets.category = '$this->worksheetCategory' and
-                catalogs.edeposit_col_id is not null
-        ", true)->TOTAL ?? 0;
-
-        $deduplicatedInner = "
-            SELECT DISTINCT c.id AS catalog_id
-            FROM
-                catalogs c
-            LEFT JOIN penerbit p ON p.id = c.penerbit_id
-            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-            LEFT JOIN worksheets w ON w.id = c.worksheet_id
-            LEFT JOIN users u_receive
-                ON u_receive.id = e.received_by
-            LEFT JOIN (
-                SELECT
-                    eu.id,
-                    eu.userable_id,
-                    ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
-                FROM e_users eu
-                WHERE eu.userable_type = 'admins'
-            ) eu_receive
-                ON eu_receive.id = e.received_by
-                AND eu_receive.rn_eu = 1
-            LEFT JOIN e_admins ea_receive
-                ON ea_receive.id = eu_receive.userable_id
-            $whereClause
-        ";
-
-        $sqlFiltered = "
-            SELECT count(*) AS total
-            FROM ($deduplicatedInner) dedup
-        ";
-
-        $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
-
-        $sql = "
+        $joinEUsers = "
+        LEFT JOIN users u_receive
+            ON u_receive.id = e.received_by
+        LEFT JOIN (
             SELECT
-                c.*,
-                e.deposit AS deposit_e_collection,
-                e.created_at AS created_at_e_collection,
-                e.received_at,
-                e.serial AS serial_e_collection,
-                e.price AS price_e_collection,
-                p.id AS id_penerbit,
-                p.name AS name_penerbit,
-                pr.namapropinsi AS namapropinsi,
-                kb.namakab AS namakab,
-                cm.name AS name_media,
-                cfr.fileurl AS fileurl_catalogfiles,
-                cfr.file_size AS file_size_catalogfiles,
-                cfr.method AS method_catalogfiles,
-                CASE
-                    WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                    ELSE u_receive.fullname
-                END AS fullname
+                eu.id,
+                eu.userable_id,
+                ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
+            FROM e_users eu
+            WHERE eu.userable_type = 'admins'
+        ) eu_receive
+            ON eu_receive.id = e.received_by
+            AND eu_receive.rn_eu = 1
+        LEFT JOIN e_admins ea_receive
+            ON ea_receive.id = eu_receive.userable_id
+    ";
+
+        $joinCatalogFiles = "
+        LEFT JOIN (
+            SELECT
+                cf.catalog_id,
+                cf.id,
+                cf.fileurl,
+                cf.hash,
+                cf.mime,
+                cf.file_size,
+                cf.method
             FROM (
-                SELECT *
-                FROM (
-                    SELECT
-                        rownum AS rnum,
-                        base.*
-                    FROM (
-                        SELECT DISTINCT c.id
-                        FROM
-                            catalogs c
-                        LEFT JOIN penerbit p ON p.id = c.penerbit_id
-                        LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-                        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-                        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-                        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-                        LEFT JOIN worksheets w ON w.id = c.worksheet_id
-                        LEFT JOIN users u_receive
-                            ON u_receive.id = e.received_by
-                        LEFT JOIN (
-                            SELECT
-                                eu.id,
-                                eu.userable_id,
-                                ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
-                            FROM e_users eu
-                            WHERE eu.userable_type = 'admins'
-                        ) eu_receive
-                            ON eu_receive.id = e.received_by
-                            AND eu_receive.rn_eu = 1
-                        LEFT JOIN e_admins ea_receive
-                            ON ea_receive.id = eu_receive.userable_id
-                        $whereClause
-                        $orderBy
-                    ) base
-                    WHERE rownum <= " . ($start + $length) . "
-                )
-                WHERE rnum > " . (int)$start . "
-            ) paged
-            JOIN catalogs c ON c.id = paged.id
-            LEFT JOIN penerbit p ON p.id = c.penerbit_id
-            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-            LEFT JOIN worksheets w ON w.id = c.worksheet_id
-            LEFT JOIN (
                 SELECT
                     cf.catalog_id,
                     cf.id,
@@ -300,48 +241,112 @@ class ManageController extends Controller
                     cf.hash,
                     cf.mime,
                     cf.file_size,
-                    cf.method
-                FROM (
-                    SELECT
-                        cf.catalog_id,
-                        cf.id,
-                        cf.fileurl,
-                        cf.hash,
-                        cf.mime,
-                        cf.file_size,
-                        cf.method,
-                        ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
-                    FROM catalogfiles cf
-                ) cf
-                WHERE cf.rn = 1
-            ) cfr ON cfr.catalog_id = c.id
-            LEFT JOIN users u_receive
-                ON u_receive.id = e.received_by
-            LEFT JOIN (
+                    cf.method,
+                    ROW_NUMBER() OVER (PARTITION BY cf.catalog_id ORDER BY cf.id DESC) AS rn
+                FROM catalogfiles cf
+            ) cf
+            WHERE cf.rn = 1
+        ) cfr ON cfr.catalog_id = c.id
+    ";
+
+        $baseJoins = "
+        FROM catalogs c
+        LEFT JOIN penerbit p ON p.id = c.penerbit_id
+        LEFT JOIN (
+            SELECT
+                ec.*,
+                ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
+            FROM e_collections ec
+        ) e ON e.id = c.edeposit_col_id AND e.rn_ec = 1
+        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+        LEFT JOIN worksheets w ON w.id = c.worksheet_id
+        $joinCatalogFiles
+        $joinEUsers
+    ";
+
+        $totalData = QueryAPI::get("
+        select count(*) as total
+        from catalogs
+        left join worksheets on worksheets.id = catalogs.worksheet_id
+        where
+            (catalogs.isdelete = 0 or catalogs.isdelete is null)
+            and worksheets.category = '$this->worksheetCategory'
+            and catalogs.edeposit_col_id is not null
+    ", true)->TOTAL ?? 0;
+
+        $sqlFiltered = "
+        SELECT COUNT(*) AS total
+        $baseJoins
+        $whereClause
+    ";
+
+        $totalFiltered = QueryAPI::get($sqlFiltered, true)->TOTAL ?? 0;
+
+        $sql = "
+        SELECT
+            c.*,
+            e.deposit       AS deposit_e_collection,
+            e.created_at    AS created_at_e_collection,
+            e.received_at,
+            e.serial        AS serial_e_collection,
+            e.price         AS price_e_collection,
+            p.id            AS id_penerbit,
+            p.name          AS name_penerbit,
+            pr.namapropinsi AS namapropinsi,
+            kb.namakab      AS namakab,
+            cm.name         AS name_media,
+            cfr.fileurl     AS fileurl_catalogfiles,
+            cfr.file_size   AS file_size_catalogfiles,
+            cfr.method      AS method_catalogfiles,
+            CASE
+                WHEN ea_receive.fullname IS NOT NULL THEN CAST(ea_receive.fullname AS VARCHAR2(255))
+                ELSE u_receive.fullname
+            END AS fullname
+        FROM (
+            SELECT *
+            FROM (
                 SELECT
-                    eu.id,
-                    eu.userable_id,
-                    ROW_NUMBER() OVER (PARTITION BY eu.id ORDER BY eu.id) AS rn_eu
-                FROM e_users eu
-                WHERE eu.userable_type = 'admins'
-            ) eu_receive
-                ON eu_receive.id = e.received_by
-                AND eu_receive.rn_eu = 1
-            LEFT JOIN e_admins ea_receive
-                ON ea_receive.id = eu_receive.userable_id
-            ORDER BY paged.rnum
-        ";
+                    rownum AS rnum,
+                    base.*
+                FROM (
+                    SELECT c.id
+                    $baseJoins
+                    $whereClause
+                    $orderBy
+                ) base
+                WHERE rownum <= " . ($start + $length) . "
+            )
+            WHERE rnum > " . (int)$start . "
+        ) paged
+        JOIN catalogs c ON c.id = paged.id
+        LEFT JOIN penerbit p ON p.id = c.penerbit_id
+        LEFT JOIN (
+            SELECT
+                ec.*,
+                ROW_NUMBER() OVER (PARTITION BY ec.id ORDER BY ec.id) AS rn_ec
+            FROM e_collections ec
+        ) e ON e.id = c.edeposit_col_id AND e.rn_ec = 1
+        LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+        LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+        LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+        LEFT JOIN worksheets w ON w.id = c.worksheet_id
+        $joinCatalogFiles
+        $joinEUsers
+        ORDER BY paged.rnum
+    ";
 
         $queryData = QueryAPI::get($sql);
 
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
-                        <i class="ph-info me-1"></i>
-                        Detail
-                    </a>
-                ';
+                <a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                    <i class="ph-info me-1"></i>
+                    Detail
+                </a>
+            ';
 
                 $data[] = [
                     $start + 1,
@@ -385,10 +390,10 @@ class ManageController extends Controller
         }
 
         return response()->json([
-            'draw' => $draw,
-            'recordsTotal' => $totalData,
+            'draw'            => $draw,
+            'recordsTotal'    => $totalData,
             'recordsFiltered' => $totalFiltered,
-            'data' => $data
+            'data'            => $data,
         ]);
     }
 
