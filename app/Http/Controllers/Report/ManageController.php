@@ -142,7 +142,7 @@ class ManageController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(c.createdate >= to_date('$startDate', 'YYYY-MM-DD') and c.createdate < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($request->fullname) {
