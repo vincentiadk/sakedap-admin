@@ -258,7 +258,7 @@ class SingleUploadController extends Controller
                     if ($request->cc_edition && $request->has_edition) {
                         foreach ($request->cc_edition as $key => $cce) {
                             $editionTitle = $request->cc_edition_title[$key] ?? null;
-                            $editionDate  = $editionDate ? date('Y-m-d H:i:s', strtotime($editionDate)) : null;
+                            $editionDate  = $request->cc_edition_date[$key] ? date('Y-m-d H:i:s', strtotime($request->cc_edition_date[$key])) : null;
 
                             if ($editionTitle && $editionDate) {
                                 $editionData = $baseCollectionData;
