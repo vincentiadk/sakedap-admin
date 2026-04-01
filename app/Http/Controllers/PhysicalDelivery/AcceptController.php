@@ -516,14 +516,15 @@ class AcceptController extends Controller
         }
 
         $pdfPath = $this->generatePDF($letterId);
-
-        if (!$pdfPath) {
+        $fileName = basename($pdfPath);
+        
+        if (!$pdfPath || !file_exists($pdfPath)) {
             return response()->json([
                 'code' => 500,
                 'message' => 'Gagal generate PDF'
             ], 500);
         }
-
+        $pdfUrl = 'https://penerbit-sakedap.perpusnas.go.id/receipt-admin/' . rawurlencode($fileName);
         $dateNow = date('Y-m-d');
         $targetNumber = $letter->KONTAK_PENERBIT;
         $acceptDate = $letter->ACCEPT_DATE ? Carbon::parse($letter->ACCEPT_DATE)->isoFormat('D MMMM Y') : '';
@@ -547,11 +548,10 @@ class AcceptController extends Controller
 
         $bodyMessage = "BUKTI PENERIMAAN KARYA CETAK / KARYA REKAM | Kepada Yth. Sdr/i. $leaderName | Dengan hormat, kami menginformasikan bahwa kami telah menerima Karya Cetak/Karya Rekam yang Saudara kirimkan dengan rincian sebagai berikut: | 📅 Tanggal Penerimaan: $acceptDate | ✅ Atas kerja sama dan kepatuhan Saudara dalam melaksanakan amanat Undang-Undang Nomor 13 Tahun 2018 tentang Serah Simpan Karya Cetak dan Karya Rekam, kami menyampaikan apresiasi dan terima kasih yang sebesar-besarnya. | Catatan Penting: Dokumen resmi Bukti Penerimaan telah kami lampirkan dalam format PDF bersama pesan ini sebagai arsip Saudara.";
 
-        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage, 'Lampiran : ' . $pdfPath], $waTemplateId, $pdfPath);
-
-        if (file_exists($pdfPath)) {
+        $sendWhatsapp = Barantum::send($targetNumber, $letter->NAME_PENERBIT ?? 'Penerbit', [$bodyMessage, 'Lampiran : ' . $pdfPath], $waTemplateId, $pdfUrl);
+        /*if (file_exists($pdfPath)) {
             @unlink($pdfPath);
-        }
+        }*/
 
         return response()->json($sendWhatsapp);
     }
