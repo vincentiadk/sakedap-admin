@@ -251,6 +251,12 @@ Route::middleware('authentication')->group(function () {
             Route::post('datatable', 'AcceptController@datatable');
             Route::get('detail/{id}', 'AcceptController@detail');
         });
+        
+        Route::prefix('accept-edition')->group(function () {
+            Route::get('/', 'AcceptEditionController@index');
+            Route::post('datatable', 'AcceptEditionController@datatable');
+            Route::get('detail/{id}', 'AcceptEditionController@detail');
+        });
 
         Route::prefix('reject')->group(function () {
             Route::get('/', 'RejectController@index');
