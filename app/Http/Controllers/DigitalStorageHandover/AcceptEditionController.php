@@ -159,6 +159,7 @@ class AcceptEditionController extends Controller
                         (
                             select 
                                 e.id,
+                                catalogs.id as cat_id,
                                 catalogs.title,
                                 catalogs.isbn,
                                 e.created_at,
@@ -200,13 +201,21 @@ class AcceptEditionController extends Controller
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>
+                    <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="delete(' . $val->ID . ')">
+                        <i class="ph-trash-logo me-1"></i>
+                        Hapus
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
+                        <i class="ph-check me-1"></i>
+                        Verifikasi
+                    </a>
                 ';
 
                 $data[] = [
                     $start + 1,
                     $action,
                     $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
-                    $val->ID,
+                    $val->CAT_ID,
                     $val->ARTICLE_TITLE,
                     $val->ARTICLE_CONTRIBUTOR,
                     $val->ARTICLE_SUBJECT,

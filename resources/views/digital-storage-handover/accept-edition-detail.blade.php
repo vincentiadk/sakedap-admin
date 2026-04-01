@@ -12,7 +12,7 @@
                         <i class="ph-books me-1"></i>
                         Histori E-Collection
                     </button>
-                    <button type="button" class="btn btn-info me-2" onclick="lookupCatalogHistory('CATALOGS', {{ $collection->ID }})">
+                    <button type="button" class="btn btn-info me-2" onclick="lookupCatalogHistory('CATALOGS', {{ $collection->CAT_ID }})">
                         <i class="ph-book-open me-1"></i>
                         Histori Katalog
                     </button>
