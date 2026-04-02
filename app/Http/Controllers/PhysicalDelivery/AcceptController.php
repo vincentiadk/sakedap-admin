@@ -561,7 +561,8 @@ class AcceptController extends Controller
                     letter.*,
                     penerbit.name as name_penerbit,
                     branchs.name as name_branch,
-                    branchs.province_id as province_id
+                    branchs.province_id as province_id,
+                    branchs.alamat as address_branch
                 from
                     letter
                 left join
@@ -648,12 +649,19 @@ class AcceptController extends Controller
             $qrCodeBody = config('system.fo_url') . '/track-shipment?receipt=' . $letter->RECEIPT_NO;
             $qrBase64Raw = $qrGenerator->getBarcodePNG((string) $qrCodeBody, 'QRCODE', 4, 4);
 
+            $emptyHeader = '
+                <div style="text-align:center;">
+                    <h5 style="margin-bottom: 0;">' . ($letter->NAME_BRANCH ?? '') . '</h5>
+                    <span style="margin-top: 0;">' . ($letter->ADDRESS_BRANCH ?? '') . '</span>
+                </div>
+            ';
+
             $dataParseTemplate = [
                 'accepted_date'  => Carbon::parse($letter->ACCEPT_DATE)->isoFormat('D MMMM Y'),
                 'letter_no' => $letter->LETTER_NUMBER_UT ?: '-',
                 'publisher_name' => $letter->NAME_PENERBIT,
                 'director' => $signatureTable,
-                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="500" style="width:100%;"></div><br><br>' : '',
+                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="500" style="width:100%;"></div><br><br>' : $emptyHeader,
                 'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="650" style="width:100%;"></div>' : '',
                 'qr' => '<br><br><img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" style="height:120px; width:120px">',
                 'source' => $letter->NAME_BRANCH ?? '-',
