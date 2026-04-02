@@ -556,25 +556,33 @@ class AcceptController extends Controller
     private function generatePDF($letterId)
     {
         try {
-            $cleanBase64Image = function ($base64String) {
+            $cleanBase64Image = function($base64String) {
                 if (empty($base64String) || strlen($base64String) < 100) return $base64String;
+                
+                if (!extension_loaded('gd')) return $base64String;
 
-                $data = explode(',', $base64String);
-                $imgData = base64_decode(end($data));
-                $src = imagecreatefromstring($imgData);
+                try {
+                    $parts = explode(',', $base64String);
+                    $imgData = base64_decode(end($parts));
+                    
+                    if (!$imgData) return $base64String;
 
-                if ($src) {
-                    ob_start();
-                    imagesavealpha($src, true);
-                    imagepng($src, null, 0);
+                    $src = @imagecreatefromstring($imgData);
 
-                    $cleanData = ob_get_clean();
+                    if ($src) {
+                        ob_start();
+                        imagesavealpha($src, true);
+                        imagepng($src, null, 0); 
 
-                    imagedestroy($src);
+                        $cleanData = ob_get_clean();
 
-                    return 'data:image/png;base64,' . base64_encode($cleanData);
+                        imagedestroy($src);
+                        
+                        return 'data:image/png;base64,' . base64_encode($cleanData);
+                    }
+                } catch (\Exception $e) {
+                    return $base64String;
                 }
-
                 return $base64String;
             };
 
