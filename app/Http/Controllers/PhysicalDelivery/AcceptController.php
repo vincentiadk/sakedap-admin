@@ -679,19 +679,19 @@ class AcceptController extends Controller
             $pdf->writeHTML($finalHtml, true, false, true, false, '');
 
             $collections = QueryAPI::get("
-            select
-                ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn,
-                case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept
-            from
-                letter_detail ld
-            left join letter l on l.letter_id = ld.letter_id
-            left join collectionmedias cm on cm.id = ld.collection_type_id
-            cross join (select level as lvl from dual connect by level <= 1000) t
-            where
-                ld.letter_id = " . $letter->LETTER_ID . "
-                and ld.qty_accept > 0
-                and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
-        ");
+                select
+                    ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn,
+                    case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept
+                from
+                    letter_detail ld
+                left join letter l on l.letter_id = ld.letter_id
+                left join collectionmedias cm on cm.id = ld.collection_type_id
+                cross join (select level as lvl from dual connect by level <= 1000) t
+                where
+                    ld.letter_id = " . $letter->LETTER_ID . "
+                    and ld.qty_accept > 0
+                    and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
+            ");
 
             $htmlCollections = '
             <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
@@ -743,6 +743,7 @@ class AcceptController extends Controller
         $data = ISBN::get('search', [
             'code' => $code
         ], true);
+
         QueryAPI::setReceiveDate([
             'LetterDetailId' => $id,
             'NomorISBN' => $request->isbn,

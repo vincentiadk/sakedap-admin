@@ -58,8 +58,8 @@ class QueryAPI
         static::initialize();
 
         $data = null;
-        $query = Http::connectTimeout(0)
-            ->timeout(0)
+        $query = Http::connectTimeout(15)
+            ->timeout(30)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'getlistraw',
