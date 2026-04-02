@@ -445,6 +445,71 @@ class QueryAPI
     }
 
     /**
+     * getFileBase64
+     *
+     * @param  mixed $payload
+     * @return void
+     */
+    public static function getFileBase64($payload = [])
+    {
+        static::initialize();
+
+        try {
+            $response = Http::connectTimeout(15)
+                ->timeout(30)
+                ->withQueryParameters(array_merge($payload, [
+                    'token' => static::$token,
+                    'op'    => 'getfile',
+                ]))
+                ->post(static::$baseUrl);
+
+            if ($response->status() !== 200) {
+                Log::channel('sakedap-api')->warning('getFileBase64: status bukan 200', [
+                    'status'  => $response->status(),
+                    'payload' => $payload,
+                ]);
+
+                return '';
+            }
+
+            $body = $response->body();
+
+            if (empty($body)) {
+                Log::channel('sakedap-api')->warning('getFileBase64: body kosong', ['payload' => $payload]);
+
+                return '';
+            }
+
+            $contentType = $response->header('Content-Type');
+
+            if (str_contains($contentType, 'application/json') || str_contains($contentType, 'text/plain')) {
+                Log::channel('sakedap-api')->warning('getFileBase64: response bukan binary', [
+                    'content_type' => $contentType,
+                    'body' => substr($body, 0, 200),
+                    'payload' => $payload,
+                ]);
+
+                return '';
+            }
+
+            $mime = 'image/png';
+
+            if (str_starts_with($body, "\xFF\xD8\xFF"))  $mime = 'image/jpeg';
+            elseif (str_starts_with($body, 'GIF'))        $mime = 'image/gif';
+            elseif (str_starts_with($body, "\x89PNG"))    $mime = 'image/png';
+
+            return 'data:' . $mime . ';base64,' . base64_encode($body);
+        } catch (\Throwable $e) {
+            Log::channel('sakedap-api')->error('getFileBase64 exception', [
+                'message' => $e->getMessage(),
+                'payload' => $payload,
+            ]);
+
+            return '';
+        }
+    }
+
+    /**
      * verificationCollection
      *
      * @param  mixed $id
