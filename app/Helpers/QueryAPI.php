@@ -53,13 +53,13 @@ class QueryAPI
      * @param  mixed $single
      * @return void
      */
-    public static function get($sql, $single = false)
+    public static function get($sql, $single = false, $connectTimeout = 0, $timeout = 0)
     {
         static::initialize();
 
         $data = null;
-        $query = Http::connectTimeout(15)
-            ->timeout(30)
+        $query = Http::connectTimeout($connectTimeout)
+            ->timeout($timeout)
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'getlistraw',

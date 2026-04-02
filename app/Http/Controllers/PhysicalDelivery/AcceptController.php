@@ -691,7 +691,7 @@ class AcceptController extends Controller
                     ld.letter_id = " . $letter->LETTER_ID . "
                     and ld.qty_accept > 0
                     and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
-            ");
+            ", false, 15, 60);
 
             $htmlCollections = '
             <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
