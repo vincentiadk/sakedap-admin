@@ -571,17 +571,18 @@ class AcceptController extends Controller
                     letter.letter_id = $letterId
             ", true);
 
-            if (!$letter) {
-                return null;
+            if (!$letter) return null;
+
+            if (Main::isSuperAdmin() && Main::isPerpusnas()) {
+                $whereSetting = 'and province_id is null';
+            } else {
+                $whereSetting = 'and province_id = ' . session('province_id');
             }
 
             $settings = QueryAPI::get("
-                select
-                    *
-                from
-                    e_settings
-                where
-                    slug in ('Header','Footer','ResiPenerimaan')
+                select * from e_settings
+                where slug = 'ResiPenerimaan'
+                or (slug in ('Header', 'Footer') $whereSetting)
             ");
 
             $templateEmailContent = null;
@@ -596,17 +597,28 @@ class AcceptController extends Controller
                 }
             }
 
-            $imgHeader = '';
-            $imgFooter = '';
+            $tempFiles = [];
+            $imgHeaderTag = '';
+            $imgFooterTag = '';
 
             if ($templateEmailHeader) {
                 $urlHeader = url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''));
-                $imgHeader = Main::base64File($urlHeader);
+                $pathHeader = Main::saveTempFile($urlHeader);
+
+                if ($pathHeader) {
+                    $imgHeaderTag = '<div style="text-align:center;"><img src="' . $pathHeader . '" width="650"></div>';
+                    $tempFiles[] = $pathHeader;
+                }
             }
 
             if ($templateEmailFooter) {
                 $urlFooter = url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''));
-                $imgFooter = Main::base64File($urlFooter);
+                $pathFooter = Main::saveTempFile($urlFooter);
+
+                if ($pathFooter) {
+                    $imgFooterTag = '<div style="text-align:center;"><img src="' . $pathFooter . '" width="650"></div>';
+                    $tempFiles[] = $pathFooter;
+                }
             }
 
             $branchId = $letter->BRANCH_ID ?? 0;
@@ -614,19 +626,20 @@ class AcceptController extends Controller
             $signatureTable = '<br><br><br>';
 
             $leader = QueryAPI::get("
-                select
-                    *
-                from
-                    penanggung_jawab
-                where
-                    branch_id = $branchId and
-                    (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
+                select * from penanggung_jawab
+                where branch_id = $branchId and
+                (tanggal_awal <= to_date('$dateNow', 'YYYY-MM-DD') and tanggal_akhir >= to_date('$dateNow', 'YYYY-MM-DD') + 1)
             ", true);
 
             if ($leader) {
                 $ttdUrl = url('stream-file') . '?type=gambar_ttd&id=' . ($leader->ID ?? '') . '&filename=' . ($leader->TTD_FILE_NAME ?? '');
-                $imgTtd = Main::base64File($ttdUrl) ?: '';
-                $imgTagTtd = (strlen($imgTtd) > 100) ? '<img src="' . $imgTtd . '" height="60" style="height:60px;">' : '<br><br><br>';
+                $pathTtd = Main::saveTempFile($ttdUrl);
+                $imgTagTtd = '<br><br><br>';
+
+                if ($pathTtd) {
+                    $imgTagTtd = '<img src="' . $pathTtd . '" height="60">';
+                    $tempFiles[] = $pathTtd;
+                }
 
                 $signatureTable = '
                     <table border="0" cellspacing="0" cellpadding="0" style="text-align:center; width:100%;">
@@ -634,8 +647,7 @@ class AcceptController extends Controller
                         <tr><td style="height:70px;">' . $imgTagTtd . '</td></tr>
                         <tr><td>' . ($leader->NAMA ?? '') . '</td></tr>
                         <tr><td style="font-weight:bold;">NIP. ' . ($leader->NIP ?? '-') . '</td></tr>
-                    </table>
-                ';
+                    </table>';
             }
 
             $qrGenerator = new \Milon\Barcode\DNS2D();
@@ -647,35 +659,13 @@ class AcceptController extends Controller
                 'letter_no' => $letter->LETTER_NUMBER_UT ?: '-',
                 'publisher_name' => $letter->NAME_PENERBIT,
                 'director' => $signatureTable,
-                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="300" style="width:100%;"></div><br><br>' : '',
-                'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="550" style="width:100%;"></div>' : '',
-                'qr' => '<br><br><img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" style="height:120px; width:120px">',
+                'header' => $imgHeaderTag,
+                'footer' => $imgFooterTag,
+                'qr' => '<img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" width="100" height="100">',
                 'source' => $letter->NAME_BRANCH ?? '-',
             ];
 
             $htmlContent = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);
-            $finalHtml = '
-                <style>
-                    table {
-                        border-collapse: collapse;
-                        padding: 0;
-                        margin: 0;
-                    }
-
-                    td {
-                        vertical-align: top;
-                    }
-
-                    body {
-                        font-family: helvetica;
-                        font-size: 10pt;
-                    }
-                </style>
-                <table border="0" cellspacing="0" cellpadding="0" width="100%">
-                    <tr><td>' . $htmlContent . '</td></tr>
-                </table>
-            ';
-
             $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
@@ -683,36 +673,35 @@ class AcceptController extends Controller
             $pdf->SetAutoPageBreak(true, 15);
             $pdf->AddPage();
 
+            $finalHtml = '
+                <style>
+                    table { border-collapse: collapse; padding: 0; margin: 0; }
+                    td { vertical-align: top; }
+                    body { font-family: helvetica; font-size: 10pt; }
+                </style>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr><td>' . $htmlContent . '</td></tr>
+                </table>';
+
             $pdf->writeHTML($finalHtml, true, false, true, false, '');
 
             $collections = QueryAPI::get("
                 select
-                    ld.letter_id,
-                    l.accept_date as accept_date_letter,
-                    ld.title,
-                    cm.name as name_cm,
-                    ld.isbn,
-                    case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept,
-                    c.noinduk as noinduk_collection, c.mark_province as mark_province_collection
+                    ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn,
+                    case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept
                 from
                     letter_detail ld
-                left join
-                    letter l on l.letter_id = ld.letter_id
-                left join
-                    collectionmedias cm on cm.id = ld.collection_type_id
-                cross join
-                    (select level as lvl from dual connect by level <= 1000) t
-                left join
-                    collections c on c.id = to_number(nvl(trim(regexp_substr(ld.collection_id,'[^,]+',1,t.lvl)),'0'))
+                left join letter l on l.letter_id = ld.letter_id
+                left join collectionmedias cm on cm.id = ld.collection_type_id
+                cross join (select level as lvl from dual connect by level <= 1000) t
                 where
-                    ld.letter_id = $letter->LETTER_ID
-                    and ld.qty_accept is not null
+                    ld.letter_id = " . $letter->LETTER_ID . "
                     and ld.qty_accept > 0
                     and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
             ");
 
             $htmlCollections = '
-                <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse;">
+                <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
                     <tr style="background-color:#f0f0f0; font-weight:bold;">
                         <th width="5%" align="center">No</th>
                         <th width="15%" align="center">Tgl Terima</th>
@@ -720,41 +709,47 @@ class AcceptController extends Controller
                         <th width="15%" align="center">Jenis</th>
                         <th width="15%" align="center">ISBN</th>
                         <th width="10%" align="center">Jml</th>
-                    </tr>
-            ';
+                    </tr>';
 
             if ($collections) {
                 foreach ($collections as $key => $c) {
-                    $htmlCollections .= '<tr>';
-                    $htmlCollections .= '<td align="center">' . ($key + 1) . '</td>';
-                    $htmlCollections .= '<td align="center">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>';
-                    $htmlCollections .= '<td>' . ($c->TITLE ?? '-') . '</td>';
-                    $htmlCollections .= '<td align="center">' . ($c->NAME_CM ?? '-') . '</td>';
-                    $htmlCollections .= '<td align="center">' . ($c->ISBN ?? '-') . '</td>';
-                    $htmlCollections .= '<td align="center">' . ($c->QTY_ACCEPT ?? '-') . '</td>';
-                    $htmlCollections .= '</tr>';
+                    $htmlCollections .= '<tr>
+                        <td align="center">' . ($key + 1) . '</td>
+                        <td align="center">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>
+                        <td>' . ($c->TITLE ?? '-') . '</td>
+                        <td align="center">' . ($c->NAME_CM ?? '-') . '</td>
+                        <td align="center">' . ($c->ISBN ?? '-') . '</td>
+                        <td align="center">' . ($c->QTY_ACCEPT ?? '-') . '</td>
+                    </tr>';
                 }
             }
-
             $htmlCollections .= '</table>';
 
             $pdf->AddPage();
             $pdf->writeHTML($htmlCollections, true, false, true, false, '');
 
-            $letterNumber = $letter->LETTER_ID ?? date('YmdHis');
-            $nameExecutor = $letter->NAME_PENERBIT ?? '';
             $directory = storage_path('app/public/physical-delivery/accept/receipt');
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0755, true);
-            }
+            if (!file_exists($directory)) mkdir($directory, 0755, true);
 
-            $filename = $directory . '/' . Str::slug('Pengiriman Fisik Koleksi ' . $letterNumber . ' ' . $nameExecutor, '-') . '.pdf';
+            $letterNumber = $letter->LETTER_ID ?? time();
+            $filename = $directory . '/' . Str::slug('Pengiriman Fisik ' . $letterNumber, '-') . '.pdf';
+
             $pdf->Output($filename, 'F');
+
+            foreach ($tempFiles as $file) {
+                if (file_exists($file)) unlink($file);
+            }
 
             return $filename;
         } catch (\Exception $e) {
             Log::error('Error generating PDF: ' . $e->getMessage());
+
+            if (isset($tempFiles)) {
+                foreach ($tempFiles as $file) {
+                    if (file_exists($file)) unlink($file);
+                }
+            }
 
             return null;
         }

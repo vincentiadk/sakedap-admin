@@ -380,6 +380,39 @@ class Main
     }
 
     /**
+     * saveTempFile
+     *
+     * @param  mixed $url
+     * @return void
+     */
+    public static function saveTempFile($url)
+    {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        ]);
+
+        $getContent = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($getContent === false || $httpCode !== 200 || empty($getContent)) {
+            return null;
+        }
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'pdf_img_');
+
+        file_put_contents($tmpFile, $getContent);
+
+        return $tmpFile;
+    }
+
+    /**
      * base64File
      *
      * @param  mixed $url
