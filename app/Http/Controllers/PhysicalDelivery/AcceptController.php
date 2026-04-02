@@ -517,7 +517,7 @@ class AcceptController extends Controller
 
         $pdfPath = $this->generatePDF($letterId);
         $fileName = basename($pdfPath);
-        
+
         if (!$pdfPath || !file_exists($pdfPath)) {
             return response()->json([
                 'code' => 500,
@@ -559,11 +559,14 @@ class AcceptController extends Controller
             $letter = QueryAPI::get("
                 select
                     letter.*,
-                    penerbit.name as name_penerbit
+                    penerbit.name as name_penerbit,
+                    branchs.name as name_branch
                 from
                     letter
                 left join
                     penerbit on penerbit.id = letter.penerbit_id
+                left join
+                    branchs on branchs.id = letter.branch_id
                 where
                     letter.letter_id = $letterId
             ", true);
@@ -647,6 +650,7 @@ class AcceptController extends Controller
                 'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="300" style="width:100%;"></div><br><br>' : '',
                 'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="550" style="width:100%;"></div>' : '',
                 'qr' => '<br><br><img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" style="height:120px; width:120px">',
+                'source' => $letter->NAME_BRANCH ?? '-',
             ];
 
             $htmlContent = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);

@@ -572,6 +572,7 @@ class CreateReceiptController extends Controller
                             'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
                             'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
+                            'source' => QueryAPI::get("select name from branchs where id = " . ($letter->BRANCH_ID ?? 0), true)->NAME ?? '-',
                         ];
 
                         Mail::send([], [], function ($message) use ($bodyParamEmail, $templateEmailContent, $executor) {
