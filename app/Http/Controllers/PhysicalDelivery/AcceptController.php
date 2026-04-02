@@ -651,8 +651,9 @@ class AcceptController extends Controller
 
             $emptyHeader = '
                 <div style="text-align:center;">
-                    <h5 style="margin-bottom: 0;">' . ($letter->NAME_BRANCH ?? '') . '</h5>
-                    <span style="margin-top: 0;">' . ($letter->ADDRESS_BRANCH ?? '') . '</span>
+                    <h2 style="margin-bottom: 0;">' . ($letter->NAME_BRANCH ?? '') . '</h2>
+                    <span style="margin-top: 0; font-size:10px;">' . ($letter->ADDRESS_BRANCH ?? '') . '</span>
+                    =======================================================================
                 </div>
             ';
 
