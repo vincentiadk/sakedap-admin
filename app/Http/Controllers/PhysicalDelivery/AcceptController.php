@@ -652,8 +652,8 @@ class AcceptController extends Controller
                 'letter_no' => $letter->LETTER_NUMBER_UT ?: '-',
                 'publisher_name' => $letter->NAME_PENERBIT,
                 'director' => $signatureTable,
-                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="300" style="width:100%;"></div><br><br>' : '',
-                'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="550" style="width:100%;"></div>' : '',
+                'header' => !empty($imgHeader) ? '<div style="text-align:center;"><img src="' . $imgHeader . '" width="500" style="width:100%;"></div><br><br>' : '',
+                'footer' => !empty($imgFooter) ? '<br><br><br><br><br><br><br><br><div style="text-align:center;"><img src="' . $imgFooter . '" width="650" style="width:100%;"></div>' : '',
                 'qr' => '<br><br><img alt="QR" src="data:image/png;base64,' . $qrBase64Raw . '" style="height:120px; width:120px">',
                 'source' => $letter->NAME_BRANCH ?? '-',
             ];
