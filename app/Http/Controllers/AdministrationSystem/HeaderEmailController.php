@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\AdministrationSystem;
 
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class HeaderEmailController extends Controller
 {
@@ -12,26 +13,32 @@ class HeaderEmailController extends Controller
     {
         $provinceId = session('province_id');
 
+        if (Main::isSuperAdmin() && Main::isPerpusnas()) {
+            $whereProvince = 'and province_id is null';
+        } else {
+            $whereProvince = 'and province_id = ' . $provinceId;
+        }
+
         $template = QueryAPI::get("
             select
                 *
             from
                 e_settings
             where
-                slug = 'Header' and
-                province_id = $provinceId
+                slug = 'Header'
+                $whereProvince
         ", true);
 
         if ($request->_token == csrf_token()) {
             if ($template) {
                 QueryAPI::update('e_settings', ($template->ID ?? null), [
-                    'province_id' => $provinceId,
+                    'province_id' => Main::isSuperAdmin() && Main::isPerpusnas() ? null : $provinceId,
                 ]);
             } else {
                 $template = QueryAPI::create('e_settings', [
                     'content' => $request->content,
                     'slug' => 'Header',
-                    'province_id' => $provinceId,
+                    'province_id' => Main::isSuperAdmin() && Main::isPerpusnas() ? null : $provinceId,
                 ]);
             }
 

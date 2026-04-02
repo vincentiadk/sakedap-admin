@@ -62,21 +62,23 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-12 mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="ph-map-pin me-1"></i>
-                            Provinsi
-                            <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ph-buildings"></i>
-                            </span>
-                            <select class="form-select" name="province_id" id="province_id" required>
-                                <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
-                            </select>
+                    @if(!Main::isSuperAdmin() && !Main::isPerpusnas())
+                        <div class="col-lg-12 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-map-pin me-1"></i>
+                                Provinsi
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-buildings"></i>
+                                </span>
+                                <select class="form-select" name="province_id" id="province_id" required>
+                                    <option value="{{ session('province_id') }}" selected>{{ session('province_name') }}</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="col-lg-12">
                         <label class="form-label fw-semibold">
                             <i class="ph-image me-1"></i>
