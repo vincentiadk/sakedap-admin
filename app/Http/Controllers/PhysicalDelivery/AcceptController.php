@@ -556,6 +556,28 @@ class AcceptController extends Controller
     private function generatePDF($letterId)
     {
         try {
+            $cleanBase64Image = function ($base64String) {
+                if (empty($base64String) || strlen($base64String) < 100) return $base64String;
+
+                $data = explode(',', $base64String);
+                $imgData = base64_decode(end($data));
+                $src = imagecreatefromstring($imgData);
+
+                if ($src) {
+                    ob_start();
+                    imagesavealpha($src, true);
+                    imagepng($src, null, 0);
+
+                    $cleanData = ob_get_clean();
+
+                    imagedestroy($src);
+
+                    return 'data:image/png;base64,' . base64_encode($cleanData);
+                }
+
+                return $base64String;
+            };
+
             $letter = QueryAPI::get("
                 select
                     letter.*,
@@ -608,6 +630,8 @@ class AcceptController extends Controller
                     'id' => $templateEmailHeader->ID      ?? '',
                     'filename' => $templateEmailHeader->CONTENT ?? '',
                 ]);
+
+                $imgHeader = $cleanBase64Image($imgHeader);
             }
 
             if ($templateEmailFooter) {
@@ -616,6 +640,8 @@ class AcceptController extends Controller
                     'id' => $templateEmailFooter->ID      ?? '',
                     'filename' => $templateEmailFooter->CONTENT ?? '',
                 ]);
+
+                $imgFooter = $cleanBase64Image($imgFooter);
             }
 
             $branchId = $letter->BRANCH_ID ?? 0;
@@ -635,14 +661,17 @@ class AcceptController extends Controller
                     'filename' => $leader->TTD_FILE_NAME ?? '',
                 ]);
 
+                $imgTtd = $cleanBase64Image($imgTtd);
                 $imgTagTtd = (strlen($imgTtd ?: '') > 100) ? '<img src="' . $imgTtd . '" height="60" style="height:60px;">' : '<br><br><br>';
+
                 $signatureTable = '
                     <table border="0" cellspacing="0" cellpadding="0" style="text-align:center; width:100%;">
                         <tr><td>' . ($leader->JABATAN ?? 'Pejabat') . '</td></tr>
                         <tr><td style="height:70px;">' . $imgTagTtd . '</td></tr>
                         <tr><td>' . ($leader->NAMA ?? '') . '</td></tr>
                         <tr><td style="font-weight:bold;">NIP. ' . ($leader->NIP ?? '-') . '</td></tr>
-                    </table>';
+                    </table>
+                ';
             }
 
             $qrGenerator = new \Milon\Barcode\DNS2D();
