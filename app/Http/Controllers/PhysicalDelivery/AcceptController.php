@@ -560,7 +560,8 @@ class AcceptController extends Controller
                 select
                     letter.*,
                     penerbit.name as name_penerbit,
-                    branchs.name as name_branch
+                    branchs.name as name_branch,
+                    branchs.province_id as province_id
                 from
                     letter
                 left join
@@ -576,7 +577,7 @@ class AcceptController extends Controller
             if (Main::isSuperAdmin() && Main::isPerpusnas()) {
                 $whereSetting = 'and province_id is null';
             } else {
-                $whereSetting = 'and province_id = ' . session('province_id');
+                $whereSetting = 'and province_id = ' . ($letter->PROVINCE_ID ?? null);
             }
 
             $settings = QueryAPI::get("
