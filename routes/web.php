@@ -276,6 +276,12 @@ Route::middleware('authentication')->group(function () {
             Route::get('detail-bulk', 'BulkUploadController@detailBulk');
             Route::post('submitted', 'BulkUploadController@submitted');
         });
+        Route::prefix('journal/zip-upload')->group(function () {
+            Route::get('/', 'JournalUploadController@index')->name('journal.zip.index');
+            Route::post('/store', 'JournalUploadController@store')->name('journal.zip.store');
+            Route::get('/progress/{id}', 'JournalUploadController@progress')->name('journal.zip.progress');
+            Route::get('/history/{id}', 'JournalUploadController@show')->name('journal.zip.show');
+        });
     });
 
     Route::prefix('bill-isbn')->group(function () {

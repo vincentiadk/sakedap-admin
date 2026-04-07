@@ -191,7 +191,7 @@ class AcceptEditionController extends Controller
             where
                 rnum > $start
         ";
-
+        Log::info($sql);
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {
