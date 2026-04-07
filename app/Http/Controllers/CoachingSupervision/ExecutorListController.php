@@ -77,6 +77,10 @@ class ExecutorListController extends Controller
             $whereCondition[] = " penerbit.source_db = '$request->source_db' ";
         }
 
+        if ($request->api_status) {
+            $whereCondition[] = " penerbit.api_status = '$request->api_status' ";
+        }
+
         if ($search) {
             $terms = [];
 
@@ -188,14 +192,20 @@ class ExecutorListController extends Controller
                 } else {
                     $warning = 'Tidak Ada';
                 }
-
+                $api_status = "";
+                switch($val->API_STATUS){
+                    case 'APPROVED' : $api_status = '<label style="color:green">Disetujui</label>'; break;
+                    case 'PENDING' : $api_status = '<label style="color:red">Perlu persetujuan</label>'; break;
+                    case 'REJECTED' : $api_status = '<label style="color:red">Ditolak</label>'; break;
+                    case 'REVOKED' : $api_status = '<label style="color:red">Akses Dicabut</label>'; break;
+                    default : $api_status = '<label>Belum Mengajukan</label>'; break;
+                }
                 $mark = '
                     <div>Status : ' . $lock . '</div>
                     <div>Teguran : ' . $warning . '</div>
-                    <div>Status API : ' . ucwords(strtolower(($val->API_STATUS ?: 'Belum Mengajukan'))) . '</div>
+                    <div>Status API : ' .$api_status. '</div>
                     <div>Sumber : ' . $val->SOURCE_DB . '</div>
                 ';
-
                 $data[] = [
                     $start + 1,
                     $action,
@@ -371,13 +381,21 @@ class ExecutorListController extends Controller
                         'api_key' => $apiKey,
                         'message' => 'Permintaan akses API Anda telah disetujui. Berikut adalah API Key Anda: ' . $apiKey
                     ];
-
-                    Mail::send([], [], function ($message) use ($payloadEmail) {
-                        $message->to($payloadEmail['email'], $payloadEmail['name'])
-                            ->subject('Akses API SAKEDAP Disetujui')
-                            ->from(config('mail.from.address'), config('mail.from.name'))
-                            ->html('<p>Yth. ' . $payloadEmail['name'] . ',</p><p>' . $payloadEmail['message'] . '</p>', 'text/html');
+                    if(config('app.env') != 'production') {
+                        $sp = collect(QueryAPI::get("select * from settingparameters where name in ('ETesEmail', 'ETesEmailName')"));
+                        $email = $sp->firstWhere('NAME', 'ETesEmail')->VALUE ?? null;
+                        $name = $sp->firstWhere('NAME', 'ETesEmailName')->VALUE ?? null;
+                    } else {
+                        $email = $payloadEmail['email'];
+                        $name = $payloadEmail['name'];
+                    }
+                    Mail::send([], [], function ($message) use ($payloadEmail, $email, $name) {
+                            $message->to($email, $name)
+                                ->subject('Akses API SAKEDAP Disetujui')
+                                ->from(config('mail.from.address'), config('mail.from.name'))
+                                ->html('<p>Yth. ' . $payloadEmail['name'] . ',</p><p>' . $payloadEmail['message'] . '</p>', 'text/html');
                     });
+                    
                 } catch (\Exception $e) {
                     return response()->json([
                         'code' => $e->getCode() ?? 500,

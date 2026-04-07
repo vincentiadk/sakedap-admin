@@ -32,6 +32,18 @@
                         <span class="input-group-text">
                             <i class="ph-funnel"></i>
                         </span>
+                        <select class="form-select" name="filter_api_status" id="filter_api_status" onchange="loadData()" style="min-width: 150px;">
+                            <option value="">Semua Status API</option>
+                            <option value="PENDING">Perlu persetujuan</option>
+                            <option value="APPROVED">Disetujui</option>
+                            <option value="REVOKED">Dicabut</option>
+                            <option value="REJECTED">Ditolak</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
                         <select class="form-select" name="filter_source_db" id="filter_source_db" onchange="loadData()" style="min-width: 150px;">
                             <option value="">Semua Sumber</option>
                             <option value="ISBN">ISBN</option>
@@ -676,7 +688,8 @@
                 },
                 data: {
                     status: $('#filter_status').val(),
-                    source_db: $('#filter_source_db').val()
+                    source_db: $('#filter_source_db').val(),
+                    api_status: $('#filter_api_status').val()
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
