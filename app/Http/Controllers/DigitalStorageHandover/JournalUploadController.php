@@ -85,7 +85,7 @@ class JournalUploadController extends Controller
             'id' => session('id'),
             'username' => session('username'),
             'fullname' => session('fullname'),
-        ]);
+        ])->onQueue('zip');;
 
         return response()->json([
             'message' => 'ZIP berhasil diupload dan masuk antrian proses',
