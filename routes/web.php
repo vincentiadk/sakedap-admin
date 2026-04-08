@@ -255,8 +255,9 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('accept-article-journal')->group(function () {
             Route::get('/', 'AcceptArticleJournalController@index');
             Route::post('datatable', 'AcceptArticleJournalController@datatable');
-            Route::get('detail/{id}', 'AcceptArticleJournalController@detail');
+            Route::get('detail', 'AcceptArticleJournalController@detail');
             Route::post('verification', 'AcceptArticleJournalController@verification');
+            Route::delete('destroy-data', 'AcceptArticleJournalController@destroyData');
         });
 
         Route::prefix('reject')->group(function () {

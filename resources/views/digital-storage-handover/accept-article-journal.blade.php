@@ -324,6 +324,152 @@
         }).show();
     }
 
+    function destroy(id) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Hapus data?</h5><span class="text-muted">Anda yakin ingin menghapus data ini? Seluruh data dan file yang berkaitan juga akan terhapus.</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Kirim', 'btn btn-teal ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("digital-storage-handover/accept-article-journal/destroy-data") }}',
+                        type: 'DELETE',
+                        dataType: 'JSON',
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                            loadData();
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
+    }
+
+    function showDetail(id) {
+    $.ajax({
+        url: '{{ url("digital-storage-handover/accept-article-journal/detail") }}',
+        type: 'GET',
+        dataType: 'JSON',
+        data: {
+            id: id
+        },
+        beforeSend: function() {
+            swalInit.fire({
+                title: 'Loading...',
+                text: 'Sedang mengambil data detail',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        },
+        success: function(response) {
+            if (response.code == 200) {
+                let data = response.data;
+
+                let html = `
+                    <div class="text-start">
+                        <table class="table table-bordered table-sm">
+                            <tr>
+                                <th width="35%">Judul Artikel</th>
+                                <td>${data.ARTICLE_TITLE ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Judul Jurnal</th>
+                                <td>${data.TITLE ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>DOI</th>
+                                <td>${data.ARTICLE_DOI ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Link Artikel</th>
+                                <td>${data.ARTICLE_ORIGINAL_LINK ?? '-'}</td>
+                            </tr>
+                             <tr>
+                                <th>Link File</th>
+                                <td>${data.ARTICLE_FILE_LINK ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Terima</th>
+                                <td>${data.RECEIVED_AT ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Penulis</th>
+                                <td>${data.ARTICLE_CONTRIBUTOR ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Abstrak</th>
+                                <td>${data.ARTICLE_ABSTRACT ?? '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>Katalog</th>
+                                <td><iframe src='https://inlis-backup.perpusnas.go.id/inlisnew/KatalogDetailView.aspx?id=${data.CATALOG_ID}' width="400px" height="600px"></iframe></td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+
+                swalInit.fire({
+                    title: 'Detail Metadata',
+                    html: html,
+                    icon: 'info',
+                    width: 800,
+                    confirmButtonText: 'Tutup',
+                    showCloseButton: true
+                });
+            } else {
+                swalInit.fire({
+                    title: 'Error',
+                    text: response.message,
+                    icon: 'error',
+                    showCloseButton: true
+                });
+            }
+        },
+        error: function(response) {
+            responseError(response);
+        }
+    });
+}
+
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
     }

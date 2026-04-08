@@ -197,12 +197,12 @@ class AcceptArticleJournalController extends Controller
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="' . url('digital-storage-handover/accept-edition/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="showDetail(' . $val->ID . ')">
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>
-                    <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="delete(' . $val->ID . ')">
-                        <i class="ph-trash-logo me-1"></i>
+                    <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->ID . ')">
+                        <i class="ph-trash me-1"></i>
                         Hapus
                     </a>
                     <a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
@@ -239,154 +239,22 @@ class AcceptArticleJournalController extends Controller
         ]);
     }
 
-    public function detail($id)
+    public function detail(Request $request)
     {
-        $sql = "
-            select
-                c.*,
-                ec.id as E_COLLECTIONS_ID,
-                p.name as name_penerbit,
-                k.namakab as namakab,
-                pr.namapropinsi as namapropinsi,
-                ec.code_type as code_type_e_collection,
-                ec.collection_media_id as cm_id_e_col,
-                ec.serial as serial_e_collection,
-                ec.received_at as received_at_e_collection,
-                ec.price as price_e_collection,
-                ec.jilid as jilid_e_collection,
-                ec.description as description_e_collection,
-                ec.jenis_isi as jenis_isi_e_collection,
-                ec.jenis_wadah as jenis_wadah_e_collection,
-                ec.jenis_media as jenis_media_e_collection,
-                ec.currency as currency_e_collection,
-                ec.jumlah_eks as jumlah_eks_e_collection,
-                ec.physical_description as pd_e_collection,
-                par.title as title_parent,
-                ccr.id as id_catalogcovers,
-                ccr.fileurl as fileurl_catalogcovers,
-                ccr.hash as hash_catalogcovers,
-                ccr.mime as mime_catalogcovers,
-                ccr.file_size as file_size_catalogcovers,
-                ccr.method as method_catalogcovers,
-                cfr.id as id_catalogfiles,
-                cfr.fileurl as fileurl_catalogfiles,
-                cfr.hash as hash_catalogfiles,
-                cfr.mime as mime_catalogfiles,
-                cfr.file_size as file_size_catalogfiles,
-                cfr.method as method_catalogfiles
-            from
-                e_collections ec
-            left join
-                catalogs c on ec.id = c.edeposit_col_id
-            left join
-                e_collections par on par.id = ec.parent_id
-            left join
-                penerbit p on p.id = ec.penerbit_id
-            left join
-                kabupaten k on k.id = ec.kabupaten_id
-            left join
-                propinsi pr on pr.id = k.propinsiid
-            left join
-                (
-                    select
-                        *
-                    from (
-                        select
-                            cf.e_col_id,
-                            cf.id,
-                            cf.fileurl,
-                            cf.hash,
-                            cf.mime,
-                            cf.file_size,
-                            cf.method,
-                            row_number() over (order by cf.id desc) as rn
-                        from
-                            catalogfiles cf
-                        where
-                            cf.e_col_id = $id
-                    ) where rn = 1
-                ) cfr on cfr.e_col_id = ec.id
-            left join
-                (
-                    select
-                        *
-                    from (
-                        select
-                            cc.e_col_id,
-                            cc.id,
-                            cc.fileurl,
-                            cc.hash,
-                            cc.mime,
-                            cc.file_size,
-                            cc.method,
-                            row_number() over (order by cc.id desc) as rn
-                        from
-                            catalogcovers cc
-                        where
-                            cc.e_col_id = $id
-                    ) where rn = 1
-                ) ccr on ccr.e_col_id = ec.id
-            where
-                nvl(c.isdelete, 0) = 0
-                and ec.id = $id
-        ";
-        Log::info($sql);
-        $collection = QueryAPI::get($sql, true);
-
-        $collectionCategory = [];
-        $collectionId = $collection->E_COLLECTIONS_ID ?? 0;
-
-        $dataCollectionCategory = QueryAPI::get("
-            select
-                *
-            from
-                e_collection_categories
-            where
-                collection_id = $collectionId
-        ");
-
-        if ($dataCollectionCategory) {
-            foreach ($dataCollectionCategory as $dcc) {
-                $collectionCategory[] = $dcc->CATEGORY_ID;
-            }
+        $id = $request->id;
+        $data = QueryAPI::get("select * from e_collections where id = {$id}", true);
+        if($data) {
+            return response()->json([
+                'code' => 200,
+                'data' => $data
+            ]);
+        } else {
+            return response()->json([
+                'code' => 400,
+                'message' => "error mengambil data"
+            ]);
         }
-
-        $collectionCopy = QueryAPI::get("
-            select
-                *
-            from
-                e_collections
-            where
-                parent_id = $collectionId and
-                deleted_at is null
-        ");
-
-        return view('layouts.index', [
-            'data' => [
-                'worksheet' => QueryAPI::get("select * from worksheets where category is not null") ?? [],
-                'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
-                'category' => QueryAPI::get("select * from e_categories where deleted_at is null") ?? [],
-                'problem' => QueryAPI::get("select * from e_problems where deleted_at is null") ?? [],
-                'contentType' => QueryAPI::get("select * from fieldrefs where tag = '336'") ?? [],
-                'containerType' => QueryAPI::get("select * from fieldrefs where tag = '337'") ?? [],
-                'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'") ?? [],
-                'bigClass' => QueryAPI::get("select * from master_kelas_besar") ?? [],
-                'collection' => $collection,
-                'collectionCategory' => $collectionCategory,
-                'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
-                'collectionCopy' => $collectionCopy,
-                'physicalDescription' => json_decode($collection->PD_E_COLLECTION ?? ''),
-                'content' => 'digital-storage-handover.accept-detail',
-                'plugins' => [
-                    'select2',
-                    'datatable',
-                    'epubjs',
-                    'videojs',
-                    'pdfjs',
-                    'howlerjs',
-                ]
-            ]
-        ]);
+       
     }
 
     public function verification(Request $request)
@@ -404,5 +272,43 @@ class AcceptArticleJournalController extends Controller
                 'message' => 'Gagal diverifikasi'
             ], 404);
         }
+    }
+
+    public function destroyData(Request $request)
+    {
+        $id = $request->id;
+        
+        $idCat = QueryAPI::get("
+            SELECT id FROM catalogs WHERE edeposit_col_id = {$id}
+        ", true);
+        
+        $idFile = QueryAPI::get("
+            SELECT id FROM catalogfiles WHERE e_col_id = {$id}
+        ", true);
+
+        try {
+            QueryAPI::delete('e_collections', $id);
+            if($idCat) {
+                QueryAPI::delete('catalogs', $idCat->ID);
+            }
+            if($idFile) {
+                QueryAPI::removeFile([
+                    'type' => 'konten_digital',
+                    'id' => $idFile->ID,
+                ]);
+                QueryAPI::delete('catalogfiles', $idFile->ID);
+            }
+            $response = [
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
     }
 }
