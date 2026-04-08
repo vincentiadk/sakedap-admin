@@ -233,7 +233,7 @@
             },
             columns: [
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
@@ -383,93 +383,279 @@
     }
 
     function showDetail(id) {
-    $.ajax({
-        url: '{{ url("digital-storage-handover/accept-article-journal/detail") }}',
-        type: 'GET',
-        dataType: 'JSON',
-        data: {
-            id: id
-        },
-        beforeSend: function() {
-            swalInit.fire({
-                title: 'Loading...',
-                text: 'Sedang mengambil data detail',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+        $.ajax({
+            url: '{{ url("digital-storage-handover/accept-article-journal/detail") }}',
+            type: 'GET',
+            dataType: 'JSON',
+            data: {
+                id: id
+            },
+            beforeSend: function() {
+                swalInit.fire({
+                    title: 'Loading...',
+                    text: 'Sedang mengambil data detail',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function(response) {
+                if (response.code == 200) {
+                    let data = response.data;
+
+                    const safe = (value) => value ? value : '-';
+
+                    const doi = data.ARTICLE_DOI
+                        ? `<a href="${data.ARTICLE_DOI}" target="_blank" class="meta-link">${data.ARTICLE_DOI}</a>`
+                        : '-';
+
+                    const articleLink = data.ARTICLE_ORIGINAL_LINK
+                        ? `<a href="${data.ARTICLE_ORIGINAL_LINK}" target="_blank" class="meta-link">${data.ARTICLE_ORIGINAL_LINK}</a>`
+                        : '-';
+
+                    const fileLink = data.ARTICLE_FILE_LINK
+                        ? `<a href="${data.ARTICLE_FILE_LINK}" target="_blank" class="meta-link">Download File</a>`
+                        : '-';
+
+                    const katalog = data.CATALOG_ID
+                        ? `<iframe 
+                                src="https://inlis-backup.perpusnas.go.id/inlisnew/KatalogDetailView.aspx?id=${data.CATALOG_ID}" 
+                                width="100%" 
+                                height="500" 
+                                style="border:1px solid #dee2e6; border-radius:10px; background:#fff;">
+                        </iframe>`
+                        : `<div class="empty-box">Data katalog tidak tersedia</div>`;
+
+                    let html = `
+                        <style>
+                            .swal-detail-wrap {
+                                text-align: left;
+                                font-family: inherit;
+                            }
+                            .swal-detail-grid {
+                                display: grid;
+                                grid-template-columns: 2fr 1fr;
+                                gap: 20px;
+                                align-items: start;
+                            }
+                            .swal-detail-main,
+                            .swal-detail-side {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 16px;
+                            }
+                            .detail-card {
+                                background: #fff;
+                                border: 1px solid #e9ecef;
+                                border-radius: 12px;
+                                padding: 18px;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                            }
+                            .detail-title {
+                                font-size: 24px;
+                                font-weight: 700;
+                                line-height: 1.4;
+                                color: #212529;
+                                margin-bottom: 8px;
+                            }
+                            .detail-subtitle {
+                                font-size: 14px;
+                                color: #6c757d;
+                                margin-bottom: 14px;
+                            }
+                            .section-title {
+                                font-size: 16px;
+                                font-weight: 700;
+                                color: #212529;
+                                margin-bottom: 12px;
+                                border-bottom: 1px solid #e9ecef;
+                                padding-bottom: 8px;
+                            }
+                            .meta-list {
+                                display: grid;
+                                grid-template-columns: 180px 1fr;
+                                row-gap: 10px;
+                                column-gap: 14px;
+                                font-size: 14px;
+                            }
+                            .meta-label {
+                                color: #6c757d;
+                                font-weight: 600;
+                            }
+                            .meta-value {
+                                color: #212529;
+                                word-break: break-word;
+                            }
+                            .meta-link {
+                                color: #0d6efd;
+                                text-decoration: none;
+                                word-break: break-all;
+                            }
+                            .meta-link:hover {
+                                text-decoration: underline;
+                            }
+                            .abstract-box {
+                                background: #f8f9fa;
+                                border-radius: 10px;
+                                padding: 14px;
+                                font-size: 14px;
+                                color: #212529;
+                                line-height: 1.7;
+                                text-align: justify;
+                                min-height: 100px;
+                            }
+                            .empty-box {
+                                background: #f8f9fa;
+                                border: 1px dashed #ced4da;
+                                border-radius: 10px;
+                                padding: 20px;
+                                text-align: center;
+                                color: #6c757d;
+                                font-size: 14px;
+                            }
+                            .side-info-item {
+                                margin-bottom: 12px;
+                            }
+                            .side-info-label {
+                                display: block;
+                                font-size: 12px;
+                                color: #6c757d;
+                                margin-bottom: 4px;
+                                text-transform: uppercase;
+                                letter-spacing: .3px;
+                            }
+                            .side-info-value {
+                                font-size: 14px;
+                                color: #212529;
+                                word-break: break-word;
+                            }
+                            @media (max-width: 991px) {
+                                .swal-detail-grid {
+                                    grid-template-columns: 1fr;
+                                }
+                                .meta-list {
+                                    grid-template-columns: 1fr;
+                                }
+                            }
+                        </style>
+
+                        <div class="swal-detail-wrap">
+                            <div class="swal-detail-grid">
+
+                                <div class="swal-detail-main">
+                                    <div class="detail-card">
+                                        <div class="detail-title">${safe(data.ARTICLE_TITLE)}</div>
+                                        <div class="detail-subtitle">
+                                            ${safe(data.ARTICLE_CONTRIBUTOR)}
+                                        </div>
+
+                                        <div class="section-title">Metadata Artikel</div>
+                                        <div class="meta-list">
+                                        
+                                            <div class="meta-label">DOI</div>
+                                            <div class="meta-value">${doi}</div>
+
+                                            <div class="meta-label">Link Artikel</div>
+                                            <div class="meta-value">${articleLink}</div>
+
+                                            <div class="meta-label">Link File</div>
+                                            <div class="meta-value">${fileLink}</div>
+
+                                            <div class="meta-label">Tanggal Terima</div>
+                                            <div class="meta-value">${safe(data.RECEIVED_AT)}</div>
+                                            <div class="meta-label">Tanggal Publikasi</div>
+                                            <div class="meta-value">${safe(data.EDITION_DATE)}</div>
+                                            
+                                            <div class="meta-label">Catalog ID</div>
+                                            <div class="meta-value">${safe(data.CATALOG_ID)}</div>
+                                            
+                                            <div class="meta-label">Diunggah Oleh</div>
+                                            <div class="meta-value">${safe(data.CREATEBYNAME)}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-card">
+                                        <div class="section-title">Abstrak</div>
+                                        <div class="abstract-box">
+                                            ${safe(data.ARTICLE_ABSTRACT)}
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-card">
+                                        <div class="section-title">Katalog</div>
+                                        ${katalog}
+                                    </div>
+                                </div>
+
+                                <div class="swal-detail-side">
+                                    <div class="detail-card">
+                                        <div class="section-title">Info Jurnal</div>
+                                        <div class="side-info-item">
+                                            <span class="side-info-label">Judul Jurnal</span>
+                                            <div class="side-info-value">${safe(data.TITLE)}</div>
+                                        </div>
+                                    
+
+                                        <div class="side-info-item">
+                                            <span class="side-info-label">ISSN / EISSN</span>
+                                            <div class="side-info-value">${safe(data.CODE)}</div>
+                                        </div>
+                                        <div class="side-info-item">
+                                            <span class="side-info-label">Volume</span>
+                                            <div class="side-info-value">${safe(data.VOLUME)}</div>
+                                        </div>
+
+                                        <div class="side-info-item">
+                                            <span class="side-info-label">Pelaksana Serah</span>
+                                            <div class="side-info-value">${safe(data.PENERBITNAME)}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-card">
+                                        <div class="section-title">Akses Cepat</div>
+                                        <div class="side-info-item">
+                                            <a href="${data.ARTICLE_ORIGINAL_LINK ?? '#'}" target="_blank" class="meta-link">
+                                                Buka Halaman Artikel
+                                            </a>
+                                        </div>
+                                        <div class="side-info-item">
+                                            <a href="${data.ARTICLE_FILE_LINK ?? '#'}" target="_blank" class="meta-link">
+                                                Download File
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    `;
+
+                    swalInit.fire({
+                        title: '',
+                        html: html,
+                        width: '95%',
+                        confirmButtonText: 'Tutup',
+                        showCloseButton: true,
+                        showConfirmButton: true,
+                        customClass: {
+                            popup: 'p-2'
+                        }
+                    });
+                } else {
+                    swalInit.fire({
+                        title: 'Error',
+                        text: response.message,
+                        icon: 'error',
+                        showCloseButton: true
+                    });
                 }
-            });
-        },
-        success: function(response) {
-            if (response.code == 200) {
-                let data = response.data;
-
-                let html = `
-                    <div class="text-start">
-                        <table class="table table-bordered table-sm">
-                            <tr>
-                                <th width="35%">Judul Artikel</th>
-                                <td>${data.ARTICLE_TITLE ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Judul Jurnal</th>
-                                <td>${data.TITLE ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>DOI</th>
-                                <td>${data.ARTICLE_DOI ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Link Artikel</th>
-                                <td>${data.ARTICLE_ORIGINAL_LINK ?? '-'}</td>
-                            </tr>
-                             <tr>
-                                <th>Link File</th>
-                                <td>${data.ARTICLE_FILE_LINK ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Tanggal Terima</th>
-                                <td>${data.RECEIVED_AT ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Penulis</th>
-                                <td>${data.ARTICLE_CONTRIBUTOR ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Abstrak</th>
-                                <td>${data.ARTICLE_ABSTRACT ?? '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>Katalog</th>
-                                <td><iframe src='https://inlis-backup.perpusnas.go.id/inlisnew/KatalogDetailView.aspx?id=${data.CATALOG_ID}' width="400px" height="600px"></iframe></td>
-                            </tr>
-                        </table>
-                    </div>
-                `;
-
-                swalInit.fire({
-                    title: 'Detail Metadata',
-                    html: html,
-                    icon: 'info',
-                    width: 800,
-                    confirmButtonText: 'Tutup',
-                    showCloseButton: true
-                });
-            } else {
-                swalInit.fire({
-                    title: 'Error',
-                    text: response.message,
-                    icon: 'error',
-                    showCloseButton: true
-                });
+            },
+            error: function(response) {
+                responseError(response);
             }
-        },
-        error: function(response) {
-            responseError(response);
-        }
-    });
-}
-
+        });
+    }
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
     }

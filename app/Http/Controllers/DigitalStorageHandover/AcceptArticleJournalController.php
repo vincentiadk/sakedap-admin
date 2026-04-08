@@ -242,7 +242,13 @@ class AcceptArticleJournalController extends Controller
     public function detail(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("select * from e_collections where id = {$id}", true);
+        $data = QueryAPI::get("
+        select ec.*, u.fullname as createbyname,
+        p.name as penerbitname 
+        from e_collections ec 
+        left join users u on u.id = ec.created_by 
+        left join penerbit p on p.id = ec.penerbit_id
+        where ec.id = {$id}", true);
         if($data) {
             return response()->json([
                 'code' => 200,
