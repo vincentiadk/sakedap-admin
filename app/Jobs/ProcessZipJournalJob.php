@@ -325,13 +325,8 @@ class ProcessZipJournalJob implements ShouldQueue
        
         return [
             'penerbit_id' => $history->PENERBIT_ID,
-            //'no_urut' => $item['no'] ?? null,
-            //'url_file' => $item['url_file'] ?? null,
             'article_doi' => $item['doi'] ?? null,
             'article_original_link' => $item['link_artikel'] ?? null,
-            //'file_name' => $item['nama_file_pdf'] ?? null,
-            //'created_at' => date('Y-m-d H:i:s'),
-            //'updated_at' => date('Y-m-d H:i:s'),
             'publication_year' => $publicationYear,
             'kabupaten_id' => $penerbit->CITY_ID ?? null,
             'city_id' => $penerbit->CITY_ID ?? null,

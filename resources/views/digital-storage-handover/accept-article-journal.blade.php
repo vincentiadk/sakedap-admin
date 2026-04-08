@@ -143,7 +143,7 @@
                             </th>
                             <th class="text-nowrap" style="min-width: 250px">
                                 <i class="ph-book me-1"></i>
-                                Judul Serial
+                                Judul Jurnal
                             </th>
                             <th class="text-nowrap" style="min-width: 150px">
                                 <i class="ph-file me-1"></i>
@@ -655,6 +655,84 @@
                 responseError(response);
             }
         });
+    }
+    function buildViewerHtml() {
+        return `
+            <div id="swal-viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; overflow: hidden;">
+                <div id="swal-viewer-content" style="width: 100%; height: 100%; position: relative;">
+                    
+                    <div id="swal-pdf-controls" style="display: none; position: absolute; top: 15px; right: 25px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center;">
+                        <span id="swal-pdf-info" style="color: white; font-size: 13px; font-weight: 500; border-right: 1px solid #555; padding-right: 12px;">
+                            Halaman: <span id="swal-current-page-num">-</span> / <span id="swal-total-pages-num">-</span>
+                        </span>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-zoom-out" title="Zoom Out">
+                                <i class="ph-magnifying-glass-minus text-dark"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-fit" title="Fit Layout">
+                                <i class="ph-corners-out text-dark"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-zoom-in" title="Zoom In">
+                                <i class="ph-magnifying-glass-plus text-dark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="swal-pdf-viewer-container" style="overflow: auto; max-height: 700px; background: #525659; padding: 20px 0; display: none; scroll-snap-type: y mandatory; scroll-behavior: smooth;"></div>
+
+                    <video id="swal-video-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="display: none; width: 100%; height: 450px;"></video>
+
+                    <div id="swal-epub-container" style="display: none; height: 800px; width: 100%; background: white;"></div>
+
+                    <div id="swal-epub-controls" style="display: none; position: absolute; top: 50%; left: 0; width: 100%; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 10000; transform: translateY(-50%);">
+                        <button type="button" id="swal-prev-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                            <i class="ph-caret-left" style="font-size: 20px;"></i>
+                        </button>
+                        <button type="button" id="swal-next-btn" class="btn btn-dark btn-sm rounded-circle shadow" style="width: 40px; height: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center;">
+                            <i class="ph-caret-right" style="font-size: 20px;"></i>
+                        </button>
+                    </div>
+
+                    <div id="swal-audio-wrapper" style="display: none; height: 800px; width: 100%; position: relative; overflow: hidden; border-radius: 8px; background: #000;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #023BAD 0%, #06732A 100%); z-index: 1;"></div>
+                        <canvas id="swal-wave-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 0.6;"></canvas>
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; padding: 30px;">
+                            <div class="d-flex justify-content-between text-white align-items-center" style="font-family: sans-serif;">
+                                <span id="swal-timer-current" style="font-variant-numeric: tabular-nums;">0:00</span>
+                                <span class="fw-bold text-uppercase" style="opacity: 0.8; font-size: 14px;">Now Playing</span>
+                                <span id="swal-timer-duration" style="font-variant-numeric: tabular-nums;">--:--</span>
+                            </div>
+                            <div class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
+                                <h3 id="swal-audio-title-display" class="text-white fw-light" style="text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                    Menyiapkan Audio...
+                                </h3>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center gap-4 pb-4" style="position: relative; z-index: 20;">
+                                <button type="button" class="btn btn-link text-white p-0" id="swal-btn-rewind" title="-10 Detik">
+                                    <i class="ph-rewind" style="font-size: 32px;"></i>
+                                </button>
+                                <div id="swal-play-pause-wrapper" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border-radius: 50%; backdrop-filter: blur(5px); border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: transform 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                    <i id="swal-icon-play" class="ph-play text-white" style="font-size: 40px; margin-left: 4px;"></i>
+                                    <i id="swal-icon-pause" class="ph-pause text-white" style="font-size: 40px; display: none;"></i>
+                                </div>
+                                <button type="button" class="btn btn-link text-white p-0" id="swal-btn-forward" title="+10 Detik">
+                                    <i class="ph-fast-forward" style="font-size: 32px;"></i>
+                                </button>
+                            </div>
+                            <div style="position: absolute; bottom: 30px; right: 30px;">
+                                <button type="button" id="swal-btn-mute" class="btn btn-link text-white p-0" style="opacity: 0.6;">
+                                    <i class="ph-speaker-high" id="swal-icon-vol" style="font-size: 24px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="swal-default-message" style="display: flex; height: 800px; align-items: center; justify-content: center;">
+                        <span class="text-muted">Memuat file...</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
