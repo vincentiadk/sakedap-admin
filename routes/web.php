@@ -252,10 +252,11 @@ Route::middleware('authentication')->group(function () {
             Route::get('detail/{id}', 'AcceptController@detail');
         });
         
-        Route::prefix('accept-edition')->group(function () {
-            Route::get('/', 'AcceptEditionController@index');
-            Route::post('datatable', 'AcceptEditionController@datatable');
-            Route::get('detail/{id}', 'AcceptEditionController@detail');
+        Route::prefix('accept-article-journal')->group(function () {
+            Route::get('/', 'AcceptArticleJournalController@index');
+            Route::post('datatable', 'AcceptArticleJournalController@datatable');
+            Route::get('detail/{id}', 'AcceptArticleJournalController@detail');
+            Route::post('verification', 'AcceptArticleJournalController@verification');
         });
 
         Route::prefix('reject')->group(function () {

@@ -515,7 +515,7 @@ class QueryAPI
      * @param  mixed $id
      * @return void
      */
-    public static function verificationCollection($id)
+    public static function verificationCollection($id, $actionBy = null)
     {
         static::initialize();
 
@@ -525,7 +525,8 @@ class QueryAPI
             ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'verifikasikoleksiditerima',
-                'id' => $id
+                'id' => $id,
+                'actionby' => $actionBy
             ])
             ->post(static::$baseUrl);
 

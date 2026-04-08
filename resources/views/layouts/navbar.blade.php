@@ -191,17 +191,24 @@
                                     </div>
                                     <div class="tab-pane dropdown-scrollable-xl fade p-3 {{ Request::segment(1) == 'digital-storage-handover' ? 'show active' : '' }}" id="menu-digital-storage-handover" role="tabpanel">
                                         <div class="row" style="max-height:65vh; overflow-y:auto; overflow-x:hidden;">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-info text-center fw-semibold">Sub Menu</div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <a href="{{ url('digital-storage-handover/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
-                                                <a href="{{ url('digital-storage-handover/review-edition') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review-edition' ? 'active' : '' }}">Peninjauan Serial Elektronik</a>
-                                                <a href="{{ url('digital-storage-handover/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
-                                                <a href="{{ url('digital-storage-handover/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
-                                                <a href="{{ url('digital-storage-handover/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
-                                                <a href="{{ url('digital-storage-handover/single-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'single-upload' ? 'active' : '' }}">Unggah Tunggal</a>
-                                                <a href="{{ url('digital-storage-handover/bulk-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'bulk-upload' ? 'active' : '' }}">Unggah Banyak</a>
+                                            <div class="col-md-6">
+                                                <div class="alert alert-info text-center fw-semibold">Karya Digital</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('digital-storage-handover/review') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review' ? 'active' : '' }}">Peninjauan</a>
+                                                    <a href="{{ url('digital-storage-handover/review-edition') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'review-edition' ? 'active' : '' }}">Peninjauan Serial Elektronik</a>
+                                                    <a href="{{ url('digital-storage-handover/problem') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'problem' ? 'active' : '' }}">Bermasalah</a>
+                                                    <a href="{{ url('digital-storage-handover/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
+                                                    <a href="{{ url('digital-storage-handover/reject') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'reject' ? 'active' : '' }}">Ditolak</a>
+                                                    <a href="{{ url('digital-storage-handover/single-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'single-upload' ? 'active' : '' }}">Unggah Tunggal</a>
+                                                    <a href="{{ url('digital-storage-handover/bulk-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'bulk-upload' ? 'active' : '' }}">Unggah Banyak</a>
+                                                </div>
+                                                </div>
+                                            <div class="col-md-6">
+                                                <div class="alert alert-info text-center fw-semibold">Artikel Jurnal</div>
+                                                <div class="col-md-2">
+                                                    <a href="{{ url('digital-storage-handover/accept-article-journal') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'accept-article-journal' ? 'active' : '' }}">Daftar Artikel Jurnal</a>
+                                                    <a href="{{ url('digital-storage-handover/journal/zip-upload') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'digital-storage-handover' && Request::segment(2) == 'zip-upload' ? 'active' : '' }}">Unggah ZIP Artikel Jurnal</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

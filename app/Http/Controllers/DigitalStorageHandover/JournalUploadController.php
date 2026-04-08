@@ -81,7 +81,11 @@ class JournalUploadController extends Controller
             ], 500);
         }
 
-        ProcessZipJournalJob::dispatch($history->ID, session('id'));
+        ProcessZipJournalJob::dispatch($history->ID, [
+            'id' => session('id'),
+            'username' => session('username'),
+            'fullname' => session('fullname'),
+        ]);
 
         return response()->json([
             'message' => 'ZIP berhasil diupload dan masuk antrian proses',
@@ -90,34 +94,6 @@ class JournalUploadController extends Controller
             'detail_url' => route('journal.zip.show', $history->ID)
         ]);
     }
-
-    /*public function progress($id)
-    {
-        $history = QueryAPI::get("
-            SELECT *
-            FROM e_zip_upload_history
-            WHERE id = {$id}
-        ", true);
-
-        if (!$history) {
-            return response()->json(['message' => 'Histori tidak ditemukan'], 404);
-        }
-
-        $percent = 0;
-        if ((int)$history->TOTAL_ROWS > 0) {
-            $percent = round(($history->PROCESSED_ROWS / $history->TOTAL_ROWS) * 100);
-        }
-
-        return response()->json([
-            'status' => $history->STATUS,
-            'total_rows' => (int)$history->TOTAL_ROWS,
-            'processed_rows' => (int)$history->PROCESSED_ROWS,
-            'success_rows' => (int)$history->SUCCESS_ROWS,
-            'failed_rows' => (int)$history->FAILED_ROWS,
-            'notes' => $history->NOTES,
-            'percent' => $percent,
-        ]);
-    }*/
 
     public function progress($id)
     {
@@ -290,14 +266,12 @@ class JournalUploadController extends Controller
     public function progressRealtime($id)
     {
         $pattern = "zip_upload:{$id}:row:*";
-        
-        $keys = $this->scanRedisKeys($pattern);
-
+        $keys = Redis::keys($pattern);
         $rows = [];
 
         foreach ($keys as $key) {
+            $key = str_replace(config('database.redis.options.prefix'), '', $key);
             $json = Redis::get($key);
-            //Log::info($json);
             if (!$json) {
                 continue;
             }
@@ -355,30 +329,4 @@ class JournalUploadController extends Controller
         ]);
     }
 
-    protected function scanRedisKeys($pattern)
-    {
-        return Redis::keys($pattern);
-       /* $cursor = '0';
-        $keys = [];
-
-        do {
-            $result = Redis::scan($cursor, ['match' => $pattern, 'count' => 200]);
-
-            if ($result === false) {
-                break;
-            }
-
-            if (is_array($result) && count($result) === 2) {
-                [$cursor, $batch] = $result;
-
-                if (!empty($batch)) {
-                    $keys = array_merge($keys, $batch);
-                }
-            } else {
-                break;
-            }
-        } while ($cursor != '0');
-
-        return $keys;*/
-    } 
 }

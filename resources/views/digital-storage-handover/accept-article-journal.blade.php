@@ -2,13 +2,13 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0">
-                Serah Simpan Digital - <span class="fw-normal">Diterima</span>
+                Serah Simpan Digital - <span class="fw-normal">Artikel Jurnal</span>
             </h4>
         </div>
         <div class="d-lg-flex ms-lg-auto">
             <div class="d-flex align-items-center">
                 <span class="badge bg-success p-2 bg-opacity-10 text-success">
-                    Data Diterima
+                    Data Artikel Jurnal Diterima
                 </span>
             </div>
         </div>
@@ -210,7 +210,7 @@
             destroy: true,
             order: [[6, 'desc']],
             ajax: {
-                url: '{{ url("digital-storage-handover/accept-edition/datatable") }}',
+                url: '{{ url("digital-storage-handover/accept-article-journal/datatable") }}',
                 dataType: 'JSON',
                 type: 'POST',
                 headers: {
@@ -265,6 +265,63 @@
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
+    }
+
+    function verifikasi(id) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Verifikasi ulang?</h5><span class="text-muted">Anda yakin ingin melakukan verifikasi ulang?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Kirim', 'btn btn-teal ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("digital-storage-handover/accept-article-journal/verification") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
     }
 
     function updateRecordCount(count) {

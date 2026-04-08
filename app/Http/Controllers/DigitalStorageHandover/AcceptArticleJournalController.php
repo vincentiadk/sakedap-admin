@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 
-class AcceptEditionController extends Controller
+class AcceptArticleJournalController extends Controller
 {
     private $worksheetCategory;
 
@@ -23,7 +23,7 @@ class AcceptEditionController extends Controller
         return view('layouts.index', [
             'data' => [
                 'media' => QueryAPI::get("select * from collectionmedias where (isdelete = 0 or isdelete is null) and worksheet_id in (20,142)") ?? [],
-                'content' => 'digital-storage-handover.accept-edition',
+                'content' => 'digital-storage-handover.accept-article-journal',
                 'plugins' => [
                     'datatable',
                     'daterangepicker',
@@ -191,7 +191,7 @@ class AcceptEditionController extends Controller
             where
                 rnum > $start
         ";
-        Log::info($sql);
+        
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {
@@ -230,7 +230,7 @@ class AcceptEditionController extends Controller
                 $start++;
             }
         }
-        Log::info($data);
+        //Log::info($data);
         return response()->json([
             'draw' => $draw,
             'recordsTotal' => $totalData,
@@ -387,5 +387,22 @@ class AcceptEditionController extends Controller
                 ]
             ]
         ]);
+    }
+
+    public function verification(Request $request)
+    {
+        $id = $request->id;
+        $verifikasi  = QueryAPI::verificationCollection($id, session('username'));
+        if($verifikasi) {
+            return response()->json([
+                    'code' => 200,
+                    'message' => 'Sukses diverifikasi'
+                ], 200);
+        } else {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Gagal diverifikasi'
+            ], 404);
+        }
     }
 }

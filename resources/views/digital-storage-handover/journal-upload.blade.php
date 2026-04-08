@@ -5,6 +5,18 @@
                 Serah Simpan Digital - <span class="fw-normal">Upload Jurnal Digital via ZIP</span>
             </h4>
         </div>
+        <div class="d-lg-flex ms-lg-auto">
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url('download/from-public') }}?path=assets/contoh-upload-jurnal.zip" target="_blank" class="btn btn-success btn-sm">
+                    <i class="ph-file-zip me-1"></i>
+                    Contoh Upload Jurnal
+                </a>
+                <a href="{{ url('download/from-public') }}?path=assets/PANDUAN_UPLOAD_JURNAL_SAKEDAP.pdf" target="_blank" class="btn btn-info btn-sm">
+                    <i class="ph-file-pdf me-1"></i>
+                    Panduan
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 <div class="content pt-0">
@@ -26,19 +38,6 @@
                         <select class="form-select" name="pelaksana_serah_id" id="pelaksana_serah_id" data-placeholder="Pilih Pelaksana Serah"></select>
                     </div>
                 </div>
-                <!--div class="mb-3" id="uploadAreaWrap" style="display:none;">
-                    <label class="form-label">Upload File ZIP</label>
-                    <div id="dropArea" class="border rounded p-5 text-center" style="border-style:dashed !important; cursor:pointer;">
-                        <p class="mb-2">Drag & drop file ZIP di sini</p>
-                        <p class="text-muted mb-2">atau klik untuk pilih file</p>
-                        <input type="file" 
-                            name="zip_file" 
-                            id="zip_file" 
-                            accept=".zip" 
-                            style="inset:0; width:100%; height:100%; opacity:0; cursor:pointer;">
-                    </div>
-                    <div id="fileName" class="mt-2 text-success fw-bold"></div>
-                </div-->
                 <div class="mb-3" id="zipArea" style="display:none;">
                     <label class="form-label">Upload File ZIP</label>
 
@@ -60,7 +59,7 @@
                                         <div id="fileName" class="fw-bold text-success"></div>
                                         <div id="fileSize" class="text-muted small"></div>
                                     </div>
-                                    <button type="button" id="removeFile" class="btn btn-sm btn-light border ms-2">✕</button>
+                                    <button type="button" id="removeFile" class="btn btn-sm btn-light border ms-2" style="z-index:99">✕</button>
                                 </div>
                             </div>
                         </div>
@@ -240,6 +239,7 @@ $(document).ready(function () {
                 $('#progressCard').show();
                 $('#detailLink').attr('href', res.detail_url);
                 startProgressPolling(res.history_id);
+                resetZipForm();
             },
             error: function (xhr) {
                 if (xhr.status === 422) {
@@ -286,126 +286,14 @@ $(document).ready(function () {
             });
         }, 2000);
     }
-});
-</script>
-<!--
-<script>
-$(document).ready(function () {
-    $('#zip_file').on('change', function () {
-        if (this.files && this.files.length > 0) {
-            $('#fileName').text(this.files[0].name);
-        }
-    });
-
-    $('#dropArea').on('dragover', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).addClass('bg-light');
-    });
-
-    $('#dropArea').on('dragleave', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('bg-light');
-    });
-
-    $('#dropArea').on('drop', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('bg-light');
-
-        const files = e.originalEvent.dataTransfer.files;
-        if (files.length > 0) {
-            $('#zip_file')[0].files = files;
-            $('#fileName').text(files[0].name);
-        }
-    });
-    $('#zipUploadForm').on('submit', function (e) {
-        e.preventDefault();
-
-        let formData = new FormData(this);
-
-        $.ajax({
-            url: "{{ route('journal.zip.store') }}",
-            method: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                alert(res.message);
-                $('#progressCard').show();
-                $('#detailLink').attr('href', res.detail_url);
-                startProgressPolling(res.history_id);
-            },
-            error: function (xhr) {
-                let msg = 'Terjadi kesalahan';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-                alert(msg);
-            }
-        });
-    });
-
-function startProgressPolling(historyId) {
-    if (progressInterval) clearInterval(progressInterval);
-
-    progressInterval = setInterval(function () {
-        $.get("{{ url('e-collections/zip-upload/progress') }}/" + historyId, function (res) {
-            $('#statusText').text(res.status);
-            $('#totalRows').text(res.total_rows);
-            $('#processedRows').text(res.processed_rows);
-            $('#successRows').text(res.success_rows);
-            $('#failedRows').text(res.failed_rows);
-            $('#notesText').text(res.notes ?? '-');
-
-            let percent = res.percent ?? 0;
-            $('#progressBar').css('width', percent + '%').text(percent + '%');
-
-            if (['done', 'done_with_error', 'failed'].includes(res.status)) {
-                clearInterval(progressInterval);
-            }
-        });
-    }, 2000);
-}
-});
-</script>
-<script>
-
-/*$('#dropArea').on('click', function () {
-    $('#zip_file').trigger('click');
-});
-
-$('#zip_file').on('change', function () {
-    if (this.files.length > 0) {
-        $('#selectedFile').text(this.files[0].name);
+    function resetZipForm() {
+        $('#zipUploadForm')[0].reset();
+        // reset preview file
+        resetFilePreview();
+        // hide area upload zip lagi
+        //$('#zipArea').hide();
+        // disable tombol upload
+        //$('#btnUpload').prop('disabled', true);
     }
 });
-
-$('#dropArea').on('dragover', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).addClass('bg-light');
-});
-
-$('#dropArea').on('dragleave', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass('bg-light');
-});
-
-$('#dropArea').on('drop', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass('bg-light');
-
-    const files = e.originalEvent.dataTransfer.files;
-    if (files.length > 0) {
-        $('#zip_file')[0].files = files;
-        $('#selectedFile').text(files[0].name);
-    }
-});
-*/
-
 </script>
--->

@@ -1,6 +1,5 @@
-<div class="container">
+<div class="content pt-0">
     <h4 class="mb-3">Detail Histori Upload</h4>
-
     <div class="card mb-3">
         <div class="card-body">
             <div class="row">
@@ -65,7 +64,7 @@
     <div class="card">
         <div class="card-header">Detail per Row</div>
         <div class="card-body table-responsive">
-            <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
+            <table class="table table-hover table-bordered display w-100" id="datatable-serverside">
                 <thead>
                     <tr>
                         <th>Row</th>
@@ -203,8 +202,8 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center fw-semibold' },
-                { orderable: false, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-wrap fw-semibold' },
+                { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
