@@ -52,18 +52,6 @@
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
-                                <i class="ph-file me-1"></i>
-                                Jenis Media
-                            </label>
-                            <select class="form-select select2-basic" name="media_id" id="media_id" data-placeholder="Semua Jenis Media">
-                                <option value=""></option>
-                                @foreach($media as $m)
-                                    <option value="{{ $m->ID }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <label class="form-label fw-semibold">
                                 <i class="ph-book me-1"></i>
                             </label>
                             <input type="text" class="form-control" name="title" id="title" placeholder="Cari judul">

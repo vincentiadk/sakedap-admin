@@ -11,6 +11,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile; 
+use Illuminate\Support\Facades\Redis;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+
 use ZipArchive;
 
 class ProcessZipJournalJob implements ShouldQueue
@@ -18,20 +23,25 @@ class ProcessZipJournalJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $historyId;
+    public $userId;
 
-    public function __construct($historyId)
+    public function __construct($historyId, $userId)
     {
         $this->historyId = $historyId;
+        $this->userId = $userId;
     }
 
     public function handle()
     {
         try {
-            QueryAPI::update('e_zip_upload_history', $this->historyId, [
+            $this->setSummaryProgress([
                 'status' => 'processing',
                 'notes' => 'Sedang memproses file ZIP',
                 'started_at' => date('Y-m-d H:i:s'),
-            ], false);
+                'processed_rows' => 0,
+                'success_rows' => 0,
+                'failed_rows' => 0,
+            ]);
 
             $history = QueryAPI::get("
                 SELECT *
@@ -43,7 +53,7 @@ class ProcessZipJournalJob implements ShouldQueue
                 throw new \Exception('Histori upload tidak ditemukan');
             }
 
-            $zipPath = storage_path('app/' . $history->ZIP_PATH);
+            $zipPath = $history->ZIP_PATH;
 
             if (!file_exists($zipPath)) {
                 throw new \Exception('File ZIP tidak ditemukan di server');
@@ -81,19 +91,20 @@ class ProcessZipJournalJob implements ShouldQueue
             unset($rows[0]);
             $rows = array_values($rows);
 
-            QueryAPI::update('e_zip_upload_history', $this->historyId, [
+            $this->setSummaryProgress([
                 'total_rows' => count($rows),
                 'notes' => 'Excel ditemukan, mulai proses data',
             ]);
 
             foreach ($rows as $index => $row) {
                 $rowNumber = $index + 2;
-
+                $title = $item['title'] ?? null;
+                $fileName = $item['nama_file_pdf'] ?? null;                 
                 try {
-                    $historyLatest = $this->getHistory();
+                    //$historyLatest = $this->getHistory();
 
                     $item = $this->combineRow($header, $row);
-
+                    //Log::info($item);
                     if (empty($item['nama_file_pdf'])) {
                         throw new \Exception('Nama File (.pdf) kosong');
                     }
@@ -113,32 +124,59 @@ class ProcessZipJournalJob implements ShouldQueue
                     if (empty($item['provinsi'])) {
                         throw new \Exception('Provinsi kosong');
                     }
+                    
+                    $title = $item['judul_artikel'];
+                    $fileName = $item['nama_file_pdf'];
 
-                    $detail = QueryAPI::create('e_zip_upload_history_detail', [
-                        'e_zip_upload_history_id' => $this->historyId,
-                        'row_number_upload' => $rowNumber,
+                    $this->setRowProgressToRedis($rowNumber, [
+                        'status' => 'running',
                         'title' => $title,
                         'file_name' => $fileName,
-                        'status' => 'pending',
                         'message' => 'Sedang memproses row',
                     ]);
-
-                    if (!$detail || !isset($detail->id)) {
-                        throw new \Exception('Gagal membuat detail histori');
-                    }
-
                     $pdfPath = $this->findPdfFile($extractPath, $fileName);
                     if (!$pdfPath) {
                         throw new \Exception("File PDF {$fileName} tidak ditemukan");
                     }
 
-                    $uploadResult = QueryAPI::uploadFile([
-                        'file' => $pdfPath,
-                        'filename' => $fileName,
-                        'folder' => 'e_collections',
-                        'uploadtype' => 'document',
-                    ]);
+                    $file = new UploadedFile(
+                                $pdfPath,
+                                basename($pdfPath),
+                                File::mimeType($pdfPath),
+                                null,
+                                true 
+                            );
+                    $hash = md5_file($pdfPath);
+                    if (!$hash) {
+                        throw new \Exception('Gagal membuat hash file');
+                    }
+                    // contoh cek ke database / API dulu
+                    $existingFile = QueryAPI::get("
+                        SELECT *  FROM CATALOGFILES
+                        WHERE hash = '" . ($hash) . "'
+                    ", true);
+                    
+                    if ($existingFile) {
+                        throw new \Exception('File yang sama sudah pernah diupload.');
+                    }
+                    $payload = $this->mapExcelRowToEcollectionsPayload($item, $history);
 
+                    $createdCollection = QueryAPI::create('e_collections', $payload);
+
+                    if (!$createdCollection || !isset($createdCollection->ID)) {
+                        throw new \Exception('Gagal menyimpan ke tabel e_collections');
+                    }
+                    $uploadResult = QueryAPI::uploadFile([
+                        'type' => 'konten_digital',
+                        'id' => $createdCollection->ID,
+                        'status' => 1,
+                        'hash' => $hash,
+                        'mime' => $file->getMimeType(),
+                        'filesize' => $file->getSize(),
+                        'method' => 7,
+                        'iszip' => false,
+                        'file' => $file,
+                    ]);
                     if (!$uploadResult) {
                         throw new \Exception('Upload file PDF gagal');
                     }
@@ -151,45 +189,60 @@ class ProcessZipJournalJob implements ShouldQueue
                             ?? $uploadResult->fullpath
                             ?? null;
                     }
-                    $payload = $this->mapExcelRowToEcollectionsPayload($item, $history);
-                    $createdCollection = QueryAPI::create('e_collections', $payload);
-
-                    if (!$createdCollection || !isset($createdCollection->id)) {
-                        throw new \Exception('Gagal menyimpan ke tabel e_collections');
-                    }
-
-                    QueryAPI::update('e_zip_upload_history_detail', $detail->id, [
+                    $finalRowData = [
                         'status' => 'success',
+                        'title' => $title,
+                        'file_name' => $fileName,
                         'message' => 'Berhasil upload dan simpan koleksi',
-                        'e_collection_id' => $createdCollection->id,
-                    ]);
-
-                    QueryAPI::update('e_zip_upload_history', $this->historyId, [
-                        'processed_rows' => ((int) $historyLatest->PROCESSED_ROWS) + 1,
-                        'success_rows' => ((int) $historyLatest->SUCCESS_ROWS) + 1,
-                        'notes' => "Row {$rowNumber} berhasil diproses",
-                    ], false);
-
-                    QueryAPI::verificationCollection($createdCollection->id);
+                        'e_collection_id' => $createdCollection->ID,
+                    ];
+                    $this->setRowProgressToRedis($rowNumber, $finalRowData);
+                    $this->saveFinalDetailToDatabase($rowNumber, $finalRowData);
+                    $this->incrementSummaryProgress(
+                        [
+                            'processed_rows' => 1,
+                            'success_rows' => 1,
+                        ],
+                        [
+                            'notes' => "Row {$rowNumber} berhasil diproses",
+                            'current_row' => $rowNumber,
+                            'last_status' => 'success',
+                        ]
+                    );
+                    if (($rowNumber - 1) % 10 === 0) {
+                        $this->flushSummaryToDatabase();
+                    }
+                    QueryAPI::verificationCollection($createdCollection->ID);
                 } catch (\Throwable $e) {
-                    $historyLatest = $this->getHistory();
-
-                    QueryAPI::create('e_zip_upload_history_detail', [
-                        'e_zip_upload_history_id' => $this->historyId,
-                        'row_number_upload' => $rowNumber,
-                        'title' => $row[0] ?? null,
-                        'file_name' => $row[1] ?? null,
+                    $this->setRowProgressToRedis($rowNumber, [
                         'status' => 'failed',
+                        'title' => $title ?? null,
+                        'file_name' => $fileName ?? null,
                         'message' => $e->getMessage(),
                     ]);
-
-                    QueryAPI::update('e_zip_upload_history', $this->historyId, [
-                        'processed_rows' => ((int) $historyLatest->PROCESSED_ROWS) + 1,
-                        'failed_rows' => ((int) $historyLatest->FAILED_ROWS) + 1,
-                        'notes' => "Row {$rowNumber} gagal: {$e->getMessage()}",
-                    ], false);
-
-                    Log::error('ZIP upload row failed', [
+                    if (($rowNumber - 1) % 10 === 0) {
+                        $this->flushSummaryToDatabase();
+                    }
+                    $historyLatest = $this->getHistory();
+                    $finalRowData = [
+                        'status' => 'failed',
+                        'title' => $title,
+                        'file_name' => $fileName,
+                        'message' =>  $e->getMessage(),
+                    ];
+                    $this->saveFinalDetailToDatabase($rowNumber, $finalRowData);
+                    $this->incrementSummaryProgress(
+                        [
+                            'processed_rows' => 1,
+                            'failed_rows' => 1,
+                        ],
+                        [
+                            'notes' => "Row {$rowNumber} gagal: {$e->getMessage()}",
+                            'current_row' => $rowNumber,
+                            'last_status' => 'failed',
+                        ]
+                    );
+                    Log::channel('zip-upload')->error('ZIP upload row failed', [
                         'history_id' => $this->historyId,
                         'row_number' => $rowNumber,
                         'message' => $e->getMessage(),
@@ -198,22 +251,20 @@ class ProcessZipJournalJob implements ShouldQueue
             }
 
             $finalHistory = $this->getHistory();
-
-            QueryAPI::update('e_zip_upload_history', $this->historyId, [
+            $this->setSummaryProgress([
                 'status' => ((int) $finalHistory->FAILED_ROWS > 0) ? 'done_with_error' : 'done',
                 'notes' => 'Proses upload selesai',
                 'finished_at' => date('Y-m-d H:i:s'),
-            ], false);
+            ]);
 
             $this->deleteDirectory($extractPath);
         } catch (\Throwable $e) {
-            QueryAPI::update('e_zip_upload_history', $this->historyId, [
+            $this->setSummaryProgress([
                 'status' => 'failed',
                 'notes' => $e->getMessage(),
                 'finished_at' => date('Y-m-d H:i:s'),
-            ], false);
-
-            Log::error('ZIP upload failed', [
+            ]);
+            Log::channel('zip-upload')->error('ZIP upload failed', [
                 'history_id' => $this->historyId,
                 'message' => $e->getMessage(),
             ]);
@@ -222,8 +273,12 @@ class ProcessZipJournalJob implements ShouldQueue
 
     protected function convertExcelDate($value)
     {
-        if (empty($value)) {
+        if ($value === null || $value === '') {
             return null;
+        }
+
+        if (is_numeric($value)) {
+            return ExcelDate::excelToDateTimeObject($value)->format('Y-m-d');
         }
 
         $value = trim((string) $value);
@@ -248,23 +303,32 @@ class ProcessZipJournalJob implements ShouldQueue
             'article_doi' => $item['doi'] ?? null,
             'article_original_link' => $item['link_artikel'] ?? null,
             //'file_name' => $item['nama_file_pdf'] ?? null,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
+            //'created_at' => date('Y-m-d H:i:s'),
+            //'updated_at' => date('Y-m-d H:i:s'),
+            'preview' => '1-2',
+            'akses' => 1,
+            'jenis_isi' => 'teks',
+            'jenis_wadah' => 'komputer',
+            'jenis_media' => 'sumber daya sambung jaring',
             'received_at' => $this->convertExcelDate($item['tanggal_aset_dd_mm_yyyy'] ??  date('Y-m-d H:i:s')),
             'article_title' => $item['judul_artikel'] ?? null,
             'title' => $item['judul_jurnal'] ?? null,
+            'slug' => Str::slug($item['judul_artikel'], '-'),
             'garuda_journal_id' => $item['id_jurnal_garuda'] ?? null,
+            'article_file_link' => $item['url_file'] ?? null,
             //'publisher' => $item['penerbit'] ?? null,
             //'province' => $item['provinsi'] ?? null,
+            'collection_media_id' => 203,
+            'worksheet_id' => 142,
             'article_subject' => $item['subjek'] ?? null,
             'volume' => $item['volume'] ?? null,
             'article_contributor' => $item['kontributor'] ?? null,
             'description' => $item['sinopsis'] ?? null,
             'edition_date' => $this->convertExcelDate($item['tanggal_terbit'] ?? null),
             'code' => $item['issn_eissn'] ?? null,
-            'code_type' => $item['issn_eiisn'] ? 3 : null,
+            'code_type' => $item['issn_eissn'] ? 3 : null,
             'status' => 2,
-            'create_by' => $history->CREATE_BY
+            'created_by' => $this->userId
         ];
     }
     protected function getHistory()
@@ -273,6 +337,16 @@ class ProcessZipJournalJob implements ShouldQueue
             SELECT *
             FROM e_zip_upload_history
             WHERE id = {$this->historyId}
+        ", true);
+    }
+
+    protected function getHistoryDetail($rowNumber)
+    {
+        return QueryAPI::get("
+            SELECT * 
+            FROM e_zip_upload_history_detail
+            WHERE zip_upload_history_id = {$this->historyId}
+            AND row_number_upload = {$rowNumber}
         ", true);
     }
 
@@ -291,6 +365,11 @@ class ProcessZipJournalJob implements ShouldQueue
     protected function findPdfFile($dir, $fileName)
     {
         $target = strtolower(trim($fileName));
+
+        // kalau belum ada .pdf → tambahin
+        if (!str_ends_with($target, '.pdf')) {
+            $target .= '.pdf';
+        }
 
         $files = collect(File::allFiles($dir));
 
@@ -335,5 +414,136 @@ class ProcessZipJournalJob implements ShouldQueue
         $text = trim($text, '_');
 
         return $text;
+    }
+
+    protected function redisRowKey($rowNumber)
+    {
+        return "zip_upload:{$this->historyId}:row:{$rowNumber}";
+    }
+
+    protected function redisSummaryKey()
+    {
+        return "zip_upload:{$this->historyId}:summary";
+    }
+
+    protected function setSummaryProgress(array $data)
+    {
+        $key = "zip_upload:{$this->historyId}:summary";
+        //Log::info($key);
+        $existing = Redis::get($key);
+        $existing = $existing ? json_decode($existing, true) : [];
+
+        $payload = array_merge($existing, $data, [
+            'updated_at' => now()->format('Y-m-d H:i:s'),
+        ]);
+
+        Redis::set($key, json_encode($payload, JSON_UNESCAPED_UNICODE));
+        Redis::expire($key, 86400);
+
+        //QueryAPI::update('e_zip_upload_history', $this->historyId, $data, false);
+    }
+    protected function incrementSummaryProgress(array $increments = [], array $extra = [])
+    {
+        $key = $this->redisSummaryKey();
+
+        $existing = Redis::get($key);
+        $existing = $existing ? json_decode($existing, true) : [];
+
+        $payload = array_merge([
+            'status' => 'processing',
+            'total_rows' => 0,
+            'processed_rows' => 0,
+            'success_rows' => 0,
+            'failed_rows' => 0,
+            'notes' => null,
+            'started_at' => null,
+            'finished_at' => null,
+        ], $existing);
+
+        foreach ($increments as $field => $value) {
+            $payload[$field] = ((int) ($payload[$field] ?? 0)) + (int) $value;
+        }
+
+        $payload = array_merge($payload, $extra, [
+            'updated_at' => now()->format('Y-m-d H:i:s'),
+        ]);
+
+        Redis::set($key, json_encode($payload, JSON_UNESCAPED_UNICODE));
+        Redis::expire($key, 86400);
+
+        return $payload;
+    }
+    protected function getSummaryProgress()
+    {
+        $key = $this->redisSummaryKey();
+
+        $summary = Redis::get($key);
+
+        return $summary ? json_decode($summary, true) : [];
+    }
+
+    protected function flushSummaryToDatabase(array $summary = [])
+    {
+        if (empty($summary)) {
+            $summary = $this->getSummaryProgress();
+        }
+
+        if (empty($summary)) {
+            return;
+        }
+
+        QueryAPI::update('e_zip_upload_history', $this->historyId, [
+            'status' => $summary['status'] ?? null,
+            'total_rows' => $summary['total_rows'] ?? 0,
+            'processed_rows' => $summary['processed_rows'] ?? 0,
+            'success_rows' => $summary['success_rows'] ?? 0,
+            'failed_rows' => $summary['failed_rows'] ?? 0,
+            'notes' => $summary['notes'] ?? null,
+            'started_at' => $summary['started_at'] ?? null,
+            'finished_at' => $summary['finished_at'] ?? null,
+        ], false);
+    }
+    protected function setRowProgressToRedis($rowNumber, array $data)
+    {
+        $key = $this->redisRowKey($rowNumber);
+
+        $existing = Redis::get($key);
+        $existing = $existing ? json_decode($existing, true) : [];
+
+        $payload = array_merge($existing, $data, [
+            'row_number_upload' => $rowNumber,
+            'updated_at' => now()->format('Y-m-d H:i:s'),
+        ]);
+
+        Redis::set($key, json_encode($payload, JSON_UNESCAPED_UNICODE));
+        Redis::expire($key, 60 * 60 * 24); // 1 hari
+    }
+
+    protected function saveFinalDetailToDatabase($rowNumber, array $data)
+    {
+        $existingDetail = $this->getHistoryDetail($rowNumber);
+
+        $payload = [
+            'zip_upload_history_id' => $this->historyId,
+            'row_number_upload' => $rowNumber,
+            'title' => $data['title'] ?? null,
+            'file_name' => $data['file_name'] ?? null,
+            'status' => $data['status'] ?? null,
+            'message' => $data['message'] ?? null,
+            'e_collection_id' => $data['e_collection_id'] ?? null,
+        ];
+
+        if ($existingDetail && isset($existingDetail->ID)) {
+            QueryAPI::update('e_zip_upload_history_detail', $existingDetail->ID, $payload);
+            return $existingDetail->ID;
+        }
+
+        $detail = QueryAPI::create('e_zip_upload_history_detail', $payload);
+
+        if (!$detail || !isset($detail->ID)) {
+            throw new \Exception('Gagal menyimpan detail histori final');
+        }
+
+        return $detail->ID;
     }
 }

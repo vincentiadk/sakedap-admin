@@ -281,7 +281,9 @@ Route::middleware('authentication')->group(function () {
             Route::post('/store', 'JournalUploadController@store')->name('journal.zip.store');
             Route::get('/progress/{id}', 'JournalUploadController@progress')->name('journal.zip.progress');
             Route::get('/history/{id}', 'JournalUploadController@show')->name('journal.zip.show');
-        });
+            Route::post('/history/datatable/{id}', 'JournalUploadController@datatableShow');
+            Route::get('/history/progress-realtime/{id}', 'JournalUploadController@progressRealtime')->name('journal.zip.progress-realtime');
+            });
     });
 
     Route::prefix('bill-isbn')->group(function () {

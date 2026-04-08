@@ -80,10 +80,10 @@ class AcceptEditionController extends Controller
         if ($request->year) {
             $whereCondition[] = "e.publishyear = $request->year";
         }
-
-        if ($request->media_id) {
+        $whereCondition[] = "e.collection_media_id = 203";
+        /*if ($request->media_id) {
             $whereCondition[] = "e.collection_media_id = $request->media_id";
-        }
+        }*/
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -163,12 +163,12 @@ class AcceptEditionController extends Controller
                                 catalogs.title,
                                 catalogs.isbn,
                                 e.created_at,
-                                e.penerbit_id,
+                                e.penerbit_id, e.code,
                                 penerbit.name as name_penerbit,
                                 collectionmedias.name as name_media,e.edition, e.serial,
                                 e.received_at as received_at_e_collection,
                                 e.article_title, e.article_contributor, e.article_subject, 
-                                e.article_original_link, e.article_doi, e.keterangan,
+                                e.article_original_link, e.article_doi, e.description,
                                 e.article_publish_date, e.deposit
                             from
                                 e_collections e

@@ -182,6 +182,13 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'zip-upload' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/zip-upload.log'),
+            'days' => 7,
+            'level' => 'debug',
+        ],
+
     ],
 
 ];
