@@ -75,9 +75,79 @@
         <div class="card-footer">
             <button type="submit" class="btn btn-primary" id="btnUpload" disabled>Upload ZIP</button>
         </div>     
-    </form>
+        </form>
     </div>
-
+    <div class="card border-0 shadow-sm">
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-funnel me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Filter Pencarian</h6>
+                </div>
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="ph-caret-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="form-filter">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-calendar me-1"></i>
+                                Tanggal
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph-calendar-blank"></i>
+                                </span>
+                                <input type="text" class="form-control" name="date" id="date" placeholder="Pilih tanggal">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Pelaksana Serah
+                            </label>
+                            <select class="form-select" name="executor_id" id="executor_id" data-placeholder="Semua Pelaksana"></select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-book me-1"></i> Nama Zip
+                            </label>
+                            <input type="text" class="form-control" name="zip_name" id="zip_name" placeholder="Cari Zip">
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Status
+                            </label>
+                            <select class="form-select" name="status" id="status" data-placeholder="Semua Status">
+                                <option value="">semua</option>
+                                <option>queued</option>
+                                <option>processing</option>
+                                <option>done_with_error</option>
+                                <option>done</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-top">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('digital-storage-handover/accept') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                        <i class="ph-arrow-counter-clockwise me-1"></i>
+                        Reset Filter
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="loadData()">
+                        <i class="ph-magnifying-glass me-1"></i>
+                        Cari Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card mb-4" id="progressCard" style="display:none;">
         <div class="card-header">Progress Upload</div>
         <div class="card-body">
@@ -102,15 +172,26 @@
                 <a href="#" id="detailLink" class="btn btn-outline-secondary btn-sm" target="_blank">Lihat Detail Histori</a>
             </div>
         </div>
-    </div>
-
+    </div>    
     <div class="card">
-        <div class="card-header">Riwayat Upload</div>
+        <div class="card-header border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="ph-clipboard-text me-1 text-primary"></i>
+                    <h6 class="mb-0 fw-semibold">Riwayat Upload</h6>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
+            </div>
+        </div>
         <div class="card-body table-responsive">
-            <table class="table table-bordered">
+            <table class="table table-hover table-bordered display nowrap w-100" id = datatable-serverside>
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Pelaksana Serah</th>
                         <th>Nama ZIP</th>
                         <th>Status</th>
                         <th>Total</th>
@@ -120,32 +201,32 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($histories ?? [] as $row)
-                    <tr>
-                        <td>{{ $row->ID }}</td>
-                        <td>{{ $row->ZIP_NAME }}</td>
-                        <td>{{ $row->STATUS }}</td>
-                        <td>{{ $row->TOTAL_ROWS }}</td>
-                        <td>{{ $row->PROCESSED_ROWS }}</td>
-                        <td>{{ $row->SUCCESS_ROWS }}</td>
-                        <td>{{ $row->FAILED_ROWS }}</td>
-                        <td>
-                            <a href="{{ route('journal.zip.show', $row->ID) }}" class="btn btn-sm btn-info" target="_blank">Detail</a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center">Belum ada histori upload</td>
-                    </tr>
-                    @endforelse
-                </tbody>
             </table>
         </div>
     </div>
 </div>
 <script>
 $(document).ready(function () {
+    datePickerBasic('#date');
+    if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
+        select2Serverside('#province_id', 'location', {
+                for: 'province',
+                province_id: '{{ session("province_id") }}',
+            }, {
+                minimumInputLength: 0
+        });
+        select2Serverside('#executor_id', 'executor', {
+                province_id: '{{ session("province_id") }}',
+        });
+    } else {
+        select2Serverside('#executor_id', 'executor');
+        select2Serverside('#province_id', 'location', {
+                for: 'province'
+            }, {
+                minimumInputLength: 0
+        });
+    }
+    loadData();
     function formatBytes(bytes) {
         if (!bytes || bytes === 0) return '0 B';
         const k = 1024;
@@ -153,7 +234,44 @@ $(document).ready(function () {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
     let progressInterval = null;
+    let isSubmitting = false;
+
+    function setUploadState(loading = false) {
+        isSubmitting = loading;
+
+        $('#btnUpload')
+            .prop('disabled', loading)
+            .html(loading
+                ? '<i class="ph-spinner spinner me-1"></i> Sedang upload...'
+                : 'Upload ZIP');
+
+        $('#pelaksana_serah_id').prop('disabled', loading);
+        $('#zip_file').prop('disabled', loading);
+        $('#removeFile').prop('disabled', loading);
+
+        if (loading) {
+            $('#dropArea').css({
+                'pointer-events': 'none',
+                'opacity': '0.7'
+            });
+        } else {
+            $('#dropArea').css({
+                'pointer-events': '',
+                'opacity': ''
+            });
+        }
+    }
+
+    function showProcessingAlert() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Upload berhasil',
+            text: 'File berhasil diunggah dan sedang diproses di background.',
+            confirmButtonText: 'OK'
+        });
+    }
 
     $('#pelaksana_serah_id').on('change', function () {
         const val = $(this).val();
@@ -165,13 +283,15 @@ $(document).ready(function () {
             $('#btnUpload').prop('disabled', true);
         }
     });
-    if(parseInt('{{ Main::isPerpusnas() }}') == 0) {
+
+    if (parseInt('{{ Main::isPerpusnas() }}') == 0) {
         select2Serverside('#pelaksana_serah_id', 'executor', {
             province_id: '{{ session("province_id") }}',
         });
     } else {
         select2Serverside('#pelaksana_serah_id', 'executor');
     }
+
     function showFilePreview(file) {
         $('#fileName').text(file.name);
         $('#fileSize').text(formatBytes(file.size));
@@ -196,12 +316,14 @@ $(document).ready(function () {
     $('#removeFile').on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
+        if (isSubmitting) return;
         resetFilePreview();
     });
 
     $('#dropArea').on('dragover', function (e) {
         e.preventDefault();
         e.stopPropagation();
+        if (isSubmitting) return;
         $(this).addClass('bg-light');
     });
 
@@ -214,6 +336,8 @@ $(document).ready(function () {
     $('#dropArea').on('drop', function (e) {
         e.preventDefault();
         e.stopPropagation();
+        if (isSubmitting) return;
+
         $(this).removeClass('bg-light');
 
         const files = e.originalEvent.dataTransfer.files;
@@ -222,12 +346,28 @@ $(document).ready(function () {
             showFilePreview(files[0]);
         }
     });
+
     $('#zipUploadForm').on('submit', function (e) {
         e.preventDefault();
 
+        if (isSubmitting) return;
+
         let formData = new FormData(this);
+
         $('.invalid-feedback').remove();
-        $('.is-invalid').removeClass('is-invalid')
+        $('.is-invalid').removeClass('is-invalid');
+
+        setUploadState(true);
+
+        Swal.fire({
+            title: 'Sedang upload...',
+            text: 'Mohon tunggu, file sedang dikirim.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         $.ajax({
             url: "{{ route('journal.zip.store') }}",
             method: "POST",
@@ -235,13 +375,21 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (res) {
-                alert(res.message);
+                Swal.close();
+
                 $('#progressCard').show();
                 $('#detailLink').attr('href', res.detail_url);
-                startProgressPolling(res.history_id);
+
                 resetZipForm();
+                setUploadState(false);
+
+                showProcessingAlert();
+                startProgressPolling(res.history_id);
             },
             error: function (xhr) {
+                Swal.close();
+                setUploadState(false);
+
                 if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
 
@@ -261,15 +409,20 @@ $(document).ready(function () {
                     return;
                 }
 
-                alert(xhr.responseJSON?.message || 'Terjadi kesalahan');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: xhr.responseJSON?.message || 'Terjadi kesalahan'
+                });
             }
         });
     });
 
     function startProgressPolling(historyId) {
         if (progressInterval) clearInterval(progressInterval);
+
         progressInterval = setInterval(function () {
-            $.get("{{ url('digital-storage-handover/journal/zip-upload/progress') }}" + '/'+ historyId, function (res) {
+            $.get("{{ url('digital-storage-handover/journal/zip-upload/progress') }}/" + historyId, function (res) {
                 $('#statusText').text(res.status);
                 $('#totalRows').text(res.total_rows);
                 $('#processedRows').text(res.processed_rows);
@@ -282,18 +435,93 @@ $(document).ready(function () {
 
                 if (['done', 'done_with_error', 'failed'].includes(res.status)) {
                     clearInterval(progressInterval);
+
+                    let icon = res.status === 'done' ? 'success' : 'warning';
+                    let text = res.status === 'done'
+                        ? 'Semua data selesai diproses.'
+                        : 'Proses selesai, tetapi ada beberapa data yang gagal.';
+
+                    Swal.fire({
+                        icon: icon,
+                        title: 'Proses selesai',
+                        text: text
+                    });
                 }
             });
         }, 2000);
     }
+
     function resetZipForm() {
         $('#zipUploadForm')[0].reset();
-        // reset preview file
         resetFilePreview();
-        // hide area upload zip lagi
-        //$('#zipArea').hide();
-        // disable tombol upload
-        //$('#btnUpload').prop('disabled', true);
     }
 });
+function updateRecordCount(count) {
+    $('#record-count').text(count || 0);
+}
+function loadData() {
+        if ($.fn.DataTable.isDataTable('#datatable-serverside')) {
+            window.gDataTable.ajax.reload();
+            return;
+        }
+        window.gDataTable = $('#datatable-serverside').DataTable({
+            processing: true,
+            serverSide: true,
+            deferRender: true,
+            scrollX: true,
+            destroy: true,
+            order: [[1, 'desc']],
+            ajax: {
+                url: '{{ url("digital-storage-handover/journal/zip-upload/datatable") }}',
+                dataType: 'JSON',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    $('#form-filter').serializeArray().forEach(function(item) {
+                        d[item.name] = item.value;
+                    });
+
+                    return d;
+                },
+                beforeSend: function() {
+                    onLoading('show', '#datatable-serverside_wrapper');
+                },
+                error: function(response) {
+                    onLoading('close', '#datatable-serverside_wrapper');
+                    responseError(response);
+                }
+            },
+            columns: [
+                { orderable: false, className: 'align-middle text-center fw-semibold' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle text-wrap' },
+            ],
+            initComplete: function (settings, json) {
+                var table = this.api();
+                const searchInput = $('div.dataTables_filter input');
+
+                searchInput.off().unbind();
+
+                searchInput.on('keyup', debounce(function () {
+                    table.search(this.value).draw();
+                }, 500));
+
+                updateRecordCount(json ? json.recordsFiltered : 0);
+            },
+            drawCallback: function(settings) {
+                var api = this.api();
+                updateRecordCount(api.page.info().recordsDisplay);
+            }
+        }).on('draw.dt', function() {
+            onLoading('close', '#datatable-serverside_wrapper');
+        });
+    }
 </script>

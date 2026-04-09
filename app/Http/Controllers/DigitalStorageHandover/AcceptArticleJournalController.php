@@ -28,6 +28,10 @@ class AcceptArticleJournalController extends Controller
                     'datatable',
                     'daterangepicker',
                     'select2',
+                    'epubjs',
+                    'videojs',
+                    'pdfjs',
+                    'howlerjs',
                 ]
             ]
         ]);
@@ -230,7 +234,7 @@ class AcceptArticleJournalController extends Controller
                 $start++;
             }
         }
-        //Log::info($data);
+        
         return response()->json([
             'draw' => $draw,
             'recordsTotal' => $totalData,
@@ -244,11 +248,40 @@ class AcceptArticleJournalController extends Controller
         $id = $request->id;
         $data = QueryAPI::get("
         select ec.*, u.fullname as createbyname,
-        p.name as penerbitname 
-        from e_collections ec 
-        left join users u on u.id = ec.created_by 
-        left join penerbit p on p.id = ec.penerbit_id
-        where ec.id = {$id}", true);
+            p.name as penerbitname,
+            ccr.id as id_catalogcovers,
+            ccr.fileurl as fileurl_catalogcovers,
+            ccr.hash as hash_catalogcovers,
+            ccr.mime as mime_catalogcovers,
+            ccr.file_size as file_size_catalogcovers,
+            ccr.method as method_catalogcovers,
+            cfr.id as id_catalogfiles,
+            cfr.fileurl as fileurl_catalogfiles,
+            cfr.hash as hash_catalogfiles,
+            cfr.mime as mime_catalogfiles,
+            cfr.file_size as file_size_catalogfiles,
+            cfr.method as method_catalogfiles     
+            from e_collections ec 
+            left join users u on u.id = ec.created_by 
+            left join penerbit p on p.id = ec.penerbit_id
+            left join
+                (
+                    select
+                        cf.e_col_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
+                        row_number() over (partition by cf.e_col_id order by cf.id desc) as rn
+                    from
+                        catalogfiles cf
+                ) cfr on cfr.e_col_id = ec.id and cfr.rn = 1
+            left join
+                (
+                    select
+                        cc.e_col_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
+                        row_number() over (partition by cc.e_col_id order by cc.id desc) as rn
+                    from
+                        catalogcovers cc
+                ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
+            where ec.id = {$id}", 
+            true);
         if($data) {
             return response()->json([
                 'code' => 200,

@@ -12,23 +12,10 @@ use Illuminate\Support\Facades\Redis;
 
 class JournalUploadController extends Controller
 {
-   public function index()
+    public function index()
     {
-        $sql = "
-            SELECT *
-            FROM (
-                SELECT *
-                FROM e_zip_upload_history
-                where created_by = '" . session('username') . "'
-                ORDER BY id DESC
-            )
-            WHERE ROWNUM <= 20
-        ";
-        $histories = QueryAPI::get($sql);
-        //Log::info($sql);
         return view('layouts.index', [
             'data' => [
-                'histories' => $histories,
                 'content' => 'digital-storage-handover.journal-upload',
                 'plugins' => [
                     'datatable',
@@ -36,6 +23,141 @@ class JournalUploadController extends Controller
                     'select2',
                 ]
             ]
+        ]);
+    }
+
+    public function datatable(Request $request)
+    {
+        $column = [
+            'zu.id',
+            'p.name',
+            'zu.zip_name',
+            'zu.status',
+            'zu.total_rows',
+            'zu.processed_rows',
+            'zu.success_rows',
+            'zu.failed_rows',
+            'zu.creted_at',
+            null
+        ];
+
+        $draw = intval($request->draw ?? 0);
+        $start = intval($request->start ?? 0);
+        $length = $start + intval($request->length ?? 10);
+
+        $data = [];
+        $search = strtoupper($request->search['value']);
+
+        $orderBy = '';
+        $order = $request->order;
+
+        $whereClause = "";
+        $whereCondition[] = "";
+        if ($search) {
+            $terms = [];
+
+            foreach ($column as $c) {
+                if ($c) {
+                    $terms[] = "upper($c) like '%$search%'";
+                }
+            }
+
+            $whereCondition[] = '(' . implode(' or ', $terms) . ')';
+        }
+        
+        if ($request->zip_name) {
+            $zip_name = strtoupper($request->zip_name);
+            $whereCondition[] = "upper(zu.zip_name) like '%$zip_name%'";
+        }
+
+        if ($request->executor_id) {
+            $whereCondition[] = "zu.penerbit_id = $request->executor_id";
+        }
+        if ($request->status) {
+            $whereCondition[] = "zu.status = '$request->status'";
+        }
+        if ($request->date) {
+            $explodeDate = explode(' - ', $request->date);
+            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+
+            $whereCondition[] = "(zu.created_at >= to_date('$startDate', 'YYYY-MM-DD') and zu.created_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+        }
+
+        if ($whereCondition) {
+            $whereClause = "where created_by = '" . session('username'). "' " . implode(' and ', $whereCondition);
+        }
+        if ($order) {
+            $orderColumnIndex = $order[0]['column'];
+            $orderDir = $order[0]['dir'];
+            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
+        }
+
+        $totalData = QueryAPI::get("
+            select
+                count(*) as total
+            from
+                e_zip_upload_history
+            where
+                where created_by = '" . session('username'). "'
+        ", true)->TOTAL ?? 0;
+
+        $totalFiltered = QueryAPI::get("
+            select
+                count(*) as total
+            from
+                e_zip_upload_history zu
+            left join penerbit p on zu.penerbit_id = p.id
+            $whereClause
+        ", true)->TOTAL ?? 0;
+        $sql = "
+            select
+                *
+            from (
+                    select
+                        rownum as rnum,
+                        data.*
+                    from
+                        (
+                            select 
+                                zu.*, p.name as penerbitname
+                            from
+                                e_zip_upload_history zu
+                            left join penerbit p on zu.penerbit_id = p.id
+                            $whereClause
+                            $orderBy
+                        ) data
+                    where
+                        rownum <= $length
+                )
+            where
+                rnum > $start
+        ";
+        $queryData = QueryAPI::get($sql);
+        
+        if ($queryData) {
+            foreach ($queryData as $val) {
+                $data[] = [
+                    $val->ID,
+                    $val->PENERBITNAME,
+                    $val->ZIP_NAME,
+                    $val->STATUS,
+                    $val->TOTAL_ROWS,
+                    $val->PROCESSED_ROWS,
+                    $val->SUCCESS_ROWS,
+                    $val->FAILED_ROWS,
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y')
+                ];
+
+                $start++;
+            }
+        }
+        
+        return response()->json([
+            'draw' => $draw,
+            'recordsTotal' => $totalData,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $data
         ]);
     }
 
@@ -236,7 +358,7 @@ class JournalUploadController extends Controller
             where
                 rnum > $start
         ";
-        //Log::info($sql);
+        
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {

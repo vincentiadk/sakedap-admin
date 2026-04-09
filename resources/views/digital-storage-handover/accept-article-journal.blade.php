@@ -419,8 +419,8 @@
                         : '-';
 
                     const katalog = data.CATALOG_ID
-                        ? `<iframe 
-                                src="https://inlis-backup.perpusnas.go.id/inlisnew/KatalogDetailView.aspx?id=${data.CATALOG_ID}" 
+                        ? `<iframe ;
+                                src="{{ config('inlis.base_url') . '/KatalogDetailView.aspx?id=${data.CATALOG_ID}D&l=' . Main::credentialInlisIFrame() }} "
                                 width="100%" 
                                 height="500" 
                                 style="border:1px solid #dee2e6; border-radius:10px; background:#fff;">
@@ -538,6 +538,27 @@
                                     grid-template-columns: 1fr;
                                 }
                             }
+                            .swal2-close {
+                                font-size: 20px !important;
+                                color: #6c757d !important;
+                            }
+
+                            .swal2-close:hover {
+                                color: #000 !important;
+                            }
+                            .swal2-header {
+                                position: relative;
+                            }
+
+                            .swal2-close {
+                                display: flex !important;
+                                position: absolute;
+                                top: 10px;
+                                right: 15px;
+                                font-size: 35px !important;
+                                color: #6c757d !important;
+                                z-index: 9999;
+                            }
                         </style>
 
                         <div class="swal-detail-wrap">
@@ -580,6 +601,10 @@
                                         <div class="abstract-box">
                                             ${safe(data.ARTICLE_ABSTRACT)}
                                         </div>
+                                    </div>
+                                    <div class="detail-card">
+                                        <div class="section-title">Preview File</div>
+                                        ${buildViewerHtml()}
                                     </div>
 
                                     <div class="detail-card">
@@ -630,16 +655,21 @@
                             </div>
                         </div>
                     `;
-
+                    
                     swalInit.fire({
-                        title: '',
+                        title: '<span style="font-size:30px;">Detail Artikel Jurnal</span>',
                         html: html,
                         width: '95%',
                         confirmButtonText: 'Tutup',
                         showCloseButton: true,
                         showConfirmButton: true,
-                        customClass: {
-                            popup: 'p-2'
+                        allowOutsideClick: true,
+                        allowEscapeKey: true,
+                        //customClass: {
+                        //    popup: 'p-2'
+                        //},
+                        didOpen: () => {
+                            initSwalUniversalViewer(`{{ url('stream-file') }}?type=konten_digital&id=${data.ID_CATALOGFILES}&filename=${data.FILEURL_CATALOGFILES}`);
                         }
                     });
                 } else {
@@ -654,6 +684,125 @@
             error: function(response) {
                 responseError(response);
             }
+        });
+    }
+    function initSwalUniversalViewer(fileUrl) {
+        if (!fileUrl) {
+            $('#swal-default-message span').text('Preview file tidak tersedia.');
+            return;
+        }
+
+        const cleanUrl = fileUrl.split('=')[3];
+        const ext = cleanUrl.split('.').pop().toLowerCase();
+
+        loadSwalUniversalViewer(fileUrl, ext);
+    }
+    let swalPdfDoc = null;
+    let swalPdfScaleMultiplier = 1;
+
+    function loadSwalUniversalViewer(url, ext) {
+        $('#swal-pdf-viewer-container, #swal-video-player, #swal-epub-container, #swal-audio-wrapper').hide();
+        $('#swal-pdf-controls, #swal-epub-controls').hide();
+        $('#swal-default-message').show().find('span').text('Memuat file...');
+
+        switch (ext) {
+            case 'pdf':
+                renderSwalPdf(url);
+                break;
+            case 'mp4':
+            case 'webm':
+                renderSwalVideo(url, ext);
+                break;
+            case 'mp3':
+            case 'wav':
+            case 'ogg':
+                renderSwalAudio(url, ext);
+                break;
+            case 'epub':
+                renderSwalEpub(url);
+                break;
+            default:
+                $('#swal-default-message').show().find('span').text('Preview tidak didukung untuk format: .' + ext);
+                break;
+        }
+    }
+    function renderSwalPdf(url) {
+        const $container = $('#swal-pdf-viewer-container');
+
+        $('#swal-default-message').hide();
+        $container.css({
+            display: 'block',
+            width: '100%',
+            height: '700px',
+            overflowY: 'auto',
+            background: '#525659',
+            padding: '20px 0'
+        }).empty();
+
+        $('#swal-pdf-controls').css('display', 'flex');
+        swalPdfScaleMultiplier = 1;
+
+        const loadingTask = window.pdfjsLib.getDocument(url);
+
+        loadingTask.promise.then(async function(pdf) {
+            swalPdfDoc = pdf;
+            $('#swal-total-pages-num').text(pdf.numPages);
+            $('#swal-current-page-num').text(1);
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                await renderSwalPdfPage(pdf, pageNum, $container);
+            }
+        }).catch(function() {
+            $('#swal-default-message').show().find('span').text('Gagal memuat PDF.');
+            $container.hide();
+            $('#swal-pdf-controls').hide();
+        });
+    }
+
+    function renderSwalPdfPage(pdf, pageNumber, $container) {
+        return pdf.getPage(pageNumber).then(function(page) {
+            let availableWidth = ($container[0].clientWidth || 800) - 40;
+            let availableHeight = 700 - 40;
+
+            const unscaledViewport = page.getViewport({ scale: 1 });
+            const scaleX = availableWidth / unscaledViewport.width;
+            const scaleY = availableHeight / unscaledViewport.height;
+            const baseScale = availableWidth / unscaledViewport.width;
+            const devicePixelRatio = window.devicePixelRatio || 1;
+            const viewport = page.getViewport({ scale: baseScale * devicePixelRatio });
+
+            const $pageWrapper = $('<div/>', {
+                class: 'swal-pdf-page-wrapper',
+                id: 'swal-pdf-page-wrapper-' + pageNumber,
+                'data-orig-width': viewport.width,
+                'data-orig-height': viewport.height,
+                style: `
+                    position: relative;
+                    margin: 0 auto 20px auto;
+                    display: flex;
+                    justify-content: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                    width: ${viewport.width}px;
+                    height: ${viewport.height}px;
+                    background-color: white;
+                    scroll-snap-align: center;
+                    flex-shrink: 0;
+                `
+            });
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.style.width = (viewport.width / devicePixelRatio) + "px";
+            canvas.style.height = (viewport.height / devicePixelRatio) + "px";
+            $pageWrapper.append(canvas);
+            $container.append($pageWrapper);
+
+            return page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
         });
     }
     function buildViewerHtml() {
@@ -737,4 +886,34 @@
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
     }
+    $(document).on('click', '#swal-btn-pdf-zoom-in', function() {
+    if (swalPdfScaleMultiplier < 3) {
+        swalPdfScaleMultiplier += 0.25;
+        applySwalPdfZoom();
+    }
+});
+
+$(document).on('click', '#swal-btn-pdf-zoom-out', function() {
+    if (swalPdfScaleMultiplier > 0.5) {
+        swalPdfScaleMultiplier -= 0.25;
+        applySwalPdfZoom();
+    }
+});
+
+$(document).on('click', '#swal-btn-pdf-fit', function() {
+    swalPdfScaleMultiplier = 1;
+    applySwalPdfZoom();
+});
+
+function applySwalPdfZoom() {
+    $('.swal-pdf-page-wrapper').each(function() {
+        const originalWidth = $(this).data('orig-width');
+        const originalHeight = $(this).data('orig-height');
+
+        $(this).css({
+            width: (originalWidth * swalPdfScaleMultiplier) + 'px',
+            height: (originalHeight * swalPdfScaleMultiplier) + 'px'
+        });
+    });
+}
 </script>
