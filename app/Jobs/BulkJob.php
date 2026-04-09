@@ -320,7 +320,7 @@ class BulkJob implements ShouldQueue
                     'type' => $file['type'],
                     'id' => $collectionData->ID,
                     'status' => 1,
-                    'hash' => md5($file['hash_prefix'] . $collectionData->SLUG),
+                    'hash' => md5_file($file['filePath']),
                     'mime' => $mimeType,
                     'filesize' => $fileSize,
                     'method' => 7,
