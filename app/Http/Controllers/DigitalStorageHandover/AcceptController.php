@@ -227,6 +227,7 @@ class AcceptController extends Controller
                 c.*,
                 p.name as name_penerbit,
                 k.namakab as namakab,
+                ec.id as e_collections_id,
                 pr.namapropinsi as namapropinsi,
                 ec.code_type as code_type_e_collection,
                 ec.collection_media_id as cm_id_e_col,
