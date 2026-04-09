@@ -421,7 +421,7 @@
 
                     const katalog = data.CATALOG_ID
                         ? `<iframe ;
-                                src="{{ config('inlis.base_url') . '/KatalogDetailView.aspx?id=${data.CATALOG_ID}D&l=' . Main::credentialInlisIFrame() }} "
+                                src="{{ config('inlis.base_url') . '/KatalogDetailView.aspx?id=${data.CATALOG_ID}&l=' . Main::credentialInlisIFrame() }} "
                                 width="100%" 
                                 height="500" 
                                 style="border:1px solid #dee2e6; border-radius:10px; background:#fff;">
