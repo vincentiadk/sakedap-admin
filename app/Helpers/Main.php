@@ -353,6 +353,7 @@ class Main
                     'branch_id' => $user->BRANCH_ID ?: 37,
                     'branch_name' => $user->NAME_BRANCH ?: 'Perpustakaan Nasional',
                     'role_id' => $user->ROLE_ID ?: 1,
+                    'last_change_password' => $user->LASTCHANGEPASSWORD ?: null,
                 ]);
 
                 $response = true;

@@ -388,6 +388,18 @@
 			</ul>
 		</div>
 	</div>
+    @if(config('last_change_password_text'))
+        <div class="navbar navbar-expand bg-warning p-0 iframeable border-bottom border-dark-subtle shadow-sm">
+            <div class="container-fluid d-flex justify-content-center align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-exclamation-circle text-dark animate__animated animate__pulse animate__infinite"></i>
+                    <small class="text-white">
+                        {{ config('last_change_password_text') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="page-content">
         <div class="content-wrapper">
             <div class="content-inner">

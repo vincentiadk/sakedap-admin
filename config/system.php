@@ -22,4 +22,5 @@ return [
     'total_delivery_verification' => 0,
     'total_delivery_sent' => 0,
     'total_in_delivery' => 0,
+    'deadline_change_password_text' => '',
 ];

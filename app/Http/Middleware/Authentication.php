@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Carbon\Carbon;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,28 @@ class Authentication
 
         if ($id) {
             if (session('id')) {
+                $maxDays = QueryAPI::get("select * from setting_parameters where name = 'PasswordExpiredDay'", true)->VALUE ?? 60;
+                $warningBefore = QueryAPI::get("select * from setting_parameters where name = 'PasswordWarningDay'", true)->VALUE ?? 7;
+                $lastChangeSession = session('last_change_password');
+
+                $notificationText = null;
+
+                if ($lastChangeSession) {
+                    $lastChange = Carbon::parse($lastChangeSession);
+                    $expiryDate = $lastChange->copy()->addDays($maxDays);
+                    $daysRemaining = Carbon::now()->startOfDay()->diffInDays($expiryDate, false);
+
+                    if ($daysRemaining == 0) {
+                        $notificationText = 'Hari ini adalah hari terakhir untuk memperbarui password Anda.';
+                    } elseif ($daysRemaining < 0) {
+                        $notificationText = 'Masa berlaku password Anda telah habis ' . $expiryDate->diffForHumans() . '. Segera ubah!';
+                    } elseif ($daysRemaining <= $warningBefore) {
+                        $notificationText = 'Password Anda akan kedaluwarsa ' . $expiryDate->diffForHumans();
+                    }
+                }
+
+                config(['deadline_change_password_text' => $notificationText]);
+
                 $whereClause = '';
 
                 if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
