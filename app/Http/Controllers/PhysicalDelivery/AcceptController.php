@@ -451,13 +451,21 @@ class AcceptController extends Controller
                 <small><i>Email ini dikirim secara otomatis oleh sistem. Mohon untuk tidak membalas email ini.</i></small>
             ";
 
-            Mail::send([], [], function ($message) use ($letter, $pdfPath, $emailSubject, $emailBody, $receiptNo) {
+            if (!is_readable($pdfPath)) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'File lampiran bermasalah'
+                ]);
+            }
+
+            $pdfContent = file_get_contents($pdfPath);
+
+            Mail::send([], [], function ($message) use ($letter, $pdfContent, $emailSubject, $emailBody, $receiptNo) {
                 $message->to($letter->EMAIL_PENERBIT, $letter->NAME_PENERBIT)
                     ->subject($emailSubject)
                     ->from(config('mail.from.address'), config('mail.from.name'))
                     ->html($emailBody)
-                    ->attach($pdfPath, [
-                        'as' => 'Resi_Penerimaan_' . str_replace('/', '_', $receiptNo) . '.pdf',
+                    ->attachData($pdfContent, 'Resi_Penerimaan_' . str_replace('/', '_', $receiptNo) . '.pdf', [
                         'mime' => 'application/pdf',
                     ]);
             });
@@ -556,15 +564,15 @@ class AcceptController extends Controller
     private function generatePDF($letterId)
     {
         try {
-            $cleanBase64Image = function($base64String) {
+            $cleanBase64Image = function ($base64String) {
                 if (empty($base64String) || strlen($base64String) < 100) return $base64String;
-                
+
                 if (!extension_loaded('gd')) return $base64String;
 
                 try {
                     $parts = explode(',', $base64String);
                     $imgData = base64_decode(end($parts));
-                    
+
                     if (!$imgData) return $base64String;
 
                     $src = @imagecreatefromstring($imgData);
@@ -572,12 +580,12 @@ class AcceptController extends Controller
                     if ($src) {
                         ob_start();
                         imagesavealpha($src, true);
-                        imagepng($src, null, 0); 
+                        imagepng($src, null, 0);
 
                         $cleanData = ob_get_clean();
 
                         imagedestroy($src);
-                        
+
                         return 'data:image/png;base64,' . base64_encode($cleanData);
                     }
                 } catch (\Exception $e) {
@@ -707,14 +715,15 @@ class AcceptController extends Controller
 
             $htmlContent = Main::parseTemplateEmail($dataParseTemplate, $templateEmailContent);
             $finalHtml = '
-            <style>
-                table { border-collapse: collapse; padding: 0; margin: 0; }
-                td { vertical-align: top; }
-                body { font-family: helvetica; font-size: 10pt; }
-            </style>
-            <table border="0" cellspacing="0" cellpadding="0" width="100%">
-                <tr><td>' . $htmlContent . '</td></tr>
-            </table>';
+                <style>
+                    table { border-collapse: collapse; padding: 0; margin: 0; }
+                    td { vertical-align: top; }
+                    body { font-family: helvetica; font-size: 10pt; }
+                </style>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr><td>' . $htmlContent . '</td></tr>
+                </table>
+            ';
 
             $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
             $pdf->setPrintHeader(false);
@@ -741,15 +750,16 @@ class AcceptController extends Controller
             ", false, 15, 60);
 
             $htmlCollections = '
-            <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
-                <tr style="background-color:#f0f0f0; font-weight:bold;">
-                    <th width="5%" align="center">No</th>
-                    <th width="15%" align="center">Tgl Terima</th>
-                    <th width="40%" align="center">Judul</th>
-                    <th width="15%" align="center">Jenis</th>
-                    <th width="15%" align="center">ISBN</th>
-                    <th width="10%" align="center">Jml</th>
-                </tr>';
+                <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
+                    <tr style="background-color:#f0f0f0; font-weight:bold;">
+                        <th width="5%" align="center">No</th>
+                        <th width="15%" align="center">Tgl Terima</th>
+                        <th width="40%" align="center">Judul</th>
+                        <th width="15%" align="center">Jenis</th>
+                        <th width="15%" align="center">ISBN</th>
+                        <th width="10%" align="center">Jml</th>
+                    </tr>
+            ';
 
             if ($collections) {
                 foreach ($collections as $key => $c) {
