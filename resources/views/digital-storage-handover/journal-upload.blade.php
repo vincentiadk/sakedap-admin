@@ -7,7 +7,7 @@
         </div>
         <div class="d-lg-flex ms-lg-auto">
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ url('download/from-public') }}?path=assets/contoh-upload-jurnal.zip" target="_blank" class="btn btn-success btn-sm">
+                <a href="{{ url('download/from-public') }}?path=assets/contoh_upload_jurnal.zip" target="_blank" class="btn btn-success btn-sm">
                     <i class="ph-file-zip me-1"></i>
                     Contoh Upload Jurnal
                 </a>

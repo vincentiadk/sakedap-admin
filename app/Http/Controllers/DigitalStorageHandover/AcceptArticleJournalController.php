@@ -287,14 +287,26 @@ class AcceptArticleJournalController extends Controller
         $idCat = QueryAPI::get("
             SELECT id FROM catalogs WHERE edeposit_col_id = {$id}
         ", true);
+
+        
+
         
         $idFile = QueryAPI::get("
             SELECT id FROM catalogfiles WHERE e_col_id = {$id}
         ", true);
 
         try {
+           
             QueryAPI::delete('e_collections', $id);
             if($idCat) {
+                $idCols = QueryAPI::get("
+                    SELECT id FROM collections WHERE catalog_id = " . 
+                    $idCat->ID);
+                if($idCols) {
+                    foreach($idCols as $idCol){
+                        QueryAPI::delete('collections', $idCol->ID);
+                    }
+                }
                 QueryAPI::delete('catalogs', $idCat->ID);
             }
             if($idFile) {
