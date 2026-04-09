@@ -313,6 +313,7 @@
                                     showCloseButton: false
                                 });
                             }
+                            loadData();
                         },
                         error: function(response) {
                             onLoading('close', '.noty_bar');
