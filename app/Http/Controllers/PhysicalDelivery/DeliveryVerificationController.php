@@ -355,13 +355,13 @@ class DeliveryVerificationController extends Controller
         $draw = intval($request->draw ?? 0);
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
-        $search = strtoupper($request->search['value'] ?? '');
+        $search = strtoupper(str_replace('-','',trim($request->search['value'])) ?? '');
         $whereCondition = ["letter_id = " . intval($request->letter_id)];
 
         if ($search) {
             $terms = collect($column)
                 ->filter()
-                ->map(fn($c) => "upper($c) like '%$search%'")
+                ->map(fn($c) => "upper(replace($c, '-', '')) like '%$search%'")
                 ->toArray();
 
             if ($terms) {
@@ -397,7 +397,7 @@ class DeliveryVerificationController extends Controller
         ", true)->TOTAL ?? 0;
 
         $endRow = $start + $length;
-        $queryData = QueryAPI::get("
+        $sql = "
             select
                 *
             from (
@@ -417,7 +417,8 @@ class DeliveryVerificationController extends Controller
                 )
             where
                 rnum > $start
-        ");
+        ";
+        $queryData = QueryAPI::get($sql);
 
         $data = [];
 
