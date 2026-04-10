@@ -170,6 +170,61 @@
 </div>
 
 <script>
+    $(document).on('dblclick', '.inline-edit', function () {
+        let el = $(this);
+        if (el.hasClass('editing')) return;
+
+        let oldVal = el.text().trim() === '-' ? '' : el.text().trim();
+        let id = el.data('id');
+        let field = el.data('field');
+
+        let isLong = oldVal.length > 100 || el.hasClass('abstract-box');
+
+        let input;
+        if (field === 'edition_date') {
+            input = $('<input type="date" class="inline-input">').val(toInputDate(oldVal));
+        } else {
+            input = isLong
+                ? $('<textarea class="inline-input" row="5"></textarea>').val(oldVal)
+                : $('<input type="text" class="inline-input">').val(oldVal);
+        }
+
+        el.addClass('editing').html(input);
+        input.focus();
+
+        input.on('blur', function () {
+            let newVal = $(this).val().trim();
+
+            if (newVal === oldVal) {
+                el.removeClass('editing').text(oldVal || '-');
+                return;
+            }
+
+            // efek merah + miring (lagi save)
+            el.removeClass('editing').addClass('saving').html(renderVal(field, newVal));
+
+            $.ajax({
+                url: '{{ url("digital-storage-handover/accept-article-journal/update-inline-field") }}',
+                type: 'POST',
+                data: {
+                    id: id,
+                    field: field,
+                    value: newVal,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (res) {
+                    //el.removeClass('saving').text(newVal || '-');
+                    el.removeClass('saving').html(renderVal(field, newVal));
+                    loadData();
+                },
+                error: function () {
+                    //el.removeClass('saving').text(oldVal || '-');
+                    el.removeClass('saving').html(renderVal(field, oldVal));
+                    alert('Gagal simpan');
+                }
+            });
+        });
+    });
     $(function() {
         datePickerBasic('#date');
 
@@ -416,7 +471,7 @@
                         : '-';
 
                     const fileLink = data.ARTICLE_FILE_LINK
-                        ? `<a href="${data.ARTICLE_FILE_LINK}" target="_blank" class="meta-link">Download File</a>`
+                        ? `<a href="${data.ARTICLE_FILE_LINK}" target="_blank" class="meta-link">${data.ARTICLE_FILE_LINK}</a>`
                         : '-';
 
                     const katalog = data.CATALOG_ID
@@ -427,7 +482,14 @@
                                 style="border:1px solid #dee2e6; border-radius:10px; background:#fff;">
                         </iframe>`
                         : `<div class="empty-box">Data katalog tidak tersedia</div>`;
-
+                    const verifyWarning = data.IS_NEED_VERIFY == 1
+                        ? `
+                            <div class="alert alert-warning border-warning-subtle mb-3" id="verify-warning-box">
+                                <i class="ph-warning-circle me-1"></i>
+                                Perubahan metadata terdeteksi. <strong>Data ini perlu diverifikasi ulang ke katalog</strong>.
+                            </div>
+                        `
+                        : '';
                     let html = `
                         <style>
                             .swal-detail-wrap {
@@ -560,6 +622,23 @@
                                 color: #6c757d !important;
                                 z-index: 9999;
                             }
+                            .inline-input {
+                                width: 100%;
+                                border: 1px solid #dc3545;
+                                border-radius: 6px;
+                                padding: 6px;
+                                font-style: italic;
+                            }
+
+                            .inline-edit:hover {
+                                background: #fff3cd;
+                                cursor: pointer;
+                            }
+
+                            .inline-edit.saving {
+                                color: #dc3545;
+                                font-style: italic;
+                            }
                         </style>
 
                         <div class="swal-detail-wrap">
@@ -567,27 +646,29 @@
 
                                 <div class="swal-detail-main">
                                     <div class="detail-card">
-                                        <div class="detail-title">${safe(data.ARTICLE_TITLE)}</div>
-                                        <div class="detail-subtitle">
+                                    ${verifyWarning}
+                                        <div class="detail-title inline-edit" data-id="${data.ID}"  data-field="article_title">${safe(data.ARTICLE_TITLE)}
+                                        </div>
+                                        <div class="detail-subtitle inline-edit" data-id="${data.ID}"  data-field="article_contributor">
                                             ${safe(data.ARTICLE_CONTRIBUTOR)}
                                         </div>
 
                                         <div class="section-title">Metadata Artikel</div>
                                         <div class="meta-list">
-                                        
                                             <div class="meta-label">DOI</div>
-                                            <div class="meta-value">${doi}</div>
+                                            <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_doi">${doi}</div>
 
-                                            <div class="meta-label">Link Artikel</div>
-                                            <div class="meta-value">${articleLink}</div>
+                                            <div class="meta-label" >Link Artikel</div>
+                                            <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_original_link">${articleLink}</div>
 
                                             <div class="meta-label">Link File</div>
-                                            <div class="meta-value">${fileLink}</div>
+                                            <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_file_link">${fileLink}</div>
 
                                             <div class="meta-label">Tanggal Terima</div>
-                                            <div class="meta-value">${safe(data.RECEIVED_AT)}</div>
+                                            <div class="meta-value">${safe(data.RECEIVED_AT_FORMATTED)}</div>
+
                                             <div class="meta-label">Tanggal Publikasi</div>
-                                            <div class="meta-value">${safe(data.EDITION_DATE)}</div>
+                                            <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="edition_date">${safe(data.EDITION_DATE_FORMATTED)}</div>
                                             
                                             <div class="meta-label">Catalog ID</div>
                                             <div class="meta-value">${safe(data.CATALOG_ID)}</div>
@@ -599,7 +680,7 @@
 
                                     <div class="detail-card">
                                         <div class="section-title">Abstrak</div>
-                                        <div class="abstract-box">
+                                        <div class="abstract-box inline-edit data-id="${data.ID}"  data-field="article_abstract"">
                                             ${safe(data.ARTICLE_ABSTRACT)}
                                         </div>
                                     </div>
@@ -619,17 +700,16 @@
                                         <div class="section-title">Info Jurnal</div>
                                         <div class="side-info-item">
                                             <span class="side-info-label">Judul Jurnal</span>
-                                            <div class="side-info-value">${safe(data.TITLE)}</div>
+                                            <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="title">${safe(data.TITLE)}</div>
                                         </div>
                                     
-
                                         <div class="side-info-item">
                                             <span class="side-info-label">ISSN / EISSN</span>
-                                            <div class="side-info-value">${safe(data.CODE)}</div>
+                                            <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="code">${safe(data.CODE)}</div>
                                         </div>
                                         <div class="side-info-item">
                                             <span class="side-info-label">Volume</span>
-                                            <div class="side-info-value">${safe(data.VOLUME)}</div>
+                                            <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="volume">${safe(data.VOLUME)}</div>
                                         </div>
 
                                         <div class="side-info-item">
@@ -697,6 +777,37 @@
         const ext = cleanUrl.split('.').pop().toLowerCase();
 
         loadSwalUniversalViewer(fileUrl, ext);
+    }
+    function toInputDate(val) {
+        if (!val || val === '-') return '';
+
+        val = val.split(' ')[0].trim();
+
+        // sudah yyyy-mm-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+
+        // dd-mm-yyyy
+        if (/^\d{2}-\d{2}-\d{4}$/.test(val)) {
+            let parts = val.split('-');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // dd/mm/yyyy
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+            let parts = val.split('/');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        return '';
+    }
+    function renderVal(field, val) {
+        if (!val) return '-';
+
+        if (field === 'article_doi' || field === 'article_original_link' || field === 'article_file_link') {
+            return `<a href="${val}" target="_blank">${val}</a>`;
+        }
+
+        return val;
     }
     let swalPdfDoc = null;
     let swalPdfScaleMultiplier = 1;
@@ -888,33 +999,33 @@
         $('#record-count').text(count || 0);
     }
     $(document).on('click', '#swal-btn-pdf-zoom-in', function() {
-    if (swalPdfScaleMultiplier < 3) {
-        swalPdfScaleMultiplier += 0.25;
-        applySwalPdfZoom();
-    }
-});
-
-$(document).on('click', '#swal-btn-pdf-zoom-out', function() {
-    if (swalPdfScaleMultiplier > 0.5) {
-        swalPdfScaleMultiplier -= 0.25;
-        applySwalPdfZoom();
-    }
-});
-
-$(document).on('click', '#swal-btn-pdf-fit', function() {
-    swalPdfScaleMultiplier = 1;
-    applySwalPdfZoom();
-});
-
-function applySwalPdfZoom() {
-    $('.swal-pdf-page-wrapper').each(function() {
-        const originalWidth = $(this).data('orig-width');
-        const originalHeight = $(this).data('orig-height');
-
-        $(this).css({
-            width: (originalWidth * swalPdfScaleMultiplier) + 'px',
-            height: (originalHeight * swalPdfScaleMultiplier) + 'px'
-        });
+        if (swalPdfScaleMultiplier < 3) {
+            swalPdfScaleMultiplier += 0.25;
+            applySwalPdfZoom();
+        }
     });
-}
+
+    $(document).on('click', '#swal-btn-pdf-zoom-out', function() {
+        if (swalPdfScaleMultiplier > 0.5) {
+            swalPdfScaleMultiplier -= 0.25;
+            applySwalPdfZoom();
+        }
+    });
+
+    $(document).on('click', '#swal-btn-pdf-fit', function() {
+        swalPdfScaleMultiplier = 1;
+        applySwalPdfZoom();
+    });
+
+    function applySwalPdfZoom() {
+        $('.swal-pdf-page-wrapper').each(function() {
+            const originalWidth = $(this).data('orig-width');
+            const originalHeight = $(this).data('orig-height');
+
+            $(this).css({
+                width: (originalWidth * swalPdfScaleMultiplier) + 'px',
+                height: (originalHeight * swalPdfScaleMultiplier) + 'px'
+            });
+        });
+    }
 </script>

@@ -258,6 +258,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('detail', 'AcceptArticleJournalController@detail');
             Route::post('verification', 'AcceptArticleJournalController@verification');
             Route::delete('destroy-data', 'AcceptArticleJournalController@destroyData');
+            Route::post('update-inline-field', 'AcceptArticleJournalController@updateInlineField');
         });
 
         Route::prefix('reject')->group(function () {
