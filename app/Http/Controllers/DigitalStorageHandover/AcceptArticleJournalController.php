@@ -213,7 +213,7 @@ class AcceptArticleJournalController extends Controller
                             Hapus
                         </a>';
                 }
-                if($val->IS_NEED_VERIFY == '1') {
+                if($val->IS_NEED_VERIFY === '1') {
                     $action .='<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
                         <i class="ph-warning me-1"></i>
                         Perlu Verifikasi Ulang
@@ -313,17 +313,24 @@ class AcceptArticleJournalController extends Controller
     {
         $id = $request->id;
         $verifikasi  = QueryAPI::verificationCollection($id, session('username'));
+        
         if($verifikasi) {
-            return response()->json([
-                    'code' => 200,
-                    'message' => 'Sukses diverifikasi'
+            $update = QueryAPI::update('E_COLLECTIONS', $id, [
+                        'is_need_verify' => 0,
+                        'updated_by' => session('id')
+            ], true);
+            if($update) {
+                return response()->json([
+                        'code' => 200,
+                        'message' => 'Sukses diverifikasi'
                 ], 200);
-        } else {
-            return response()->json([
+            }
+        } 
+        return response()->json([
                 'code' => 404,
                 'message' => 'Gagal diverifikasi'
             ], 404);
-        }
+       
     }
 
     public function destroyData(Request $request)
