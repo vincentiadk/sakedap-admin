@@ -100,6 +100,8 @@ class AuthController extends Controller
                             'updateby' => session('username'),
                             'updatedate' => date('Y-m-d H:i:s'),
                             'updateterminal' => $request->ip(),
+                            'isnewuser' => 0,
+                            'lastchangepassword' => date('Y-m-d H:i:s'),
                         ], false);
 
                         if ($change) {
@@ -270,6 +272,8 @@ class AuthController extends Controller
                                 'updateby' => $user->FULLNAME,
                                 'updatedate' => date('Y-m-d H:i:s'),
                                 'updateterminal' => $request->ip(),
+                                'isnewuser' => 0,
+                                'lastchangepassword' => date('Y-m-d H:i:s'),
                             ], false);
 
                             $settings = QueryAPI::get("
