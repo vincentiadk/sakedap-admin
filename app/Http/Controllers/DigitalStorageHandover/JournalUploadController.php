@@ -98,8 +98,8 @@ class JournalUploadController extends Controller
                 count(*) as total
             from
                 e_zip_upload_history
-            where
-                where created_by = '" . session('username'). "'
+            where 
+                created_by = '" . session('username'). "'
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("

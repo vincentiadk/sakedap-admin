@@ -2,22 +2,23 @@
 
 namespace App\Jobs;
 
+use ZipArchive;
+use Carbon\Carbon;
+use App\Helpers\Main;
 use App\Helpers\QueryAPI;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel; 
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Str;
-use Illuminate\Http\UploadedFile; 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Redis;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-use ZipArchive;
 
 class ProcessZipJournalJob implements ShouldQueue
 {
@@ -223,7 +224,10 @@ class ProcessZipJournalJob implements ShouldQueue
                     if (($rowNumber - 1) % 10 === 0) {
                         $this->flushSummaryToDatabase();
                     }
-                    QueryAPI::verificationCollection($createdCollection->ID, $this->user['username']);
+                    $verifikasi = QueryAPI::verificationCollection($createdCollection->ID, $this->user['username']);
+                    if(!$verifikasi){
+                        throw new \Exception('Gagal verifikasi artikel menjadi katalog');
+                    }
                 } catch (\Throwable $e) {
                     if (($rowNumber - 1) % 10 === 0) {
                         $this->flushSummaryToDatabase();
@@ -330,6 +334,7 @@ class ProcessZipJournalJob implements ShouldQueue
             'publication_year' => $publicationYear,
             'kabupaten_id' => $penerbit->CITY_ID ?? null,
             'city_id' => $penerbit->CITY_ID ?? null,
+            'deposit' => Main::generateNumberDeposit(),
             'preview' => '1-2',
             'akses' => 1,
             'jenis_isi' => 'teks',
@@ -341,6 +346,7 @@ class ProcessZipJournalJob implements ShouldQueue
             'worksheet_id' => 142,
             'title' => $item['judul_jurnal'] ?? null,
             'slug' => Str::slug($item['judul_artikel'], '-'),
+            'copyright' => Main::copyright($history->PENERBIT_ID),
             'garuda_journal_id' => $item['id_jurnal_garuda'] ?? null,
             'article_subject' => $item['subjek'] ?? null,
             'article_title' => $item['judul_artikel'] ?? null,
