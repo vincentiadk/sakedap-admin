@@ -88,6 +88,7 @@ class AcceptArticleJournalController extends Controller
         if ($request->received_by) {
             $whereCondition[] = "e.received_by = $request->received_by";
         }
+
         $whereCondition[] = "e.collection_media_id = 203";
         
 
@@ -176,8 +177,8 @@ class AcceptArticleJournalController extends Controller
                                 e.received_at as received_at_e_collection,
                                 e.article_title, e.article_contributor, e.article_subject, 
                                 e.article_original_link, e.article_doi, e.description,
-                                e.article_publish_date, e.deposit,
-                                u.fullname as received_by_name
+                                e.article_publish_date, e.deposit, e.edition_date,
+                                u.fullname as received_by_name, e.volume
                             from
                                 e_collections e
                             left join
@@ -238,11 +239,11 @@ class AcceptArticleJournalController extends Controller
                     $val->ARTICLE_TITLE,
                     $val->ARTICLE_CONTRIBUTOR,
                     $val->ARTICLE_SUBJECT,
-                    $val->ARTICLE_PUBLISH_DATE,
+                    $val->EDITION_DATE,
                     $val->JUDUL_JURNAL,
                     $val->NAME_MEDIA,
                     $val->ISBN,
-                    $val->EDITION,
+                    $val->VOLUME,
                     Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
                     $val->RECEIVED_BY_NAME
                 ];
