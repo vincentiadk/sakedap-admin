@@ -275,7 +275,7 @@ class ProcessZipJournalJob implements ShouldQueue
             $lastSummary = json_decode(Redis::get("zip_upload:{$history->ID}:summary"), true);
             
             $data = [
-                'status' => $lastSummary['last_status'] ? 'done_with_error' : 'done',
+                'status' => (int) $lastSummary['failed_rows'] > 0 ? 'done_with_error' : 'done',
                 'notes' => 'Proses upload selesai',
                 'finished_at' => date('Y-m-d H:i:s'),
                 'failed_rows' => $lastSummary['failed_rows'],
