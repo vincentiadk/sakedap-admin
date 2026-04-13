@@ -91,7 +91,14 @@ class ProcessZipJournalJob implements ShouldQueue
             }
 
             $rows = Excel::toArray([], $excelFile)[0] ?? [];
-
+            $rows = array_values(array_filter($rows, function ($row) {
+                foreach ($row as $cell) {
+                    if (!is_null($cell) && trim((string) $cell) !== '') {
+                        return true;
+                    }
+                }
+                return false;
+            }));
             if (count($rows) < 2) {
                 throw new \Exception('Data Excel kosong');
             }
