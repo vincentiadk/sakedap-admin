@@ -57,6 +57,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('promotion', 'Select2ServersideController@promotion');
         Route::get('news-category', 'Select2ServersideController@newsCategory');
         Route::get('news', 'Select2ServersideController@news');
+        Route::get('user', 'Select2ServersideController@user');
     });
 
     Route::get('home', function () {

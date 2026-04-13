@@ -74,7 +74,13 @@
                             </label>
                             <input type="number" class="form-control" name="year" id="year" placeholder="Cari tahun">
                         </div>
-
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-circle me-1"></i>
+                                Diunggah Oleh
+                            </label>
+                            <select class="form-select" name="received_by" id="received_by" data-placeholder="Semua Pengguna"></select>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -160,6 +166,10 @@
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Terima
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 130px">
+                                <i class="ph-calendar-check me-1"></i>
+                                Diunggah oleh
                             </th>
                         </tr>
                     </thead>
@@ -248,7 +258,7 @@
                 minimumInputLength: 0
             });
         }
-
+        select2Serverside('#received_by', 'user');
         loadData();
     });
 
@@ -299,7 +309,8 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
-                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
+                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

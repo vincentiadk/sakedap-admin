@@ -84,10 +84,12 @@ class AcceptArticleJournalController extends Controller
         if ($request->year) {
             $whereCondition[] = "e.publishyear = $request->year";
         }
+
+        if ($request->received_by) {
+            $whereCondition[] = "e.received_by = $request->received_by";
+        }
         $whereCondition[] = "e.collection_media_id = 203";
-        /*if ($request->media_id) {
-            $whereCondition[] = "e.collection_media_id = $request->media_id";
-        }*/
+        
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -150,6 +152,7 @@ class AcceptArticleJournalController extends Controller
                 worksheets on worksheets.id = e.worksheet_id
             left join
                 collectionmedias on collectionmedias.id = e.collection_media_id
+            left join users u on u.id = e.received_by
             $whereClause
         ", true)->TOTAL ?? 0;
         $sql = "
@@ -173,7 +176,8 @@ class AcceptArticleJournalController extends Controller
                                 e.received_at as received_at_e_collection,
                                 e.article_title, e.article_contributor, e.article_subject, 
                                 e.article_original_link, e.article_doi, e.description,
-                                e.article_publish_date, e.deposit
+                                e.article_publish_date, e.deposit,
+                                u.fullname as received_by_name
                             from
                                 e_collections e
                             left join
@@ -186,6 +190,7 @@ class AcceptArticleJournalController extends Controller
                                 worksheets on worksheets.id = e.worksheet_id
                             left join
                                 collectionmedias on collectionmedias.id = e.collection_media_id
+                            left join users u on u.id = e.received_by
                             $whereClause
                             $orderBy
                         ) data
@@ -239,6 +244,7 @@ class AcceptArticleJournalController extends Controller
                     $val->ISBN,
                     $val->EDITION,
                     Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
+                    $val->RECEIVED_BY_NAME
                 ];
 
                 $start++;
