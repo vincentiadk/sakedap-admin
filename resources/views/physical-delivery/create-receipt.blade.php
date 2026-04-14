@@ -482,10 +482,11 @@
 
                             $('#data-collection-isbn').append(`
                                 <tr class="animate__animated animate__fadeIn">
-                                    <input type="hidden" name="ci[]" value="1">
-                                    <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
-
-                                    <td class="text-center align-middle">${ response.fileCover }</td>
+                                    <td class="text-center align-middle">
+                                        <input type="hidden" name="ci[]" value="1">
+                                        <input type="hidden" name="ci_code[]" value="${ response.data.isbn }">
+                                        ${ response.fileCover }
+                                    </td>
                                     <td class="align-middle">
                                         <span class="badge bg-secondary">${ response.data.isbn }</span>
                                     </td>
@@ -509,7 +510,7 @@
                                         <input type="number" class="form-control form-control-sm ci-reject-${ randStr }" name="ci_qty_reject[]" value="${ response.totalReject }" oninput="calculateQtyTotal('.ci-total-${ randStr }', '.ci-accept-${ randStr }', '.ci-reject-${ randStr }', '.ci-description-${ randStr }')">
                                     </td>
                                     <td class="align-middle">
-                                        <select class="form-select form-select-sm ci-description-${ randStr }" name="ci_description[]" multiple></select>
+                                        <select class="form-select form-select-sm ci-description-${ randStr }" name="ci_description[][]" multiple></select>
                                     </td>
                                     <td class="align-middle">
                                         <input type="text" class="form-control form-control-sm" name="ci_qrcbn[]" placeholder="QRCBN">
@@ -539,7 +540,7 @@
                                 notification('success', '<i class="ph-check-circle me-2"></i> ISBN berhasil ditambahkan');
                             }
 
-                            select2ServersideTag('select[name="ci_description[]"]', 'problem', {}, {
+                            select2ServersideTag('.ci-description-' + randStr, 'problem', {}, {
                                 minimumInputLength: 0
                             });
 
@@ -653,8 +654,8 @@
 
             $('#data-collection-non-isbn').append(`
                 <tr class="animate__animated animate__fadeIn">
-                    <input type="hidden" name="cni[]" value="1">
                     <td width="5%" class="align-top pt-3">
+                        <input type="hidden" name="cni[]" value="1">
                         <button type="button" class="btn btn-danger" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus koleksi">
                             <i class="ph-trash"></i>
                         </button>
@@ -718,7 +719,7 @@
                                         <label class="form-label">
                                             <i class="ph-note-pencil me-1"></i>Keterangan
                                         </label>
-                                        <select class="form-select cni-description-${ randStr }" name="cni_description[]" multiple></select>
+                                        <select class="form-select cni-description-${ randStr }" name="cni_description[][]" multiple></select>
                                     </div>
                                 </div>
                                 <hr class="my-3">
@@ -778,7 +779,7 @@
 
             calculateQtyTotal(`.cni-total-${ randStr }`, `.cni-accept-${ randStr }`, `.cni-reject-${ randStr }`, `.cni-description-${ randStr }`);
 
-            select2ServersideTag('select[name="cni_description[]"]', 'problem', {}, {
+            select2ServersideTag('.cni-description-' + randStr, 'problem', {}, {
                 minimumInputLength: 0
             });
 
@@ -865,8 +866,8 @@
 
             $('#data-collection-periodicals').append(`
                 <tr class="periodical-row-${ randStr } animate__animated animate__fadeIn">
-                    <input type="hidden" name="cp[]" value="1">
                     <td width="5%" rowspan="2" class="align-top pt-3">
+                        <input type="hidden" name="cp[]" value="1">
                         <button type="button" class="btn btn-danger" onclick="removeItemPeriodicals('${ randStr }')" data-bs-toggle="tooltip" title="Hapus terbitan berkala">
                             <i class="ph-trash"></i>
                         </button>
@@ -1052,7 +1053,7 @@
 
         calculateQtyTotal(`.cpe-total-${ randStr }`, `.cpe-accept-${ randStr }`, `.cpe-reject-${ randStr }`, `.cpe-description-${ randStr }`);
 
-        select2ServersideTag('select[name="cpe_description[][]"]', 'problem', {}, {
+        select2ServersideTag(`.cpe-description-${ randStr }`, 'problem', {}, {
             minimumInputLength: 0
         });
 
