@@ -480,7 +480,7 @@
                                 $('#empty-isbn-row').remove();
                             }
 
-                            $('#data-collection-isbn').append(`
+                            $('#data-collection-isbn').prepend(`
                                 <tr class="animate__animated animate__fadeIn">
                                     <td class="text-center align-middle">
                                         <input type="hidden" name="ci[]" value="1">
@@ -652,7 +652,7 @@
             var currentNumber = collectionNonISBNCounter;
             var randStr = randomString(10);
 
-            $('#data-collection-non-isbn').append(`
+            $('#data-collection-non-isbn').prepend(`
                 <tr class="animate__animated animate__fadeIn">
                     <td width="5%" class="align-top pt-3">
                         <input type="hidden" name="cni[]" value="1">
@@ -864,7 +864,7 @@
             var currentNumber = periodicalsCounter;
             var randStr = randomString(10);
 
-            $('#data-collection-periodicals').append(`
+            $('#data-collection-periodicals').prepend(`
                 <tr class="periodical-row-${ randStr } animate__animated animate__fadeIn">
                     <td width="5%" rowspan="2" class="align-top pt-3">
                         <input type="hidden" name="cp[]" value="1">
@@ -995,7 +995,7 @@
             editionContainer.empty();
         }
 
-        editionContainer.append(`
+        editionContainer.prepend(`
             <div class="edition-row-${ randStr } border rounded p-3 mb-3 bg-light animate__animated animate__fadeIn">
                 <input type="hidden" name="cpe[][]" value="${ parentRandStr }">
                 <div class="row g-3 align-items-end">
@@ -1119,7 +1119,7 @@
         $('#validation-data').html('');
 
         $.each(data, function(index, value) {
-            $('#validation-data').append('<li class="mb-1">' + value + '</li>');
+            $('#validation-data').prepend('<li class="mb-1">' + value + '</li>');
         });
 
         $('html, body').animate({ scrollTop: 0 }, 'smooth');
