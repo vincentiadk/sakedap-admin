@@ -736,7 +736,7 @@ class AcceptController extends Controller
 
             $collections = QueryAPI::get("
                 select
-                    ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn,
+                    ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn, ld.received_date,
                     case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept
                 from
                     letter_detail ld
@@ -765,7 +765,7 @@ class AcceptController extends Controller
                 foreach ($collections as $key => $c) {
                     $htmlCollections .= '<tr>
                     <td align="center">' . ($key + 1) . '</td>
-                    <td align="center">' . date('d-m-Y', strtotime($c->ACCEPT_DATE_LETTER)) . '</td>
+                    <td align="center">' . date('d-m-Y', strtotime($c->RECEIVED_DATE)) . '</td>
                     <td>' . ($c->TITLE ?? '-') . '</td>
                     <td align="center">' . ($c->NAME_CM ?? '-') . '</td>
                     <td align="center">' . ($c->ISBN ?? '-') . '</td>
