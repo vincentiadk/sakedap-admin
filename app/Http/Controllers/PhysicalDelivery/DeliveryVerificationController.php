@@ -355,7 +355,7 @@ class DeliveryVerificationController extends Controller
         $draw = intval($request->draw ?? 0);
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
-        $search = strtoupper(str_replace('-','',trim($request->search['value'])) ?? '');
+        $search = strtoupper(str_replace('-', '', trim($request->search['value'])) ?? '');
         $whereCondition = ["letter_id = " . intval($request->letter_id)];
 
         if ($search) {
@@ -418,8 +418,8 @@ class DeliveryVerificationController extends Controller
             where
                 rnum > $start
         ";
-        $queryData = QueryAPI::get($sql);
 
+        $queryData = QueryAPI::get($sql);
         $data = [];
 
         if (!$queryData) {
@@ -438,6 +438,12 @@ class DeliveryVerificationController extends Controller
             ->unique()
             ->values();
 
+        $letterDetailIds = collect($queryData)
+            ->pluck('LETTER_DETAIL_ID')
+            ->filter()
+            ->unique()
+            ->values();
+
         $isbnData = [];
         $search = $isbnCodes->implode(',');
         $result = ISBN::get('search', [
@@ -445,6 +451,7 @@ class DeliveryVerificationController extends Controller
             'start' => 0,
             'length' => 5000
         ]);
+
         $isbnDataCollection = collect();
 
         if ($result && !empty($result->data)) {
@@ -455,12 +462,13 @@ class DeliveryVerificationController extends Controller
                 }
             }
         }
-        $isbnData = $isbnDataCollection;
 
+        $isbnData = $isbnDataCollection;
         $letterDetails = [];
 
         if ($isbnCodes->isNotEmpty()) {
             $isbnList = $isbnCodes->map(fn($c) => "'$c'")->implode(',');
+            $letterDetailIdsList = $letterDetailIds->map(fn($id) => "'$id'")->implode(',');
 
             $sqlLetterDetail = "
                 select
@@ -469,7 +477,8 @@ class DeliveryVerificationController extends Controller
                 from
                     letter_detail
                 where
-                    isbn in ($isbnList)
+                    isbn in ($isbnList) and
+                    letter_detail_id not in ($letterDetailIdsList)
                 group by
                     isbn
             ";
@@ -485,6 +494,7 @@ class DeliveryVerificationController extends Controller
 
         if ($isbnCodes->isNotEmpty()) {
             $isbnList = $isbnCodes->map(fn($c) => "'$c'")->implode(',');
+            $letterDetailIdsList = $letterDetailIds->map(fn($id) => "'$id'")->implode(',');
 
             $sqlCollection = "
                 select
@@ -494,6 +504,7 @@ class DeliveryVerificationController extends Controller
                     collections
                 where
                     isbn in ($isbnList) and
+                    letter_detail_id not in ($letterDetailIdsList) and
                     source_id = 6
                 group by
                     isbn
@@ -930,7 +941,7 @@ class DeliveryVerificationController extends Controller
                 where
                     letter_id = $id
             ";
-            
+
 
             $letter = QueryAPI::get($letterSql, true);
             $letterDetail = QueryAPI::get($letterDetailSql);
@@ -968,8 +979,8 @@ class DeliveryVerificationController extends Controller
                         foreach ($request->ci as $key => $ci) {
                             $code = $request->ci_code[$key] ?? null;
                             $editable = $request->ci_editable[$key] ?? false;
-                            
-                            if($request->ci_copy[$key]) {
+
+                            if ($request->ci_copy[$key]) {
                                 if (!$code || $editable == false) continue;
 
                                 $isbnCacheKey = "isbn:{$code}";
@@ -1124,7 +1135,7 @@ class DeliveryVerificationController extends Controller
                                 QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
                             } else {
                                 QueryAPI::create('letter_detail', $letterDetailData, false);
-                            }    
+                            }
                         }
                     }
 
@@ -1201,7 +1212,7 @@ class DeliveryVerificationController extends Controller
                                 QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
                             } else {
                                 QueryAPI::create('letter_detail', $letterDetailData, false);
-                            }   
+                            }
                         }
                     }
 
@@ -1316,7 +1327,7 @@ class DeliveryVerificationController extends Controller
     public function destroyDataLD(Request $request, $id)
     {
         $id = $request->id;
-        if(Str::contains($id, 'new')){
+        if (Str::contains($id, 'new')) {
             return;
         }
 
