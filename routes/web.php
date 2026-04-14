@@ -57,6 +57,7 @@ Route::middleware('authentication')->group(function () {
         Route::get('promotion', 'Select2ServersideController@promotion');
         Route::get('news-category', 'Select2ServersideController@newsCategory');
         Route::get('news', 'Select2ServersideController@news');
+        Route::get('user', 'Select2ServersideController@user');
     });
 
     Route::get('home', function () {
@@ -91,15 +92,9 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-data-ld/{id}', 'DeliveryVerificationController@destroyDataLD');
         });
 
-     Route::prefix('delivery-verification2')->group(function () {
-            Route::get('/', 'DeliveryVerificationController2@index');
-            Route::post('datatable', 'DeliveryVerificationController2@datatable');
-            Route::post('datatable-collection', 'DeliveryVerificationController2@datatableCollection');
-            Route::post('checked-action', 'DeliveryVerificationController2@checkedAction');
-            Route::match(['get', 'post'], 'detail/{id}', 'DeliveryVerificationController2@detail');
-            Route::match(['get', 'post'], 'update-data/{id}', 'DeliveryVerificationController2@updateData');
-            Route::delete('destroy-data', 'DeliveryVerificationController2@destroyData');
-            Route::delete('destroy-data-ld', 'DeliveryVerificationController2@destroyDataLD');
+        Route::prefix('single-verification')->group(function () {
+            Route::get('/', 'SingleVerificationController@index');
+            Route::post('search', 'SingleVerificationController@search');
         });    
 
         Route::prefix('delivery-to-destination')->group(function () {
@@ -258,6 +253,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('detail', 'AcceptArticleJournalController@detail');
             Route::post('verification', 'AcceptArticleJournalController@verification');
             Route::delete('destroy-data', 'AcceptArticleJournalController@destroyData');
+            Route::post('update-inline-field', 'AcceptArticleJournalController@updateInlineField');
         });
 
         Route::prefix('reject')->group(function () {

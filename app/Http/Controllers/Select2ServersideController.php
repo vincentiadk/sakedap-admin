@@ -666,4 +666,39 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+
+    public function user(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $condition[] = "upper(fullname) like '%$search%' OR upper(username) like '%$search%' ";
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                fullname,
+                username
+            from
+                users
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div>' . ($d->FULLNAME ?? '-') . '</div>
+                    <div class="fw-light fs-12 text-muted">Username : ' . ($d->USERNAME ?? '-') . '</div>
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->USERNAME . ' | ' . $d->FULLNAME,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }

@@ -84,10 +84,13 @@ class AcceptArticleJournalController extends Controller
         if ($request->year) {
             $whereCondition[] = "e.publishyear = $request->year";
         }
+
+        if ($request->received_by) {
+            $whereCondition[] = "e.received_by = $request->received_by";
+        }
+
         $whereCondition[] = "e.collection_media_id = 203";
-        /*if ($request->media_id) {
-            $whereCondition[] = "e.collection_media_id = $request->media_id";
-        }*/
+        
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -150,6 +153,7 @@ class AcceptArticleJournalController extends Controller
                 worksheets on worksheets.id = e.worksheet_id
             left join
                 collectionmedias on collectionmedias.id = e.collection_media_id
+            left join users u on u.id = e.received_by
             $whereClause
         ", true)->TOTAL ?? 0;
         $sql = "
@@ -162,7 +166,7 @@ class AcceptArticleJournalController extends Controller
                     from
                         (
                             select 
-                                e.id,
+                                e.id, e.is_need_verify,
                                 catalogs.id as cat_id,
                                 catalogs.title,
                                 catalogs.isbn,
@@ -173,7 +177,8 @@ class AcceptArticleJournalController extends Controller
                                 e.received_at as received_at_e_collection,
                                 e.article_title, e.article_contributor, e.article_subject, 
                                 e.article_original_link, e.article_doi, e.description,
-                                e.article_publish_date, e.deposit
+                                e.article_publish_date, e.deposit, e.edition_date,
+                                u.fullname as received_by_name, e.volume
                             from
                                 e_collections e
                             left join
@@ -186,6 +191,7 @@ class AcceptArticleJournalController extends Controller
                                 worksheets on worksheets.id = e.worksheet_id
                             left join
                                 collectionmedias on collectionmedias.id = e.collection_media_id
+                            left join users u on u.id = e.received_by
                             $whereClause
                             $orderBy
                         ) data
@@ -204,16 +210,26 @@ class AcceptArticleJournalController extends Controller
                     <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="showDetail(' . $val->ID . ')">
                         <i class="ph-info me-1"></i>
                         Detail
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->ID . ')">
-                        <i class="ph-trash me-1"></i>
-                        Hapus
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
+                    </a>';
+                $canDelete = Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7;
+                if($canDelete) {
+                    $action .='
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->ID . ')">
+                            <i class="ph-trash me-1"></i>
+                            Hapus
+                        </a>';
+                }
+                if($val->IS_NEED_VERIFY === '1') {
+                    $action .='<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
+                        <i class="ph-warning me-1"></i>
+                        Perlu Verifikasi Ulang
+                    </a>';
+                } else {
+                    $action .='<a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
                         <i class="ph-check me-1"></i>
                         Verifikasi
-                    </a>
-                ';
+                    </a>';
+                }
 
                 $data[] = [
                     $start + 1,
@@ -223,12 +239,13 @@ class AcceptArticleJournalController extends Controller
                     $val->ARTICLE_TITLE,
                     $val->ARTICLE_CONTRIBUTOR,
                     $val->ARTICLE_SUBJECT,
-                    $val->ARTICLE_PUBLISH_DATE,
+                    $val->EDITION_DATE,
                     $val->JUDUL_JURNAL,
                     $val->NAME_MEDIA,
                     $val->ISBN,
-                    $val->EDITION,
+                    $val->VOLUME,
                     Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
+                    $val->RECEIVED_BY_NAME
                 ];
 
                 $start++;
@@ -246,42 +263,45 @@ class AcceptArticleJournalController extends Controller
     public function detail(Request $request)
     {
         $id = $request->id;
-        $data = QueryAPI::get("
-        select ec.*, u.fullname as createbyname,
-            p.name as penerbitname,
-            ccr.id as id_catalogcovers,
-            ccr.fileurl as fileurl_catalogcovers,
-            ccr.hash as hash_catalogcovers,
-            ccr.mime as mime_catalogcovers,
-            ccr.file_size as file_size_catalogcovers,
-            ccr.method as method_catalogcovers,
-            cfr.id as id_catalogfiles,
-            cfr.fileurl as fileurl_catalogfiles,
-            cfr.hash as hash_catalogfiles,
-            cfr.mime as mime_catalogfiles,
-            cfr.file_size as file_size_catalogfiles,
-            cfr.method as method_catalogfiles     
-            from e_collections ec 
-            left join users u on u.id = ec.created_by 
-            left join penerbit p on p.id = ec.penerbit_id
-            left join
-                (
-                    select
-                        cf.e_col_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
-                        row_number() over (partition by cf.e_col_id order by cf.id desc) as rn
-                    from
-                        catalogfiles cf
-                ) cfr on cfr.e_col_id = ec.id and cfr.rn = 1
-            left join
-                (
-                    select
-                        cc.e_col_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
-                        row_number() over (partition by cc.e_col_id order by cc.id desc) as rn
-                    from
-                        catalogcovers cc
-                ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
-            where ec.id = {$id}", 
-            true);
+        $sql = "select ec.*, 
+                TO_CHAR(ec.edition_date, 'YYYY-MM-DD') as edition_date_formatted,
+                TO_CHAR(ec.received_at, 'YYYY-MM-DD') as received_at_formatted,
+                u.fullname as createbyname,
+                p.name as penerbitname,
+                ccr.id as id_catalogcovers,
+                ccr.fileurl as fileurl_catalogcovers,
+                ccr.hash as hash_catalogcovers,
+                ccr.mime as mime_catalogcovers,
+                ccr.file_size as file_size_catalogcovers,
+                ccr.method as method_catalogcovers,
+                cfr.id as id_catalogfiles,
+                cfr.fileurl as fileurl_catalogfiles,
+                cfr.hash as hash_catalogfiles,
+                cfr.mime as mime_catalogfiles,
+                cfr.file_size as file_size_catalogfiles,
+                cfr.method as method_catalogfiles     
+                from e_collections ec 
+                left join users u on u.id = ec.created_by 
+                left join penerbit p on p.id = ec.penerbit_id
+                left join
+                    (
+                        select
+                            cf.e_col_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
+                            row_number() over (partition by cf.e_col_id order by cf.id desc) as rn
+                        from
+                            catalogfiles cf
+                    ) cfr on cfr.e_col_id = ec.id and cfr.rn = 1
+                left join
+                    (
+                        select
+                            cc.e_col_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
+                            row_number() over (partition by cc.e_col_id order by cc.id desc) as rn
+                        from
+                            catalogcovers cc
+                    ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
+                where ec.id = '{$id}'";
+
+        $data = QueryAPI::get($sql,true);
         if($data) {
             return response()->json([
                 'code' => 200,
@@ -300,17 +320,24 @@ class AcceptArticleJournalController extends Controller
     {
         $id = $request->id;
         $verifikasi  = QueryAPI::verificationCollection($id, session('username'));
+        
         if($verifikasi) {
-            return response()->json([
-                    'code' => 200,
-                    'message' => 'Sukses diverifikasi'
+            $update = QueryAPI::update('E_COLLECTIONS', $id, [
+                        'is_need_verify' => 0,
+                        'updated_by' => session('id')
+            ], true);
+            if($update) {
+                return response()->json([
+                        'code' => 200,
+                        'message' => 'Sukses diverifikasi'
                 ], 200);
-        } else {
-            return response()->json([
+            }
+        } 
+        return response()->json([
                 'code' => 404,
                 'message' => 'Gagal diverifikasi'
             ], 404);
-        }
+       
     }
 
     public function destroyData(Request $request)
@@ -320,16 +347,12 @@ class AcceptArticleJournalController extends Controller
         $idCat = QueryAPI::get("
             SELECT id FROM catalogs WHERE edeposit_col_id = {$id}
         ", true);
-
-        
-
         
         $idFile = QueryAPI::get("
             SELECT id FROM catalogfiles WHERE e_col_id = {$id}
         ", true);
 
         try {
-           
             QueryAPI::delete('e_collections', $id);
             if($idCat) {
                 $idCols = QueryAPI::get("
@@ -354,6 +377,9 @@ class AcceptArticleJournalController extends Controller
                 'message' => 'Data telah dihapus'
             ];
         } catch (\Exception $e) {
+            Log::error('Hapus artikel jurnal gagal', [
+                'message' => $e->getMessage(),
+            ]);
             $response = [
                 'code' => $e->getCode(),
                 'message' => $e->getMessage()
@@ -361,5 +387,57 @@ class AcceptArticleJournalController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function updateInlineField(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $field = $request->field;
+            $value = $request->value;
+
+            if (!$id || !$field) {
+                throw new \Exception('Parameter tidak lengkap');
+            }
+            $allowed = [
+                'article_title',
+                'article_contributor',
+                'article_subject',
+                'article_doi',
+                'article_file_link',
+                'article_original_link',
+                'article_abstract',
+                'edition_date',
+                'title',
+                'code',
+                'volume',
+            ];
+
+            if (!in_array($field, $allowed)) {
+                throw new \Exception('Field tidak diizinkan');
+            }
+            if ($field === 'edition_date' && $value) {
+                $value = date('Y-m-d', strtotime($value));
+            }
+            $ip = $request->ip();
+
+            // update langsung
+            QueryAPI::update('E_COLLECTIONS', $id, [
+                $field => $value,
+                'is_need_verify' => 1,
+                'updated_by' => session('id')
+            ], true);
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Berhasil disimpan'
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'code' => 500,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

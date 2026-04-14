@@ -91,7 +91,14 @@ class ProcessZipJournalJob implements ShouldQueue
             }
 
             $rows = Excel::toArray([], $excelFile)[0] ?? [];
-
+            $rows = array_values(array_filter($rows, function ($row) {
+                foreach ($row as $cell) {
+                    if (!is_null($cell) && trim((string) $cell) !== '') {
+                        return true;
+                    }
+                }
+                return false;
+            }));
             if (count($rows) < 2) {
                 throw new \Exception('Data Excel kosong');
             }
@@ -268,7 +275,7 @@ class ProcessZipJournalJob implements ShouldQueue
             $lastSummary = json_decode(Redis::get("zip_upload:{$history->ID}:summary"), true);
             
             $data = [
-                'status' => $lastSummary['last_status'] ? 'done_with_error' : 'done',
+                'status' => (int) $lastSummary['failed_rows'] > 0 ? 'done_with_error' : 'done',
                 'notes' => 'Proses upload selesai',
                 'finished_at' => date('Y-m-d H:i:s'),
                 'failed_rows' => $lastSummary['failed_rows'],
