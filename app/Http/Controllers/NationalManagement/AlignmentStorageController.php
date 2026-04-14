@@ -10,7 +10,7 @@ class AlignmentStorageController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.inlis_enterprise') . '/KoleksiListDepositPenjajaran.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.base_url') . '/KoleksiListDepositPenjajaran.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [

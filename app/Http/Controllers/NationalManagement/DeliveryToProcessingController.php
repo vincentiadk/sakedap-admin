@@ -10,7 +10,7 @@ class DeliveryToProcessingController extends Controller
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();
-        $framing = config('inlis.inlis_enterprise') . '/PengirimanPengolahan.aspx?l=' . $credentialInlis;
+        $framing = config('inlis.base_url') . '/PengirimanPengolahan.aspx?l=' . $credentialInlis;
 
         return view('layouts.index', [
             'data' => [
