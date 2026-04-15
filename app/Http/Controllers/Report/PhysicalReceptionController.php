@@ -96,7 +96,7 @@ class PhysicalReceptionController extends Controller
             $name = strtoupper(trim($request->name));
             $orCondition[] = "(upper(u_create.fullname) like '%$name%' or upper(letter.create_by) like '%$name%')";
             $orCondition[] = "(upper(u_received.fullname) like '%$name%' or upper(letter_detail.received_by) like '%$name%')";
-            $orCondition[] = "(upper(u_verified.fullname) like '%$name%' or upper(letter_detail.verified_by) like '%$name%')";
+            /*$orCondition[] = "(upper(u_verified.fullname) like '%$name%' or upper(letter_detail.verified_by) like '%$name%')";*/
         }
 
         if ($request->date) {
@@ -444,10 +444,10 @@ class PhysicalReceptionController extends Controller
                 OR UPPER(NVL(ld.received_by, '')) LIKE '%{$name}%'
             )";
 
-            $nameVerifiedWhere = " AND (
+            /*$nameVerifiedWhere = " AND (
                 UPPER(NVL(u_verified.fullname, '')) LIKE '%{$name}%'
                 OR UPPER(NVL(ld.verified_by, '')) LIKE '%{$name}%'
-            )";
+            )";*/
         }
 
         /*
@@ -505,24 +505,6 @@ class PhysicalReceptionController extends Controller
                 WHERE {$whereClause}
                 {$nameReceivedWhere}
 
-                UNION ALL
-
-                -- verifikator
-                SELECT
-                    u_verified.fullname AS nama_orang,
-                    {$periodLabel} AS periode,
-                    ld.qty_accept,
-                    ld.qty_reject,
-                    ld.letter_detail_id
-                FROM letter_detail ld
-                LEFT JOIN letter l
-                    ON l.letter_id = ld.letter_id
-                LEFT JOIN branchs b
-                    ON b.id = l.branch_id
-                JOIN users u_verified
-                    ON u_verified.username = ld.verified_by
-                WHERE {$whereClause}
-                {$nameVerifiedWhere}
             )
             GROUP BY nama_orang, periode, letter_detail_id
         )
