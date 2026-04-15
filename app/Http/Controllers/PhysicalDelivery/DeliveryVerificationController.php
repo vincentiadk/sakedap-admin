@@ -526,8 +526,8 @@ class DeliveryVerificationController extends Controller
         foreach ($queryData as $val) {
             $randStr = Str::random(10);
             $code = str_replace('-', '', $val->ISBN);
-            $totalSystem = 0;
             $totalSent = $val->COPY ?: 0;
+            $totalSystem = 0;
             $fileCover = $noFileCover;
 
             $checked = $val->CHECKED;
@@ -552,16 +552,24 @@ class DeliveryVerificationController extends Controller
                 }
             }
 
-            $totalAccept = 0;
-            $totalReject = $totalSent;
+            $dbAccept = isset($val->QTY_ACCEPT) ? intval($val->QTY_ACCEPT) : null;
+            $dbReject = isset($val->QTY_REJECT) ? intval($val->QTY_REJECT) : null;
 
-            if ($totalSystem == 0 || $totalSystem == 1) {
-                if ($totalSent == 1) {
-                    $totalAccept = 1;
-                    $totalReject = 0;
-                } else {
-                    $totalAccept = $isAdmin ? 2 : 1;
-                    $totalReject = $totalSent - $totalAccept;
+            if ($dbAccept !== null || $dbReject !== null) {
+                $totalAccept = $dbAccept;
+                $totalReject = $dbReject;
+            } else {
+                $totalAccept = 0;
+                $totalReject = $totalSent;
+
+                if ($totalSystem == 0 || $totalSystem == 1) {
+                    if ($totalSent == 1) {
+                        $totalAccept = 1;
+                        $totalReject = 0;
+                    } else {
+                        $totalAccept = $isAdmin ? 2 : 1;
+                        $totalReject = $totalSent - $totalAccept;
+                    }
                 }
             }
 
