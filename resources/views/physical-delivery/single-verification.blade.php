@@ -120,8 +120,16 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label text-muted mb-1">Status Verifikasi</label>
+                                            <label class="form-label text-muted mb-1">Status Penerimaan</label>
                                             <div id="detail_status">-</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted mb-1">Tanggal Terima</label>
+                                            <div id="detail_received_date">-</div>
+                                        </div>
+                                         <div class="col-md-6">
+                                            <label class="form-label text-muted mb-1">User Penerima</label>
+                                            <div id="detail_received_by">-</div>
                                         </div>
 
                                         <div class="col-md-6">
@@ -140,23 +148,35 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label text-muted mb-1">Copy</label>
-                                            <div id="detail_copy">-</div>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label class="form-label text-muted mb-1">Jumlah Dikirim</label>
+                                            <label class="form-label text-muted mb-1">Jumlah Judul Dikirim</label>
                                             <div id="detail_quantity">-</div>
                                         </div>
 
                                         <div class="col-md-3">
+                                            <label class="form-label text-muted mb-1">Jumlah Eks Dikirim</label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary minus">-</button>
+                                                <input type="text" class="form-control text-center" id="detail_copy" name="detail_copy" value="0" readonly>
+                                                <button type="button" class="btn btn-outline-secondary plus">+</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-3">
                                             <label class="form-label text-muted mb-1">Diterima</label>
-                                            <div id="detail_qty_accept">-</div>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary minus">-</button>
+                                                <input type="text" class="form-control text-center" id="detail_qty_accept" name="detail_qty_accept" value="0" readonly>
+                                                <button type="button" class="btn btn-outline-secondary plus">+</button>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label class="form-label text-muted mb-1">Ditolak</label>
-                                            <div id="detail_qty_reject">-</div>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary minus">-</button>
+                                                <input type="text" class="form-control text-center" id="detail_qty_reject" name="detail_qty_reject" value="0" readonly>
+                                                <button type="button" class="btn btn-outline-secondary plus">+</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -241,11 +261,23 @@
     .badge-status {
         font-size: 11px;
     }
+    .input-group input {
+        background-color: #fff !important;
+    }
 </style>
 <script>
     // Dummy data sementara untuk simulasi tampilan
     const dummyBooks = [];
+    $('.plus').click(function() {
+        let input = $(this).siblings('input');
+        input.val(parseInt(input.val()) + 1);
+    });
 
+    $('.minus').click(function() {
+        let input = $(this).siblings('input');
+        let val = parseInt(input.val());
+        if (val > 0) input.val(val - 1);
+    });
     function getStatusBadge(statusCode, statusText) {
         let badgeClass = 'bg-secondary';
 
@@ -324,12 +356,15 @@
         document.getElementById('detail_year').innerText = item.PUBLISH_YEAR || '-';
         document.getElementById('detail_status').innerHTML = getStatusBadge(item.STATUS_CODE, item.STATUS);
         document.getElementById('detail_destination_library').innerText = item.DESTINATION_LIBRARY || item.LIBRARY_NAME || '-';
+        document.getElementById('detail_received_by').innerText = item.RECEIVED_BY_NAME ?? '-';
+        document.getElementById('detail_received_date').innerText = item.RECEIVED_DATE ?? '-';
         document.getElementById('detail_type_of_delivery').innerText = item.TYPE_OF_DELIVERY || '-';
         document.getElementById('detail_jasa_pengiriman').innerText = item.JASA_PENGIRIMAN_NAME || '-';
-        document.getElementById('detail_copy').innerText = item.COPY || '0';
+        document.getElementById('detail_copy').value = item.COPY || '0';
         document.getElementById('detail_quantity').innerText = item.QUANTITY || '0';
-        document.getElementById('detail_qty_accept').innerText = item.QTY_ACCEPT || '0';
-        document.getElementById('detail_qty_reject').innerText = item.QTY_REJECT || '0';
+
+        document.getElementById('detail_qty_accept').value = item.QTY_ACCEPT || '0';
+        document.getElementById('detail_qty_reject').value = item.QTY_REJECT || '0';
 
         const receivedDateInput = document.getElementById('received_date');
         const verificationNote = document.getElementById('verification_note');
@@ -347,6 +382,11 @@
             verificationNote.value = 'Data perlu verifikasi. Silakan isi tanggal terima.';
             btnReceive.classList.remove('d-none');
             document.getElementById('action_type').value = 'receive';
+            $('.plus, .minus').show();
+            $('#detail_quantity').prop('readonly', true);
+            $('#detail_qty_accept').prop('readonly', true);
+            $('#detail_qty_reject').prop('readonly', true);
+           
         } else {
             receivedDateInput.setAttribute('readonly', true);
             receivedDateInput.setAttribute('disabled', true);
@@ -354,9 +394,17 @@
             verificationNote.value = 'Data sudah diterima sebelumnya. Hanya tersedia aksi terima ulang.';
             btnReceiveAgain.classList.remove('d-none');
             document.getElementById('action_type').value = 'receive_again';
+            $('.plus, .minus').hide();
+            $('#detail_quantity').prop('disabled', true);
+            $('#detail_qty_accept').prop('disabled', true);
+            $('#detail_qty_reject').prop('disabled', true);
         }
     }
+    function formatDateForInput(dateString) {
+        if (!dateString) return '';
 
+        return dateString.split(' ')[0]; // ambil "2025-09-29"
+    }
     function clearDetail() {
         document.getElementById('detailPanel').classList.add('d-none');
         document.getElementById('emptyDetail').classList.remove('d-none');

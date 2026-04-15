@@ -64,31 +64,36 @@ class SingleVerificationController extends Controller
         }
 
         $where = " l.status != 'DRAFT' ";
-        $subWhere = " l2.status IN ('DITERIMA', 'DITERIMA PARSIAL', 'CEK FISIK') ";
-        $subCollection = " c.source_id = 6 AND branch_id = ' " . session('branch_id') . "'";
+        $subWhere = " l2.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK',  'DITERIMA') ";
+        $subCollection = " c.source_id = 6 AND branch_id = '" . session('branch_id') . "'";
 
         if ($mode === 'isbn') {
-            $isbnExprMain = "REPLACE(REPLACE(UPPER(NVL(ld.ISBN, '')), '-', ''), ' ', '')";
-            $isbnExprSub  = "REPLACE(REPLACE(UPPER(NVL(ld2.ISBN, '')), '-', ''), ' ', '')";
-            $keywordExpr  = "REPLACE(REPLACE(UPPER('{$keywordUpper}'), '-', ''), ' ', '')";
+            $isbnExprMain = "REPLACE(REPLACE(ld.ISBN), '-', ''), ' ', '')";
+            $isbnExprSub  = "REPLACE(REPLACE(ld2.ISBN), '-', ''), ' ', '')";
+            $keywordExpr  = "REPLACE(REPLACE('{$keywordUpper}', '-', ''), ' ', '')";
 
-            $where .= " AND {$isbnExprMain} LIKE '%' || {$keywordExpr} || '%' ";
-            $subWhere .= " AND {$isbnExprSub} LIKE '%' || {$keywordExpr} || '%' ";
-            $subCollection  .=  " AND {$isbnExprSub} LIKE '%' || {$keywordExpr} || '%' ";
+            $where .= " AND {$isbnExprMain} LIKE '%$keywordExpr%' ";
+            $subWhere .= " AND {$isbnExprSub} LIKE '%$keywordExpr";
+            $subCollection  .=  " AND {$isbnExprSub} LIKE '%$keywordExpr%' ";
         } else {
-            $titleExprMain = "UPPER(NVL(ld.TITLE, ''))";
-            $titleExprSub  = "UPPER(NVL(ld2.TITLE, ''))";
+            $titleExprMain = "UPPER(ld.TITLE)";
+            $titleExprSub  = "UPPER(ld2.TITLE)";
+            $titleExprCol  = "UPPER(c.TITLE)";
 
-            $where .= " AND {$titleExprMain} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
-            $subWhere .= " AND {$titleExprSub} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
-            $subCollection  .=  " AND {$titleExprSub} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
+            $where .= " AND {$titleExprMain} LIKE '%$keywordUpper%'";
+            $subWhere .= " AND {$titleExprSub} LIKE '%$keywordUpper%'";
+            $subCollection  .=  " AND {$titleExprCol} LIKE '%$keywordUpper%'";
         }
 
         $where .= " AND l.branch_id = {$branchId} ";
         $subWhere .= " AND l2.branch_id = {$branchId} ";
 
         $sql = "
-            SELECT *
+            SELECT t.*,
+             CASE
+                WHEN t.received_date IS NULL THEN 'verification'
+                ELSE 'received'
+            END AS status_code
             FROM (
                 SELECT
                     ld.letter_detail_id,
@@ -105,14 +110,18 @@ class SingleVerificationController extends Controller
                     l.status,
                     l.type_of_delivery,
                     jp.name AS jasa_pengiriman_name,
-                    ld.received_date,
-                    ld.received_by,
+                    CASE
+                        WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN ld.received_date
+                        WHEN l.status = 'DITERIMA' THEN l.accept_date
+                        ELSE NULL
+                    END AS received_date,
+                    CASE
+                        WHEN l.status = 'DITERIMA' THEN u_l.fullname
+                        WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN u.fullname
+                        ELSE NULL
+                    END AS received_by_name,
                     l.accept_date,
                     b.name AS DESTINATION_LIBRARY,
-                    CASE
-                        WHEN ld.received_date IS NULL THEN 'verification'
-                        ELSE 'received'
-                    END AS status_code,
                     (
                         SELECT SUM(ld2.copy)
                         FROM LETTER_DETAIL ld2
@@ -128,23 +137,25 @@ class SingleVerificationController extends Controller
                         AND {$subWhere}
                     ) AS total_accept_sistem,
                     (
-                        SELECT count(*)
+                        SELECT count(c.id)
                         FROM COLLECTIONS c
-                        WHERE {$subWhere}
+                        WHERE {$subCollection}
                     ) AS total_collection_sistem
                 FROM LETTER_DETAIL ld
                 JOIN PENERBIT p ON p.id = ld.penerbit_id
                 JOIN LETTER l ON l.letter_id = ld.letter_id
+                LEFT JOIN USERS u ON ld.received_by = u.username
+                LEFT JOIN USERS u_l ON l.create_by = u_l.username
                 LEFT JOIN JASA_PENGIRIMAN jp ON l.jasa_pengiriman_id = jp.id
                 JOIN BRANCHS b ON l.branch_id = b.id
                 WHERE {$where}
                 ORDER BY l.CREATE_DATE DESC
-            )
+            ) t
             WHERE ROWNUM <= {$limit}
         ";
-
+       
         $data = QueryAPI::get($sql);
-
+        //Log::info($sql);
         return response()->json([
             'code' => 200,
             'message' => 'Berhasil',
@@ -162,5 +173,18 @@ class SingleVerificationController extends Controller
         $value = str_replace('_', '\_', $value);
 
         return $value;
+    }
+
+    public function updateReceivedDate()
+    {
+        $id = $request->letter_detail_id;
+        QueryAPI::update('letter_detail', $id, [
+                'received_date' => $request->received_date,
+                'received_by' => session('username'),
+                'qty_accept' => $request->detail_qty_accept,
+                'qty_reject' => $request->detail_qty_reject,
+                'copy' => $request->detail->copy
+            ], false);
+        return true;
     }
 }

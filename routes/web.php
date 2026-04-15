@@ -95,6 +95,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('single-verification')->group(function () {
             Route::get('/', 'SingleVerificationController@index');
             Route::post('search', 'SingleVerificationController@search');
+            Route::post('update-received-date', 'SingleVerificationController@updateReceivedDate');
         });    
 
         Route::prefix('delivery-to-destination')->group(function () {
