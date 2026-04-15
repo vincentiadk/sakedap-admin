@@ -16,12 +16,7 @@ class SingleVerificationController extends Controller
             'data' => [
                 'content' => 'physical-delivery.single-verification',
                 'plugins' => [
-                    'datatable',
-                    'daterangepicker',
                     'select2',
-                    'epubjs',
-                    'videojs',
-                    'pdfjs',
                     'howlerjs',
                 ]
             ]
@@ -67,24 +62,14 @@ class SingleVerificationController extends Controller
         $subWhere = " l2.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK',  'DITERIMA') ";
         $subCollection = " c.source_id = 6 AND branch_id = '" . session('branch_id') . "'";
 
+        $subWhere .= " and replace(ld2.isbn, '-','') like '%' || replace(ld.ISBN,'-','') || '%'";
+
         if ($mode === 'isbn') {
-            $isbnExprMain = "REPLACE(REPLACE(ld.ISBN), '-', ''), ' ', '')";
-            $isbnExprSub  = "REPLACE(REPLACE(ld2.ISBN), '-', ''), ' ', '')";
-            $keywordExpr  = "REPLACE(REPLACE('{$keywordUpper}', '-', ''), ' ', '')";
-
-            $where .= " AND {$isbnExprMain} LIKE '%$keywordExpr%' ";
-            $subWhere .= " AND {$isbnExprSub} LIKE '%$keywordExpr";
-            $subCollection  .=  " AND {$isbnExprSub} LIKE '%$keywordExpr%' ";
+            $keywordUpper = str_replace('-','',$keywordUpper);
+            $where .= " AND replace(ld.isbn, '-','') like '%{$keywordUpper}%'";
         } else {
-            $titleExprMain = "UPPER(ld.TITLE)";
-            $titleExprSub  = "UPPER(ld2.TITLE)";
-            $titleExprCol  = "UPPER(c.TITLE)";
-
-            $where .= " AND {$titleExprMain} LIKE '%$keywordUpper%'";
-            $subWhere .= " AND {$titleExprSub} LIKE '%$keywordUpper%'";
-            $subCollection  .=  " AND {$titleExprCol} LIKE '%$keywordUpper%'";
+            $where .= " AND upper(ld.title) like '%{$keywordUpper}%' ";
         }
-
         $where .= " AND l.branch_id = {$branchId} ";
         $subWhere .= " AND l2.branch_id = {$branchId} ";
 
@@ -107,18 +92,19 @@ class SingleVerificationController extends Controller
                     ld.publisher,
                     ld.publish_year,
                     p.name AS pub_name,
-                    l.status,
+                    ld.remark, ld.letter_id,
+                    l.status, l.branch_id,
                     l.type_of_delivery,
                     jp.name AS jasa_pengiriman_name,
                     CASE
                         WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN ld.received_date
                         WHEN l.status = 'DITERIMA' THEN l.accept_date
-                        ELSE NULL
+                        ELSE ld.received_date
                     END AS received_date,
                     CASE
                         WHEN l.status = 'DITERIMA' THEN u_l.fullname
                         WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN u.fullname
-                        ELSE NULL
+                        ELSE u.fullname
                     END AS received_by_name,
                     l.accept_date,
                     b.name AS DESTINATION_LIBRARY,
@@ -140,6 +126,7 @@ class SingleVerificationController extends Controller
                         SELECT count(c.id)
                         FROM COLLECTIONS c
                         WHERE {$subCollection}
+                        AND replace(c.isbn, '-','') like '%' || replace(ld.ISBN, '-','') || '%'
                     ) AS total_collection_sistem
                 FROM LETTER_DETAIL ld
                 JOIN PENERBIT p ON p.id = ld.penerbit_id
@@ -153,9 +140,9 @@ class SingleVerificationController extends Controller
             ) t
             WHERE ROWNUM <= {$limit}
         ";
-       
+
         $data = QueryAPI::get($sql);
-        //Log::info($sql);
+        
         return response()->json([
             'code' => 200,
             'message' => 'Berhasil',
@@ -175,16 +162,59 @@ class SingleVerificationController extends Controller
         return $value;
     }
 
-    public function updateReceivedDate()
+    public function updateReceivedDate(Request $request)
     {
         $id = $request->letter_detail_id;
-        QueryAPI::update('letter_detail', $id, [
-                'received_date' => $request->received_date,
-                'received_by' => session('username'),
-                'qty_accept' => $request->detail_qty_accept,
-                'qty_reject' => $request->detail_qty_reject,
-                'copy' => $request->detail->copy
-            ], false);
-        return true;
+        
+        try {
+            if ($request->ISBN ?: null && (int) $request->detail_qty_accept > 0) {
+                QueryAPI::setReceiveDate([
+                        'LetterDetailId' => $id,
+                        'NomorISBN' => $request->detail_isbn,
+                        'IsPerpusnas' => $request->branch_id == 37 ? 1 : 0,
+                        'IsProvinsi' => $request->branch_id != 37 ? 1 : 0,
+                        'TanggalTerima' => $request->received_date,
+                ]);
+            }
+            if($request->status_code == 'verification'){
+                QueryAPI::update('letter_detail', $id, [
+                        'received_date' => $request->received_date,
+                        'received_by' => session('username'),
+                        'qty_accept' => $request->detail_qty_accept,
+                        'qty_reject' => $request->detail_qty_reject,
+                        'copy' => $request->detail_copy,
+                        'remark' => $request->detail_reject_reason,
+                        'checked' => 1
+                    ], false);
+            }
+            $letterDetail = QueryAPI::get("
+                select
+                    count(letter_id) as total_data,
+                    count(case when received_by is not null then 1 end) as total_verification,
+                    sum(nvl(qty_reject, 0)) as total_reject
+                from
+                    letter_detail
+                where
+                    letter_id = '$request->letter_id'
+                ", true);
+            if ($letterDetail) {
+                if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_VERIFICATION) {
+                    if ($letterDetail->TOTAL_REJECT > 0) {
+                        $status = 'DITERIMA PARSIAL';
+                    } else {
+                        $status = 'DITERIMA PENUH';
+                    }
+                }
+            }
+            return response()->json([
+                'code' => 200,
+                'message' => 'Berhasil menyimpan data penerimaan.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
