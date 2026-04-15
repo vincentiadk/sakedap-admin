@@ -122,6 +122,7 @@
                     <i class="ph-barcode me-1"></i>
                     Koleksi ISBN
                 </h5>
+                <span class="badge bg-info ms-2" id="total-collection-isbn">0</span>
                 <div class="ms-sm-auto my-sm-auto">
                     <div class="input-group">
                         <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
@@ -221,11 +222,12 @@
             </div>
         </div>
         <div class="card shadow-sm">
-            <div class="card-header">
+            <div class="card-header d-sm-flex align-items-sm-center py-3">
                 <h5 class="mb-0">
                     <i class="ph-book-open me-1"></i>
                     Koleksi Non ISBN
                 </h5>
+                <span class="badge bg-info ms-2" id="total-collection-non-isbn">0</span>
             </div>
             <div class="card-body">
                 <div class="alert alert-warning border-0" role="alert">
@@ -386,11 +388,12 @@
             </div>
         </div>
         <div class="card shadow-sm">
-            <div class="card-header">
+            <div class="card-header d-sm-flex align-items-sm-center py-3">
                 <h5 class="mb-0">
                     <i class="ph-newspaper me-1"></i>
                     Koleksi Terbitan Berkala
                 </h5>
+                <span class="badge bg-info ms-2" id="total-collection-periodicals">0</span>
             </div>
             <div class="card-body">
                 <div class="alert alert-info border-0" role="alert">
@@ -577,6 +580,12 @@
         });
     });
 
+    function totalCollection() {
+        $('#total-collection-isbn').text($('#data-collection-isbn tr').length - ($('#data-collection-isbn tr td[colspan]').length > 0 ? 1 : 0));
+        $('#total-collection-non-isbn').text($('#data-collection-non-isbn tr').length - ($('#data-collection-non-isbn tr td[colspan]').length > 0 ? 1 : 0));
+        $('#total-collection-periodicals').text($('#data-collection-periodicals tr').length - ($('#data-collection-periodicals tr td[colspan]').length > 0 ? 1 : 0));
+    }
+
     function searchISBN() {
         var executorId = '{{ $letter->PENERBIT_ID ?: "" }}';
 
@@ -625,7 +634,7 @@
                                 $('#empty-isbn-row').remove();
                             }
 
-                            $('#data-collection-isbn').append(`
+                            $('#data-collection-isbn').prepend(`
                                 <tr class="animate__animated animate__fadeIn" style="background-color:#fef3ed">
                                     <input type="hidden" name="ci_detail_id[]" value="">
                                     <input type="hidden" name="ci[]" value="1">
@@ -692,10 +701,13 @@
                 responseError(response);
             }
         });
+
+        totalCollection();
     }
 
     function removeItem(param) {
         var id = $(param).attr('data-id');
+
         swalInit.fire({
             title: 'Konfirmasi Hapus',
             text: 'Apakah Anda yakin ingin menghapus item ini?',
@@ -777,6 +789,8 @@
                 notification('success', '<i class="ph-check-circle me-2"></i> Item berhasil dihapus');
             }
         });
+
+        totalCollection();
     }
 
     function addCollectionNonISBN() {
@@ -812,7 +826,7 @@
             var currentNumber = collectionNonISBNCounter;
             var randStr = randomString(10);
 
-            $('#data-collection-non-isbn').append(`
+            $('#data-collection-non-isbn').prepend(`
                 <tr class="animate__animated animate__fadeIn">
                     <input type="hidden" name="cni_detail_id[]" value="">
                     <input type="hidden" name="cni[]" value="1">
@@ -936,6 +950,8 @@
         $('html, body').animate({
             scrollTop: $('#data-collection-non-isbn tr').last().offset().top - 100
         }, 500);
+
+        totalCollection();
     }
 
     function selectCollectionNonISBN(param) {
@@ -968,6 +984,8 @@
                 responseError(response);
             }
         });
+
+        totalCollection();
     }
 
     function addPeriodicals() {
@@ -1070,7 +1088,7 @@
                 </tr>
             `;
 
-            $('#data-collection-periodicals').append(htmlRow);
+            $('#data-collection-periodicals').prepend(htmlRow);
 
             lookupCatalog(`.cp_catalog_text_${randStr}`, `.cp_catalog_id_${randStr}`, false, {
                 worksheet_id: [13, 142]
@@ -1086,6 +1104,8 @@
         $('html, body').animate({
             scrollTop: $('.' + firstNewRowClass).offset().top - 100
         }, 500);
+
+        totalCollection();
     }
 
     function toggleCatalogInput(randStr) {
@@ -1125,6 +1145,8 @@
                 notification('success', '<i class="ph-check-circle me-2"></i> Terbitan berkala berhasil dihapus');
             }
         });
+
+        totalCollection();
     }
 
     function clearValidation() {
@@ -1137,7 +1159,7 @@
         $('#validation-data').html('');
 
         $.each(data, function(index, value) {
-            $('#validation-data').append('<li class="mb-1">' + value + '</li>');
+            $('#validation-data').prepend('<li class="mb-1">' + value + '</li>');
         });
 
         $('html, body').animate({ scrollTop: 0 }, 'smooth');
@@ -1167,6 +1189,8 @@
                 processSubmit();
             }
         });
+
+        totalCollection();
     }
 
     function processSubmit() {
@@ -1224,5 +1248,7 @@
                 responseError(response);
             }
         });
+
+        totalCollection();
     }
 </script>
