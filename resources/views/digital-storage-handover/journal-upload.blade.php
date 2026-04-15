@@ -389,30 +389,42 @@ $(document).ready(function () {
             error: function (xhr) {
                 Swal.close();
                 setUploadState(false);
+                $('.invalid-feedback').remove();
+                $('.is-invalid').removeClass('is-invalid');
+                let response = xhr.responseJSON || {};
+                let errors = response.errors || {};
+                let hasFieldError = false;
 
                 if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-
-                    if (errors.pelaksana_serah_id) {
+                    if (errors.pelaksana_serah_id && errors.pelaksana_serah_id.length > 0) {
                         $('#pelaksana_serah_id').addClass('is-invalid');
                         $('#pelaksana_serah_id').after(
                             '<div class="invalid-feedback d-block">' + errors.pelaksana_serah_id[0] + '</div>'
                         );
+                        hasFieldError = true;
                     }
 
-                    if (errors.zip_file) {
+                    if (errors.zip_file && errors.zip_file.length > 0) {
+                        $('#dropArea').addClass('is-invalid');    
                         $('#dropArea').after(
-                            '<div class="invalid-feedback d-block">' + errors.zip_file[0] + '</div>'
-                        );
+                                '<div class="invalid-feedback d-block">' + errors.zip_file[0] + '</div>'
+                            );
+                        hasFieldError = true;
                     }
-
+                    if (!hasFieldError) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Validasi gagal',
+                            text: response.message || 'Periksa kembali data yang diinput.'
+                        });
+                    }
                     return;
                 }
 
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
-                    text: xhr.responseJSON?.message || 'Terjadi kesalahan'
+                    text: response.message || 'Terjadi kesalahan'
                 });
             }
         });

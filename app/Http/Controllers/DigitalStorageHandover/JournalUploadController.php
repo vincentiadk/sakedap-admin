@@ -166,12 +166,42 @@ class JournalUploadController extends Controller
         $request->validate([
             'pelaksana_serah_id' => 'required',
             'zip_file' => 'required|file|mimes:zip',
+            ], [
+            'pelaksana_serah_id.required' => 'Pelaksana serah wajib dipilih.',
+            'zip_file.required' => 'File ZIP wajib diunggah.',
+            'zip_file.file' => 'File yang diunggah tidak valid.',
+            'zip_file.mimes' => 'File harus berformat ZIP.',
         ]);
-        
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $ps = QueryAPI::get("SELECT * FROM penerbit where id = '$request->pelaksana_serah_id'", true);
+        if (!$ps) {
+            return response()->json([
+                'message' => 'Data pelaksana serah tidak ditemukan.',
+                'errors' => [
+                    'pelaksana_serah_id' => ['Pelaksana serah tidak valid.']
+                ]
+            ], 422);
+        }
+        if($ps->city_id == '' || empty($ps->city_id)){
+            return response()->json([
+                'message' => 'Alamat pelaksana serah belum lengkap.',
+                'errors' => [
+                    'pelaksana_serah_id' => ['Harap pilih pelaksana serah yang memiliki alamat lengkap.']
+                ]
+            ], 422);
+        }
         $zipFile = $request->file('zip_file');
         if (!$zipFile || !$zipFile->isValid()) {
             return response()->json([
-                'message' => 'File ZIP tidak valid atau gagal upload'
+                'message' => 'File ZIP tidak valid atau gagal upload',
+                'errors' => [
+                    'zip_file' => ['File ZIP tidak valid atau gagal diunggah.']
+                ]
             ], 422);
         }
 
