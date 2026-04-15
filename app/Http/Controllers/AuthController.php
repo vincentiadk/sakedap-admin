@@ -26,22 +26,21 @@ class AuthController extends Controller
             $rateLimitMaxAttempt = config('system.retry_login');
             $rateLimitInterval = config('system.retry_login_interval');
             $rateLimitIntervalSecond = $rateLimitInterval * 60 * 60;
-            $rateLimitKey = $request->ip();
-            $retriesLeft = RateLimiter::retriesLeft($rateLimitKey, $rateLimitMaxAttempt);
 
-            /*if (RateLimiter::tooManyAttempts($rateLimitKey, $rateLimitMaxAttempt)) {
-                $seconds = RateLimiter::availableIn($rateLimitKey);
-                $retryAt = Carbon::now()->addSeconds($seconds);
-                $retryTime = $retryAt->diffForHumans();
+            $ip = $request->ip();
+            $username = Str::lower(trim((string) $request->username));
+            $rateLimitKey = 'login:' . $username . '|' . $ip;
 
-                return redirect('/')->with('failed', "Terlalu banyak upaya login ($rateLimitMaxAttempt kali). Anda dapat mencoba kembali pada $retryTime");
-            }*/
-
-            $validation = Validator::make($request->all(), [
+            $rules = [
                 'username' => 'required',
                 'password' => 'required',
-                'g-recaptcha-response' => 'required|captcha',
-            ], [
+            ];
+
+            if (config('app.env') === 'production') {
+                $rules['g-recaptcha-response'] = 'required|captcha';
+            }
+
+            $validation = Validator::make($request->all(), $rules, [
                 'username.required' => 'Username tidak boleh kosong',
                 'password.required' => 'Password tidak boleh kosong',
                 'g-recaptcha-response.required' => 'Terdeteksi robot',
@@ -49,24 +48,31 @@ class AuthController extends Controller
             ]);
 
             if ($validation->fails()) {
-                // RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
-
                 return redirect('/')->withErrors($validation);
             } else {
+                if (RateLimiter::tooManyAttempts($rateLimitKey, $rateLimitMaxAttempt)) {
+                    $seconds = RateLimiter::availableIn($rateLimitKey);
+                    $retryAt = Carbon::now()->addSeconds($seconds);
+                    $retryTime = $retryAt->diffForHumans();
+
+                    return redirect('/')->with('failed', "Terlalu banyak upaya login ($rateLimitMaxAttempt kali). Anda dapat mencoba kembali pada $retryTime");
+                }
+
                 $username = $request->username;
                 $password = $request->password;
                 $login = Main::login($username, $password);
 
                 if ($login) {
-                    // RateLimiter::clear($rateLimitKey);
-
+                    RateLimiter::clear($rateLimitKey);
                     return redirect()->intended('home');
                 }
 
-                //RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
+                RateLimiter::hit($rateLimitKey, $rateLimitIntervalSecond);
+                $retriesLeft = RateLimiter::retriesLeft($rateLimitKey, $rateLimitMaxAttempt);
 
-                // return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan, sisa percobaan login ' . $retriesLeft . 'x lagi']);
-                return redirect('/')->with(['failed' => 'Kredensial tidak ditemukan']);
+                return redirect('/')->with([
+                    'failed' => 'Kredensial tidak ditemukan, sisa percobaan login ' . $retriesLeft . 'x lagi'
+                ]);
             }
         }
 

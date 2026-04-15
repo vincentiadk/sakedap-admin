@@ -30,7 +30,6 @@ class SingleVerificationController extends Controller
 
     public function search(Request $request)
     {
-        Log::info('he');
         $keyword = trim((string) $request->get('keyword', ''));
         $mode = strtolower(trim((string) $request->get('mode', 'auto')));
         $limit = (int) $request->get('limit', 20);
@@ -49,6 +48,7 @@ class SingleVerificationController extends Controller
 
         $keywordSafe = $this->escapeSql($keyword);
         $keywordUpper = strtoupper($keywordSafe);
+        $branchId = (int) session('branch_id');
 
         if ($mode === 'auto') {
             $isbnOnly = preg_replace('/[^0-9Xx]/', '', $keyword);
@@ -62,47 +62,89 @@ class SingleVerificationController extends Controller
                 $mode = 'title';
             }
         }
+
         $where = " l.status != 'DRAFT' ";
+        $subWhere = " l2.status IN ('DITERIMA', 'DITERIMA PARSIAL', 'CEK FISIK') ";
+        $subCollection = " c.source_id = 6 AND branch_id = ' " . session('branch_id') . "'";
+
         if ($mode === 'isbn') {
-            $where .= " AND
-                REPLACE(REPLACE(UPPER(NVL(ld.ISBN, '')), '-', ''), ' ', '') 
-                LIKE '%' || REPLACE(REPLACE(UPPER('{$keywordUpper}'), '-', ''), ' ', '') || '%'
-            ";
+            $isbnExprMain = "REPLACE(REPLACE(UPPER(NVL(ld.ISBN, '')), '-', ''), ' ', '')";
+            $isbnExprSub  = "REPLACE(REPLACE(UPPER(NVL(ld2.ISBN, '')), '-', ''), ' ', '')";
+            $keywordExpr  = "REPLACE(REPLACE(UPPER('{$keywordUpper}'), '-', ''), ' ', '')";
+
+            $where .= " AND {$isbnExprMain} LIKE '%' || {$keywordExpr} || '%' ";
+            $subWhere .= " AND {$isbnExprSub} LIKE '%' || {$keywordExpr} || '%' ";
+            $subCollection  .=  " AND {$isbnExprSub} LIKE '%' || {$keywordExpr} || '%' ";
         } else {
-            $where .= " AND
-                UPPER(NVL(ld.TITLE, '')) LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\'
-            ";
+            $titleExprMain = "UPPER(NVL(ld.TITLE, ''))";
+            $titleExprSub  = "UPPER(NVL(ld2.TITLE, ''))";
+
+            $where .= " AND {$titleExprMain} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
+            $subWhere .= " AND {$titleExprSub} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
+            $subCollection  .=  " AND {$titleExprSub} LIKE '%' || UPPER('{$keywordUpper}') || '%' ESCAPE '\' ";
         }
-        $where .= " AND l.branch_id = '" . session('branch_id') . "'";
+
+        $where .= " AND l.branch_id = {$branchId} ";
+        $subWhere .= " AND l2.branch_id = {$branchId} ";
 
         $sql = "
             SELECT *
             FROM (
                 SELECT
-                    ld.letter_detail_id, ld.title, 
-                    ld.copy, ld.quantity, ld.qty_accept, ld.qty_reject, ld.qty_hibah,
-                    ld.isbn, ld.publisher, ld.publish_year, 
-                    p.name as pub_name, l.status, l.type_of_delivery, 
-                    jp.name as jasa_pengiriman_name,
+                    ld.letter_detail_id,
+                    ld.title,
+                    ld.copy,
+                    ld.quantity,
+                    ld.qty_accept,
+                    ld.qty_reject,
+                    ld.qty_hibah,
+                    ld.isbn,
+                    ld.publisher,
+                    ld.publish_year,
+                    p.name AS pub_name,
+                    l.status,
+                    l.type_of_delivery,
+                    jp.name AS jasa_pengiriman_name,
                     ld.received_date,
+                    ld.received_by,
                     l.accept_date,
-                    b.name as DESTINATION_LIBRARY,
-                CASE 
-                    WHEN ld.received_date is null THEN 'verification'
-                    ELSE 'received' 
-                END AS status_code
+                    b.name AS DESTINATION_LIBRARY,
+                    CASE
+                        WHEN ld.received_date IS NULL THEN 'verification'
+                        ELSE 'received'
+                    END AS status_code,
+                    (
+                        SELECT SUM(ld2.copy)
+                        FROM LETTER_DETAIL ld2
+                        JOIN LETTER l2 ON l2.letter_id = ld2.letter_id
+                        WHERE ld2.letter_detail_id != ld.letter_detail_id
+                        AND {$subWhere}
+                    ) AS total_copy_sistem,
+                    (
+                        SELECT SUM(ld2.qty_accept)
+                        FROM LETTER_DETAIL ld2
+                        JOIN LETTER l2 ON l2.letter_id = ld2.letter_id
+                        WHERE ld2.letter_detail_id != ld.letter_detail_id
+                        AND {$subWhere}
+                    ) AS total_accept_sistem,
+                    (
+                        SELECT count(*)
+                        FROM COLLECTIONS c
+                        WHERE {$subWhere}
+                    ) AS total_collection_sistem
                 FROM LETTER_DETAIL ld
-                JOIN PENERBIT p on p.id = ld.penerbit_id
-                JOIN LETTER l on l.letter_id = ld.letter_id
-                LEFT JOIN JASA_PENGIRIMAN jp on l.jasa_pengiriman_id = jp.id
-                JOIN BRANCHS b on l.branch_id = b.id
+                JOIN PENERBIT p ON p.id = ld.penerbit_id
+                JOIN LETTER l ON l.letter_id = ld.letter_id
+                LEFT JOIN JASA_PENGIRIMAN jp ON l.jasa_pengiriman_id = jp.id
+                JOIN BRANCHS b ON l.branch_id = b.id
                 WHERE {$where}
                 ORDER BY l.CREATE_DATE DESC
             )
             WHERE ROWNUM <= {$limit}
         ";
-        //Log::info($sql);
+
         $data = QueryAPI::get($sql);
+
         return response()->json([
             'code' => 200,
             'message' => 'Berhasil',
