@@ -194,8 +194,8 @@ class SingleVerificationController extends Controller
             QueryAPI::update('letter_detail', $id, $params, false);
             $letterDetail = QueryAPI::get("
                 select
-                    count(letter_id) as total_data,
-                    count(case when received_by is not null then 1 end) as total_verification,
+                    sum(copy) as total_data,
+                    sum(qty_accept) as total_accept,
                     sum(nvl(qty_reject, 0)) as total_reject
                 from
                     letter_detail
@@ -203,12 +203,8 @@ class SingleVerificationController extends Controller
                     letter_id = '$request->letter_id'
                 ", true);
             if ($letterDetail) {
-                if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_VERIFICATION) {
-                    if ($letterDetail->TOTAL_REJECT > 0) {
-                        $status = 'DITERIMA PARSIAL';
-                    } else {
-                        $status = 'DITERIMA PENUH';
-                    }
+                if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
+                    $status = 'DITERIMA PENUH';
                 } else {
                     $status = 'DITERIMA PARSIAL';
                 }
