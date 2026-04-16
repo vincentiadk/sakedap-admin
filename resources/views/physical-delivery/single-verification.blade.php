@@ -597,7 +597,7 @@
     function doSearch() {
         const keyword = $('#keyword').val().trim();
         const mode = $('#search_mode').val();
-
+        $('#btnResetSearch').click();
         if (!keyword) {
             renderResults([]);
             clearDetail();
