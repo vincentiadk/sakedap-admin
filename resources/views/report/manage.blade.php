@@ -283,7 +283,11 @@
                             </th>
                             <th class="text-nowrap" style="min-width: 100px">
                                 <i class="ph-money me-1"></i>
-                                DIterima Oleh
+                                Diterima Oleh
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-money me-1"></i>
+                                DOI
                             </th>
                         </tr>
                     </thead>
@@ -513,6 +517,7 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

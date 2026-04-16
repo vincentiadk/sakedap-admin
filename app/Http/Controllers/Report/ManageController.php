@@ -57,7 +57,7 @@ class ManageController extends Controller
             ]
         ]);
     }
-/*
+    /*
     public function datatable(Request $request)
     {
         $column = [
@@ -531,6 +531,7 @@ class ManageController extends Controller
             SELECT
                 c.*,
                 e.deposit AS deposit_e_collection,
+                e.article_doi AS doi_e_collection,
                 e.created_at AS created_at_e_collection,
                 e.received_at,
                 e.serial AS serial_e_collection,
@@ -610,7 +611,8 @@ class ManageController extends Controller
                     $val->CREATED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y, H:i') : '-',
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->format('d-m-Y, H:i') : '-',
                     $val->PRICE_E_COLLECTION,
-                    $val->FULLNAME
+                    $val->FULLNAME,
+                    $val->DOI_E_COLLECTION,
                 ];
                 $counter++;
             }
