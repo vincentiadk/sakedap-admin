@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Jobs\ProcessZipJournalJob;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Validator;
 
 class JournalUploadController extends Controller
 {
@@ -163,14 +164,15 @@ class JournalUploadController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'pelaksana_serah_id' => 'required',
-            'zip_file' => 'required|file|mimes:zip',
-            ], [
+            'zip_file' => 'required|file|mimes:zip|max:204800',
+        ], [
             'pelaksana_serah_id.required' => 'Pelaksana serah wajib dipilih.',
             'zip_file.required' => 'File ZIP wajib diunggah.',
             'zip_file.file' => 'File yang diunggah tidak valid.',
             'zip_file.mimes' => 'File harus berformat ZIP.',
+            'zip_file.max' => 'Ukuran file ZIP maksimal 200 MB.'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -187,7 +189,7 @@ class JournalUploadController extends Controller
                 ]
             ], 422);
         }
-        if($ps->city_id == '' || empty($ps->city_id)){
+        if($ps->CITY_ID == '' || empty($ps->CITY_ID)){
             return response()->json([
                 'message' => 'Alamat pelaksana serah belum lengkap.',
                 'errors' => [
