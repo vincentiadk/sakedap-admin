@@ -55,7 +55,7 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Filter Status</label>
+                                <label class="form-label">Status ISBN</label>
                                 <select id="status_filter" class="form-select">
                                     <option value="">Semua</option>
                                     <option value="not_received">Belum Diterima</option>
@@ -108,6 +108,16 @@
                                             <div class="col-md-6">
                                                 <label class="form-label text-muted mb-1">ISBN</label>
                                                 <div id="detail_isbn">-</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted mb-1">Filter Status</label>
+                                                <select id="detail_isbn_status" class="form-select"  name="detail_isbn_status">
+                                                    <option value="" selected="true">Pilih Status ISBN</option>
+                                                    <option value="berISBN">berISBN</option>
+                                                    @foreach($status_isbn as $si)
+                                                    <option value="{{$si->KODE}}"> {{ $si->KODE }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
 
                                             <div class="col-md-6">
@@ -231,6 +241,7 @@
                                     <input type="hidden" name="letter_id" id="letter_id">
                                     <input type="hidden" name="status_code" id="status_code">
                                     <input type="hidden" name="branch_id" id="branch_id">
+                                    <input type="hidden" name="received_by_name" id="received_by_name">
                                     <input type="hidden" name="action_type" id="action_type" value="receive">
 
                                     <div class="row g-3">
@@ -316,6 +327,7 @@
     // Dummy data sementara untuk simulasi tampilan
     const dummyBooks = [];
     let currentMode = null;
+    select2Serverside('#detail_status_isbn', 'status-isbn');
     $('.plus').click(function() {
         let input = $(this).siblings('input');
         input.val(parseInt(input.val()) + 1);
@@ -435,11 +447,24 @@
         document.getElementById('detailPanel').classList.remove('d-none');
         document.getElementById('letter_id').value = item.LETTER_ID || '';
         document.getElementById('letter_detail_id').value = item.LETTER_DETAIL_ID || '';
+        document.getElementById('received_by_name').value = item.RECEIVED_BY_NAME || 'no_name';
         document.getElementById('branch_id').value = item.BRANCH_ID || '';
         document.getElementById('status_code').value = item.STATUS_CODE || '';
 
         document.getElementById('detail_title').innerText = item.TITLE || '-';
         document.getElementById('detail_isbn').innerText = item.ISBN || '-';
+        if(item.ISBN_STATUS == '' && item.ISBN != ''){
+            if(![...document.getElementById('detail_isbn_status').options].some(opt => opt.value === 'berISBN')){
+                document.getElementById('detail_isbn_status').add(new Option('berISBN', 'berISBN', true, true));
+            }
+            document.getElementById('detail_isbn_status').value = 'berISBN';
+        } else {
+            if(item.ISBN_STATUS && ![...document.getElementById('detail_isbn_status').options].some(opt => opt.value === item.ISBN_STATUS)){
+                document.getElementById('detail_isbn_status').add(new Option(item.ISBN_STATUS, item.ISBN_STATUS, true, true));
+            }
+            document.getElementById('detail_isbn_status').value = item.ISBN_STATUS || '';
+        }
+
         document.getElementById('detail_publisher').innerText = item.PUB_NAME || item.PUBLISHER || '-';
         document.getElementById('detail_year').innerText = item.PUBLISH_YEAR || '-';
         document.getElementById('detail_status').innerHTML = getStatusResiBadge(item.STATUS);
@@ -487,12 +512,16 @@
             $('#detail_qty_reject').prop('readonly', true);
            
         } else {
-            receivedDateInput.setAttribute('readonly', true);
-            receivedDateInput.required = false;
+            if(item.RECEIVED_DATE != '') {
+                receivedDateInput.setAttribute('readonly', true);
+            } else {
+                receivedDateInput.removeAttribute('readonly');
+            }
+            receivedDateInput.required = true; //aslinya false
             verificationNote.innerText = 'Data sudah diterima sebelumnya. Hanya tersedia aksi terima ulang.';
             btnReceiveAgain.classList.remove('d-none');
             document.getElementById('action_type').value = 'receive_again';
-            $('.plus, .minus').hide();
+            $('.plus, .minus').show(); //aslinye hide
             $('#detail_quantity').prop('readonly', true);
             $('#detail_qty_accept').prop('readonly', true);
             $('#detail_qty_reject').prop('readonly', true);
@@ -612,6 +641,7 @@
     document.getElementById('keyword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
+            clearDetail();
             doSearch();
         }
     });

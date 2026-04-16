@@ -12,13 +12,15 @@ class SingleVerificationController extends Controller
 {
     public function index()
     {
+        $status_isbn = QueryAPI::get("SELECT * FROM MASTER_STATUS_ISBN");
         return view('layouts.index', [
             'data' => [
                 'content' => 'physical-delivery.single-verification',
                 'plugins' => [
                     'select2',
                     'howlerjs',
-                ]
+                ], 
+                'status_isbn' => $status_isbn
             ]
         ]);
     }
@@ -176,17 +178,20 @@ class SingleVerificationController extends Controller
                         'TanggalTerima' => $request->received_date,
                 ]);
             }
-            if($request->status_code == 'verification'){
-                QueryAPI::update('letter_detail', $id, [
+            $params = [
                         'received_date' => $request->received_date,
-                        'received_by' => session('username'),
                         'qty_accept' => $request->detail_qty_accept,
                         'qty_reject' => $request->detail_qty_reject,
                         'copy' => $request->detail_copy,
                         'remark' => $request->detail_reject_reason,
                         'checked' => 1
-                    ], false);
+            ];
+            if($request->received_by_name == "no_name"){
+                $params = array_merge($params, [
+                    'received_by' => session('username'),
+                ]);
             }
+            QueryAPI::update('letter_detail', $id, $params, false);
             $letterDetail = QueryAPI::get("
                 select
                     count(letter_id) as total_data,
