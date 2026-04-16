@@ -596,11 +596,10 @@
 
     function doSearch() {
         const keyword = $('#keyword').val().trim();
-        const mode = $('#search_mode').val();
-        $('#btnResetSearch').click();
+        const mode = $('#search_mode').val()
+        renderResults([]);
+        clearDetail();
         if (!keyword) {
-            renderResults([]);
-            clearDetail();
             return;
         }
 
