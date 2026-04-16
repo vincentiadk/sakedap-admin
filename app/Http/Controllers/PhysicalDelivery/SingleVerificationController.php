@@ -95,6 +95,7 @@ class SingleVerificationController extends Controller
                     ld.remark, ld.letter_id,
                     l.status, l.branch_id,
                     l.type_of_delivery,
+                    ld.isbn_status,
                     jp.name AS jasa_pengiriman_name,
                     CASE
                         WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN ld.received_date
@@ -165,7 +166,6 @@ class SingleVerificationController extends Controller
     public function updateReceivedDate(Request $request)
     {
         $id = $request->letter_detail_id;
-        
         try {
             if ($request->ISBN ?: null && (int) $request->detail_qty_accept > 0) {
                 QueryAPI::setReceiveDate([
@@ -204,7 +204,16 @@ class SingleVerificationController extends Controller
                     } else {
                         $status = 'DITERIMA PENUH';
                     }
+                } else {
+                    $status = 'DITERIMA PARSIAL';
                 }
+                QueryAPI::update('letter', $request->letter_id, [
+                        'status' => $status,
+                        'accept_date' => $request->received_date,
+                        'update_by' => session('username'),
+                        'update_terminal' => $request->ip(),
+                        'update_date' => date('Y-m-d')
+                    ], false);
             }
             return response()->json([
                 'code' => 200,

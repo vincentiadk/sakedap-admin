@@ -701,4 +701,38 @@ class Select2ServersideController extends Controller
 
         return response()->json($response);
     }
+    public function statusIsbn(Request $request)
+    {
+        $response = [];
+        $search = Str::upper($request->search);
+        $condition[] = "upper(kode) like '%$search%' OR upper(nama) like '%$search%' ";
+        $whereClause = "where " . implode(' and ', $condition);
+
+        $data = QueryAPI::get("
+            select
+                id,
+                kode,
+                nama
+            from
+                master_status_isbn
+            $whereClause
+        ");
+
+        if ($data) {
+            foreach ($data as $d) {
+                $html = '
+                    <div>' . ($d->KODE ?? '-') . '</div>
+
+                ';
+
+                $response[] = [
+                    'id' => $d->ID,
+                    'text' => $d->KODE,
+                    'html' => $html,
+                ];
+            }
+        }
+
+        return response()->json($response);
+    }
 }
