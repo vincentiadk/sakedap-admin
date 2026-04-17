@@ -561,7 +561,7 @@
         const totalCollectionSistem = parseInt(item.TOTAL_COLLECTION_SISTEM || 0, 10);
         const qtyAccept = parseInt(item.QTY_ACCEPT || 0, 10);
 
-        const collectionCurrent = qtyAccept;
+        const collectionCurrent = item.COPY;
         const collectionOther = Math.max(totalCollectionSistem - collectionCurrent, 0);
 
         $('#info_total_copy_sistem').text(totalCopySistem);
