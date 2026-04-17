@@ -167,28 +167,27 @@
 
                                                     <div class="row g-3 small">
                                                         <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Dikirim</div>
+                                                            <div class="text-muted">Riwayat Eks Dikirim ke Perpusnas</div>
                                                             <div class="fw-semibold" id="info_total_copy_sistem">0</div>
                                                         </div>
                                                         <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Diterima</div>
+                                                            <div class="text-muted">Riwayat Eks Diterima ke Perpusnas</div>
                                                             <div class="fw-semibold" id="info_total_accept_sistem">0</div>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Total Eks Dikirim ke Perpusnas dan Provinsi</div>
-                                                            <div class="fw-semibold" id="info_total_copy_all">0</div>
                                                         </div>
                                                         <div class="col-md-3">
                                                             <div class="text-muted">Riwayat Eks Dikirim ke Provinsi</div>
                                                             <div class="fw-semibold" id="info_total_copy_prov">0</div>
                                                         </div>
-                                                        
                                                         <div class="col-md-3">
                                                             <div class="text-muted">Riwayat Eks Diterima di Provinsi</div>
                                                             <div class="fw-semibold" id="info_total_accept_prov">0</div>
                                                         </div>
+                                                         <div class="col-md-3">
+                                                            <div class="text-muted">Total Eks Dikirim ke Perpusnas dan Provinsi</div>
+                                                            <div class="fw-semibold" id="info_total_copy_all">0</div>
+                                                        </div>
                                                         <div class="col-md-3">
-                                                            <div class="text-muted">Koleksi akan diterima</div>
+                                                            <div class="text-muted">Eks yang dikirim saat ini</div>
                                                             <div class="fw-semibold" id="info_collection_current">0</div>
                                                         </div>
                                                         <div class="col-md-3">
