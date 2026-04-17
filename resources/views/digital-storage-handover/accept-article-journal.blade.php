@@ -37,6 +37,10 @@
                                 Tanggal
                             </label>
                             <div class="input-group">
+                                <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type" style="max-width: 130px;">
+                                    <option value="e.received_at">Diterima</option>
+                                    <option value="e.created_at">Dibuat</option>
+                                </select>
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
                                 </span>
@@ -70,7 +74,7 @@
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-calendar-blank me-1"></i>
-                                Tahun
+                                Tahun Publikasi
                             </label>
                             <input type="number" class="form-control" name="year" id="year" placeholder="Cari tahun">
                         </div>
@@ -650,6 +654,9 @@
                                 color: #dc3545;
                                 font-style: italic;
                             }
+                            .select2-container {
+                                margin-top: 0px !important;
+                            }
                         </style>
 
                         <div class="swal-detail-wrap">
@@ -666,26 +673,32 @@
 
                                         <div class="section-title">Metadata Artikel</div>
                                         <div class="meta-list">
-                                            <div class="meta-label">DOI</div>
+                                            <div class="meta-label text-dark">DOI</div>
                                             <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_doi">${doi}</div>
 
-                                            <div class="meta-label" >Link Artikel</div>
+                                            <div class="meta-label text-dark" >Link Artikel</div>
                                             <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_original_link">${articleLink}</div>
 
-                                            <div class="meta-label">Link File</div>
+                                            <div class="meta-label text-dark">Link File</div>
                                             <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="article_file_link">${fileLink}</div>
 
-                                            <div class="meta-label">Tanggal Terima</div>
-                                            <div class="meta-value">${safe(data.RECEIVED_AT_FORMATTED)}</div>
-
-                                            <div class="meta-label">Tanggal Publikasi</div>
+                                            <div class="meta-label text-dark">Tanggal Publikasi</div>
                                             <div class="meta-value inline-edit" data-id="${data.ID}"  data-field="edition_date">${safe(data.EDITION_DATE_FORMATTED)}</div>
                                             
+                                            <div class="meta-label">Tanggal Terima</div>
+                                            <div class="meta-value text-muted">${safe(data.RECEIVED_AT_FORMATTED)}</div>
+
                                             <div class="meta-label">Catalog ID</div>
-                                            <div class="meta-value">${safe(data.CATALOG_ID)}</div>
+                                            <div class="meta-value  text-muted">${safe(data.CATALOG_ID)}</div>
                                             
                                             <div class="meta-label">Diunggah Oleh</div>
-                                            <div class="meta-value">${safe(data.CREATEBYNAME)}</div>
+                                            <div class="meta-value  text-muted">${safe(data.CREATEBYNAME)}</div>
+
+                                            <div class="meta-label">Tanggal Unggah</div>
+                                            <div class="meta-value  text-muted">${safe(data.CREATED_AT_FORMATTED)}</div>
+                                            
+                                            <div class="meta-label">Tanda Registrasi Karya</div>
+                                            <div class="meta-value  text-muted" >${data.NOINDUK_DEPOSIT}</div>
                                         </div>
                                     </div>
 
@@ -710,23 +723,31 @@
                                     <div class="detail-card">
                                         <div class="section-title">Info Jurnal</div>
                                         <div class="side-info-item">
-                                            <span class="side-info-label">Judul Jurnal</span>
+                                            <span class="side-info-label text-success">Judul Jurnal</span>
                                             <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="title">${safe(data.TITLE)}</div>
                                         </div>
                                     
                                         <div class="side-info-item">
-                                            <span class="side-info-label">ISSN / EISSN</span>
+                                            <span class="side-info-label text-success">ISSN / EISSN</span>
                                             <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="code">${safe(data.CODE)}</div>
                                         </div>
                                         <div class="side-info-item">
-                                            <span class="side-info-label">Volume</span>
+                                            <span class="side-info-label text-success">Volume</span>
                                             <div class="side-info-value inline-edit" data-id="${data.ID}"  data-field="volume">${safe(data.VOLUME)}</div>
                                         </div>
-
+                                        <div class="side-info-item">
+                                            <span class="side-info-label text-success">Tempat Terbit</span>
+                                            <select class="select2-basic" id="city_id" style="margin-top:0px" name="city_id">
+                                                <option value=" ${safe(data.KABUPATEN_ID)}" selected>
+                                                    ${safe(data.PROPINSITERBIT)}, ${safe(data.KOTATERBIT)}
+                                                </option>
+                                            </select>
+                                        </div>
                                         <div class="side-info-item">
                                             <span class="side-info-label">Pelaksana Serah</span>
                                             <div class="side-info-value">${safe(data.PENERBITNAME)}</div>
                                         </div>
+                                        
                                     </div>
 
                                     <div class="detail-card">
@@ -764,6 +785,11 @@
                             initSwalUniversalViewer(`{{ url('stream-file') }}?type=konten_digital&id=${data.ID_CATALOGFILES}&filename=${data.FILEURL_CATALOGFILES}`);
                         }
                     });
+                    select2Serverside('#city_id', 'location', {for: 'city'});
+                    $('#city_id').on('change', function () {
+                        let value = $(this).val();
+                        saveData(value, data.ID);
+                    });
                 } else {
                     swalInit.fire({
                         title: 'Error',
@@ -775,6 +801,24 @@
             },
             error: function(response) {
                 responseError(response);
+            }
+        });
+    }
+    function saveData(val, id) {
+        $.ajax({
+            url: '{{ url("digital-storage-handover/accept-article-journal/update-inline-field") }}',
+            type: 'POST',
+            data: {
+                id: id,
+                field: 'city_id',
+                value: val,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (res) {
+                loadData();
+            },
+            error: function () {
+                alert('Gagal simpan');
             }
         });
     }

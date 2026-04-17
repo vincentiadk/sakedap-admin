@@ -82,7 +82,7 @@ class AcceptArticleJournalController extends Controller
         }
 
         if ($request->year) {
-            $whereCondition[] = "e.publishyear = $request->year";
+            $whereCondition[] = "e.publication_year = $request->year";
         }
 
         if ($request->received_by) {
@@ -97,7 +97,7 @@ class AcceptArticleJournalController extends Controller
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
 
-            $whereCondition[] = "(e.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            $whereCondition[] = "($request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and $request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
@@ -266,8 +266,11 @@ class AcceptArticleJournalController extends Controller
         $sql = "select ec.*, 
                 TO_CHAR(ec.edition_date, 'YYYY-MM-DD') as edition_date_formatted,
                 TO_CHAR(ec.received_at, 'YYYY-MM-DD') as received_at_formatted,
+                TO_CHAR(ec.created_at, 'YYYY-MM-DD') as created_at_formatted,
                 u.fullname as createbyname,
                 p.name as penerbitname,
+                k.namakab as kotaterbit,
+                pro.namapropinsi as propinsiterbit,
                 ccr.id as id_catalogcovers,
                 ccr.fileurl as fileurl_catalogcovers,
                 ccr.hash as hash_catalogcovers,
@@ -279,10 +282,13 @@ class AcceptArticleJournalController extends Controller
                 cfr.hash as hash_catalogfiles,
                 cfr.mime as mime_catalogfiles,
                 cfr.file_size as file_size_catalogfiles,
-                cfr.method as method_catalogfiles     
+                cfr.method as method_catalogfiles,
+                co.noinduk_deposit     
                 from e_collections ec 
                 left join users u on u.id = ec.created_by 
                 left join penerbit p on p.id = ec.penerbit_id
+                left join kabupaten k on ec.kabupaten_id = k.id
+                left join propinsi pro on pro.id = k.propinsiid
                 left join
                     (
                         select
@@ -299,8 +305,9 @@ class AcceptArticleJournalController extends Controller
                         from
                             catalogcovers cc
                     ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
+                left join collections co on co.edeposit_col_id = ec.id
                 where ec.id = '{$id}'";
-
+        Log::info($sql);
         $data = QueryAPI::get($sql,true);
         if($data) {
             return response()->json([
@@ -411,6 +418,7 @@ class AcceptArticleJournalController extends Controller
                 'title',
                 'code',
                 'volume',
+                'city_id'
             ];
 
             if (!in_array($field, $allowed)) {
@@ -421,12 +429,19 @@ class AcceptArticleJournalController extends Controller
             }
             $ip = $request->ip();
 
-            // update langsung
-            QueryAPI::update('E_COLLECTIONS', $id, [
+            // update data dengan params
+            $params = [
                 $field => $value,
                 'is_need_verify' => 1,
                 'updated_by' => session('id')
-            ], true);
+            ];
+
+            if($field == 'city_id'){
+                $params = array_merge($params, [
+                    'KABUPATEN_ID' => $value,
+                ]);
+            }
+            QueryAPI::update('E_COLLECTIONS', $id, $params , true);
 
             return response()->json([
                 'code' => 200,
