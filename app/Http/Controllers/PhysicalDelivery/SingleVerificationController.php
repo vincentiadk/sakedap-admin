@@ -44,7 +44,7 @@ class SingleVerificationController extends Controller
         }
 
         $keywordSafe = $this->escapeSql($keyword);
-        $keywordUpper = strtoupper($keywordSafe);
+        $keywordUpper = trim(strtoupper($keywordSafe));
         $branchId = (int) session('branch_id');
 
         if ($mode === 'auto') {
@@ -64,7 +64,7 @@ class SingleVerificationController extends Controller
         $subWhere = " l2.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK',  'DITERIMA') ";
         $subCollection = " c.source_id = 6 AND branch_id = '" . session('branch_id') . "'";
 
-        $subWhere .= " and replace(ld2.isbn, '-','') like '%' || replace(ld.ISBN,'-','') || '%'";
+        $subWhere .= " and replace(trim(ld2.isbn), '-','') like '%' || replace(trim(ld.ISBN),'-','') || '%'";
 
         if ($mode === 'isbn') {
             $keywordUpper = str_replace('-','',$keywordUpper);
@@ -72,9 +72,10 @@ class SingleVerificationController extends Controller
         } else {
             $where .= " AND upper(ld.title) like '%{$keywordUpper}%' ";
         }
-        $where .= " AND l.branch_id = {$branchId} ";
+        //$where .= " AND l.branch_id = {$branchId} ";
+        $subWhereProv = $subWhere . " AND l2.branch_id != '37' ";
         $subWhere .= " AND l2.branch_id = {$branchId} ";
-
+        
         $sql = "
             SELECT t.*,
              CASE
@@ -111,6 +112,13 @@ class SingleVerificationController extends Controller
                     END AS received_by_name,
                     l.accept_date,
                     b.name AS DESTINATION_LIBRARY,
+                   (
+                        SELECT SUM(ld2.copy)
+                        FROM LETTER_DETAIL ld2
+                        JOIN LETTER l2 ON l2.letter_id = ld2.letter_id
+                        WHERE ld2.letter_detail_id != ld.letter_detail_id
+                        AND {$subWhereProv}
+                    ) AS total_copy_prov,
                     (
                         SELECT SUM(ld2.copy)
                         FROM LETTER_DETAIL ld2
@@ -118,6 +126,13 @@ class SingleVerificationController extends Controller
                         WHERE ld2.letter_detail_id != ld.letter_detail_id
                         AND {$subWhere}
                     ) AS total_copy_sistem,
+                    (
+                        SELECT SUM(ld2.qty_accept)
+                        FROM LETTER_DETAIL ld2
+                        JOIN LETTER l2 ON l2.letter_id = ld2.letter_id
+                        WHERE ld2.letter_detail_id != ld.letter_detail_id
+                        AND {$subWhereProv}
+                    ) AS total_accept_prov,
                     (
                         SELECT SUM(ld2.qty_accept)
                         FROM LETTER_DETAIL ld2
@@ -143,7 +158,7 @@ class SingleVerificationController extends Controller
             ) t
             WHERE ROWNUM <= {$limit}
         ";
-
+        //Log::info($sql);
         $data = QueryAPI::get($sql);
         
         return response()->json([
@@ -203,18 +218,20 @@ class SingleVerificationController extends Controller
                     letter_id = '$request->letter_id'
                 ", true);
             if ($letterDetail) {
-                if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
-                    $status = 'DITERIMA PENUH';
-                } else {
-                    $status = 'DITERIMA PARSIAL';
+                if(! $request->status == 'DITERIMA') {
+                    if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
+                        $status = 'DITERIMA PENUH';
+                    } else {
+                        $status = 'DITERIMA PARSIAL';
+                    }
+                    QueryAPI::update('letter', $request->letter_id, [
+                            'status' => $status,
+                            'accept_date' => $request->received_date,
+                            'update_by' => session('username'),
+                            'update_terminal' => $request->ip(),
+                            'update_date' => date('Y-m-d')
+                        ], false);
                 }
-                QueryAPI::update('letter', $request->letter_id, [
-                        'status' => $status,
-                        'accept_date' => $request->received_date,
-                        'update_by' => session('username'),
-                        'update_terminal' => $request->ip(),
-                        'update_date' => date('Y-m-d')
-                    ], false);
             }
             return response()->json([
                 'code' => 200,

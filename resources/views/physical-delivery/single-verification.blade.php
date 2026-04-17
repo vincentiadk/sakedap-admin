@@ -170,21 +170,33 @@
                                                             <div class="text-muted">Riwayat Eks Dikirim</div>
                                                             <div class="fw-semibold" id="info_total_copy_sistem">0</div>
                                                         </div>
-
                                                         <div class="col-md-3">
                                                             <div class="text-muted">Riwayat Eks Diterima</div>
                                                             <div class="fw-semibold" id="info_total_accept_sistem">0</div>
                                                         </div>
-                                                        <div class="col-md-2">
+                                                        <div class="col-md-3">
+                                                            <div class="text-muted">Total Eks Dikirim ke Perpusnas dan Provinsi</div>
+                                                            <div class="fw-semibold" id="info_total_copy_all">0</div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="text-muted">Riwayat Eks Dikirim ke Provinsi</div>
+                                                            <div class="fw-semibold" id="info_total_copy_prov">0</div>
+                                                        </div>
+                                                        
+                                                        <div class="col-md-3">
+                                                            <div class="text-muted">Riwayat Eks Diterima di Provinsi</div>
+                                                            <div class="fw-semibold" id="info_total_accept_prov">0</div>
+                                                        </div>
+                                                        <div class="col-md-3">
                                                             <div class="text-muted">Koleksi akan diterima</div>
                                                             <div class="fw-semibold" id="info_collection_current">0</div>
                                                         </div>
-                                                        <div class="col-md-2">
+                                                        <div class="col-md-3">
                                                             <div class="text-muted">Koleksi sudah dicatat</div>
                                                             <div class="fw-semibold" id="info_total_collection_sistem">0</div>
                                                         </div>
-                                                        <div class="col-md-2">
-                                                            <div class="text-muted">Eks Lebih</div>
+                                                        <div class="col-md-3">
+                                                            <div class="text-muted">Eks Lebih Perpusnas</div>
                                                             <div class="fw-semibold" id="info_collection_other">0</div>
                                                         </div>
                                                     </div>
@@ -558,7 +570,15 @@
         $('#info_total_collection_sistem').text(totalCollectionSistem);
         $('#info_collection_current').text(collectionCurrent);
         $('#info_collection_other').text(collectionOther);
+        
+        const totalCopyProv = parseInt(item.TOTAL_COPY_PROV || 0, 10);
+        const totalAcceptProv = parseInt(item.TOTAL_ACCEPT_PROV || 0, 10);
 
+        $('#info_total_prov').text(totalCopyProv);
+        $('#info_total_accept_copy_prov').text(totalAcceptProv);
+
+        const totalCopyAll = totalCopySistem + totalCopyProv;
+        $('#info_total_copy_all').text(totalCopyAll);
         let note = 'Data ini bersifat referensi berdasarkan ISBN.';
 
         if (totalCollectionSistem > 0) {
