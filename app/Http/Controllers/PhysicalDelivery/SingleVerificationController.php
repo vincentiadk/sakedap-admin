@@ -74,7 +74,7 @@ class SingleVerificationController extends Controller
         }
         //$where .= " AND l.branch_id = {$branchId} ";
         $subWhereProv = $subWhere . " AND l2.branch_id != '37' ";
-        $subWhere .= " AND l2.branch_id = {$branchId} ";
+        $subWhere .= " AND l2.branch_id = '37' ";
         
         $sql = "
             SELECT t.*,
