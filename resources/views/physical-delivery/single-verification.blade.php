@@ -576,7 +576,7 @@
         $('#info_total_prov').text(totalCopyProv);
         $('#info_total_accept_copy_prov').text(totalAcceptProv);
 
-        const totalCopyAll = totalCopySistem + totalCopyProv;
+        const totalCopyAll = item.TOTAL_COPY_ALL;
         $('#info_total_copy_all').text(totalCopyAll);
         let note = 'Data ini bersifat referensi berdasarkan ISBN.';
 

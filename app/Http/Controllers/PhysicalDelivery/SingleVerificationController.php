@@ -100,6 +100,12 @@ class SingleVerificationController extends Controller
                     l.type_of_delivery,
                     ld.isbn_status,
                     jp.name AS jasa_pengiriman_name,
+                    (
+                        SELECT SUM(ld.copy)
+                        FROM LETTER_DETAIL ld
+                        JOIN LETTER l ON l.letter_id = ld.letter_id
+                        WHERE {$where}
+                    ) AS total_copy_all,
                     CASE
                         WHEN l.status IN ('DITERIMA PENUH', 'CEK FISIK', 'DITERIMA PARSIAL') THEN ld.received_date
                         WHEN l.status = 'DITERIMA' THEN l.accept_date
@@ -158,7 +164,7 @@ class SingleVerificationController extends Controller
             ) t
             WHERE ROWNUM <= {$limit}
         ";
-        //Log::info($sql);
+       
         $data = QueryAPI::get($sql);
         
         return response()->json([
