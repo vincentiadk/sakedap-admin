@@ -224,7 +224,7 @@ class SingleVerificationController extends Controller
                     letter_id = '$request->letter_id'
                 ", true);
             if ($letterDetail) {
-                if(! $request->status == 'DITERIMA') {
+                if(! $request->letter_status == 'DITERIMA') {
                     if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
                         $status = 'DITERIMA PENUH';
                     } else {

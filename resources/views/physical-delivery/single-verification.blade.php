@@ -110,7 +110,7 @@
                                                 <div id="detail_isbn">-</div>
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Filter Status</label>
+                                                <label class="form-label text-muted mb-1">Status ISBN</label>
                                                 <select id="detail_isbn_status" class="form-select"  name="detail_isbn_status">
                                                     <option value="" selected="true">Pilih Status ISBN</option>
                                                     <option value="berISBN">berISBN</option>
@@ -254,6 +254,7 @@
                                     <input type="hidden" name="branch_id" id="branch_id">
                                     <input type="hidden" name="received_by_name" id="received_by_name">
                                     <input type="hidden" name="action_type" id="action_type" value="receive">
+                                    <input type="hidden" name="letter_status" id="letter_status">
 
                                     <div class="row g-3">
                                         <div class="col-md-6">
@@ -458,6 +459,7 @@
         document.getElementById('detailPanel').classList.remove('d-none');
         document.getElementById('letter_id').value = item.LETTER_ID || '';
         document.getElementById('letter_detail_id').value = item.LETTER_DETAIL_ID || '';
+        document.getElementById('letter_status').value = item.STATUS || '';
         document.getElementById('received_by_name').value = item.RECEIVED_BY_NAME || 'no_name';
         document.getElementById('branch_id').value = item.BRANCH_ID || '';
         document.getElementById('status_code').value = item.STATUS_CODE || '';
