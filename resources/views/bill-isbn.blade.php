@@ -248,7 +248,7 @@
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar me-1"></i>
-                                Tgl Terima
+                                Tgl ISBN Didapatkan
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-plus me-1"></i>
