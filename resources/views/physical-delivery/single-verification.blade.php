@@ -176,7 +176,7 @@
                                                             <div class="fw-semibold" id="info_total_accept_sistem">0</div>
                                                         </div>
                                                         <div class="col-md-2">
-                                                            <div class="text-muted">Koleksi di Penerimaan</div>
+                                                            <div class="text-muted">Koleksi akan diterima</div>
                                                             <div class="fw-semibold" id="info_collection_current">0</div>
                                                         </div>
                                                         <div class="col-md-2">
@@ -478,7 +478,7 @@
         document.getElementById('detail_quantity').innerText = item.QUANTITY || '0';
 
         document.getElementById('detail_qty_accept').value = item.QTY_ACCEPT || '0';
-        //document.getElementById('detail_qty_reject').value = item.QTY_REJECT || '0';
+        document.getElementById('detail_qty_reject').value = item.QTY_REJECT || '0';
         //document.getElementById('detail_reject_reason').value = item.REMARK || '-';
         const qtyReject = parseInt(item.QTY_REJECT || 0, 10);
         const rejectReason = item.REMARK || '';
