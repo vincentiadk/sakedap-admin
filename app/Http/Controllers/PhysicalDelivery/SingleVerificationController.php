@@ -237,6 +237,14 @@ class SingleVerificationController extends Controller
                             'update_terminal' => $request->ip(),
                             'update_date' => date('Y-m-d')
                         ], false);
+                } else {
+                    QueryAPI::update('letter', $request->letter_id, [
+                            'status' => $status,
+                            'accept_date' => $request->received_date,
+                            'update_by' => session('username'),
+                            'update_terminal' => $request->ip(),
+                            'update_date' => date('Y-m-d')
+                        ], false);
                 }
             }
             return response()->json([
