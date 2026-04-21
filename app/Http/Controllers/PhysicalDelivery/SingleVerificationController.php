@@ -224,12 +224,12 @@ class SingleVerificationController extends Controller
                     letter_id = '$request->letter_id'
                 ", true);
             if ($letterDetail) {
-                if(! $request->letter_status == 'DITERIMA') {
-                    if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
+                if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_ACCEPT) {
                         $status = 'DITERIMA PENUH';
                     } else {
                         $status = 'DITERIMA PARSIAL';
                     }
+                if(! $request->letter_status == 'DITERIMA') {
                     QueryAPI::update('letter', $request->letter_id, [
                             'status' => $status,
                             'accept_date' => $request->received_date,
