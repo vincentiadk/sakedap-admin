@@ -314,7 +314,7 @@
             },
             columns: [
                 { orderable: false, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-center fw-semibold' },
+                { orderable: true, className: 'align-middle text-wrap fw-semibold' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
