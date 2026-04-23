@@ -113,6 +113,16 @@
                     <i class="ph-list-checks me-1"></i>
                     <span id="record-count">0</span> Data
                 </span>
+                <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
+                        <select class="form-select" name="is_need_verify" id="is_need_verify" onchange="loadData()" style="min-width: 150px;">
+                            <option value="">Semua Status Verifikasi</option>
+                            <option value="1">Sudah verifikasi</option>
+                            <option value="0">Perlu Verifikasi</option>
+                        </select>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -276,6 +286,7 @@
             serverSide: true,
             deferRender: true,
             scrollX: true,
+            stateSave: true,
             destroy: true,
             order: [[6, 'desc']],
             ajax: {
@@ -286,10 +297,11 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: function (d) {
+                    d['is_need_verify'] = $('#is_need_verify').val();
                     $('#form-filter').serializeArray().forEach(function(item) {
                         d[item.name] = item.value;
                     });
-
+                    
                     return d;
                 },
                 beforeSend: function() {

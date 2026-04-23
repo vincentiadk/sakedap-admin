@@ -88,7 +88,9 @@ class AcceptArticleJournalController extends Controller
         if ($request->received_by) {
             $whereCondition[] = "e.received_by = $request->received_by";
         }
-
+        if ($request->is_need_verify) {
+            $whereCondition[] = "e.is_need_verify = $request->is_need_verify";
+        }
         $whereCondition[] = "e.collection_media_id = 203";
         
 
