@@ -309,7 +309,7 @@ class AcceptArticleJournalController extends Controller
                     ) ccr on ccr.e_col_id = ec.id and ccr.rn = 1
                 left join collections co on co.edeposit_col_id = ec.id
                 where ec.id = '{$id}'";
-        Log::info($sql);
+
         $data = QueryAPI::get($sql,true);
         if($data) {
             return response()->json([

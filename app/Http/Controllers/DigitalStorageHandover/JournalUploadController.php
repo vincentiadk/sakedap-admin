@@ -30,6 +30,7 @@ class JournalUploadController extends Controller
     public function datatable(Request $request)
     {
         $column = [
+            null,
             'zu.id',
             'p.name',
             'zu.zip_name',
@@ -38,8 +39,7 @@ class JournalUploadController extends Controller
             'zu.processed_rows',
             'zu.success_rows',
             'zu.failed_rows',
-            'zu.creted_at',
-            null
+            'zu.created_at',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -138,7 +138,13 @@ class JournalUploadController extends Controller
         
         if ($queryData) {
             foreach ($queryData as $val) {
+                $action = '
+                    <a href="' . url('/digital-storage-handover/journal/zip-upload/history/' . $val->ID) . '" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="ph-info me-1"></i>
+                        Detail
+                    </a>';
                 $data[] = [
+                    $action,
                     $val->ID,
                     $val->PENERBITNAME,
                     $val->ZIP_NAME,
@@ -147,7 +153,8 @@ class JournalUploadController extends Controller
                     $val->PROCESSED_ROWS,
                     $val->SUCCESS_ROWS,
                     $val->FAILED_ROWS,
-                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y')
+                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
+
                 ];
 
                 $start++;

@@ -190,6 +190,7 @@
             <table class="table table-hover table-bordered display nowrap w-100" id = datatable-serverside>
                 <thead>
                     <tr>
+                        <th>Aksi</th>
                         <th>ID</th>
                         <th>Pelaksana Serah</th>
                         <th>Nama ZIP</th>
@@ -198,7 +199,7 @@
                         <th>Processed</th>
                         <th>Success</th>
                         <th>Failed</th>
-                        <th>Aksi</th>
+                        <th>Tanggal Unggah</th>
                     </tr>
                 </thead>
             </table>
@@ -506,7 +507,8 @@ function loadData() {
                 }
             },
             columns: [
-                { orderable: false, className: 'align-middle text-center fw-semibold' },
+                { orderable: false, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },

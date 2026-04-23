@@ -109,20 +109,20 @@
                     <i class="ph-clipboard-text me-1 text-primary"></i>
                     <h6 class="mb-0 fw-semibold">Daftar Data Diterima</h6>
                 </div>
-                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
-                    <i class="ph-list-checks me-1"></i>
-                    <span id="record-count">0</span> Data
-                </span>
                 <div class="input-group" style="width: auto;">
                         <span class="input-group-text">
                             <i class="ph-funnel"></i>
                         </span>
                         <select class="form-select" name="is_need_verify" id="is_need_verify" onchange="loadData()" style="min-width: 150px;">
                             <option value="">Semua Status Verifikasi</option>
-                            <option value="1">Sudah verifikasi</option>
-                            <option value="0">Perlu Verifikasi</option>
+                            <option value="0">Sudah verifikasi</option>
+                            <option value="1">Perlu Verifikasi</option>
                         </select>
                 </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                    <i class="ph-list-checks me-1"></i>
+                    <span id="record-count">0</span> Data
+                </span>
             </div>
         </div>
         <div class="card-body">
@@ -313,6 +313,7 @@
                 }
             },
             columns: [
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center fw-semibold' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
