@@ -327,7 +327,6 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
-                { orderable: true, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
