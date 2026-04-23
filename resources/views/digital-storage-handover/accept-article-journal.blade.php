@@ -215,7 +215,10 @@
 
         el.addClass('editing').html(input);
         input.focus();
-
+        let perluVerifikasi = `<div class="alert alert-warning border-warning-subtle mb-3" id="verify-warning-box">
+                                <i class="ph-warning-circle me-1"></i>
+                                Perubahan metadata terdeteksi. <strong>Data ini perlu diverifikasi ulang ke katalog</strong>.
+                            </div>`;
         input.on('blur', function () {
             let newVal = $(this).val().trim();
 
@@ -239,6 +242,11 @@
                 success: function (res) {
                     //el.removeClass('saving').text(newVal || '-');
                     el.removeClass('saving').html(renderVal(field, newVal));
+                    let container = $('#detailJurnal');
+                    // cek apakah warning sudah ada
+                    if (container.find('#verify-warning-box').length === 0) {
+                        container.prepend(perluVerifikasi); // pakai prepend biar muncul di atas
+                    }
                     loadData();
                 },
                 error: function () {
@@ -675,7 +683,7 @@
                             <div class="swal-detail-grid">
 
                                 <div class="swal-detail-main">
-                                    <div class="detail-card">
+                                    <div class="detail-card" id="detailArtikel">
                                     ${verifyWarning}
                                         <div class="detail-title inline-edit" data-id="${data.ID}"  data-field="article_title">${safe(data.ARTICLE_TITLE)}
                                         </div>
