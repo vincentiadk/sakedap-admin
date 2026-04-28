@@ -278,10 +278,10 @@ class ProcessZipJournalJob implements ShouldQueue
                 'status' => (int) $lastSummary['failed_rows'] > 0 ? 'done_with_error' : 'done',
                 'notes' => 'Proses upload selesai',
                 'finished_at' => date('Y-m-d H:i:s'),
-                'failed_rows' => $lastSummary['failed_rows'],
-                'success_rows' => $lastSummary['success_rows'],
-                'processed_rows' => $lastSummary['processed_rows'],
-                'total_rows' =>  $lastSummary['total_rows']
+                'failed_rows' => $lastSummary['failed_rows'] ?? 0,
+                'success_rows' => $lastSummary['success_rows'] ?? 0,
+                'processed_rows' => $lastSummary['processed_rows'] ?? 0,
+                'total_rows' =>  $lastSummary['total_rows'] ?? 0
             ];
             $this->setSummaryProgress($data);
 
@@ -298,6 +298,16 @@ class ProcessZipJournalJob implements ShouldQueue
                 'notes' => $e->getMessage(),
                 'finished_at' => date('Y-m-d H:i:s'),
             ]);
+            /*QueryAPI::update(
+                'e_zip_upload_history',
+                $this->historyId,
+                [
+                    'status' => 'failed',
+                    'notes' => $e->getMessage(),
+                    'finished_at' => date('Y-m-d H:i:s'),
+                ],
+                false
+            );*/
             Log::channel('zip-upload')->error('ZIP upload failed', [
                 'history_id' => $this->historyId,
                 'message' => $e->getMessage(),
@@ -330,7 +340,10 @@ class ProcessZipJournalJob implements ShouldQueue
     }
     protected function mapExcelRowToEcollectionsPayload($item, $history, $penerbit, $filePath = null)
     {
-        $editionDate = $this->convertExcelDate($item['tanggal_terbit_dd_mm_yyyy'] ?? null);
+        $rawDate = $item['tanggal_terbit_dd_mm_yyyy'] 
+                ?? $item['tanggal_terbit'] 
+                ?? null;
+        $editionDate = $this->convertExcelDate($rawDate);
         $receivedDate = $this->convertExcelDate($item['tanggal_aset_dd_mm_yyyy'] ?? date('Y-m-d H:i:s'));
         $publicationYear = $this->extractYear($editionDate)  ?? $this->extractYear($receivedDate);
        
