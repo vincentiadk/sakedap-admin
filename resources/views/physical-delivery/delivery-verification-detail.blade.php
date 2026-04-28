@@ -416,18 +416,11 @@
         });
     }
 
-    function calculateQty(param, from) {
+    function calculateQty(param) {
         var accept = parseInt($('.total-accept-' + param).val()) || 0;
         var reject = parseInt($('.total-reject-' + param).val()) || 0;
-        var total = accept + reject;
 
-        var acceptValue = accept;
-        var calculateReject = reject - accept;
-        var rejectValue = calculateReject >= 0 ? calculateReject : 0;
-
-        $('.total-accept-' + param).val(acceptValue);
-        $('.total-reject-' + param).val(rejectValue);
-        $('.total-copy-' + param).val(total);
+        $('.total-copy-' + param).val(accept + reject);
     }
 
     function submitted() {
