@@ -205,7 +205,7 @@ class AcceptArticleJournalController extends Controller
         ";
         
         $queryData = QueryAPI::get($sql);
-        
+
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '

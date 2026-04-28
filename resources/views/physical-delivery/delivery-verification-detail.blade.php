@@ -357,6 +357,7 @@
                 letter_detail_id: id,
                 qty_accept: $('.total-accept-' + param).val(),
                 qty_reject: $('.total-reject-' + param).val(),
+                copy: $('.total-copy-' + param).val(),
                 isbn_status: $('.note-' + param).val(),
                 checked: checkChecked ? 1 : 0,
                 verif: verif,
@@ -415,19 +416,11 @@
         });
     }
 
-    function calculateQty(param, from) {
-        var total = $('.total-copy-' + param).val();
-        var accept = $('.total-accept-' + param).val();
-        var reject = $('.total-reject-' + param).val();
+    function calculateQty(param) {
+        var accept = parseInt($('.total-accept-' + param).val()) || 0;
+        var reject = parseInt($('.total-reject-' + param).val()) || 0;
 
-        var accpetValue = parseInt(total) - parseInt(reject);
-        var rejectValue = parseInt(total) - parseInt(accept);
-
-        if(from == 'accept') {
-            $('.total-reject-' + param).val(rejectValue ?? 0);
-        } else if(from == 'reject') {
-            $('.total-accept-' + param).val(accpetValue ?? 0);
-        }
+        $('.total-copy-' + param).val(accept + reject);
     }
 
     function submitted() {

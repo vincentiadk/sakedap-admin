@@ -337,26 +337,26 @@ class DeliveryVerificationController extends Controller
     public function datatableCollection(Request $request)
     {
         $column = [
-            'letter_detail_id',
-            'checked',
+            'letter_detail.letter_detail_id',
+            'letter_detail.checked',
             null,
-            'title',
-            'isbn',
-            'nomorpanggiljilid',
-            'edisi_serial',
+            'letter_detail.title',
+            'letter_detail.isbn',
+            'letter_detail.nomorpanggiljilid',
+            'letter_detail.edisi_serial',
             null,
             null,
-            'qty_accept',
-            'qty_reject',
-            'remark',
-            'isbn_status',
+            'letter_detail.qty_accept',
+            'letter_detail.qty_reject',
+            'letter_detail.remark',
+            'letter_detail.isbn_status',
         ];
 
         $draw = intval($request->draw ?? 0);
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
         $search = strtoupper(str_replace('-', '', trim($request->search['value'])) ?? '');
-        $whereCondition = ["letter_id = " . intval($request->letter_id)];
+        $whereCondition = ["letter_detail.letter_id = " . intval($request->letter_id)];
 
         if ($search) {
             $terms = collect($column)
@@ -390,9 +390,11 @@ class DeliveryVerificationController extends Controller
 
         $totalFiltered = QueryAPI::get("
             select
-                count(letter_detail_id) as total
+                count(letter_detail.letter_detail_id) as total
             from
                 letter_detail
+            left join
+                letter on letter.letter_id = letter_detail.letter_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -406,9 +408,12 @@ class DeliveryVerificationController extends Controller
                         data.*
                     from (
                             select
-                                *
+                                letter_detail.*,
+                                letter.branch_id as branch_id
                             from
                                 letter_detail
+                            left join
+                                letter on letter.letter_id = letter_detail.letter_id
                             $whereClause
                             $orderBy
                         ) data
@@ -526,7 +531,7 @@ class DeliveryVerificationController extends Controller
         foreach ($queryData as $val) {
             $randStr = Str::random(10);
             $code = str_replace('-', '', $val->ISBN);
-            $totalSent = $val->COPY ?: 0;
+            $totalSent = 0;
             $totalSystem = 0;
             $fileCover = $noFileCover;
 
@@ -558,19 +563,20 @@ class DeliveryVerificationController extends Controller
             if ($dbAccept !== null || $dbReject !== null) {
                 $totalAccept = $dbAccept;
                 $totalReject = $dbReject;
+                $totalSent = $dbAccept + $dbReject;
             } else {
                 $totalAccept = 0;
-                $totalReject = $totalSent;
+                $totalReject = 0;
 
-                if ($totalSystem == 0 || $totalSystem == 1) {
-                    if ($totalSent == 1) {
-                        $totalAccept = 1;
-                        $totalReject = 0;
-                    } else {
-                        $totalAccept = $isAdmin ? 2 : 1;
-                        $totalReject = $totalSent - $totalAccept;
-                    }
+                if ($totalSystem == 0) {
+                    $totalAccept = $val->BRANCH_ID == 37 ? 2 : 1;
+                } else if ($totalSystem == 1) {
+                    $totalAccept = 1;
+                } else if ($totalSystem == 2) {
+                    $totalAccept = $val->BRANCH_ID == 37 ? 1 : 0;
                 }
+
+                $totalSent = $totalAccept;
             }
 
             $maxAccept = ($totalSent >= 2) ? ($isAdmin ? 2 : 1) : 1;
@@ -626,7 +632,7 @@ class DeliveryVerificationController extends Controller
             $disabledAttr = $canEdit ? '' : 'disabled';
 
             $totalAcceptField = sprintf(
-                '<select class="form-select total-accept-%s" %s onchange="calculateQty(\'%s\', \'accept\')" %s>%s</select>',
+                '<select class="form-select total-accept-%s" %s onchange="calculateQty(\'%s\')" %s>%s</select>',
                 e($randStr),
                 $nameAttr,
                 e($randStr),
@@ -644,12 +650,12 @@ class DeliveryVerificationController extends Controller
             $nameAttr = $canEdit ? 'name="letter_detail_qty_reject[]"' : '';
 
             $totalRejectField = sprintf(
-                '<select class="form-select total-reject-%s" %s onchange="calculateQty(\'%s\', \'reject\')" %s>%s</select>',
+                '<input type="number" class="form-control total-reject-%s" %s oninput="calculateQty(\'%s\')" %s value="%s" placeholder="0">',
                 e($randStr),
                 $nameAttr,
                 e($randStr),
                 $disabledAttr,
-                $optionReject
+                $totalReject
             );
 
             $remark = [];
@@ -741,6 +747,7 @@ class DeliveryVerificationController extends Controller
         $username = session('username');
         $checked = $request->checked;
         $verif = $request->verif;
+        $copy = $request->copy;
 
         $letterDetail = QueryAPI::get(
             "
@@ -773,6 +780,7 @@ class DeliveryVerificationController extends Controller
         }
 
         $payload = [
+            'copy' => $checked ? $copy : null,
             'qty_accept' => $checked ? $qtyAccept : null,
             'qty_reject' => $checked ? $qtyReject : null,
             'remark' => $checked ? implode(';', $remark ?? []) : null,
