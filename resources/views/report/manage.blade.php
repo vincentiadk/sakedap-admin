@@ -289,6 +289,10 @@
                                 <i class="ph-money me-1"></i>
                                 DOI
                             </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-phone-call me-1"></i>
+                                NID
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -518,6 +522,7 @@
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

@@ -393,7 +393,8 @@ class ManageController extends Controller
             'TO_CHAR(e.price)',
             "CASE WHEN ea_receive.fullname IS NOT NULL
                 THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                ELSE u_receive.fullname END"
+                ELSE u_receive.fullname END",
+            'c.callnumber',
         ];
 
         $draw    = intval($request->draw ?? 0);
@@ -613,6 +614,7 @@ class ManageController extends Controller
                     $val->PRICE_E_COLLECTION,
                     $val->FULLNAME,
                     $val->DOI_E_COLLECTION,
+                    $val->CALLNUMBER,
                 ];
                 $counter++;
             }
