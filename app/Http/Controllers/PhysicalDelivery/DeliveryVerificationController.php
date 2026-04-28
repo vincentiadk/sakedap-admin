@@ -356,7 +356,7 @@ class DeliveryVerificationController extends Controller
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
         $search = strtoupper(str_replace('-', '', trim($request->search['value'])) ?? '');
-        $whereCondition = ["letter_id = " . intval($request->letter_id)];
+        $whereCondition = ["letter_detail.letter_id = " . intval($request->letter_id)];
 
         if ($search) {
             $terms = collect($column)
