@@ -790,12 +790,14 @@ class DeliveryVerificationController extends Controller
 
         QueryAPI::update('letter_detail', $letterDetailId, $payload, false);
 
+        $branchIdLetter = $letterDetail->BRANCH_ID_LETTER ?: null;
+
         if ($letterDetail->ISBN ?: null && $qtyAccept > 0) {
             QueryAPI::setReceiveDate([
                 'LetterDetailId' => $letterDetailId,
                 'NomorISBN' => $letterDetail->ISBN,
-                'IsPerpusnas' => $letterDetail->BRANCH_ID_LETTER == 37 ? 1 : 0,
-                'IsProvinsi' => $letterDetail->BRANCH_ID_LETTER != 37 ? 1 : 0,
+                'IsPerpusnas' => $branchIdLetter ? ($branchIdLetter == 37 ? 1 : 0) : 0,
+                'IsProvinsi' => $branchIdLetter ? ($branchIdLetter != 37 ? 1 : 0) : 0,
                 'TanggalTerima' => date('Y-m-d'),
             ]);
         }

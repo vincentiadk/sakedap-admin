@@ -320,8 +320,8 @@ class CreateReceiptController extends Controller
                                 QueryAPI::setReceiveDate([
                                     'LetterDetailId' => $letterDetail->ID ?? '',
                                     'NomorISBN' => $letterDetail->ISBN ?? '',
-                                    'IsPerpusnas' => ($letterDetail->BRANCH_ID_LETTER ?? 0) == 37 ? 1 : 0,
-                                    'IsProvinsi' => ($letterDetail->BRANCH_ID_LETTER ?? 0) != 37 ? 1 : 0,
+                                    'IsPerpusnas' => $request->branch_id == 37 ? 1 : 0,
+                                    'IsProvinsi' => $request->branch_id != 37 ? 1 : 0,
                                     'TanggalTerima' => date('Y-m-d'),
                                 ]);
                             }
