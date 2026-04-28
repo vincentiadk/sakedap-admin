@@ -298,7 +298,7 @@ class ProcessZipJournalJob implements ShouldQueue
                 'notes' => $e->getMessage(),
                 'finished_at' => date('Y-m-d H:i:s'),
             ]);
-            QueryAPI::update(
+            /*QueryAPI::update(
                 'e_zip_upload_history',
                 $this->historyId,
                 [
@@ -307,7 +307,7 @@ class ProcessZipJournalJob implements ShouldQueue
                     'finished_at' => date('Y-m-d H:i:s'),
                 ],
                 false
-            );
+            );*/
             Log::channel('zip-upload')->error('ZIP upload failed', [
                 'history_id' => $this->historyId,
                 'message' => $e->getMessage(),
@@ -340,7 +340,10 @@ class ProcessZipJournalJob implements ShouldQueue
     }
     protected function mapExcelRowToEcollectionsPayload($item, $history, $penerbit, $filePath = null)
     {
-        $editionDate = $this->convertExcelDate($item['tanggal_terbit_dd_mm_yyyy'] ?? null);
+        $rawDate = $item['tanggal_terbit_dd_mm_yyyy'] 
+                ?? $item['tanggal_terbit'] 
+                ?? null;
+        $editionDate = $this->convertExcelDate($rawDate);
         $receivedDate = $this->convertExcelDate($item['tanggal_aset_dd_mm_yyyy'] ?? date('Y-m-d H:i:s'));
         $publicationYear = $this->extractYear($editionDate)  ?? $this->extractYear($receivedDate);
        
