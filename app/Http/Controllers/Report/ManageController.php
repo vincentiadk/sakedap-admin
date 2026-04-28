@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Jobs\ExcelDownloadBackgroundJob;
-use Illuminate\Support\Facades\Log;
 
 class ManageController extends Controller
 {
@@ -536,6 +535,7 @@ class ManageController extends Controller
                 e.received_at,
                 e.serial AS serial_e_collection,
                 e.price AS price_e_collection,
+                e.article_subject AS a_subject,
                 p.id AS id_penerbit,
                 p.name AS name_penerbit,
                 pr.namapropinsi,
@@ -605,7 +605,7 @@ class ManageController extends Controller
                     $val->METHOD_CATALOGFILES == 4 ? 'Ya' : 'Tidak',
                     Main::access($val->AKSES),
                     $val->AUTHOR,
-                    '',
+                    $val->A_SUBJECT,
                     Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES ?? '', PATHINFO_EXTENSION)),
                     $val->CREATED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y, H:i') : '-',
