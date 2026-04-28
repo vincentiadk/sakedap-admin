@@ -29,7 +29,7 @@ class ISBN
      * @param  mixed $single
      * @return void
      */
-    public static function get($endpoint, $payload = [], $single = false)
+    /*public static function get($endpoint, $payload = [], $single = false, $method = 'GET')
     {
         static::initialize();
 
@@ -37,7 +37,7 @@ class ISBN
         $query = Http::baseUrl(static::$baseUrl)
             ->withToken(static::$token)
             ->withoutVerifying()
-            ->get($endpoint, $payload);
+            ->post($endpoint, $payload);
 
         $response = $query->object();
 
@@ -56,6 +56,48 @@ class ISBN
             }
         } else {
             Log::channel('isbn-api')->error('Gagal get endpoint', [
+                'payload' => $payload,
+                'response' => $response,
+                'message' => $query->body()
+            ]);
+        }
+
+        return $data;
+    }*/
+
+    public static function get($endpoint, $payload = [], $single = false, $method = 'POST')
+    {
+        static::initialize();
+
+        $data = null;
+
+        $http = Http::baseUrl(static::$baseUrl)
+            ->withToken(static::$token)
+            ->withoutVerifying();
+
+        if (strtoupper($method) === 'GET') {
+            $query = $http->get($endpoint, $payload);
+        } else {
+            $query = $http->post($endpoint, $payload);
+        }
+
+        $response = $query->object();
+
+        if ($query->status() == 200) {
+            if (isset($response->data)) {
+                if (count($response->data) > 0) {
+                    if ($single == true) {
+                        $data = $response->data[0];
+                    } else {
+                        $data = $response;
+                    }
+                }
+            } else {
+                $data = $response;
+            }
+        } else {
+            Log::channel('isbn-api')->error('Gagal get endpoint', [
+                'method' => $method,
                 'payload' => $payload,
                 'response' => $response,
                 'message' => $query->body()
