@@ -231,7 +231,7 @@ class SingleVerificationController extends Controller
                 }
                 if(! $request->letter_status == 'DITERIMA') {
                     QueryAPI::update('letter', $request->letter_id, [
-                            'status' => 'DITERIMA',
+                            'status' => $status,
                             'accept_date' => $request->received_date,
                             'update_by' => session('username'),
                             'update_terminal' => $request->ip(),
@@ -239,7 +239,7 @@ class SingleVerificationController extends Controller
                         ], false);
                 } else {
                     QueryAPI::update('letter', $request->letter_id, [
-                            //'status' => $status,
+                            //'status' => 'DITERIMA',
                             //'accept_date' => $request->received_date,
                             'update_by' => session('username'),
                             'update_terminal' => $request->ip(),
