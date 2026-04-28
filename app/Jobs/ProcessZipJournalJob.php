@@ -278,10 +278,10 @@ class ProcessZipJournalJob implements ShouldQueue
                 'status' => (int) $lastSummary['failed_rows'] > 0 ? 'done_with_error' : 'done',
                 'notes' => 'Proses upload selesai',
                 'finished_at' => date('Y-m-d H:i:s'),
-                'failed_rows' => $lastSummary['failed_rows'],
-                'success_rows' => $lastSummary['success_rows'],
-                'processed_rows' => $lastSummary['processed_rows'],
-                'total_rows' =>  $lastSummary['total_rows']
+                'failed_rows' => $lastSummary['failed_rows'] ?? 0,
+                'success_rows' => $lastSummary['success_rows'] ?? 0,
+                'processed_rows' => $lastSummary['processed_rows'] ?? 0,
+                'total_rows' =>  $lastSummary['total_rows'] ?? 0
             ];
             $this->setSummaryProgress($data);
 
@@ -298,6 +298,16 @@ class ProcessZipJournalJob implements ShouldQueue
                 'notes' => $e->getMessage(),
                 'finished_at' => date('Y-m-d H:i:s'),
             ]);
+            QueryAPI::update(
+                'e_zip_upload_history',
+                $this->historyId,
+                [
+                    'status' => 'failed',
+                    'notes' => $e->getMessage(),
+                    'finished_at' => date('Y-m-d H:i:s'),
+                ],
+                false
+            );
             Log::channel('zip-upload')->error('ZIP upload failed', [
                 'history_id' => $this->historyId,
                 'message' => $e->getMessage(),
