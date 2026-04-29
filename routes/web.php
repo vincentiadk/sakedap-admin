@@ -131,6 +131,16 @@ Route::middleware('authentication')->group(function () {
             Route::get('select-catalog', 'CreateReceiptController@selectCatalog');
             Route::post('submitted', 'CreateReceiptController@submitted');
         });
+        Route::prefix('upload-receipt')->group(function () {
+            Route::get('/', 'UploadReceiptController@index');
+            Route::post('datatable', 'UploadReceiptController@datatable');
+            Route::post('store', 'UploadReceiptController@store');
+
+            Route::get('progress/{id}', 'UploadReceiptController@progress');
+            Route::get('history/{id}', 'UploadReceiptController@show');
+            Route::post('history/datatable/{id}', 'UploadReceiptController@datatableShow');
+            Route::get('history/progress-realtime/{id}', 'UploadReceiptController@progressRealtime');
+        });
     });
 
     Route::prefix('national-management')->namespace('NationalManagement')->group(function () {
