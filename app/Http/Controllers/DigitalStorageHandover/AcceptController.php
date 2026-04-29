@@ -84,6 +84,13 @@ class AcceptController extends Controller
         if ($request->media_id) {
             $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
         }
+        if ($request->verified) {
+            if ($request->verified == 'verified') {
+                $whereCondition[] = "e_collections.is_need_verify = 0";
+            } else {
+                $whereCondition[] = "(e_collections.is_need_verify = 1 or e_collections.is_need_verify is null)";
+            }
+        }
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -164,7 +171,9 @@ class AcceptController extends Controller
                                 catalogs.isbn,
                                 catalogs.createdate,
                                 catalogs.penerbit_id,
+                                catalogs.edeposit_col_id,
                                 e_collections.received_at as received_at_e_collection,
+                                e_collections.is_need_verify as inv_e_collection,
                                 penerbit.name as name_penerbit,
                                 collectionmedias.name as name_media
                             from
@@ -197,6 +206,22 @@ class AcceptController extends Controller
                         Detail
                     </a>
                 ';
+
+                if ($val->INV_E_COLLECTION === 0) {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-success btn-sm" onclick="alert(`Koleksi sudah terverifikasi.`)">
+                            <i class="ph-check me-1"></i>
+                            Terverifikasi
+                        </a>
+                    ';
+                } else {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm text-nowrap" onclick="verification(' . $val->EDEPOSIT_COL_ID . ')">
+                            <i class="ph-warning me-1"></i>
+                            Verifikasi Ulang
+                        </a>
+                    ';
+                }
 
                 $data[] = [
                     $start + 1,
@@ -366,5 +391,30 @@ class AcceptController extends Controller
                 ]
             ]
         ]);
+    }
+
+    public function verification(Request $request)
+    {
+        $id = $request->id;
+        $verif = QueryAPI::verificationCollection($id, session('username'));
+
+        if ($verif) {
+            $update = QueryAPI::update('e_collections', $id, [
+                'is_need_verify' => 0,
+                'updated_by' => session('id')
+            ], true);
+
+            if ($update) {
+                return response()->json([
+                    'code' => 200,
+                    'message' => 'Sukses diverifikasi'
+                ], 200);
+            }
+        }
+
+        return response()->json([
+            'code' => 404,
+            'message' => 'Gagal diverifikasi'
+        ], 404);
     }
 }

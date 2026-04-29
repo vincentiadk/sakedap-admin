@@ -132,13 +132,14 @@ class QueryAPI
         $query = Http::connectTimeout(0)
             ->timeout(0)
             ->asForm()
-            ->post(static::$baseUrl, [
+            ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'add',
                 'table' => $table,
                 'issavehistory' => 1,
                 'ListAddItem' => json_encode($bodyJson)
-            ]);
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -191,14 +192,15 @@ class QueryAPI
         $query = Http::connectTimeout(0)
             ->timeout(0)
             ->asForm()
-            ->post(static::$baseUrl, [
+            ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'update',
                 'table' => $table,
                 'id' => $id,
                 'issavehistory' => 1,
                 'ListUpdateItem' => json_encode($bodyJson)
-            ]);
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();
@@ -459,7 +461,7 @@ class QueryAPI
                 ->timeout(30)
                 ->withQueryParameters(array_merge($payload, [
                     'token' => static::$token,
-                    'op'    => 'getfile',
+                    'op' => 'getfile',
                 ]))
                 ->post(static::$baseUrl);
 
@@ -598,13 +600,14 @@ class QueryAPI
         $query = Http::connectTimeout(0)
             ->timeout(0)
             ->asForm()
-            ->post(static::$baseUrl, [
+            ->withQueryParameters([
                 'token' => static::$token,
                 'op' => 'settanggalterima',
                 'actionby' => session('username'),
                 'terminal' => request()->ip(),
                 'listtanggalterima' => json_encode([$payload])
-            ]);
+            ])
+            ->post(static::$baseUrl);
 
         if ($query->status() == 200) {
             $response = $query->object();

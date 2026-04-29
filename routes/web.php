@@ -97,7 +97,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'SingleVerificationController@index');
             Route::post('search', 'SingleVerificationController@search');
             Route::post('update-received-date', 'SingleVerificationController@updateReceivedDate');
-        });    
+        });
 
         Route::prefix('delivery-to-destination')->group(function () {
             Route::get('/', 'DeliveryToDestinationController@index');
@@ -247,8 +247,9 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'AcceptController@index');
             Route::post('datatable', 'AcceptController@datatable');
             Route::get('detail/{id}', 'AcceptController@detail');
+            Route::post('verification', 'AcceptController@verification');
         });
-        
+
         Route::prefix('accept-article-journal')->group(function () {
             Route::get('/', 'AcceptArticleJournalController@index');
             Route::post('datatable', 'AcceptArticleJournalController@datatable');
@@ -284,7 +285,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('history/{id}', 'JournalUploadController@show')->name('journal.zip.show');
             Route::post('history/datatable/{id}', 'JournalUploadController@datatableShow');
             Route::get('history/progress-realtime/{id}', 'JournalUploadController@progressRealtime')->name('journal.zip.progress-realtime');
-            });
+        });
     });
 
     Route::prefix('bill-isbn')->group(function () {

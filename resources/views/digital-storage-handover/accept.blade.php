@@ -111,10 +111,22 @@
                     <i class="ph-clipboard-text me-1 text-primary"></i>
                     <h6 class="mb-0 fw-semibold">Daftar Data Diterima</h6>
                 </div>
-                <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
-                    <i class="ph-list-checks me-1"></i>
-                    <span id="record-count">0</span> Data
-                </span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary" id="total-records">
+                        <i class="ph-list-checks me-1"></i>
+                        <span id="record-count">0</span> Data
+                    </span>
+                    <div class="input-group" style="width: auto;">
+                        <span class="input-group-text">
+                            <i class="ph-funnel"></i>
+                        </span>
+                        <select class="form-select" name="verified" id="verified" onchange="loadData()" style="min-width: 150px;">
+                            <option value="">Semua Status Verifikasi</option>
+                            <option value="verified">Terverifikasi</option>
+                            <option value="unverified">Perlu Verifikasi</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -190,6 +202,7 @@
             window.gDataTable.ajax.reload();
             return;
         }
+
         window.gDataTable = $('#datatable-serverside').DataTable({
             processing: true,
             serverSide: true,
@@ -208,6 +221,8 @@
                     $('#form-filter').serializeArray().forEach(function(item) {
                         d[item.name] = item.value;
                     });
+
+                    d.verified = $('#verified').val();
 
                     return d;
                 },
@@ -251,5 +266,63 @@
 
     function updateRecordCount(count) {
         $('#record-count').text(count || 0);
+    }
+
+    function verification(id) {
+        var notyConfirm = new Noty({
+            text: '<div class="mb-3"><h5 class="text-dark">Verifikasi Ulang?</h5><span class="text-muted">Anda yakin ingin melakukan verifikasi ulang?</span></div>',
+            timeout: false,
+            modal: true,
+            layout: 'center',
+            closeWith: 'button',
+            type: 'confirm',
+            buttons: [
+                Noty.button('Tidak', 'btn btn-light', function () {
+                    notyConfirm.close();
+                }),
+                Noty.button('Verifikasi', 'btn btn-success ms-2', function () {
+                    $.ajax({
+                        url: '{{ url("digital-storage-handover/accept/verification") }}',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        beforeSend: function() {
+                            onLoading('show', '.noty_bar');
+                        },
+                        success: function(response) {
+                            onLoading('close', '.noty_bar');
+
+                            if(response.code == 200) {
+                                notyConfirm.close();
+
+                                swalInit.fire({
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    icon: 'success',
+                                    showCloseButton: false
+                                });
+                            } else {
+                                swalInit.fire({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'error',
+                                    showCloseButton: false
+                                });
+                            }
+                            loadData();
+                        },
+                        error: function(response) {
+                            onLoading('close', '.noty_bar');
+                            responseError(response);
+                        }
+                    });
+                })
+            ]
+        }).show();
     }
 </script>
