@@ -362,7 +362,9 @@ class ManageController extends Controller
             'e.created_at',
             'c.createdate',
             'e.price',
-            'fullname'
+            'fullname',
+            'c.callnumber',
+            'cl.noinduk_deposit',
         ];
 
         $searchableColumns = [
@@ -395,6 +397,7 @@ class ManageController extends Controller
                 THEN CAST(ea_receive.fullname AS VARCHAR2(255))
                 ELSE u_receive.fullname END",
             'c.callnumber',
+            'cl.noinduk_deposit',
         ];
 
         $draw    = intval($request->draw ?? 0);
@@ -480,6 +483,7 @@ class ManageController extends Controller
             LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
             LEFT JOIN users u_receive ON u_receive.id = e.received_by
+            LEFT JOIN collections cl ON cl.catalog_id = c.id
             LEFT JOIN e_users eu_receive
                 ON eu_receive.id = e.received_by
                 AND eu_receive.userable_type = 'admins'
@@ -530,6 +534,7 @@ class ManageController extends Controller
             )
             SELECT
                 c.*,
+                cl.noinduk_deposit as noinduk_dep_cl,
                 e.deposit AS deposit_e_collection,
                 e.article_doi AS doi_e_collection,
                 e.created_at AS created_at_e_collection,
@@ -558,6 +563,7 @@ class ManageController extends Controller
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
             LEFT JOIN latest_cf lcf ON lcf.catalog_id = c.id
             LEFT JOIN users u_receive ON u_receive.id = e.received_by
+            LEFT JOIN collections cl ON cl.catalog_id = c.id
             LEFT JOIN e_users eu_receive
                 ON eu_receive.id = e.received_by
                 AND eu_receive.userable_type = 'admins'
@@ -615,6 +621,7 @@ class ManageController extends Controller
                     $val->FULLNAME,
                     $val->DOI_E_COLLECTION,
                     $val->CALLNUMBER,
+                    $val->NOINDUK_DEP_CL,
                 ];
                 $counter++;
             }
