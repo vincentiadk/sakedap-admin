@@ -37,14 +37,17 @@ class ProcessReceiptUploadJob implements ShouldQueue
 
         try {
             $history = QueryAPI::get("
-                SELECT *
-                FROM e_receipt_upload_history
-                WHERE id = {$this->historyId}
+                SELECT *, p.name, p.id as penerbit_id, p.province_id, p.city_id
+                FROM e_receipt_upload_history 
+                LEFT JOIN PENERBIT p on p.id = e_receipt_upload_history.penerbit_id
+                WHERE e_receipt_upload_history.id = {$this->historyId}
             ", true);
 
             if (!$history) {
                 throw new \Exception("History upload resi tidak ditemukan.");
             }
+
+            $penerbitId = $history->PENERBIT_ID;
 
             QueryAPI::update('e_receipt_upload_history', [
                 'status' => 'processing',
@@ -62,15 +65,6 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 throw new \Exception("File Excel kosong atau tidak memiliki data.");
             }
 
-            /**
-             * Header Excel:
-             * A: ISBN
-             * B: Judul
-             * C: Jenis Koleksi
-             * D: Tanggal Terima
-             * E: Jumlah Pengiriman
-             * F: Harga koleksi
-             */
             $dataRows = array_slice($rows, 1);
             $totalRows = count($dataRows);
 
@@ -91,6 +85,26 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 'notes' => 'Mulai membaca data Excel.',
             ]));
 
+            $codes = collect($dataRows)
+                ->pluck(0)
+                ->map(fn ($x) => str_replace('-', '', trim((string) $x)))
+                ->filter()
+                ->unique()
+                ->values();
+
+            $isbnMap = collect();
+
+            if ($codes->isNotEmpty()) {
+                $result = ISBN::get('search', [
+                    'code' => $codes->implode(','),
+                    'start' => 0,
+                    'length' => 5000,
+                ]);
+
+                $isbnMap = collect($result->data ?? [])
+                    ->keyBy(fn ($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
+            }
+
             $processedRows = 0;
             $successRows = 0;
             $failedRows = 0;
@@ -98,23 +112,25 @@ class ProcessReceiptUploadJob implements ShouldQueue
 
             foreach ($dataRows as $index => $row) {
                 $rowNumber = $index + 2;
+                $rowKey = "receipt_upload:{$this->historyId}:row:{$rowNumber}";
 
                 $isbn = trim((string)($row[0] ?? ''));
-                $title = trim((string)($row[1] ?? ''));
-                $receivedDateRaw = $row[3] ?? null;
-                $qtyDelivery = (int)($row[4] ?? 0);
-
-                $receivedDate = $this->convertExcelDate($receivedDateRaw);
-                // kalau kosong / gagal parse → pakai hari ini
-                if (!$receivedDate) {
-                    $receivedDate = Carbon::now()->format('Y-m-d');
-                }
-                $rowKey = "receipt_upload:{$this->historyId}:row:{$rowNumber}";
+                $issn = trim((string)($row[1] ?? ''));
+                $title = trim((string)($row[2] ?? ''));
+                $jenis = (int)($row[3] ?? 0);
+                $volume = trim((string)($row[4] ?? ''));
+                $tahun_terbit = (int)($row[5] ?? 2026);
+                $ttesAwalRaw = $row[6] ?? null;
+                $ttesAkhirRaw = $row[7] ?? null;
+                $nilaiAset = (int)($row[8] ?? 0);
+                $receivedDateRaw = $row[9] ?? null;
+                $qtyDelivery = (int)($row[10] ?? 0);
 
                 Redis::setex($rowKey, 86400, json_encode([
                     'row_number_upload' => $rowNumber,
                     'status' => 'running',
                     'isbn' => $isbn,
+                    'issn' => $issn,
                     'title' => $title,
                     'qty_delivery' => $qtyDelivery,
                     'message' => 'Sedang diproses.',
@@ -122,47 +138,97 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 ]));
 
                 try {
-                    if (!$isbn) {
-                        throw new \Exception("ISBN kosong.");
+                    $ttesAwal = $this->convertExcelDate($ttesAwalRaw);
+                    $ttesAkhir = $this->convertExcelDate($ttesAkhirRaw);
+                    $receivedDate = $this->convertExcelDate($receivedDateRaw);
+
+                    if (!$receivedDate) {
+                        $receivedDate = Carbon::now()->format('Y-m-d');
+                    }
+
+                    if (!$ttesAwal && $ttesAkhir) {
+                        $ttesAwal = $ttesAkhir;
+                    }
+
+                    if (!$ttesAkhir && $ttesAwal) {
+                        $ttesAkhir = $ttesAwal;
                     }
 
                     if (!$title) {
-                        throw new \Exception("Judul kosong.");
+                        throw new \Exception("Judul wajib diisi.");
                     }
 
                     if ($qtyDelivery <= 0) {
-                        throw new \Exception("Jumlah pengiriman harus lebih dari 0.");
+                        throw new \Exception("Jumlah dikirim harus lebih dari 0.");
                     }
 
-                    $catalog = ISBN::get("
-                        SELECT *
-                        FROM catalog
-                        WHERE REPLACE(isbn, '-', '') = REPLACE('{$isbn}', '-', '')
-                           OR REPLACE(isbn13, '-', '') = REPLACE('{$isbn}', '-', '')
-                    ", true);
-
-                    if (!$catalog) {
-                        throw new \Exception("ISBN tidak ditemukan pada katalog.");
+                    if (!$isbn && !$issn) {
+                        throw new \Exception("ISBN atau ISSN wajib diisi.");
                     }
 
-                    /**
-                     * Hitung jumlah seharusnya diterima.
-                     * Untuk buku umumnya 2 eksemplar.
-                     * Kalau nanti ada aturan khusus, bagian ini yang tinggal disesuaikan.
-                     */
-                    $qtyShouldAccept = 2;
+                    if ($issn || in_array($jenis, [4, 5])) {
+                        if (!$volume) {
+                            throw new \Exception("Volume wajib untuk karya serial seperti jurnal/koran/majalah/buletin.");
+                        }
+                    }
 
+                    $catalogId = null;
+                    $penerbitTerbitanId = null;
+                    $collectionTypeId = $jenis;
+                    $price = $nilaiAset;
+                    $penerbitIsbnId = null;
+                    $isbnData = null;
+                    $sinopsis = null;
+                    $author = null;
+
+                    if ($isbn) {
+                        $cleanIsbn = str_replace('-', '', $isbn);
+                        $isbnData = $isbnMap->get($cleanIsbn);
+
+                        if (!$isbnData) {
+                            throw new \Exception("ISBN {$isbn} tidak ditemukan pada database ISBN.");
+                        }
+
+                        $isbnPenerbitId = $isbnData->penerbit_id
+                            ?? $isbnData->PENERBIT_ID
+                            ?? $isbnData->publisher_id
+                            ?? null;
+
+                        if (!$isbnPenerbitId) {
+                            throw new \Exception("Data penerbit pada ISBN {$isbn} tidak ditemukan.");
+                        }
+
+                        if ((int)$isbnPenerbitId !== (int)$penerbitId) {
+                            throw new \Exception("ISBN {$isbn} tidak terdaftar pada pelaksana serah yang dipilih.");
+                        }
+
+                        $catalogId = $isbnData->catalog_id
+                            ?? $isbnData->CATALOG_ID
+                            ?? $isbnData->catalogId
+                            ?? null;
+
+                        $penerbitTerbitanId = $isbnData->penerbit_terbitan_id
+                            ?? $isbnData->PENERBIT_TERBITAN_ID
+                            ?? $isbnData->penerbitTerbitanId
+                            ?? null;
+                        $sinopsis = $isbnData->sinopsis ?? null;
+                        $author = $isbnData-> author ?? null;
+                    } 
+
+                    $qtyShouldAccept = (($this->user['branch_id'] ?? null) === '37') ? 2 : 1;
                     $qtyAccept = min($qtyDelivery, $qtyShouldAccept);
                     $qtyReject = max($qtyDelivery - $qtyShouldAccept, 0);
 
-                    $detail = QueryAPI::create('e_receipt_upload_history_detail', [
+                    $detail = QueryAPI::create('e_receipt_upload_detail', [
                         'receipt_upload_history_id' => $this->historyId,
                         'row_number_upload' => $rowNumber,
                         'isbn' => $isbn,
                         'title' => $title,
                         'qty_delivery' => $qtyDelivery,
-                        'catalog_id' => $catalog->ID ?? null,
-                        'penerbit_terbitan_id' => $catalog->PENERBIT_TERBITAN_ID ?? null,
+                        'catalog_id' => $catalogId,
+                        'penerbit_terbitan_id' => $penerbitTerbitanId,
+                        'received_date' => $receivedDate,
+                        'received_by' => $this->user['username'] ?? 'system',
                         'qty_should_accept' => $qtyShouldAccept,
                         'qty_accept' => $qtyAccept,
                         'qty_reject' => $qtyReject,
@@ -175,14 +241,33 @@ class ProcessReceiptUploadJob implements ShouldQueue
                     $validDetails[] = [
                         'row_number_upload' => $rowNumber,
                         'isbn' => $isbn,
+                        'issn' => $issn,
                         'title' => $title,
+                        'sinopsis' => $sinopsis,
+                        'author' => $author,
+                        'province_id' => $history->PROVINCE_ID,
+                        'kab_id' => $history->CITY_ID,
+                        'publish_year' => $tahun_terbit,
+                        'isbn_status' => $isbnData ? 'berISBN' : 'tidak berISBN',
+                        'penerbit_isbn_id' => $isbnData->id ?? null,
+                        'jenis' => $jenis,
+                        'volume' => $volume,
+                        'ttes_awal' => $ttesAwal,
+                        'ttes_akhir' => $ttesAkhir,
+                        'price' => $nilaiAset,
+                        'ttes_awal' => $ttesAwal,
+                        'ttes_akhir' => $ttesAkhir,
+                        'received_date' => $receivedDate,
+                        'received_by' => $this->user['username'] ?? 'system',
                         'qty_delivery' => $qtyDelivery,
                         'qty_should_accept' => $qtyShouldAccept,
                         'qty_accept' => $qtyAccept,
                         'qty_reject' => $qtyReject,
-                        'catalog_id' => $catalog->ID ?? null,
-                        'penerbit_terbitan_id' => $catalog->PENERBIT_TERBITAN_ID ?? null,
+                        'catalog_id' => $catalogId,
+                        'penerbit_terbitan_id' => $penerbitTerbitanId,
                         'history_detail_id' => $detail->ID ?? null,
+                        'collection_type_id' => $collectionTypeId,
+                        'publisher' => $history->NAME ?? null,
                     ];
 
                     $successRows++;
@@ -191,6 +276,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
                         'row_number_upload' => $rowNumber,
                         'status' => 'success',
                         'isbn' => $isbn,
+                        'issn' => $issn,
                         'title' => $title,
                         'qty_delivery' => $qtyDelivery,
                         'qty_accept' => $qtyAccept,
@@ -200,16 +286,17 @@ class ProcessReceiptUploadJob implements ShouldQueue
                             : 'Data valid.',
                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     ]));
-
                 } catch (\Throwable $e) {
                     $failedRows++;
 
-                    QueryAPI::create('e_receipt_upload_history_detail', [
+                    QueryAPI::create('e_receipt_upload_detail', [
                         'receipt_upload_history_id' => $this->historyId,
                         'row_number_upload' => $rowNumber,
                         'isbn' => $isbn,
                         'title' => $title,
                         'qty_delivery' => $qtyDelivery,
+                        'received_date' => $receivedDate ?? Carbon::now()->format('Y-m-d'),
+                        'received_by' => $this->user['username'] ?? 'system',
                         'qty_should_accept' => 0,
                         'qty_accept' => 0,
                         'qty_reject' => $qtyDelivery,
@@ -221,6 +308,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
                         'row_number_upload' => $rowNumber,
                         'status' => 'failed',
                         'isbn' => $isbn,
+                        'issn' => $issn,
                         'title' => $title,
                         'qty_delivery' => $qtyDelivery,
                         'qty_accept' => 0,
@@ -285,7 +373,6 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 'notes' => $notes,
                 'letter_id' => $letterId,
             ]));
-
         } catch (\Throwable $e) {
             Log::error('ProcessReceiptUploadJob failed', [
                 'history_id' => $this->historyId,
@@ -316,15 +403,16 @@ class ProcessReceiptUploadJob implements ShouldQueue
         $totalAccept = array_sum(array_column($validDetails, 'qty_accept'));
 
         if ($totalReject > 0 && $totalAccept > 0) {
-            $letterStatus = 'DITERIMA_PARSIAL';
+            $letterStatus = 'DITERIMA PARSIAL';
         } elseif ($totalReject == 0 && $totalAccept > 0) {
-            $letterStatus = 'DITERIMA_PENUH';
+            $letterStatus = 'DITERIMA PENUH';
         } else {
             $letterStatus = 'DITOLAK';
         }
 
         $letter = QueryAPI::create('letter', [
             'penerbit_id' => $history->PENERBIT_ID,
+            'branch_id' => $this->user['branch_id'],
             'receipt_no' => $history->RECEIPT_NO,
             'type_of_delivery' => $history->TYPE_OF_DELIVERY ?? 'EKSPEDISI',
             'jasa_pengiriman_id' => $history->JASA_PENGIRIMAN_ID ?? null,
@@ -340,7 +428,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
         }
 
         foreach ($validDetails as $item) {
-            QueryAPI::create('letter_detail', [
+            $letterDetail = QueryAPI::create('letter_detail', [
                 'letter_id' => $letter->ID,
                 'catalog_id' => $item['catalog_id'],
                 'penerbit_terbitan_id' => $item['penerbit_terbitan_id'],
@@ -349,11 +437,34 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 'quantity' => $item['qty_delivery'],
                 'qty_accept' => $item['qty_accept'],
                 'qty_reject' => $item['qty_reject'],
+                'price' => $item['price'],
+                'ttes_awal' => $item['ttes_awal'],
+                'ttes_akhir' => $item['ttes_akhir'],
+                'collection_type_id' => $item['collection_type_id'],
+                'edisi_serial' => $item['volume'],
+                'author' => $item['author'],
+                'sinopsis' => $item['sinopsis'],
+                'publish_year' => $item['publish_year'],
+                'publisher' => $item['publisher'],
+                'penerbit_id' => $item['penerbit_id'],
+                'checked' => 1,
+                'copy' => 1,
+                'penerbit_isbn_id' => $item['penerbit_isbn_id'],                
                 'remark' => $item['qty_reject'] > 0
                     ? 'Terdapat kelebihan jumlah pengiriman.'
                     : 'Diterima melalui upload resi.',
-                'created_by' => $this->user['username'] ?? 'system',
+                'received_by' => $this->user['username'] ?? 'system',
+                'received_date' => $item['received_date']
             ]);
+            if ($item['isbn'] ?: null && (int) $item->qty_accept > 0) {
+                QueryAPI::setReceiveDate([
+                        'LetterDetailId' => $letterDetail->ID,
+                        'NomorISBN' => $item['isbn'],
+                        'IsPerpusnas' => (int)$this->user['branch_id'] == 37 ? 1 : 0,
+                        'IsProvinsi' => (int)$this->user['branch_id'] != 37 ? 1 : 0,
+                        'TanggalTerima' => $item['received_date'],
+                ]);
+            }
         }
 
         return $letter->ID;

@@ -226,6 +226,7 @@ class UploadReceiptController extends Controller
             $history = QueryAPI::create('e_receipt_upload_history', [
                 'penerbit_id' => $request->pelaksana_serah_id,
                 'receipt_no' => $request->receipt_no,
+                'branch_id' => session('branch_id'),
                 'type_of_delivery' => $request->type_of_delivery ?? 'POS',
                 'jasa_pengiriman_id' => $request->jasa_pengiriman_id,
                 'file_name' => $excelFile->getClientOriginalName(),
@@ -249,6 +250,7 @@ class UploadReceiptController extends Controller
                 'id' => session('id'),
                 'username' => session('username'),
                 'fullname' => session('fullname'),
+                'branch_id' => session('branch_id')
             ])->onQueue('receipt');
 
             return response()->json([
