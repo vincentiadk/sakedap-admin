@@ -345,6 +345,7 @@ class PhysicalReceptionController extends Controller
         | Periode
         |--------------------------------------------------------------------------
         */
+        $dateField = "NVL(ld.received_date, l.accept_date)";
         $periodLabel = "TO_CHAR(TRUNC({$dateField}), 'YYYY-MM-DD')";
 
         if ($request->period === 'monthly') {
@@ -371,8 +372,6 @@ class PhysicalReceptionController extends Controller
             'letter.create_date' => 'l.create_date',
             'create_date'        => 'l.create_date',
         ];
-
-        $dateField = "NVL(ld.received_date, l.accept_date)";
         if ($request->date_type && isset($allowedDateFields[$request->date_type])) {
             $dateField = $allowedDateFields[$request->date_type];
         }
