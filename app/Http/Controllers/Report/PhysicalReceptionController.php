@@ -99,14 +99,6 @@ class PhysicalReceptionController extends Controller
             /*$orCondition[] = "(upper(u_verified.fullname) like '%$name%' or upper(letter_detail.verified_by) like '%$name%')";*/
         }
 
-        if ($request->date) {
-            $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
-
-            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
-        }
-
         $dateType = in_array($request->date_type, ['accept_date', 'letter_date', 'createdate']) 
             ? $request->date_type 
             : 'accept_date';
@@ -242,6 +234,7 @@ class PhysicalReceptionController extends Controller
             where
                 rnum > $start
         ";
+        
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {
