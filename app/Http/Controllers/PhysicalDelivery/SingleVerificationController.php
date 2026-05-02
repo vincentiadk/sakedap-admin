@@ -229,7 +229,7 @@ class SingleVerificationController extends Controller
                 } else {
                     $status = 'DITERIMA PARSIAL';
                 }
-                if(! $request->letter_status == 'DITERIMA') {
+                if( $request->letter_status != 'DITERIMA') {
                     QueryAPI::update('letter', $request->letter_id, [
                             'status' => $status,
                             'accept_date' => $request->received_date,
