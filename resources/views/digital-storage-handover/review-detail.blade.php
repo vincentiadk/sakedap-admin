@@ -221,7 +221,7 @@
                                 <select class="form-select select2-basic" name="content_type" id="content_type">
                                     <option value=""></option>
                                     @foreach($contentType as $ct)
-                                        <option value="{{ $ct->NAME }}" {{ $collection->JENIS_ISI == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                                        <option value="{{ $ct->NAME }}" {{ ($collection->JENIS_ISI ?: 'teks') == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -232,7 +232,7 @@
                                 <select class="form-select select2-basic" name="container_type" id="container_type">
                                     <option value=""></option>
                                     @foreach($containerType as $ct)
-                                        <option value="{{ $ct->NAME }}" {{ $collection->JENIS_WADAH == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
+                                        <option value="{{ $ct->NAME }}" {{ ($collection->JENIS_WADAH ?: 'komputer') == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -243,7 +243,7 @@
                                 <select class="form-select select2-basic" name="media_type" id="media_type">
                                     <option value=""></option>
                                     @foreach($mediaType as $mt)
-                                        <option value="{{ $mt->NAME }}" {{ $collection->JENIS_MEDIA == $mt->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
+                                        <option value="{{ $mt->NAME }}" {{ ($collection->JENIS_MEDIA ?: 'sumber daya sambung jaring') == $mt->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
                                     @endforeach
                                 </select>
                             </div>

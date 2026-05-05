@@ -301,7 +301,7 @@
                         <select class="form-select select2-basic" name="content_type" id="content_type" data-placeholder="Pilih Jenis Isi">
                             <option value=""></option>
                             @foreach($contentType as $ct)
-                                <option value="{{ $ct->NAME }}">{{ $ct->NAME }}</option>
+                                <option value="{{ $ct->NAME }}" {{ $ct->NAME == 'teks' ? 'selected' : '' }}>{{ $ct->NAME }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -315,7 +315,7 @@
                         <select class="form-select select2-basic" name="container_type" id="container_type" data-placeholder="Pilih Jenis Wadah">
                             <option value=""></option>
                             @foreach($containerType as $ct)
-                                <option value="{{ $ct->NAME }}">{{ $ct->NAME }}</option>
+                                <option value="{{ $ct->NAME }}" {{ $ct->NAME == 'komputer' ? 'selected' : '' }}>{{ $ct->NAME }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -329,7 +329,7 @@
                         <select class="form-select select2-basic" name="media_type" id="media_type" data-placeholder="Pilih Jenis Media">
                             <option value=""></option>
                             @foreach($mediaType as $mt)
-                                <option value="{{ $mt->NAME }}">{{ $mt->NAME }}</option>
+                                <option value="{{ $mt->NAME }}" {{ $mt->NAME == 'sumber daya sambung jaring' ? 'selected' : '' }}>{{ $mt->NAME }}</option>
                             @endforeach
                         </select>
                     </div>
