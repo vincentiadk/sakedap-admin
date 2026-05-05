@@ -99,31 +99,27 @@ class PhysicalReceptionController extends Controller
             /*$orCondition[] = "(upper(u_verified.fullname) like '%$name%' or upper(letter_detail.verified_by) like '%$name%')";*/
         }
 
-        if ($request->date) {
-            $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
-
-            $whereCondition[] = "(letter.$request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and letter.$request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
-        }
-
         $dateType = in_array($request->date_type, ['accept_date', 'letter_date', 'createdate']) 
             ? $request->date_type 
             : 'accept_date';
-
+        if ($dateType === 'accept_date') {
+                $dateField = "NVL(letter_detail.received_date, letter.accept_date)";
+        } else {
+                $dateField = "letter.$dateType";
+        }
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
-
+            
             $whereCondition[] = "(
-                letter.$dateType >= TO_DATE('$startDate', 'YYYY-MM-DD')
-                AND letter.$dateType < TO_DATE('$endDate', 'YYYY-MM-DD') + 1
+                $dateField >= TO_DATE('$startDate', 'YYYY-MM-DD')
+                AND $dateField < TO_DATE('$endDate', 'YYYY-MM-DD') + 1
             )";
         } else {
             $whereCondition[] = "(
-                letter.$dateType >= TRUNC(SYSDATE)
-                AND letter.$dateType < TRUNC(SYSDATE) + 1
+                $dateField >= TRUNC(SYSDATE)
+                AND $dateField < TRUNC(SYSDATE) + 1
             )";
         }
 
@@ -238,6 +234,7 @@ class PhysicalReceptionController extends Controller
             where
                 rnum > $start
         ";
+        
         $queryData = QueryAPI::get($sql);
         
         if ($queryData) {
@@ -341,12 +338,13 @@ class PhysicalReceptionController extends Controller
         | Periode
         |--------------------------------------------------------------------------
         */
-        $periodLabel = "TO_CHAR(TRUNC(l.accept_date), 'YYYY-MM-DD')";
+        $dateField = "NVL(ld.received_date, l.accept_date)";
+        $periodLabel = "TO_CHAR(TRUNC({$dateField}), 'YYYY-MM-DD')";
 
         if ($request->period === 'monthly') {
-            $periodLabel = "TO_CHAR(TRUNC(l.accept_date, 'MM'), 'YYYY-MM')";
+            $periodLabel = "TO_CHAR(TRUNC({$dateField}, 'MM'), 'YYYY-MM')";
         } elseif ($request->period === 'yearly') {
-            $periodLabel = "TO_CHAR(TRUNC(l.accept_date, 'YYYY'), 'YYYY')";
+            $periodLabel = "TO_CHAR(TRUNC({$dateField}, 'YYYY'), 'YYYY')";
         }
 
         /*
@@ -355,13 +353,18 @@ class PhysicalReceptionController extends Controller
         |--------------------------------------------------------------------------
         */
         $allowedDateFields = [
-            'letter.accept_date' => 'l.accept_date',
-            'letter.letter_date' => 'l.letter_date',
-            'letter.createdate'  => 'l.createdate',
-            'letter.create_date' => 'l.create_date',
-        ];
+            'letter.accept_date' => "NVL(ld.received_date, l.accept_date)",
+            'accept_date'        => "NVL(ld.received_date, l.accept_date)",
 
-        $dateField = 'l.accept_date';
+            'letter.letter_date' => 'l.letter_date',
+            'letter_date'        => 'l.letter_date',
+
+            'letter.createdate'  => 'l.createdate',
+            'createdate'         => 'l.createdate',
+
+            'letter.create_date' => 'l.create_date',
+            'create_date'        => 'l.create_date',
+        ];
         if ($request->date_type && isset($allowedDateFields[$request->date_type])) {
             $dateField = $allowedDateFields[$request->date_type];
         }
@@ -373,7 +376,7 @@ class PhysicalReceptionController extends Controller
         */
         $whereConditions = [];
         $whereConditions[] = "l.status != 'DRAFT'";
-        $whereConditions[] = "l.accept_date IS NOT NULL";
+        $whereConditions[] = "{$dateField} IS NOT NULL";
 
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $provinceId = (int) session('province_id');

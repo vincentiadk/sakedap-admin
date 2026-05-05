@@ -204,7 +204,6 @@ class ManageController extends Controller
             $orderDir = $reqOrderDir;
         }
 
-        // Join ringan untuk filter + counting (masih pakai collections & e_admins untuk support filter fullname)
         $filterJoins = "
             FROM catalogs c
             JOIN worksheets w ON w.id = c.worksheet_id
@@ -214,7 +213,6 @@ class ManageController extends Controller
             LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
             LEFT JOIN users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN collections cl ON cl.catalog_id = c.id
             LEFT JOIN e_users eu_receive
                 ON eu_receive.id = e.received_by
                 AND eu_receive.userable_type = 'admins'
@@ -264,14 +262,14 @@ class ManageController extends Controller
                 ) x ON x.max_id = cf.id
             ),
             latest_cl AS (
-                SELECT cl.catalog_id, cl.noinduk_deposit
-                FROM collections cl
+                SELECT cl2.catalog_id, cl2.noinduk_deposit
+                FROM collections cl2
                 JOIN (
-                    SELECT col2.catalog_id, MAX(col2.id) AS max_id
-                    FROM collections col2
-                    JOIN paged pg ON pg.id = col2.catalog_id
-                    GROUP BY col2.catalog_id
-                ) x ON x.max_id = cl.id
+                    SELECT col3.catalog_id, MAX(col3.id) AS max_id
+                    FROM collections col3
+                    JOIN paged pg ON pg.id = col3.catalog_id
+                    GROUP BY col3.catalog_id
+                ) x ON x.max_id = cl2.id
             ),
             receiver_info AS (
                 SELECT

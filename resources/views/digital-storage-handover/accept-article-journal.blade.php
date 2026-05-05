@@ -90,7 +90,7 @@
             </div>
             <div class="card-footer border-top">
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ url('digital-storage-handover/accept') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
+                    <a href="{{ url('digital-storage-handover/accept-article-journal') }}" class="btn btn-danger" onclick="onLoading('show', 'body')">
                         <i class="ph-arrow-counter-clockwise me-1"></i>
                         Reset Filter
                     </a>
