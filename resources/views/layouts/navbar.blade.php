@@ -258,12 +258,16 @@
                                             <div class="col-md-3">
                                                 <div class="alert alert-info text-center fw-semibold">Main</div>
                                                 <div class="col-md-2">
-                                                    <a href="{{ url('administration-system/setting-system') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-system' ? 'active' : '' }}">Pengaturan Sistem</a>
+                                                    @if(Main::isSuperAdmin())
+                                                        <a href="{{ url('administration-system/setting-system') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-system' ? 'active' : '' }}">Pengaturan Sistem</a>
+                                                    @endif
                                                     <a href="{{ url('administration-system/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
                                                     <a href="{{ url('administration-system/template-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'template-email' ? 'active' : '' }}">Template Email</a>
                                                     <a href="{{ url('administration-system/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>
                                                     <a href="{{ url('administration-system/footer-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'footer-email' ? 'active' : '' }}">Footer Email</a>
-                                                    <a href="{{ url('administration-system/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'user' ? 'active' : '' }}">User</a>
+                                                    @if(Main::isSuperAdmin())
+                                                        <a href="{{ url('administration-system/user') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'user' ? 'active' : '' }}">User</a>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="col-md-3">

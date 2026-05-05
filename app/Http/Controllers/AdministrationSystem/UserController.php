@@ -7,6 +7,13 @@ use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        if (!Main::isSuperAdmin()) {
+            abort(403);
+        }
+    }
+
     public function index()
     {
         $credentialInlis = Main::credentialInlisIFrame();

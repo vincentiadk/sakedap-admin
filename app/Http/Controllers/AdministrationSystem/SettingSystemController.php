@@ -15,6 +15,13 @@ class SettingSystemController extends Controller
 {
     private const CACHE_TTL = 3600;
 
+    public function __construct()
+    {
+        if (!Main::isSuperAdmin()) {
+            abort(403);
+        }
+    }
+
     public function index()
     {
         $settingParameter = Cache::remember('settings_params', self::CACHE_TTL, function () {
