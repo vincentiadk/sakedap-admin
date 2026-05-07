@@ -19,7 +19,7 @@ class SingleVerificationController extends Controller
                 'plugins' => [
                     'select2',
                     'howlerjs',
-                ], 
+                ],
                 'status_isbn' => $status_isbn
             ]
         ]);
@@ -67,7 +67,7 @@ class SingleVerificationController extends Controller
         $subWhere .= " and replace(trim(ld2.isbn), '-','') like '%' || replace(trim(ld.ISBN),'-','') || '%'";
 
         if ($mode === 'isbn') {
-            $keywordUpper = str_replace('-','',$keywordUpper);
+            $keywordUpper = str_replace('-', '', $keywordUpper);
             $where .= " AND replace(ld.isbn, '-','') like '%{$keywordUpper}%'";
         } else {
             $where .= " AND upper(ld.title) like '%{$keywordUpper}%' ";
@@ -75,7 +75,7 @@ class SingleVerificationController extends Controller
         //$where .= " AND l.branch_id = {$branchId} ";
         $subWhereProv = $subWhere . " AND l2.branch_id != '37' ";
         $subWhere .= " AND l2.branch_id = '37' ";
-        
+
         $sql = "
             SELECT t.*,
              CASE
@@ -164,9 +164,9 @@ class SingleVerificationController extends Controller
             ) t
             WHERE ROWNUM <= {$limit}
         ";
-       
+
         $data = QueryAPI::get($sql);
-        
+
         return response()->json([
             'code' => 200,
             'message' => 'Berhasil',
@@ -192,22 +192,22 @@ class SingleVerificationController extends Controller
         try {
             if ($request->ISBN ?: null && (int) $request->detail_qty_accept > 0) {
                 QueryAPI::setReceiveDate([
-                        'LetterDetailId' => $id,
-                        'NomorISBN' => $request->detail_isbn,
-                        'IsPerpusnas' => $request->branch_id == 37 ? 1 : 0,
-                        'IsProvinsi' => $request->branch_id != 37 ? 1 : 0,
-                        'TanggalTerima' => $request->received_date,
+                    'LetterDetailId' => $id,
+                    'NomorISBN' => $request->detail_isbn,
+                    'IsPerpusnas' => ((int) $request->branch_id) == 37 ? 1 : 0,
+                    'IsProvinsi' => ((int) $request->branch_id) != 37 ? 1 : 0,
+                    'TanggalTerima' => $request->received_date,
                 ]);
             }
             $params = [
-                        'received_date' => $request->received_date,
-                        'qty_accept' => $request->detail_qty_accept,
-                        'qty_reject' => $request->detail_qty_reject,
-                        'copy' => $request->detail_copy,
-                        'remark' => $request->detail_reject_reason,
-                        'checked' => 1
+                'received_date' => $request->received_date,
+                'qty_accept' => $request->detail_qty_accept,
+                'qty_reject' => $request->detail_qty_reject,
+                'copy' => $request->detail_copy,
+                'remark' => $request->detail_reject_reason,
+                'checked' => 1
             ];
-            if($request->received_by_name == "no_name"){
+            if ($request->received_by_name == "no_name") {
                 $params = array_merge($params, [
                     'received_by' => session('username'),
                 ]);
@@ -229,22 +229,22 @@ class SingleVerificationController extends Controller
                 } else {
                     $status = 'DITERIMA PARSIAL';
                 }
-                if( $request->letter_status != 'DITERIMA') {
+                if ($request->letter_status != 'DITERIMA') {
                     QueryAPI::update('letter', $request->letter_id, [
-                            'status' => $status,
-                            'accept_date' => $request->received_date,
-                            'update_by' => session('username'),
-                            'update_terminal' => $request->ip(),
-                            'update_date' => date('Y-m-d')
-                        ], false);
+                        'status' => $status,
+                        'accept_date' => $request->received_date,
+                        'update_by' => session('username'),
+                        'update_terminal' => $request->ip(),
+                        'update_date' => date('Y-m-d')
+                    ], false);
                 } else {
                     QueryAPI::update('letter', $request->letter_id, [
-                            //'status' => 'DITERIMA',
-                            //'accept_date' => $request->received_date,
-                            'update_by' => session('username'),
-                            'update_terminal' => $request->ip(),
-                            'update_date' => date('Y-m-d')
-                        ], false);
+                        //'status' => 'DITERIMA',
+                        //'accept_date' => $request->received_date,
+                        'update_by' => session('username'),
+                        'update_terminal' => $request->ip(),
+                        'update_date' => date('Y-m-d')
+                    ], false);
                 }
             }
             return response()->json([

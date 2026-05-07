@@ -38,7 +38,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
         try {
             $history = QueryAPI::get("
                 SELECT *, p.name, p.id as penerbit_id, p.province_id, p.city_id
-                FROM e_receipt_upload_history 
+                FROM e_receipt_upload_history
                 LEFT JOIN PENERBIT p on p.id = e_receipt_upload_history.penerbit_id
                 WHERE e_receipt_upload_history.id = {$this->historyId}
             ", true);
@@ -87,7 +87,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
 
             $codes = collect($dataRows)
                 ->pluck(0)
-                ->map(fn ($x) => str_replace('-', '', trim((string) $x)))
+                ->map(fn($x) => str_replace('-', '', trim((string) $x)))
                 ->filter()
                 ->unique()
                 ->values();
@@ -102,7 +102,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 ]);
 
                 $isbnMap = collect($result->data ?? [])
-                    ->keyBy(fn ($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
+                    ->keyBy(fn($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
             }
 
             $processedRows = 0;
@@ -212,8 +212,8 @@ class ProcessReceiptUploadJob implements ShouldQueue
                             ?? $isbnData->penerbitTerbitanId
                             ?? null;
                         $sinopsis = $isbnData->sinopsis ?? null;
-                        $author = $isbnData-> author ?? null;
-                    } 
+                        $author = $isbnData->author ?? null;
+                    }
 
                     $qtyShouldAccept = (($this->user['branch_id'] ?? null) === '37') ? 2 : 1;
                     $qtyAccept = min($qtyDelivery, $qtyShouldAccept);
@@ -449,7 +449,7 @@ class ProcessReceiptUploadJob implements ShouldQueue
                 'penerbit_id' => $item['penerbit_id'],
                 'checked' => 1,
                 'copy' => 1,
-                'penerbit_isbn_id' => $item['penerbit_isbn_id'],                
+                'penerbit_isbn_id' => $item['penerbit_isbn_id'],
                 'remark' => $item['qty_reject'] > 0
                     ? 'Terdapat kelebihan jumlah pengiriman.'
                     : 'Diterima melalui upload resi.',
@@ -458,11 +458,11 @@ class ProcessReceiptUploadJob implements ShouldQueue
             ]);
             if ($item['isbn'] ?: null && (int) $item->qty_accept > 0) {
                 QueryAPI::setReceiveDate([
-                        'LetterDetailId' => $letterDetail->ID,
-                        'NomorISBN' => $item['isbn'],
-                        'IsPerpusnas' => (int)$this->user['branch_id'] == 37 ? 1 : 0,
-                        'IsProvinsi' => (int)$this->user['branch_id'] != 37 ? 1 : 0,
-                        'TanggalTerima' => $item['received_date'],
+                    'LetterDetailId' => $letterDetail->ID,
+                    'NomorISBN' => $item['isbn'],
+                    'IsPerpusnas' => ((int) $this->user['branch_id']) == 37 ? 1 : 0,
+                    'IsProvinsi' => ((int) $this->user['branch_id']) != 37 ? 1 : 0,
+                    'TanggalTerima' => $item['received_date'],
                 ]);
             }
         }

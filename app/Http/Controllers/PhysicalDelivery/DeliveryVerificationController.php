@@ -798,7 +798,7 @@ class DeliveryVerificationController extends Controller
 
         QueryAPI::update('letter_detail', $letterDetailId, $payload, false);
 
-        $branchIdLetter = $letterDetail->BRANCH_ID_LETTER ?: null;
+        $branchIdLetter = (int) ($letterDetail->BRANCH_ID_LETTER ?: 0);
 
         if ($letterDetail->ISBN ?: null && $qtyAccept > 0) {
             QueryAPI::setReceiveDate([
