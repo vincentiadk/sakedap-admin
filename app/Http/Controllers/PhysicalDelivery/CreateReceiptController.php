@@ -5,7 +5,6 @@ namespace App\Http\Controllers\PhysicalDelivery;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use App\Helpers\RajaOngkir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -188,20 +187,6 @@ class CreateReceiptController extends Controller
                     $letterDate = $now;
                     $status = 'DITERIMA PENUH';
                     $totalPackage = 0;
-
-                    if ($deliveryServiceId != 1) {
-                        $awbQueryParam = http_build_query([
-                            'awb' => $receiptNumber,
-                            'courier' => $deliveryService->CODE ?? null
-                        ]);
-
-                        $awb = RajaOngkir::post('track/waybill?' . $awbQueryParam);
-
-                        if ($awb) {
-                            $weight = (float)($awb->details->weight ?? 0);
-                            $letterDate = $awb->details->waybill_date . ' ' . $awb->details->waybill_time;
-                        }
-                    }
 
                     $auditData = [
                         'create_date' => $now,
