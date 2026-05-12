@@ -296,14 +296,14 @@
                     Pastikan semua data sudah benar sebelum menyimpan
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-info" onclick="submitted('save-send-email')">
+                    {{-- <button type="button" class="btn btn-info" onclick="submitted('save-send-email')">
                         <i class="ph-envelope-open me-1"></i>
                         Simpan & Kirim Email
                     </button>
                     <button type="button" class="btn btn-success" onclick="submitted('save-print')">
                         <i class="ph-printer me-1"></i>
                         Simpan & Cetak
-                    </button>
+                    </button> --}}
                     <button type="button" class="btn btn-primary" onclick="submitted('save')">
                         <i class="ph-floppy-disk me-1"></i>
                         Simpan Data

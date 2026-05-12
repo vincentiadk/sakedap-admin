@@ -63,6 +63,7 @@ class AcceptController extends Controller
 
         $whereClause = '';
         $whereCondition[] = "l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')";
+
         if (!Main::isPerpusnas()) {
             $whereCondition[] = 'b.province_id = ' . session('province_id');
         }

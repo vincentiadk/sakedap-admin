@@ -360,7 +360,9 @@ class CreateReceiptController extends Controller
                             $getCollectionMedia = null;
 
                             if ($media) {
-                                $getCollectionMedia = QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true);
+                                $getCollectionMedia = Cache::remember('collectionmedias:' . $media, $cacheDuration, function () use ($media) {
+                                    return QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true);
+                                });
                             }
 
                             $description = '';

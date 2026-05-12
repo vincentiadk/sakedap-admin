@@ -107,9 +107,9 @@
                                 Jenis Tanggal
                             </label>
                             <select class="form-select" name="date_type" id="date_type">
-                                <option value="letter.accept_date">Tanggal Diterima</option>
-                                <option value="letter.letter_date">Tanggal Pengiriman</option>
-                                <option value="letter.create_date">Tanggal Dibuat</option>
+                                <option value="l.accept_date">Tanggal Diterima</option>
+                                <option value="l.letter_date">Tanggal Pengiriman</option>
+                                <option value="l.create_date">Tanggal Dibuat</option>
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6">
