@@ -692,7 +692,7 @@ class AcceptController extends Controller
 
             $qrGenerator = new \Milon\Barcode\DNS2D();
             $qrCodeBody = config('system.fo_url') . '/track-shipment?receipt=' . $letter->RECEIPT_NO;
-            $qrBase64Raw = $qrGenerator->getBarcodePNG((string) $qrCodeBody, 'QRCODE', 4, 4);
+            $qrBase64Raw = $qrGenerator->getBarcodePNG((string) $qrCodeBody, 'QRCODE', 4, 4, [0, 0, 0], false, [255, 255, 255]);
 
             $emptyHeader = '
                 <div style="text-align:center;">
