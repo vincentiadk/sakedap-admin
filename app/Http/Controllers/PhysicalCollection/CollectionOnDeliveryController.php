@@ -163,8 +163,21 @@ class CollectionOnDeliveryController extends Controller
 
         if ($queryData) {
             foreach ($queryData as $val) {
-                $receiptNumber = $val->RECEIPT_NO_LETTER;
+                $receiptNumber = $val->RECEIPT_NO_LETTER ?: null;
                 $status = $val->STATUS_LETTER;
+
+                $awbQueryParam = http_build_query([
+                    'awb' => $receiptNumber,
+                    'courier' => $val->CODE_JASA_PENGIRIMAN
+                ]);
+
+                if ($receiptNumber) {
+                    $awb = RajaOngkir::post('track/waybill?' . $awbQueryParam);
+
+                    if ($awb) {
+                        $status = $awb->delivery_status->status;
+                    }
+                }
 
                 $action = '
                     <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="detail(' . $val->LETTER_DETAIL_ID . ')">
