@@ -355,7 +355,7 @@ class DeliveryVerificationController extends Controller
         $draw = intval($request->draw ?? 0);
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 10);
-        $search = strtoupper(str_replace('-', '', trim($request->search['value'])) ?? '');
+        $search = strtoupper(str_replace('-', '', trim($request->search['value'] ?? '')));
         $whereCondition = ["letter_detail.letter_id = " . intval($request->letter_id)];
 
         if ($search) {
@@ -424,7 +424,7 @@ class DeliveryVerificationController extends Controller
                 rnum > $start
         ";
 
-        $queryData = QueryAPI::get($sql);
+        $queryData = QueryAPI::get($sql) ?? [];
         $data = [];
 
         if (!$queryData) {
@@ -455,13 +455,14 @@ class DeliveryVerificationController extends Controller
             'code' => $search,
             'start' => 0,
             'length' => 5000
-        ]);
+        ]) ?? [];
 
         $isbnDataCollection = collect();
 
         if ($result && !empty($result->data)) {
             foreach ($result->data as $row) {
                 $code = str_replace('-', '', $row->code ?? $row->isbn ?? '');
+
                 if ($code) {
                     $isbnDataCollection->put($code, $row);
                 }
@@ -488,7 +489,7 @@ class DeliveryVerificationController extends Controller
                     isbn
             ";
 
-            $letterDetailResult = QueryAPI::get($sqlLetterDetail);
+            $letterDetailResult = QueryAPI::get($sqlLetterDetail) ?? [];
 
             if ($letterDetailResult) {
                 $letterDetails = collect($letterDetailResult)->keyBy('ISBN');
@@ -515,7 +516,7 @@ class DeliveryVerificationController extends Controller
                     isbn
             ";
 
-            $collectionResult = QueryAPI::get($sqlCollection);
+            $collectionResult = QueryAPI::get($sqlCollection) ?? [];
 
             if ($collectionResult) {
                 $collections = collect($collectionResult)->keyBy('ISBN');
@@ -543,7 +544,7 @@ class DeliveryVerificationController extends Controller
 
             if ($code && isset($isbnData[$code])) {
                 $getDataISBN = $isbnData[$code];
-                $fileCover = Main::getCoverISBN($getDataISBN->cover_file_name ?? null);
+                $fileCover = Main::getCoverISBN($getDataISBN->cover_file_name ?? null) ?? null;
             }
 
             if ($code) {
@@ -740,6 +741,15 @@ class DeliveryVerificationController extends Controller
     public function checkedAction(Request $request)
     {
         $letterDetailId = $request->letter_detail_id;
+
+        if (!is_numeric($letterDetailId)) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'ID tidak valid'
+            ], 422);
+        }
+
+        $letterDetailId = intval($letterDetailId);
         $qtyAccept = $request->qty_accept;
         $qtyReject = $request->qty_reject;
         $ISBNStatus = $request->isbn_status;
@@ -761,7 +771,7 @@ class DeliveryVerificationController extends Controller
             where
                 letter_detail.letter_detail_id = $letterDetailId",
             true
-        );
+        ) ?? [];
 
         if (!$letterDetail) {
             return response()->json([
@@ -800,7 +810,7 @@ class DeliveryVerificationController extends Controller
 
         $branchIdLetter = (int) ($letterDetail->BRANCH_ID_LETTER ?: 0);
 
-        if ($letterDetail->ISBN ?: null && $qtyAccept > 0) {
+        if (($letterDetail->ISBN ?: null) && $qtyAccept > 0) {
             QueryAPI::setReceiveDate([
                 'LetterDetailId' => $letterDetailId,
                 'NomorISBN' => $letterDetail->ISBN,
@@ -816,7 +826,7 @@ class DeliveryVerificationController extends Controller
         ]);
     }
 
-    public function detail(Request $request, $id)
+    public function detail(Request $request, $id = null)
     {
         if (!is_numeric($id)) {
             abort(404, 'Invalid letter ID');
@@ -841,7 +851,7 @@ class DeliveryVerificationController extends Controller
                     l.letter_id = $id
             ";
 
-            $letter = QueryAPI::get($letterSql, true);
+            $letter = QueryAPI::get($letterSql, true) ?? [];
 
             if (!$letter) {
                 abort(404, 'Letter not found');
@@ -860,7 +870,7 @@ class DeliveryVerificationController extends Controller
                             letter_detail
                         where
                             letter_id = $id
-                    ", true);
+                    ", true) ?? [];
 
                     if ($letterDetail) {
                         if ($letterDetail->TOTAL_DATA == $letterDetail->TOTAL_VERIFICATION) {
@@ -951,6 +961,12 @@ class DeliveryVerificationController extends Controller
                     l.letter_id = $id
             ";
 
+            $letter = QueryAPI::get($letterSql, true) ?? [];
+
+            if (!$letter) {
+                abort(404, 'Letter not found');
+            }
+
             $letterDetailSql = "
                 select
                     *
@@ -960,9 +976,7 @@ class DeliveryVerificationController extends Controller
                     letter_id = $id
             ";
 
-
-            $letter = QueryAPI::get($letterSql, true);
-            $letterDetail = QueryAPI::get($letterDetailSql);
+            $letterDetail = QueryAPI::get($letterDetailSql) ?? [];
             $isbnMap = collect();
 
             $codes = collect($letterDetail ?? [])
@@ -977,13 +991,10 @@ class DeliveryVerificationController extends Controller
                     'code' => $codes->implode(','),
                     'start' => 0,
                     'length' => 5000
-                ]);
+                ]) ?? [];
 
                 $isbnMap = collect($result->data ?? [])
                     ->keyBy(fn($row) => str_replace('-', '', (string) ($row->code ?? $row->isbn ?? '')));
-            }
-            if (!$letter) {
-                abort(404, 'Letter not found');
             }
 
             if ($request->ajax()) {
@@ -1046,7 +1057,9 @@ class DeliveryVerificationController extends Controller
                                     'penerbit_id' => $isbn->penerbit_id ?? null,
                                     'nomorpanggiljilid' => $isbn->keterangan,
                                 ];
+
                                 $detailId = $request->ci_detail_id[$key] ?? null;
+
                                 if ($detailId) {
                                     QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
                                 } else {
@@ -1054,7 +1067,8 @@ class DeliveryVerificationController extends Controller
                                         select * from letter_detail
                                         where letter_id = {$letter->LETTER_ID}
                                         and replace(trim(isbn), '-', '') = '{$code}'
-                                    ", true);
+                                    ", true) ?? [];
+
                                     if (!$exists) {
                                         QueryAPI::create('letter_detail', $letterDetailData, false);
                                     }
@@ -1113,7 +1127,7 @@ class DeliveryVerificationController extends Controller
                             $getCollectionMedia = null;
 
                             if ($media) {
-                                $getCollectionMedia = QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true);
+                                $getCollectionMedia = QueryAPI::get("select * from collectionmedias where upper(name) = '$media'", true) ?? [];
                             }
 
                             $price = 0;
@@ -1149,6 +1163,7 @@ class DeliveryVerificationController extends Controller
                                 'checked' => 1,
                             ];
                             $detailId = $request->cni_detail_id[$key] ?? null;
+
                             if ($detailId) {
                                 QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
                             } else {
@@ -1226,6 +1241,7 @@ class DeliveryVerificationController extends Controller
                             ];
 
                             $detailId = $request->cp_detail_id[$key] ?? null;
+
                             if ($detailId) {
                                 QueryAPI::update('letter_detail', $detailId, $letterDetailData, false);
                             } else {
@@ -1288,7 +1304,7 @@ class DeliveryVerificationController extends Controller
                 where
                     worksheets.category in ('$worksheetAnalog','$worksheetPrinted') and
                     collectionmedias.depositformat_code is not null
-            ");
+            ") ?? [];
 
             return view('layouts.index', [
                 'data' => [
@@ -1325,6 +1341,13 @@ class DeliveryVerificationController extends Controller
     {
         $id = $request->id;
 
+        if (!is_numeric($id)) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'ID tidak valid'
+            ], 422);
+        }
+
         try {
             QueryAPI::delete('letter', $id);
 
@@ -1342,11 +1365,13 @@ class DeliveryVerificationController extends Controller
         return response()->json($response);
     }
 
-    public function destroyDataLD(Request $request, $id)
+    public function destroyDataLD(Request $request, $id = null)
     {
-        $id = $request->id;
-        if (Str::contains($id, 'new')) {
-            return;
+        if (Str::contains((string) $id, 'new')) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Data telah dihapus'
+            ]);
         }
 
         try {
