@@ -254,7 +254,7 @@
                                         <input type="hidden" name="cni_editable[]" value="{{ $receivedBy ? 0 : 1 }}">
 
                                         <td width="5%" class="align-top pt-3">
-                                            <button type="button" class="btn btn-danger" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus koleksi" {{ $receivedBy ? 'readonly' : '' }}>
+                                            <button type="button" class="btn btn-danger" onclick="removeItem(this)" data-bs-toggle="tooltip" title="Hapus koleksi" {{ $receivedBy ? 'disabled' : '' }}>
                                                 <i class="ph-trash"></i>
                                             </button>
                                         </td>
@@ -416,7 +416,7 @@
                                     @endphp
 
                                     <tr class="periodical-row-{{ $randStr }} animate__animated animate__fadeIn">
-                                        <input type="hidden" name="c[_detail_id[]" value="{{ $cp->LETTER_DETAIL_ID }}">
+                                        <input type="hidden" name="cp_detail_id[]" value="{{ $cp->LETTER_DETAIL_ID }}">
                                         <input type="hidden" name="cp[]" value="1">
                                         <input type="hidden" name="cp_editable[]" value="{{ $receivedBy ? 0 : 1 }}">
 
@@ -707,6 +707,7 @@
 
     function removeItem(param) {
         var id = $(param).attr('data-id');
+        var isNewItem = id && String(id).startsWith('new');
 
         swalInit.fire({
             title: 'Konfirmasi Hapus',
@@ -718,14 +719,18 @@
             reverseButtons: true,
             allowOutsideClick: false,
             allowEscapeKey: false,
-            showLoaderOnConfirm: true,
+            showLoaderOnConfirm: !isNewItem,
             preConfirm: () => {
+                if (isNewItem) {
+                    return Promise.resolve({ code: 200 });
+                }
+
                 return $.ajax({
                     url: `/physical-delivery/delivery-verification/destroy-data-ld/` + id,
-                    type: 'POST', // atau DELETE, tergantung route Laravel kamu
+                    type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        _method: 'DELETE' // hapus ini kalau route kamu memang POST biasa
+                        _method: 'DELETE'
                     }
                 }).then(function(response) {
                     return response;
@@ -929,8 +934,6 @@
                     </td>
                 </tr>
             `);
-
-            calculateQtyTotal(`.cni-total-${ randStr }`, `.cni-accept-${ randStr }`, `.cni-reject-${ randStr }`, `.cni-description-${ randStr }`);
 
             select2ServersideTag('select[name="cni_description[]"]', 'problem', {}, {
                 minimumInputLength: 0
