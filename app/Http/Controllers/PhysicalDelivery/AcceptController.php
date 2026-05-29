@@ -741,25 +741,16 @@ class AcceptController extends Controller
                     cm.name AS name_cm,
                     ld.isbn,
                     ld.received_date,
-                    CASE WHEN ld.collection_id LIKE '%,%' THEN 1 ELSE ld.qty_accept END AS qty_accept,
-                    CASE WHEN ld.collection_id LIKE '%,%' THEN TRIM(REGEXP_SUBSTR(ld.collection_id, '[^,]+', 1, t.lvl)) ELSE ld.collection_id END AS collection_id_split
+                    ld.qty_accept,
+                    ld.collection_id
                 FROM
                     letter_detail ld
-                LEFT JOIN
-                    letter l ON l.letter_id = ld.letter_id
-                LEFT JOIN
-                    collectionmedias cm ON cm.id = ld.collection_type_id
-                CROSS JOIN
-                    (SELECT LEVEL AS lvl FROM dual CONNECT BY LEVEL <= 1000) t
+                LEFT JOIN letter l ON l.letter_id = ld.letter_id
+                LEFT JOIN collectionmedias cm ON cm.id = ld.collection_type_id
                 WHERE
                     ld.letter_id = " . $letter->LETTER_ID . "
                     AND ld.qty_accept > 0
-                    AND (
-                        (ld.collection_id LIKE '%,%' AND t.lvl <= REGEXP_COUNT(ld.collection_id, ',') + 1) OR
-                        (ld.collection_id NOT LIKE '%,%' AND t.lvl = 1) OR
-                        (ld.collection_id IS NULL AND t.lvl = 1)
-                    )
-            ", false, 15, 60);
+            ", false, 15, 60) ?? [];
 
             $htmlCollections = '
                 <table border="1" cellpadding="4" cellspacing="0" style="font-size:8px; border-collapse:collapse; width:100%;">
