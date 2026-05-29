@@ -40,13 +40,13 @@ class AcceptArticleJournalController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e.id',
+            'catalogs.id',
             null,
             'penerbit.name',
             'catalogs.title',
             'collectionmedias.name',
             'catalogs.isbn',
-            'e.created_at',
+            'catalogs.createdate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -62,19 +62,21 @@ class AcceptArticleJournalController extends Controller
         $whereClause = '';
         $whereCondition[] = "
             (
-                e.deleted_at is null
+                catalogs.isdelete = 0 or
+                catalogs.isdelete is null
             ) and
-            worksheets.category = '$this->worksheetCategory' 
-            and article_title is not null
+            worksheets.category = '$this->worksheetCategory' and
+            catalogs.edeposit_col_id is not null and
+            e_collections.collection_media_id = 203
         ";
 
         if ($request->title) {
             $title = strtoupper($request->title);
-            $whereCondition[] = "upper(e.article_title) like '%$title%'";
+            $whereCondition[] = "upper(e_collections.article_title) like '%$title%'";
         }
 
         if ($request->executor_id) {
-            $whereCondition[] = "e.penerbit_id = $request->executor_id";
+            $whereCondition[] = "catalogs.penerbit_id = $request->executor_id";
         }
 
         if ($request->province_id) {
@@ -82,17 +84,16 @@ class AcceptArticleJournalController extends Controller
         }
 
         if ($request->year) {
-            $whereCondition[] = "e.publication_year = $request->year";
+            $whereCondition[] = "e_collections.publication_year = $request->year";
         }
 
         if ($request->received_by) {
-            $whereCondition[] = "e.received_by = $request->received_by";
+            $whereCondition[] = "e_collections.received_by = $request->received_by";
         }
+
         if ($request->is_need_verify) {
-            $whereCondition[] = "e.is_need_verify = $request->is_need_verify";
+            $whereCondition[] = "e_collections.is_need_verify = $request->is_need_verify";
         }
-        $whereCondition[] = "e.collection_media_id = 203";
-        
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -128,36 +129,41 @@ class AcceptArticleJournalController extends Controller
             select
                 count(*) as total
             from
-                e_collections e
+                catalogs
             left join
-                catalogs on catalogs.edeposit_col_id = e.id
+                worksheets on worksheets.id = catalogs.worksheet_id
             left join
-                worksheets on worksheets.id = e.worksheet_id
+                e_collections on e_collections.id = catalogs.edeposit_col_id
             where
                 (
-                   e.deleted_at is null
+                    catalogs.isdelete = 0 or
+                    catalogs.isdelete is null
                 ) and
-                worksheets.category = '$this->worksheetCategory'
+                worksheets.category = '$this->worksheetCategory' and
+                catalogs.edeposit_col_id is not null and
+                e_collections.collection_media_id = 203
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
                 count(*) as total
             from
-                e_collections e
+                catalogs
             left join
-                catalogs on catalogs.edeposit_col_id = e.id
+                penerbit on penerbit.id = catalogs.penerbit_id
             left join
-                penerbit on penerbit.id = e.penerbit_id
+                e_collections on e_collections.id = catalogs.edeposit_col_id
             left join
-                kabupaten on kabupaten.id = e.kabupaten_id
+                kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
-                worksheets on worksheets.id = e.worksheet_id
+                worksheets on worksheets.id = catalogs.worksheet_id
             left join
-                collectionmedias on collectionmedias.id = e.collection_media_id
-            left join users u on u.id = e.received_by
+                collectionmedias on collectionmedias.id = e_collections.collection_media_id
+            left join
+                users u on u.id = e_collections.received_by
             $whereClause
         ", true)->TOTAL ?? 0;
+
         $sql = "
             select
                 *
@@ -167,33 +173,48 @@ class AcceptArticleJournalController extends Controller
                         data.*
                     from
                         (
-                            select 
-                                e.id, e.is_need_verify,
+                            select distinct
                                 catalogs.id as cat_id,
                                 catalogs.title,
                                 catalogs.isbn,
-                                e.created_at, e.title as judul_jurnal,
-                                e.penerbit_id, e.code,
+                                catalogs.createdate,
+                                catalogs.penerbit_id,
+                                catalogs.edeposit_col_id,
+                                e_collections.id as e_col_id,
+                                e_collections.is_need_verify,
+                                e_collections.created_at,
+                                e_collections.title as judul_jurnal,
+                                e_collections.code,
+                                e_collections.edition,
+                                e_collections.serial,
+                                e_collections.received_at as received_at_e_collection,
+                                e_collections.article_title,
+                                e_collections.article_contributor,
+                                e_collections.article_subject,
+                                e_collections.article_original_link,
+                                e_collections.article_doi,
+                                CAST(e_collections.description AS VARCHAR2(4000)) as description,
+                                e_collections.article_publish_date,
+                                e_collections.deposit,
+                                e_collections.edition_date,
+                                e_collections.volume,
                                 penerbit.name as name_penerbit,
-                                collectionmedias.name as name_media,e.edition, e.serial,
-                                e.received_at as received_at_e_collection,
-                                e.article_title, e.article_contributor, e.article_subject, 
-                                e.article_original_link, e.article_doi, e.description,
-                                e.article_publish_date, e.deposit, e.edition_date,
-                                u.fullname as received_by_name, e.volume
+                                collectionmedias.name as name_media,
+                                u.fullname as received_by_name
                             from
-                                e_collections e
+                                catalogs
                             left join
-                                catalogs on e.id = catalogs.edeposit_col_id
+                                penerbit on penerbit.id = catalogs.penerbit_id
                             left join
-                                penerbit on penerbit.id = e.penerbit_id
+                                e_collections on e_collections.id = catalogs.edeposit_col_id
                             left join
-                                kabupaten on kabupaten.id = e.kabupaten_id
+                                kabupaten on kabupaten.id = e_collections.kabupaten_id
                             left join
-                                worksheets on worksheets.id = e.worksheet_id
+                                worksheets on worksheets.id = catalogs.worksheet_id
                             left join
-                                collectionmedias on collectionmedias.id = e.collection_media_id
-                            left join users u on u.id = e.received_by
+                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                            left join
+                                users u on u.id = e_collections.received_by
                             $whereClause
                             $orderBy
                         ) data
@@ -203,34 +224,38 @@ class AcceptArticleJournalController extends Controller
             where
                 rnum > $start
         ";
-        
+
         $queryData = QueryAPI::get($sql);
 
         if ($queryData) {
             foreach ($queryData as $val) {
                 $action = '
-                    <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="showDetail(' . $val->ID . ')">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="showDetail(' . $val->E_COL_ID . ')">
                         <i class="ph-info me-1"></i>
                         Detail
                     </a>';
+
                 $canDelete = Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7;
-                if($canDelete) {
-                    $action .='
-                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->ID . ')">
+                if ($canDelete) {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->E_COL_ID . ')">
                             <i class="ph-trash me-1"></i>
                             Hapus
                         </a>';
                 }
-                if($val->IS_NEED_VERIFY === '1') {
-                    $action .='<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
-                        <i class="ph-warning me-1"></i>
-                        Perlu Verifikasi Ulang
-                    </a>';
+
+                if ($val->IS_NEED_VERIFY === '1') {
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->E_COL_ID . ')">
+                            <i class="ph-warning me-1"></i>
+                            Perlu Verifikasi Ulang
+                        </a>';
                 } else {
-                    $action .='<a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
-                        <i class="ph-check me-1"></i>
-                        Verifikasi
-                    </a>';
+                    $action .= '
+                        <a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->E_COL_ID . ')">
+                            <i class="ph-check me-1"></i>
+                            Verifikasi
+                        </a>';
                 }
 
                 $data[] = [
@@ -253,7 +278,7 @@ class AcceptArticleJournalController extends Controller
                 $start++;
             }
         }
-        
+
         return response()->json([
             'draw' => $draw,
             'recordsTotal' => $totalData,
