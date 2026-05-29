@@ -11,9 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Milon\Barcode\DNS2D;
 
 class AcceptController extends Controller
 {
@@ -736,18 +734,31 @@ class AcceptController extends Controller
             $pdf->writeHTML($finalHtml, true, false, true, false, '');
 
             $collections = QueryAPI::get("
-                select
-                    ld.letter_id, l.accept_date as accept_date_letter, ld.title, cm.name as name_cm, ld.isbn, ld.received_date,
-                    case when ld.collection_id LIKE '%,%' and t.lvl > 0 THEN 1 ELSE ld.qty_accept end as qty_accept
-                from
+                SELECT
+                    ld.letter_id,
+                    l.accept_date AS accept_date_letter,
+                    ld.title,
+                    cm.name AS name_cm,
+                    ld.isbn,
+                    ld.received_date,
+                    CASE WHEN ld.collection_id LIKE '%,%' THEN 1 ELSE ld.qty_accept END AS qty_accept,
+                    CASE WHEN ld.collection_id LIKE '%,%' THEN TRIM(REGEXP_SUBSTR(ld.collection_id, '[^,]+', 1, t.lvl)) ELSE ld.collection_id END AS collection_id_split
+                FROM
                     letter_detail ld
-                left join letter l on l.letter_id = ld.letter_id
-                left join collectionmedias cm on cm.id = ld.collection_type_id
-                cross join (select level as lvl from dual connect by level <= 1000) t
-                where
+                LEFT JOIN
+                    letter l ON l.letter_id = ld.letter_id
+                LEFT JOIN
+                    collectionmedias cm ON cm.id = ld.collection_type_id
+                CROSS JOIN
+                    (SELECT LEVEL AS lvl FROM dual CONNECT BY LEVEL <= 1000) t
+                WHERE
                     ld.letter_id = " . $letter->LETTER_ID . "
-                    and ld.qty_accept > 0
-                    and T.lvl <= regexp_count(nvl(ld.collection_id, 'X'), ',') + 1
+                    AND ld.qty_accept > 0
+                    AND (
+                        (ld.collection_id LIKE '%,%' AND t.lvl <= REGEXP_COUNT(ld.collection_id, ',') + 1) OR
+                        (ld.collection_id NOT LIKE '%,%' AND t.lvl = 1) OR
+                        (ld.collection_id IS NULL AND t.lvl = 1)
+                    )
             ", false, 15, 60);
 
             $htmlCollections = '
@@ -774,6 +785,7 @@ class AcceptController extends Controller
                 </tr>';
                 }
             }
+
             $htmlCollections .= '</table>';
 
             $pdf->AddPage();
