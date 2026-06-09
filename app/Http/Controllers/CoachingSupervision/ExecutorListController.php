@@ -57,8 +57,8 @@ class ExecutorListController extends Controller
         $order = $request->order;
 
         $whereClause = '';
-        $whereCondition[] = "penerbit.status = '2'";
-
+        $whereCondition = [];
+        
         if (!Main::isSuperAdmin() && !Main::isPerpusnas()) {
             $whereCondition[] = 'penerbit.province_id = ' . session('province_id');
         }
@@ -93,8 +93,9 @@ class ExecutorListController extends Controller
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
+        $filteredConditions = array_filter($whereCondition, fn($c) => trim($c) !== '');
+        if (!empty($filteredConditions)) {
+            $whereClause = "where " . implode(' and ', $filteredConditions);    
         }
 
         if ($order) {
