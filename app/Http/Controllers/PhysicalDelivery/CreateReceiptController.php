@@ -62,7 +62,7 @@ class CreateReceiptController extends Controller
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
         $totalCollection = $collection->TOTAL ?? 0;
         $totalSystem = 0;
-        $maxAccept = 2;
+        $maxAccept = (!Main::isSuperAdmin() && !Main::isPerpusnas()) ? 1 : 2;
         $optionAccept = [];
 
         if ($totalLetterDetail > 0) {
@@ -75,8 +75,8 @@ class CreateReceiptController extends Controller
             $totalAccept = $maxAccept;
             $totalReject = 0;
         } else if ($totalSystem == 1) {
-            $totalAccept = 1;
-            $totalReject = 1;
+            $totalAccept = min(1, $maxAccept);
+            $totalReject = $maxAccept - $totalAccept;
         } else {
             $totalAccept = 0;
             $totalReject = $maxAccept;
@@ -98,7 +98,7 @@ class CreateReceiptController extends Controller
 
         return response()->json([
             'data' => $data,
-            'totalAccept' => (!Main::isSuperAdmin() && !Main::isPerpusnas()) ? 1 : 2,
+            'totalAccept' => $totalAccept,
             'optionAccept' => $optionAccept,
             'totalReject' => $totalReject,
             'totalSystem' => $totalSystem,
@@ -197,9 +197,12 @@ class CreateReceiptController extends Controller
 
                         $awb = RajaOngkir::post('track/waybill?' . $awbQueryParam);
 
-                        if ($awb) {
-                            $weight = (float)($awb->details->weight ?? 0);
-                            $letterDate = $awb->details->waybill_date . ' ' . $awb->details->waybill_time;
+                        if ($awb && isset($awb->details->waybill_date)) {
+                            $rawDate = $awb->details->waybill_date . ' ' . ($awb->details->waybill_time ?? '00:00:00');
+                            $parsed = strtotime($rawDate);
+                            $letterDate = $parsed ? date('Y-m-d H:i:s', $parsed) : $now;
+                        } else {
+                            $letterDate = $now;
                         }
                     }
 
@@ -213,7 +216,7 @@ class CreateReceiptController extends Controller
                     ];
 
                     $letterData = array_merge([
-                        'type_of_delivery' => ($deliveryService->NAME ?? null) ? 'Pos' : 'Datang Langsung',
+                        'type_of_delivery' => $deliveryServiceId == 1 ? 'Datang Langsung' : 'Pos',
                         'letter_date' => $letterDate,
                         'letter_number' => $request->cover_letter_number,
                         'accept_date' => $request->accept_date . ' ' . date('H:i:s', strtotime($now)),
@@ -233,7 +236,8 @@ class CreateReceiptController extends Controller
                     ], $auditData);
 
                     $letter = QueryAPI::create('letter', $letterData, false);
-                    $letterExecutor = QueryAPI::get("select * from penerbit where id = $request->executor_id", true);
+                    $executorId = (int) $request->executor_id;
+                    $letterExecutor = QueryAPI::get("select * from penerbit where id = $executorId", true);
 
                     if (!$letter) {
                         return response()->json([
@@ -242,8 +246,19 @@ class CreateReceiptController extends Controller
                         ]);
                     }
 
+                    $letter = QueryAPI::get("select * from letter where letter_id = " . ($letter->LETTER_ID ?? 0), true);
+
+                    if (!$letter) {
+                        return response()->json([
+                            'code' => 500,
+                            'message' => 'Gagal mengambil data surat setelah dibuat'
+                        ]);
+                    }
+
                     if ($request->ci && is_array($request->ci)) {
                         foreach ($request->ci as $key => $ci) {
+                            $totalPackage++;
+
                             $code = $request->ci_code[$key] ?? null;
                             if (!$code) continue;
 
@@ -258,11 +273,13 @@ class CreateReceiptController extends Controller
 
                             $qtyAccept = (int) ($request->ci_qty_accept[$key] ?? 0);
                             $qtyReject = (int) ($request->ci_qty_reject[$key] ?? 0);
+
+                            if ($qtyAccept === 0 && $qtyReject === 0) continue;
+
                             $qrcbn = ($request->ci_qrcbn[$key] ?? null);
                             $isbd = ($request->ci_isbd[$key] ?? null);
 
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
-                            $totalPackage++;
 
                             $catalog = null;
 
@@ -330,9 +347,10 @@ class CreateReceiptController extends Controller
 
                     if ($request->cni && is_array($request->cni)) {
                         foreach ($request->cni as $key => $cni) {
+                            $totalPackage++;
+
                             $qtyReject = (int) ($request->cni_qty_reject[$key] ?? 0);
                             if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
-                            $totalPackage++;
 
                             $catalogId = $request->cni_catalog_id[$key] ?? null;
                             $catalog = null;
@@ -373,6 +391,8 @@ class CreateReceiptController extends Controller
                             $isbd = $request->cni_isbd[$key] ?? null;
                             $media = strtoupper($request->cni_type[$key] ?? '');
                             $getCollectionMedia = null;
+
+                            if ($qtyAccept === 0 && $qtyReject === 0) continue;
 
                             if ($media) {
                                 $getCollectionMedia = Cache::remember('collectionmedias:' . $media, $cacheDuration, function () use ($media) {
@@ -428,6 +448,8 @@ class CreateReceiptController extends Controller
 
                     if ($request->cp && is_array($request->cp)) {
                         foreach ($request->cp as $key => $cp) {
+                            $totalPackage++;
+
                             $catalogId = isset($request->cp_catalog_id[$key]) ? $request->cp_catalog_id[$key] : null;
                             $manualTitle = isset($request->cp_manual_title[$key]) ? $request->cp_manual_title[$key] : null;
 
@@ -436,12 +458,12 @@ class CreateReceiptController extends Controller
                             }
 
                             foreach ($request->cpe[$key] as $keys => $cpe) {
+                                $totalPackage++;
+
                                 $qtyReject = (int) ($request->cpe_qty_reject[$key][$keys] ?? 0);
                                 $catalog = null;
 
                                 if ($qtyReject > 0) $status = 'DITERIMA PARSIAL';
-
-                                $totalPackage++;
 
                                 if ($catalogId) {
                                     $catalogCacheKey = "catalog:detail:{$catalogId}";
@@ -473,6 +495,8 @@ class CreateReceiptController extends Controller
                                 $firstTTES = $request->cpe_first_ttes[$key][$keys] ?? null;
                                 $endTTES = $request->cpe_end_ttes[$key][$keys] ?? null;
                                 $description = '';
+
+                                if ($qtyAccept === 0 && $qtyReject === 0) continue;
 
                                 if (isset($request->cpe_description[$key][$keys]) && is_array($request->cpe_description[$key][$keys])) {
                                     $description = implode(';', $request->cpe_description[$key][$keys]);
@@ -509,6 +533,15 @@ class CreateReceiptController extends Controller
                                 QueryAPI::create('letter_detail', $letterDetailData, false);
                             }
                         }
+                    }
+
+                    if ($totalPackage === 0) {
+                        QueryAPI::delete('letter', $letter->LETTER_ID);
+
+                        return response()->json([
+                            'code' => 400,
+                            'error' => ['Tidak ada item valid yang dapat disimpan']
+                        ]);
                     }
 
                     QueryAPI::update('letter', $letter->LETTER_ID, [
@@ -571,8 +604,8 @@ class CreateReceiptController extends Controller
                             'letter_no' => $letter->LETTER_NUMBER_UT ?? '',
                             'publisher_name' => $executor->NAME ?? '',
                             'director' => $signature,
-                            'header' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
-                            'footer' => '<img src="' . Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
+                            'header' => '<img src="' . (string) Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailHeader->ID ?? '') . '&filename=' . ($templateEmailHeader->CONTENT ?? ''))) . '" style="max-width:100%;">',
+                            'footer' => '<img src="' . (string) Main::base64File(url('stream-file?type=gambar_template&id=' . ($templateEmailFooter->ID ?? '') . '&filename=' . ($templateEmailFooter->CONTENT ?? ''))) . '" style="max-width:100%; margin-bottom:10px">',
                             'qr' => 'https://image-charts.com/chart?chs=150x150&cht=qr&chl=' . $letter->LETTER_NUMBER_UT,
                             'source' => QueryAPI::get("select name from branchs where id = " . ($letter->BRANCH_ID ?? 0), true)->NAME ?? '-',
                         ];

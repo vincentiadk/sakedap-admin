@@ -419,7 +419,7 @@ class Main
      * @param  mixed $url
      * @return void
      */
-    public static function base64File($url)
+    public static function base64File($url = null)
     {
         $ch = curl_init();
 
