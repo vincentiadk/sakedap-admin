@@ -38,8 +38,8 @@
                             </label>
                             <div class="input-group">
                                 <select class="form-select w-auto flex-grow-0" name="date_type" id="date_type" style="max-width: 130px;">
-                                    <option value="e_collections.received_at">Diterima</option>
-                                    <option value="e_collections.created_at">Dibuat</option>
+                                    <option value="e.received_at">Diterima</option>
+                                    <option value="e.created_at">Dibuat</option>
                                 </select>
                                 <span class="input-group-text">
                                     <i class="ph-calendar-blank"></i>
