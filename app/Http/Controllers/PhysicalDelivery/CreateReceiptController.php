@@ -51,13 +51,42 @@ class CreateReceiptController extends Controller
     public function searchISBN(Request $request)
     {
         $code = str_replace('-', '', $request->code);
+        $branchId = session('branch_id');
 
         $data = ISBN::get('search', [
             'code' => $code
         ], true);
 
-        $letterDetail = QueryAPI::get("select nvl(sum(qty_accept), 0) as total_letter_detail from letter_detail where replace(isbn, '-', '') = '$code'", true);
-        $collection = QueryAPI::get("select count(collections.id) as total from collections where replace(isbn, '-', '') = '$code' and source_id = 6", true);
+        $letterDetail = QueryAPI::get(
+            "
+            select
+                nvl(sum(letter_detail.qty_accept), 0) as total_letter_detail
+            from
+                letter_detail
+            left join
+                letter on letter.letter_id = letter_detail.letter_id
+            where
+                letter.branch_id = $branchId and
+                replace(letter_detail.isbn, '-', '') = '$code'",
+            true
+        );
+
+        $collection = QueryAPI::get(
+            "
+            select
+                count(collections.id) as total
+            from
+                collections
+            left join
+                letter_detail on letter_detail.letter_detail_id = collections.letter_detail_id
+            left join
+                letter on letter.letter_id = letter_detail.letter_id
+            where
+                letter.branch_id = $branchId and
+                replace(collections.isbn, '-', '') = '$code' and
+                collections.source_id = 6",
+            true
+        );
 
         $totalLetterDetail = $letterDetail->TOTAL_LETTER_DETAIL ?? 0;
         $totalCollection = $collection->TOTAL ?? 0;
