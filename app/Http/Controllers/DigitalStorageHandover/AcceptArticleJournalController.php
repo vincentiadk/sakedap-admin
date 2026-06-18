@@ -89,11 +89,17 @@ class AcceptArticleJournalController extends Controller
             $whereCondition[] = "e.received_by = $request->received_by";
         }
         if ($request->is_need_verify) {
-            $whereCondition[] = "e.is_need_verify = $request->is_need_verify";
+            $q_is_need_verify  = "e.is_need_verify = $request->is_need_verify";
+            if($request->is_need_verify == '1') {
+                $whereCondition[] = " (" . $q_is_need_verify . " OR e.catalog_id is null) ";
+            } else {
+                $whereCondition[] = $q_is_need_verify;
+            }
+
         }
         $whereCondition[] = "e.collection_media_id = 203";
         
-
+        
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
@@ -203,6 +209,7 @@ class AcceptArticleJournalController extends Controller
             where
                 rnum > $start
         ";
+        Log::info($sql);
         
         $queryData = QueryAPI::get($sql);
 
@@ -221,7 +228,7 @@ class AcceptArticleJournalController extends Controller
                             Hapus
                         </a>';
                 }
-                if($val->IS_NEED_VERIFY === '1') {
+                if($val->IS_NEED_VERIFY === '1' || trim($val->CAT_ID) == '') {
                     $action .='<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
                         <i class="ph-warning me-1"></i>
                         Perlu Verifikasi Ulang
