@@ -8,6 +8,7 @@ use App\Helpers\QueryAPI;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class AcceptArticleJournalController extends Controller
 {
@@ -40,235 +41,205 @@ class AcceptArticleJournalController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'e.id',
-            null,
-            'penerbit.name',
-            'catalogs.title',
-            'collectionmedias.name',
-            'catalogs.isbn',
-            'e.created_at',
+            'e.id', null, 'penerbit.name', 'catalogs.title',
+            'collectionmedias.name', 'catalogs.isbn', 'e.created_at',
         ];
 
-        $draw = intval($request->draw ?? 0);
-        $start = intval($request->start ?? 0);
-        $length = $start + intval($request->length ?? 10);
+        $draw   = intval($request->draw ?? 0);
+        $offset = intval($request->start ?? 0);
+        $limit  = intval($request->length ?? 10);
+        $rowEnd = $offset + $limit;
 
-        $data = [];
-        $search = strtoupper($request->search['value']);
+        // ─── Build WHERE ─────────────────────────────────────────────────────
+        $conditions = [
+            "e.deleted_at IS NULL",
+            "worksheets.category = '" . $this->escStr($this->worksheetCategory) . "'",
+            "e.article_title IS NOT NULL",
+            "e.collection_media_id = 203",
+        ];
 
-        $orderBy = '';
-        $order = $request->order;
-
-        $whereClause = '';
-        $whereCondition[] = "
-            (
-                e.deleted_at is null
-            ) and
-            worksheets.category = '$this->worksheetCategory' 
-            and article_title is not null
-        ";
-
-        if ($request->title) {
-            $title = strtoupper($request->title);
-            $whereCondition[] = "upper(e.article_title) like '%$title%'";
+        if ($request->filled('title')) {
+            $conditions[] = "upper(e.article_title) LIKE '%" . $this->escStr(strtoupper($request->title)) . "%'";
         }
 
-        if ($request->executor_id) {
-            $whereCondition[] = "e.penerbit_id = $request->executor_id";
+        if ($request->filled('executor_id') && is_numeric($request->executor_id)) {
+            $conditions[] = "e.penerbit_id = " . $this->escInt($request->executor_id);
         }
 
-        if ($request->province_id) {
-            $whereCondition[] = "kabupaten.propinsiid = $request->province_id";
+        if ($request->filled('province_id') && is_numeric($request->province_id)) {
+            $conditions[] = "kabupaten.propinsiid = " . $this->escInt($request->province_id);
         }
 
-        if ($request->year) {
-            $whereCondition[] = "e.publication_year = $request->year";
+        if ($request->filled('year') && is_numeric($request->year)) {
+            $conditions[] = "e.publication_year = " . $this->escInt($request->year);
         }
 
-        if ($request->received_by) {
-            $whereCondition[] = "e.received_by = $request->received_by";
+        if ($request->filled('received_by') && is_numeric($request->received_by)) {
+            $conditions[] = "e.received_by = " . $this->escInt($request->received_by);
         }
-        if ($request->is_need_verify) {
-            $q_is_need_verify  = "e.is_need_verify = $request->is_need_verify";
-            if($request->is_need_verify == '1') {
-                $whereCondition[] = " (" . $q_is_need_verify . " OR e.catalog_id is null) ";
-            } else {
-                $whereCondition[] = $q_is_need_verify;
+
+        if ($request->filled('is_need_verify')) {
+            $val = $request->is_need_verify;
+            if ($val === '1') {
+                $conditions[] = "(e.is_need_verify = 1 OR e.catalog_id IS NULL)";
+            } elseif (is_numeric($val)) {
+                $conditions[] = "e.is_need_verify = " . $this->escInt($val);
             }
-
-        }
-        $whereCondition[] = "e.collection_media_id = 203";
-        
-        
-        if ($request->date) {
-            $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
-
-            $whereCondition[] = "($request->date_type >= to_date('$startDate', 'YYYY-MM-DD') and $request->date_type < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
+        $allowedDateTypes = ['e.created_at', 'e.received_at', 'e.article_publish_date'];
+        if ($request->filled('date') && $request->filled('date_type')
+            && in_array($request->date_type, $allowedDateTypes, true)) {
+
+            [$startDate, $endDate] = explode(' - ', $request->date);
+            $startDate = Carbon::parse($startDate)->format('Y-m-d');
+            $endDate   = Carbon::parse($endDate)->format('Y-m-d');
+
+            $conditions[] = "({$request->date_type} >= TO_DATE('$startDate','YYYY-MM-DD')
+                            AND {$request->date_type} < TO_DATE('$endDate','YYYY-MM-DD') + 1)";
+        }
+
+        $search = strtoupper($request->input('search.value', ''));
         if ($search) {
+            $safesearch = $this->escStr($search);
             $terms = [];
-
             foreach ($column as $c) {
-                if ($c) {
-                    $terms[] = "upper($c) like '%$search%'";
-                }
+                if ($c) $terms[] = "upper($c) LIKE '%$safesearch%'";
             }
-
-            $whereCondition[] = '(' . implode(' or ', $terms) . ')';
+            $conditions[] = '(' . implode(' OR ', $terms) . ')';
         }
 
-        if ($whereCondition) {
-            $whereClause = "where " . implode(' and ', $whereCondition);
+        $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+
+        // ─── ORDER BY ────────────────────────────────────────────────────────
+        $orderBy = 'ORDER BY e.created_at DESC';
+        if ($request->filled('order')) {
+            $idx = (int) $request->input('order.0.column');
+            $dir = strtoupper($request->input('order.0.dir')) === 'ASC' ? 'ASC' : 'DESC';
+            if (isset($column[$idx]) && $column[$idx]) {
+                $orderBy = "ORDER BY {$column[$idx]} $dir";
+            }
         }
 
-        if ($order) {
-            $orderColumnIndex = $order[0]['column'];
-            $orderDir = $order[0]['dir'];
-            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
-        }
-
-        $totalData = QueryAPI::get("
-            select
-                count(*) as total
-            from
-                e_collections e
-            left join
-                catalogs on catalogs.edeposit_col_id = e.id
-            left join
-                worksheets on worksheets.id = e.worksheet_id
-            where
-                (
-                   e.deleted_at is null
-                ) and
-                worksheets.category = '$this->worksheetCategory'
-        ", true)->TOTAL ?? 0;
-
-        $totalFiltered = QueryAPI::get("
-            select
-                count(*) as total
-            from
-                e_collections e
-            left join
-                catalogs on catalogs.edeposit_col_id = e.id
-            left join
-                penerbit on penerbit.id = e.penerbit_id
-            left join
-                kabupaten on kabupaten.id = e.kabupaten_id
-            left join
-                worksheets on worksheets.id = e.worksheet_id
-            left join
-                collectionmedias on collectionmedias.id = e.collection_media_id
-            left join users u on u.id = e.received_by
-            $whereClause
-        ", true)->TOTAL ?? 0;
-        $sql = "
-            select
-                *
-            from (
-                    select
-                        rownum as rnum,
-                        data.*
-                    from
-                        (
-                            select 
-                                e.id, e.is_need_verify,
-                                catalogs.id as cat_id,
-                                catalogs.title,
-                                catalogs.isbn,
-                                e.created_at, e.title as judul_jurnal,
-                                e.penerbit_id, e.code,
-                                penerbit.name as name_penerbit,
-                                collectionmedias.name as name_media,e.edition, e.serial,
-                                e.received_at as received_at_e_collection,
-                                e.article_title, e.article_contributor, e.article_subject, 
-                                e.article_original_link, e.article_doi, e.description,
-                                e.article_publish_date, e.deposit, e.edition_date,
-                                u.fullname as received_by_name, e.volume
-                            from
-                                e_collections e
-                            left join
-                                catalogs on e.id = catalogs.edeposit_col_id
-                            left join
-                                penerbit on penerbit.id = e.penerbit_id
-                            left join
-                                kabupaten on kabupaten.id = e.kabupaten_id
-                            left join
-                                worksheets on worksheets.id = e.worksheet_id
-                            left join
-                                collectionmedias on collectionmedias.id = e.collection_media_id
-                            left join users u on u.id = e.received_by
-                            $whereClause
-                            $orderBy
-                        ) data
-                    where
-                        rownum <= $length
-                )
-            where
-                rnum > $start
+        // ─── JOIN ────────────────────────────────────────────────────────────
+        $joins = "
+            FROM e_collections e
+            LEFT JOIN catalogs         ON e.id = catalogs.edeposit_col_id
+            LEFT JOIN penerbit         ON penerbit.id = e.penerbit_id
+            LEFT JOIN kabupaten        ON kabupaten.id = e.kabupaten_id
+            LEFT JOIN worksheets       ON worksheets.id = e.worksheet_id
+            LEFT JOIN collectionmedias ON collectionmedias.id = e.collection_media_id
+            LEFT JOIN users u          ON u.id = e.received_by
         ";
-        Log::info($sql);
-        
+
+        // ─── totalData ───────────────────────────────────────────────────────
+        $wsCategory = $this->worksheetCategory;
+        $totalData = Cache::remember("datatable_total_{$wsCategory}", 300, function () use ($wsCategory) {
+            return QueryAPI::get("
+                SELECT COUNT(*) AS total
+                FROM e_collections e
+                LEFT JOIN worksheets ON worksheets.id = e.worksheet_id
+                WHERE e.deleted_at IS NULL
+                AND worksheets.category = '$wsCategory'
+            ", true)->TOTAL ?? 0;
+        });
+
+        // ─── totalFiltered ───────────────────────────────────────────────────
+        $totalFiltered = QueryAPI::get("
+            SELECT COUNT(*) AS total $joins $whereClause
+        ", true)->TOTAL ?? 0;
+
+        // ─── Data aktual ─────────────────────────────────────────────────────
+        $sql = "
+            SELECT * FROM (
+                SELECT rownum AS rnum, data.*
+                FROM (
+                    SELECT
+                        e.id, e.is_need_verify,
+                        catalogs.id AS cat_id, catalogs.title, catalogs.isbn,
+                        e.created_at, e.title AS judul_jurnal,
+                        e.penerbit_id, e.code,
+                        penerbit.name AS name_penerbit,
+                        collectionmedias.name AS name_media,
+                        e.edition, e.serial,
+                        e.received_at AS received_at_e_collection,
+                        e.article_title, e.article_contributor, e.article_subject,
+                        e.article_original_link, e.article_doi, e.description,
+                        e.article_publish_date, e.deposit, e.edition_date,
+                        u.fullname AS received_by_name, e.volume
+                    $joins
+                    $whereClause
+                    $orderBy
+                ) data
+                WHERE rownum <= $rowEnd
+            )
+            WHERE rnum > $offset
+        ";
+
         $queryData = QueryAPI::get($sql);
 
-        if ($queryData) {
-            foreach ($queryData as $val) {
-                $action = '
-                    <a href="javascript:void(0);" class="btn btn-primary btn-sm" onclick="showDetail(' . $val->ID . ')">
-                        <i class="ph-info me-1"></i>
-                        Detail
-                    </a>';
-                $canDelete = Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7;
-                if($canDelete) {
-                    $action .='
-                        <a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap" onclick="destroy(' . $val->ID . ')">
-                            <i class="ph-trash me-1"></i>
-                            Hapus
-                        </a>';
-                }
-                if($val->IS_NEED_VERIFY === '1' || trim($val->CAT_ID) == '') {
-                    $action .='<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
-                        <i class="ph-warning me-1"></i>
-                        Perlu Verifikasi Ulang
-                    </a>';
-                } else {
-                    $action .='<a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap" onclick="verifikasi(' . $val->ID . ')">
-                        <i class="ph-check me-1"></i>
-                        Verifikasi
-                    </a>';
-                }
+        // ─── Format output ───────────────────────────────────────────────────
+        $data  = [];
+        $rowNo = $offset;
 
-                $data[] = [
-                    $start + 1,
-                    $action,
-                    $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
-                    $val->CAT_ID,
-                    $val->ARTICLE_TITLE,
-                    $val->ARTICLE_CONTRIBUTOR,
-                    $val->ARTICLE_SUBJECT,
-                    $val->EDITION_DATE,
-                    $val->JUDUL_JURNAL,
-                    $val->NAME_MEDIA,
-                    $val->ISBN,
-                    $val->VOLUME,
-                    Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
-                    $val->RECEIVED_BY_NAME
-                ];
+        foreach ($queryData ?? [] as $val) {
+            $rowNo++;
+            $canDelete = Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7;
+            $needVerif = $val->IS_NEED_VERIFY === '1' || trim($val->CAT_ID ?? '') === '';
 
-                $start++;
+            $action = '<a href="javascript:void(0);" class="btn btn-primary btn-sm"
+                        onclick="showDetail(' . $val->ID . ')">
+                        <i class="ph-info me-1"></i> Detail</a>';
+
+            if ($canDelete) {
+                $action .= '<a href="javascript:void(0);" class="btn btn-danger btn-sm mt-1 text-nowrap"
+                            onclick="destroy(' . $val->ID . ')">
+                            <i class="ph-trash me-1"></i> Hapus</a>';
             }
+
+            $action .= $needVerif
+                ? '<a href="javascript:void(0);" class="btn btn-warning btn-sm mt-1 text-nowrap"
+                    onclick="verifikasi(' . $val->ID . ')">
+                    <i class="ph-warning me-1"></i> Perlu Verifikasi Ulang</a>'
+                : '<a href="javascript:void(0);" class="btn btn-success btn-sm mt-1 text-nowrap"
+                    onclick="verifikasi(' . $val->ID . ')">
+                    <i class="ph-check me-1"></i> Verifikasi</a>';
+
+            $data[] = [
+                $rowNo,
+                $action,
+                $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
+                $val->CAT_ID,
+                $val->ARTICLE_TITLE,
+                $val->ARTICLE_CONTRIBUTOR,
+                $val->ARTICLE_SUBJECT,
+                $val->EDITION_DATE,
+                $val->JUDUL_JURNAL,
+                $val->NAME_MEDIA,
+                $val->ISBN,
+                $val->VOLUME,
+                Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
+                $val->RECEIVED_BY_NAME,
+            ];
         }
-        
+
         return response()->json([
-            'draw' => $draw,
-            'recordsTotal' => $totalData,
+            'draw'            => $draw,
+            'recordsTotal'    => $totalData,
             'recordsFiltered' => $totalFiltered,
-            'data' => $data
+            'data'            => $data,
         ]);
     }
 
+    private function escStr($val): string
+    {
+        return str_replace("'", "''", (string) $val);
+    }
+
+    private function escInt($val): int
+    {
+        return (int) $val;
+    }
     public function detail(Request $request)
     {
         $id = $request->id;
