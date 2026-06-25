@@ -207,9 +207,9 @@ class AcceptController extends Controller
                     </a>
                 ';
 
-                if ($val->INV_E_COLLECTION === 0) {
+                if ($val->INV_E_COLLECTION === 0 || $val->INV_E_COLLECTION === '0') {
                     $action .= '
-                        <a href="javascript:void(0);" class="btn btn-success btn-sm" onclick="alert(`Koleksi sudah terverifikasi.`)">
+                        <a href="javascript:void(0);" class="btn btn-success btn-sm" onclick="alert(\'Koleksi sudah terverifikasi.\')">
                             <i class="ph-check me-1"></i>
                             Terverifikasi
                         </a>
@@ -218,7 +218,7 @@ class AcceptController extends Controller
                     $action .= '
                         <a href="javascript:void(0);" class="btn btn-danger btn-sm text-nowrap" onclick="verification(' . $val->EDEPOSIT_COL_ID . ')">
                             <i class="ph-warning me-1"></i>
-                            Verifikasi Ulang
+                            Verifikasi
                         </a>
                     ';
                 }
