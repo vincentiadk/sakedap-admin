@@ -92,8 +92,8 @@ class AcceptArticleJournalController extends Controller
             && in_array($request->date_type, $allowedDateTypes, true)) {
 
             [$startDate, $endDate] = explode(' - ', $request->date);
-            $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate   = Carbon::parse($endDate)->format('Y-m-d');
+            $startDate = \Carbon\Carbon::parse($startDate)->format('Y-m-d');
+            $endDate   = \Carbon\Carbon::parse($endDate)->format('Y-m-d');
 
             $conditions[] = "({$request->date_type} >= TO_DATE('$startDate','YYYY-MM-DD')
                             AND {$request->date_type} < TO_DATE('$endDate','YYYY-MM-DD') + 1)";
@@ -112,12 +112,15 @@ class AcceptArticleJournalController extends Controller
         $whereClause = 'WHERE ' . implode(' AND ', $conditions);
 
         // ─── ORDER BY ────────────────────────────────────────────────────────
-        $orderBy = 'ORDER BY e.created_at DESC';
+        // PERBAIKAN: Selalu gunakan e.id DESC sebagai tie-breaker
+        $orderBy = 'ORDER BY e.created_at DESC, e.id DESC'; 
+        
         if ($request->filled('order')) {
             $idx = (int) $request->input('order.0.column');
             $dir = strtoupper($request->input('order.0.dir')) === 'ASC' ? 'ASC' : 'DESC';
             if (isset($column[$idx]) && $column[$idx]) {
-                $orderBy = "ORDER BY {$column[$idx]} $dir";
+                // PERBAIKAN: Tambahkan tie-breaker saat disorting kolom lain
+                $orderBy = "ORDER BY {$column[$idx]} $dir, e.id DESC"; 
             }
         }
 
@@ -134,9 +137,9 @@ class AcceptArticleJournalController extends Controller
 
         // ─── totalData ───────────────────────────────────────────────────────
         $wsCategory = $this->worksheetCategory;
-        $totalData = Cache::remember("datatable_total_{$wsCategory}", 300, function () use ($wsCategory) {
+        $totalData = \Illuminate\Support\Facades\Cache::remember("datatable_total_{$wsCategory}", 300, function () use ($wsCategory) {
             return QueryAPI::get("
-                SELECT COUNT(*) AS total
+                SELECT COUNT(e.id) AS total
                 FROM e_collections e
                 LEFT JOIN worksheets ON worksheets.id = e.worksheet_id
                 WHERE e.deleted_at IS NULL
@@ -146,7 +149,7 @@ class AcceptArticleJournalController extends Controller
 
         // ─── totalFiltered ───────────────────────────────────────────────────
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(*) AS total $joins $whereClause
+            SELECT COUNT(e.id) AS total $joins $whereClause
         ", true)->TOTAL ?? 0;
 
         // ─── Data aktual ─────────────────────────────────────────────────────
@@ -176,7 +179,7 @@ class AcceptArticleJournalController extends Controller
             WHERE rnum > $offset
         ";
 
-        $queryData = QueryAPI::get($sql);
+        $queryData = QueryAPI::get($sql) ?: [];
 
         // ─── Format output ───────────────────────────────────────────────────
         $data  = [];
@@ -184,7 +187,9 @@ class AcceptArticleJournalController extends Controller
 
         foreach ($queryData ?? [] as $val) {
             $rowNo++;
-            $canDelete = Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7;
+            
+            // PERBAIKAN: Beri fallback jika CREATED_AT null
+            $canDelete = $val->CREATED_AT ? \Carbon\Carbon::parse($val->CREATED_AT)->diffInDays(now()) <= 7 : false;
             $needVerif = $val->IS_NEED_VERIFY === '1' || trim($val->CAT_ID ?? '') === '';
 
             $action = '<a href="javascript:void(0);" class="btn btn-primary btn-sm"
@@ -218,7 +223,8 @@ class AcceptArticleJournalController extends Controller
                 $val->NAME_MEDIA,
                 $val->ISBN,
                 $val->VOLUME,
-                Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y'),
+                // PERBAIKAN: Beri fallback pencegah error jika RECEIVED_AT kosong
+                $val->RECEIVED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y') : '-',
                 $val->RECEIVED_BY_NAME,
             ];
         }
