@@ -58,37 +58,46 @@ class QueryAPI
         static::initialize();
 
         $data = null;
-        $query = Http::connectTimeout($connectTimeout)
-            ->timeout($timeout)
-            ->withQueryParameters([
-                'token' => static::$token,
-                'op' => 'getlistraw',
-                'sql' => $sql
-            ])
-            ->post(static::$baseUrl);
+        
+        try {
+            $query = Http::connectTimeout($connectTimeout)
+                ->timeout($timeout)
+                ->withQueryParameters([
+                    'token' => static::$token,
+                    'op' => 'getlistraw',
+                    'sql' => $sql
+                ])
+                ->post(static::$baseUrl);
 
-        if ($query->status() == 200) {
-            $response = $query->object();
+            if ($query->successful()) {
+                $response = $query->object();
 
-            if ($response->Status == 'Success') {
-                $result = $response->Data->Items;
+                if (isset($response->Status) && $response->Status == 'Success') {
+                    $result = $response->Data->Items ?? null;
 
-                if ($result) {
-                    if (count($result) > 0) {
-                        if ($single == true) {
-                            $data = $result[0];
-                        } else {
-                            $data = $result;
-                        }
+                    if ($result && count($result) > 0) {
+                        $data = ($single == true) ? $result[0] : $result;
                     }
+                } else {
+                    Log::channel('sakedap-api')->error('Gagal kueri (API Response Error)', [
+                        'response' => $response,
+                        'message' => $query->body(),
+                        'sql' => $sql
+                    ]);
                 }
             } else {
-                Log::channel('sakedap-api')->error('Gagal kueri', [
-                    'response' => $response,
+                Log::channel('sakedap-api')->error('Gagal kueri (HTTP/Server Error)', [
+                    'status_code' => $query->status(),
                     'message' => $query->body(),
                     'sql' => $sql
                 ]);
             }
+
+        } catch (\Exception $e) {
+            Log::channel('sakedap-api')->error('Gagal kueri (Network/Timeout Exception)', [
+                'exception_message' => $e->getMessage(),
+                'sql' => $sql
+            ]);
         }
 
         return $data;

@@ -229,113 +229,94 @@ class ManageController extends Controller
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(DISTINCT c.id) AS total
+            SELECT COUNT(c.id) AS total
             $filterJoins
             $whereClause
         ", true)->TOTAL ?? 0;
 
         $endRow = $start + $length;
 
-        $sql = "
-            WITH paged AS (
-                SELECT rnum, id
+        // 2. QUERY ID SUPER RINGAN: Buang GROUP BY/DISTINCT + Tambahkan Hint FIRST_ROWS
+        // Hint FIRST_ROWS memaksa Oracle memprioritaskan index untuk paginasi
+        $sqlIds = "
+            SELECT rnum, id
+            FROM (
+                SELECT ROWNUM AS rnum, base.id
                 FROM (
-                    SELECT ROWNUM AS rnum, base.id
-                    FROM (
-                        SELECT DISTINCT c.id
-                        $filterJoins
-                        $whereClause
-                        ORDER BY $orderCol $orderDir, c.id DESC
-                    ) base
-                    WHERE ROWNUM <= $endRow
-                )
-                WHERE rnum > $start
-            ),
-            latest_cf AS (
-                SELECT cf.catalog_id, cf.file_size, cf.fileurl, cf.method
-                FROM catalogfiles cf
-                JOIN (
-                    SELECT cf2.catalog_id, MAX(cf2.id) AS max_id
-                    FROM catalogfiles cf2
-                    JOIN paged pg ON pg.id = cf2.catalog_id
-                    GROUP BY cf2.catalog_id
-                ) x ON x.max_id = cf.id
-            ),
-            latest_cl AS (
-                SELECT cl2.catalog_id, cl2.noinduk_deposit
-                FROM collections cl2
-                JOIN (
-                    SELECT col3.catalog_id, MAX(col3.id) AS max_id
-                    FROM collections col3
-                    JOIN paged pg ON pg.id = col3.catalog_id
-                    GROUP BY col3.catalog_id
-                ) x ON x.max_id = cl2.id
-            ),
-            receiver_info AS (
-                SELECT
-                    eu.id AS eu_id,
-                    MAX(ea.fullname) AS fullname
-                FROM e_users eu
-                LEFT JOIN e_admins ea ON ea.id = eu.userable_id
-                WHERE eu.userable_type = 'admins'
-                GROUP BY eu.id
+                    SELECT /*+ FIRST_ROWS($length) */ c.id
+                    $filterJoins
+                    $whereClause
+                    ORDER BY $orderCol $orderDir, c.id DESC
+                ) base
+                WHERE ROWNUM <= $endRow
             )
-            SELECT
-                c.id,
-                c.title,
-                c.album,
-                c.series,
-                c.edition,
-                c.deweyno,
-                c.volume,
-                c.isbn,
-                c.controlnumber,
-                c.publishyear,
-                c.copyright,
-                c.preview,
-                c.akses,
-                c.author,
-                c.callnumber,
-                lcl.noinduk_deposit         AS noinduk_dep_cl,
-                e.deposit                   AS deposit_e_collection,
-                e.article_doi               AS doi_e_collection,
-                e.created_at                AS created_at_e_collection,
-                e.received_at,
-                e.serial                    AS serial_e_collection,
-                e.price                     AS price_e_collection,
-                e.article_subject           AS a_subject,
-                p.id                        AS id_penerbit,
-                p.name                      AS name_penerbit,
-                pr.namapropinsi,
-                kb.namakab,
-                cm.name                     AS name_media,
-                lcf.fileurl                 AS fileurl_catalogfiles,
-                lcf.file_size               AS file_size_catalogfiles,
-                lcf.method                  AS method_catalogfiles,
-                CASE
-                    WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255))
-                    ELSE u_receive.fullname
-                END AS fullname
-            FROM paged pg
-            JOIN catalogs c               ON c.id = pg.id
-            LEFT JOIN penerbit p          ON p.id = c.penerbit_id
-            LEFT JOIN e_collections e     ON e.id = c.edeposit_col_id
-            LEFT JOIN kabupaten kb        ON kb.id = e.kabupaten_id
-            LEFT JOIN propinsi pr         ON pr.id = kb.propinsiid
-            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-            LEFT JOIN latest_cf lcf       ON lcf.catalog_id = c.id
-            LEFT JOIN latest_cl lcl       ON lcl.catalog_id = c.id
-            LEFT JOIN users u_receive     ON u_receive.id = e.received_by
-            LEFT JOIN receiver_info ri    ON ri.eu_id = e.received_by
-            ORDER BY pg.rnum
+            WHERE rnum > $start
         ";
 
-        $queryData = QueryAPI::get($sql);
-
+        $pagedIdsData = QueryAPI::get($sqlIds);
         $finalData = [];
-        if ($queryData) {
+
+        if ($pagedIdsData && count($pagedIdsData) > 0) {
+            $pagedIds = array_map(function($item) {
+                return $item->ID;
+            }, $pagedIdsData);
+            
+            $idString = implode(',', $pagedIds);
+
+            // 3. AMBIL DETAIL DATA (Hanya untuk 10 ID yang tampil di layar)
+            $sqlDetail = "
+                SELECT
+                    c.id, c.title, c.album, c.series, c.edition, c.deweyno,
+                    c.volume, c.isbn, c.controlnumber, c.publishyear,
+                    c.copyright, c.preview, c.akses, c.author, c.callnumber,
+                    e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection,
+                    e.created_at AS created_at_e_collection, e.received_at,
+                    e.serial AS serial_e_collection, e.price AS price_e_collection,
+                    e.article_subject AS a_subject,
+                    p.id AS id_penerbit, p.name AS name_penerbit,
+                    pr.namapropinsi, kb.namakab, cm.name AS name_media,
+                    CASE
+                        WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255))
+                        ELSE u_receive.fullname
+                    END AS fullname,
+                    
+                    -- Pake subquery DENSE_RANK yang anti-crash
+                    (SELECT MAX(cf.fileurl) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS fileurl_catalogfiles,
+                    (SELECT MAX(cf.file_size) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS file_size_catalogfiles,
+                    (SELECT MAX(cf.method) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS method_catalogfiles,
+                    (SELECT MAX(cl.noinduk_deposit) KEEP (DENSE_RANK LAST ORDER BY cl.id) FROM collections cl WHERE cl.catalog_id = c.id) AS noinduk_dep_cl
+
+                FROM catalogs c
+                LEFT JOIN penerbit p ON p.id = c.penerbit_id
+                LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+                LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+                LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+                LEFT JOIN users u_receive ON u_receive.id = e.received_by
+                LEFT JOIN (
+                    SELECT eu.userable_id, MAX(ea.fullname) AS fullname
+                    FROM e_users eu
+                    JOIN e_admins ea ON ea.id = eu.userable_id
+                    WHERE eu.userable_type = 'admins'
+                    GROUP BY eu.userable_id
+                ) ri ON ri.userable_id = e.received_by
+                WHERE c.id IN ($idString)
+            ";
+
+            $queryData = QueryAPI::get($sqlDetail) ?: [];
+            
+            // Susun kembali berdasarkan ID
+            $dataMap = [];
+            foreach ($queryData as $row) {
+                $dataMap[$row->ID] = $row;
+            }
+
             $counter = $start + 1;
-            foreach ($queryData as $val) {
+            foreach ($pagedIds as $id) {
+                if (!isset($dataMap[$id])) continue;
+                $val = $dataMap[$id];
+
+                // ... (Masukkan logika $action dan $finalData[] = [...] sama persis seperti sebelumnya) ...
                 $action = '
                 <a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
                     <i class="ph-info me-1"></i> Detail
