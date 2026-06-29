@@ -53,59 +53,63 @@ class ReviewController extends Controller
         $length = $start + intval($request->length ?? 10);
 
         $data = [];
-        $search = strtoupper($request->search['value']);
+        $search = strtoupper($request->search['value'] ?? '');
 
-        $orderBy = '';
+        // 1. SET DEFAULT ORDER BY
+        $orderBy = 'order by e_collections.id desc';
         $order = $request->order;
 
         $whereClause = '';
+        $whereCondition = [];
         $whereCondition[] = "(e_collections.status = '1' and e_collections.deleted_at is null)";
         $whereCondition[] = "e_collections.worksheet_id = 20";
 
         if ($request->title) {
-            $title = strtoupper($request->title);
+            $title = strtoupper(str_replace("'", "''", $request->title));
             $whereCondition[] = "(upper(e_collections.title_ori) like '%$title%' or upper(e_collections.title) like '%$title%')";
         }
 
         if ($request->isbn) {
-            $isbn = str_replace('-', '', $request->isbn);
+            $isbn = str_replace(['-', "'"], ['', "''"], $request->isbn);
             $whereCondition[] = "e_collections.code = '$isbn'";
         }
 
         if ($request->qrcbn) {
-            $whereCondition[] = "e_collections.qrcbn = '$request->qrcbn'";
+            $qrcbn = str_replace("'", "''", $request->qrcbn);
+            $whereCondition[] = "e_collections.qrcbn = '$qrcbn'";
         }
 
         if ($request->executor_id) {
-            $whereCondition[] = "e_collections.penerbit_id = $request->executor_id";
+            $whereCondition[] = "e_collections.penerbit_id = " . (int) $request->executor_id;
         }
 
         if ($request->province_id) {
-            $whereCondition[] = "kabupaten.propinsiid = $request->province_id";
+            $whereCondition[] = "kabupaten.propinsiid = " . (int) $request->province_id;
         }
 
         if ($request->year) {
-            $whereCondition[] = "e_collections.publication_year = $request->year";
+            $whereCondition[] = "e_collections.publication_year = " . (int) $request->year;
         }
 
         if ($request->media_id) {
-            $whereCondition[] = "e_collections.collection_media_id = $request->media_id";
+            $whereCondition[] = "e_collections.collection_media_id = " . (int) $request->media_id;
         }
 
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
-            $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = Carbon::parse($explodeDate[1])->format('Y-m-d');
+            $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
 
             $whereCondition[] = "(e_collections.updated_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collections.updated_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($search) {
+            $searchEsc = str_replace("'", "''", $search);
             $terms = [];
 
             foreach ($column as $c) {
                 if ($c) {
-                    $terms[] = "upper($c) like '%$search%'";
+                    $terms[] = "upper($c) like '%$searchEsc%'";
                 }
             }
 
@@ -116,10 +120,16 @@ class ReviewController extends Controller
             $whereClause = "where " . implode(' and ', $whereCondition);
         }
 
-        if ($order) {
+        // 2. TIMPA ORDER BY JIKA ADA REQUEST SORT DARI DATATABLE
+        if ($order && isset($column[$order[0]['column']])) {
             $orderColumnIndex = $order[0]['column'];
-            $orderDir = $order[0]['dir'];
-            $orderBy = "order by " . $column[$orderColumnIndex] . " $orderDir";
+            $orderDir = strtolower($order[0]['dir']) === 'asc' ? 'asc' : 'desc';
+            $orderColName = $column[$orderColumnIndex];
+
+            if (!empty($orderColName)) {
+                // Gunakan e_collections.id desc di belakang sebagai tie-breaker
+                $orderBy = "order by $orderColName $orderDir, e_collections.id desc";
+            }
         }
 
         $totalData = QueryAPI::get("
@@ -132,9 +142,10 @@ class ReviewController extends Controller
                 worksheet_id = 20
         ", true)->TOTAL ?? 0;
 
+        // 3. HAPUS JOIN KE WORKSHEETS
         $totalFiltered = QueryAPI::get("
             select
-                count(*) as total
+                count(e_collections.id) as total
             from
                 e_collections
             left join
@@ -143,11 +154,10 @@ class ReviewController extends Controller
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
                 collectionmedias on collectionmedias.id = e_collections.collection_media_id
-            left join
-                worksheets on worksheets.id = e_collections.worksheet_id
             $whereClause
         ", true)->TOTAL ?? 0;
 
+        // 4. HAPUS JOIN KE WORKSHEETS PADA QUERY UTAMA
         $queryData = QueryAPI::get("
             select
                 *
@@ -170,8 +180,6 @@ class ReviewController extends Controller
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
                             left join
                                 collectionmedias on collectionmedias.id = e_collections.collection_media_id
-                            left join
-                                worksheets on worksheets.id = e_collections.worksheet_id
                             $whereClause
                             $orderBy
                         ) data
@@ -209,8 +217,8 @@ class ReviewController extends Controller
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_MEDIA,
                     $val->CODE,
-                    Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
-                    Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    \Carbon\Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    \Carbon\Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                 ];
 
                 $start++;
