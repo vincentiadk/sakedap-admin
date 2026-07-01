@@ -54,7 +54,6 @@ class AcceptArticleJournalController extends Controller
         $conditions = [
             "e.deleted_at IS NULL",
             "worksheets.category = '" . $this->escStr($this->worksheetCategory) . "'",
-            "e.article_title IS NOT NULL",
             "e.collection_media_id = 203",
         ];
 
@@ -149,7 +148,20 @@ class AcceptArticleJournalController extends Controller
 
         // ─── totalFiltered ───────────────────────────────────────────────────
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(e.id) AS total $joins $whereClause
+            SELECT COUNT(*) AS total FROM (
+                SELECT e.id,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY 
+                            COALESCE(TO_CHAR(e.deposit), 'NULL_' || e.id) || '|' ||
+                            COALESCE(catalogs.title, 'NULL') || '|' ||
+                            COALESCE(TO_CHAR(catalogs.createdate, 'YYYYMMDDHH24MISS'), 'NULL') || '|' ||
+                            COALESCE(catalogs.isbn, 'NULL') || '|' ||
+                            COALESCE(catalogs.controlnumber, 'NULL')
+                        ORDER BY e.id DESC
+                    ) as rn
+                $joins
+                $whereClause
+            ) WHERE rn = 1
         ", true)->TOTAL ?? 0;
 
         // ─── Data aktual ─────────────────────────────────────────────────────

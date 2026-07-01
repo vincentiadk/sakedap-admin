@@ -60,75 +60,22 @@ class ManageController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'c.id',
-            null,
-            'c.id',
-            'p.id',
-            'p.name',
-            'e.received_at',
-            'cfr.method',
-            'pr.namapropinsi',
-            'kb.namakab',
-            'c.title',
-            'cm.name',
-            'c.album',
-            'c.series',
-            'c.edition',
-            'e.serial',
-            'c.deweyno',
-            'c.volume',
-            'c.isbn',
-            'e.deposit',
-            'c.controlnumber',
-            'c.publishyear',
-            'c.copyright',
-            'c.preview',
-            null,
-            'cfr.method',
-            'c.akses',
-            'c.author',
-            null,
-            'cfr.file_size',
-            'cfr.fileurl',
-            'e.created_at',
-            'c.createdate',
-            'e.price',
-            'fullname',
-            'c.callnumber',
-            'cl.noinduk_deposit',
+            'c.id', null, 'c.id', 'p.id', 'p.name', 'e.received_at', 'cfr.method', 'pr.namapropinsi', 
+            'kb.namakab', 'c.title', 'cm.name', 'c.album', 'c.series', 'c.edition', 'e.serial', 
+            'c.deweyno', 'c.volume', 'c.isbn', 'e.deposit', 'c.controlnumber', 'c.publishyear', 
+            'c.copyright', 'c.preview', null, 'cfr.method', 'c.akses', 'c.author', null, 
+            'cfr.file_size', 'cfr.fileurl', 'e.created_at', 'c.createdate', 'e.price', 'fullname', 
+            'c.callnumber', 'cl.noinduk_deposit',
         ];
 
         $searchableColumns = [
-            'c.id',
-            'p.id',
-            'p.name',
-            'TO_CHAR(e.received_at, \'YYYY-MM-DD HH24:MI:SS\')',
-            'pr.namapropinsi',
-            'kb.namakab',
-            'c.title',
-            'cm.name',
-            'c.album',
-            'c.series',
-            'c.edition',
-            'e.serial',
-            'c.deweyno',
-            'c.volume',
-            'c.isbn',
-            'e.deposit',
-            'c.controlnumber',
-            'c.publishyear',
-            'c.copyright',
-            'c.preview',
-            'c.akses',
-            'c.author',
-            'TO_CHAR(cfr.file_size)',
-            'cfr.fileurl',
-            'TO_CHAR(e.price)',
-            "CASE WHEN ea_receive.fullname IS NOT NULL
-                THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                ELSE u_receive.fullname END",
+            'c.id', 'p.id', 'p.name', 'TO_CHAR(e.received_at, \'YYYY-MM-DD HH24:MI:SS\')',
+            'pr.namapropinsi', 'kb.namakab', 'c.title', 'cm.name', 'c.album', 'c.series',
+            'c.edition', 'e.serial', 'c.deweyno', 'c.volume', 'c.isbn', 'e.deposit',
+            'c.controlnumber', 'c.publishyear', 'c.copyright', 'c.preview', 'c.akses',
+            'c.author', 'TO_CHAR(e.price)', 
+            "CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END",
             'c.callnumber',
-            'cl.noinduk_deposit',
         ];
 
         $draw   = intval($request->draw ?? 0);
@@ -136,74 +83,40 @@ class ManageController extends Controller
         $length = intval($request->length ?? 10);
         $search = strtoupper(trim($request->search['value'] ?? ''));
 
-        $whereCondition   = [];
-        $whereCondition[] = "NVL(c.isdelete,0) = 0";
-        $whereCondition[] = "w.category = '$this->worksheetCategory'";
-        $whereCondition[] = "c.edeposit_col_id IS NOT NULL";
-
+        // --- Build Where Clause ---
+        $whereCondition = ["NVL(c.isdelete,0) = 0", "w.category = '$this->worksheetCategory'", "c.edeposit_col_id IS NOT NULL"];
+        
         if ($request->title) {
-            $title            = strtoupper(str_replace("'", "''", $request->title));
+            $title = strtoupper(str_replace("'", "''", $request->title));
             $whereCondition[] = "UPPER(c.title) LIKE '%$title%'";
         }
-
-        if ($request->executor_id) {
-            $whereCondition[] = "c.penerbit_id = " . (int) $request->executor_id;
-        }
-
-        if ($request->province_id) {
-            $whereCondition[] = "kb.propinsiid = " . (int) $request->province_id;
-        }
-
-        if ($request->year) {
-            $whereCondition[] = "c.publishyear = " . (int) $request->year;
-        }
-
-        if ($request->media_id) {
-            $whereCondition[] = "e.collection_media_id = " . (int) $request->media_id;
-        }
-
+        if ($request->executor_id) $whereCondition[] = "c.penerbit_id = " . (int)$request->executor_id;
+        if ($request->province_id) $whereCondition[] = "kb.propinsiid = " . (int)$request->province_id;
+        if ($request->year) $whereCondition[] = "c.publishyear = " . (int)$request->year;
+        if ($request->media_id) $whereCondition[] = "e.collection_media_id = " . (int)$request->media_id;
+        
         if ($request->date) {
-            $explodeDate      = explode(' - ', $request->date);
-            $startDate        = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate          = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
-            $whereCondition[] = "(e.received_at >= TO_DATE('$startDate', 'YYYY-MM-DD')
-                            AND e.received_at < TO_DATE('$endDate', 'YYYY-MM-DD') + 1)";
+            $explodeDate = explode(' - ', $request->date);
+            $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
+            $endDate = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
+            $whereCondition[] = "(e.received_at >= TO_DATE('$startDate', 'YYYY-MM-DD') AND e.received_at < TO_DATE('$endDate', 'YYYY-MM-DD') + 1)";
         }
 
         if ($request->fullname) {
-            $fnReq            = strtoupper(str_replace("'", "''", $request->fullname));
-            $whereCondition[] = "UPPER(CASE
-                                    WHEN ea_receive.fullname IS NOT NULL
-                                    THEN CAST(ea_receive.fullname AS VARCHAR2(255))
-                                    ELSE u_receive.fullname
-                                END) LIKE '%$fnReq%'";
+            $fnReq = strtoupper(str_replace("'", "''", $request->fullname));
+            $whereCondition[] = "UPPER(CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END) LIKE '%$fnReq%'";
         }
 
         if ($search) {
             $searchEsc = str_replace("'", "''", $search);
-            $terms     = [];
-            foreach ($searchableColumns as $col) {
-                $terms[] = "UPPER($col) LIKE '%$searchEsc%'";
-            }
+            $terms = [];
+            foreach ($searchableColumns as $col) $terms[] = "UPPER($col) LIKE '%$searchEsc%'";
             $whereCondition[] = '(' . implode(' OR ', $terms) . ')';
         }
 
-        $whereClause = $whereCondition ? " WHERE " . implode(' AND ', $whereCondition) : '';
+        $whereClause = " WHERE " . implode(' AND ', $whereCondition);
 
-        $orderDir = 'DESC';
-        $orderCol = 'c.id';
-
-        if ($request->order) {
-            $orderColumnIndex = $request->order[0]['column'];
-            $reqOrderCol      = $column[$orderColumnIndex] ?? 'c.id';
-            $reqOrderDir      = strtoupper($request->order[0]['dir']) === 'ASC' ? 'ASC' : 'DESC';
-
-            if (!empty($reqOrderCol)) {
-                $orderCol = $reqOrderCol;
-            }
-            $orderDir = $reqOrderDir;
-        }
-
+        // --- Joins & Base Query ---
         $filterJoins = "
             FROM catalogs c
             JOIN worksheets w ON w.id = c.worksheet_id
@@ -213,41 +126,72 @@ class ManageController extends Controller
             LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
             LEFT JOIN users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN e_users eu_receive
-                ON eu_receive.id = e.received_by
-                AND eu_receive.userable_type = 'admins'
-            LEFT JOIN e_admins ea_receive ON ea_receive.id = eu_receive.userable_id
+            LEFT JOIN (
+                SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname
+                FROM e_users eu
+                JOIN e_admins ea ON ea.id = eu.userable_id
+                WHERE eu.userable_type = 'admins'
+                GROUP BY eu.id
+            ) ri ON ri.eu_id = e.received_by
         ";
 
-        $totalData = QueryAPI::get("
-            SELECT COUNT(*) AS total
+        $baseQuery = "
+            SELECT c.id, e.deposit, c.title, c.createdate, c.isbn, c.controlnumber
             FROM catalogs c
             JOIN worksheets w ON w.id = c.worksheet_id
-            WHERE NVL(c.isdelete,0) = 0
-            AND w.category = '$this->worksheetCategory'
-            AND c.edeposit_col_id IS NOT NULL
-        ", true)->TOTAL ?? 0;
+            LEFT JOIN penerbit p ON p.id = c.penerbit_id
+            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
+            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
+            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
+            LEFT JOIN users u_receive ON u_receive.id = e.received_by
+            LEFT JOIN (
+                SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname
+                FROM e_users eu
+                JOIN e_admins ea ON ea.id = eu.userable_id
+                WHERE eu.userable_type = 'admins'
+                GROUP BY eu.id
+            ) ri ON ri.eu_id = e.received_by
+            $whereClause
+        ";
+
+        // 2. Query Deduplikasi (Satu-satunya sumber kebenaran)
+        // Kita gunakan ID unik per deposit di sini
+        $deduplicatedQuery = "
+            SELECT id FROM (
+                SELECT id, 
+                    ROW_NUMBER() OVER (
+                        PARTITION BY 
+                            COALESCE(TO_CHAR(deposit), 'NULL_' || id) || '|' ||
+                            COALESCE(title, 'NULL') || '|' ||
+                            COALESCE(TO_CHAR(createdate, 'YYYYMMDDHH24MISS'), 'NULL') || '|' ||
+                            COALESCE(isbn, 'NULL') || '|' ||
+                            COALESCE(controlnumber, 'NULL')
+                        ORDER BY id DESC
+                    ) as rn
+                FROM ($baseQuery)
+            ) WHERE rn = 1
+        ";
+
+        // --- Execution ---
+        $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs c JOIN worksheets w ON w.id = c.worksheet_id WHERE NVL(c.isdelete,0) = 0 AND w.category = '$this->worksheetCategory' AND c.edeposit_col_id IS NOT NULL", true)->TOTAL ?? 0;
+        
 
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(c.id) AS total
-            $filterJoins
-            $whereClause
+            SELECT COUNT(*) AS total 
+            FROM ($deduplicatedQuery)
         ", true)->TOTAL ?? 0;
 
         $endRow = $start + $length;
-
-        // 2. QUERY ID SUPER RINGAN: Buang GROUP BY/DISTINCT + Tambahkan Hint FIRST_ROWS
-        // Hint FIRST_ROWS memaksa Oracle memprioritaskan index untuk paginasi
         $sqlIds = "
             SELECT rnum, id
             FROM (
-                SELECT ROWNUM AS rnum, base.id
+                SELECT ROWNUM AS rnum, id
                 FROM (
-                    SELECT /*+ FIRST_ROWS($length) */ c.id
-                    $filterJoins
-                    $whereClause
-                    ORDER BY $orderCol $orderDir, c.id DESC
-                ) base
+                    SELECT id 
+                    FROM ($deduplicatedQuery)
+                    ORDER BY id DESC
+                )
                 WHERE ROWNUM <= $endRow
             )
             WHERE rnum > $start
@@ -257,35 +201,20 @@ class ManageController extends Controller
         $finalData = [];
 
         if ($pagedIdsData && count($pagedIdsData) > 0) {
-            $pagedIds = array_map(function($item) {
-                return $item->ID;
-            }, $pagedIdsData);
-            
-            $idString = implode(',', $pagedIds);
+            $pagedIds = array_map(fn($item) => $item->ID, $pagedIdsData);
+            $idString = implode(',', array_unique($pagedIds));
 
-            // 3. AMBIL DETAIL DATA (Hanya untuk 10 ID yang tampil di layar)
             $sqlDetail = "
-                SELECT
-                    c.id, c.title, c.album, c.series, c.edition, c.deweyno,
-                    c.volume, c.isbn, c.controlnumber, c.publishyear,
-                    c.copyright, c.preview, c.akses, c.author, c.callnumber,
-                    e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection,
-                    e.created_at AS created_at_e_collection, e.received_at,
-                    e.serial AS serial_e_collection, e.price AS price_e_collection,
-                    e.article_subject AS a_subject,
-                    p.id AS id_penerbit, p.name AS name_penerbit,
-                    pr.namapropinsi, kb.namakab, cm.name AS name_media,
-                    CASE
-                        WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255))
-                        ELSE u_receive.fullname
-                    END AS fullname,
-                    
-                    -- Pake subquery DENSE_RANK yang anti-crash
+                SELECT c.id, c.title, c.album, c.series, c.edition, c.deweyno, c.volume, c.isbn, c.controlnumber, 
+                    c.publishyear, c.copyright, c.preview, c.akses, c.author, c.callnumber,
+                    e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection, e.created_at AS created_at_e_collection, 
+                    e.received_at, e.serial AS serial_e_collection, e.price AS price_e_collection, e.article_subject AS a_subject,
+                    p.id AS id_penerbit, p.name AS name_penerbit, pr.namapropinsi, kb.namakab, cm.name AS name_media,
+                    CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END AS fullname,
                     (SELECT MAX(cf.fileurl) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS fileurl_catalogfiles,
                     (SELECT MAX(cf.file_size) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS file_size_catalogfiles,
                     (SELECT MAX(cf.method) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS method_catalogfiles,
                     (SELECT MAX(cl.noinduk_deposit) KEEP (DENSE_RANK LAST ORDER BY cl.id) FROM collections cl WHERE cl.catalog_id = c.id) AS noinduk_dep_cl
-
                 FROM catalogs c
                 LEFT JOIN penerbit p ON p.id = c.penerbit_id
                 LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
@@ -293,84 +222,36 @@ class ManageController extends Controller
                 LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
                 LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
                 LEFT JOIN users u_receive ON u_receive.id = e.received_by
-                LEFT JOIN (
-                    SELECT eu.userable_id, MAX(ea.fullname) AS fullname
-                    FROM e_users eu
-                    JOIN e_admins ea ON ea.id = eu.userable_id
-                    WHERE eu.userable_type = 'admins'
-                    GROUP BY eu.userable_id
-                ) ri ON ri.userable_id = e.received_by
+                LEFT JOIN (SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname FROM e_users eu JOIN e_admins ea ON ea.id = eu.userable_id WHERE eu.userable_type = 'admins' GROUP BY eu.id) ri ON ri.eu_id = e.received_by
                 WHERE c.id IN ($idString)
             ";
 
             $queryData = QueryAPI::get($sqlDetail) ?: [];
-            
-            // Susun kembali berdasarkan ID
             $dataMap = [];
-            foreach ($queryData as $row) {
-                $dataMap[$row->ID] = $row;
-            }
+            foreach ($queryData as $row) $dataMap[$row->ID] = $row;
 
             $counter = $start + 1;
             foreach ($pagedIds as $id) {
                 if (!isset($dataMap[$id])) continue;
                 $val = $dataMap[$id];
-
-                // ... (Masukkan logika $action dan $finalData[] = [...] sama persis seperti sebelumnya) ...
-                $action = '
-                <a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm">
-                    <i class="ph-info me-1"></i> Detail
-                </a>';
-
+                $action = '<a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>';
                 $finalData[] = [
-                    $counter,
-                    $action,
-                    $val->ID,
-                    $val->ID_PENERBIT,
-                    $val->NAME_PENERBIT,
+                    $counter++, $action, $val->ID, $val->ID_PENERBIT, $val->NAME_PENERBIT,
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y') : '-',
-                    Main::method($val->METHOD_CATALOGFILES),
-                    $val->NAMAPROPINSI,
-                    $val->NAMAKAB,
-                    $val->TITLE,
-                    $val->NAME_MEDIA,
-                    $val->ALBUM,
-                    $val->SERIES,
-                    $val->EDITION,
-                    Main::serial($val->SERIAL_E_COLLECTION),
-                    $val->DEWEYNO,
-                    $val->VOLUME,
-                    $val->ISBN,
-                    $val->DEPOSIT_E_COLLECTION,
-                    $val->CONTROLNUMBER,
-                    $val->PUBLISHYEAR,
-                    $val->COPYRIGHT,
-                    $val->PREVIEW,
-                    'Tidak',
-                    $val->METHOD_CATALOGFILES == 4 ? 'Ya' : 'Tidak',
-                    Main::access($val->AKSES),
-                    $val->AUTHOR,
-                    $val->A_SUBJECT,
-                    Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
+                    Main::method($val->METHOD_CATALOGFILES), $val->NAMAPROPINSI, $val->NAMAKAB, $val->TITLE,
+                    $val->NAME_MEDIA, $val->ALBUM, $val->SERIES, $val->EDITION, Main::serial($val->SERIAL_E_COLLECTION),
+                    $val->DEWEYNO, $val->VOLUME, $val->ISBN, $val->DEPOSIT_E_COLLECTION, $val->CONTROLNUMBER,
+                    $val->PUBLISHYEAR, $val->COPYRIGHT, $val->PREVIEW, 'Tidak', $val->METHOD_CATALOGFILES == 4 ? 'Ya' : 'Tidak',
+                    Main::access($val->AKSES), $val->AUTHOR, $val->A_SUBJECT, Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES ?? '', PATHINFO_EXTENSION)),
                     $val->CREATED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y, H:i') : '-',
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->format('d-m-Y, H:i') : '-',
-                    $val->PRICE_E_COLLECTION,
-                    $val->FULLNAME,
-                    $val->DOI_E_COLLECTION,
-                    $val->CALLNUMBER,
-                    $val->NOINDUK_DEP_CL,
+                    $val->PRICE_E_COLLECTION, $val->FULLNAME, $val->DOI_E_COLLECTION, $val->CALLNUMBER, $val->NOINDUK_DEP_CL,
                 ];
-                $counter++;
             }
         }
 
-        return response()->json([
-            'draw'            => $draw,
-            'recordsTotal'    => $totalData,
-            'recordsFiltered' => $totalFiltered,
-            'data'            => $finalData,
-        ]);
+        return response()->json(['draw' => $draw, 'recordsTotal' => $totalData, 'recordsFiltered' => $totalFiltered, 'data' => $finalData]);
     }
 
     public function detail($id)
