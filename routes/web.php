@@ -296,6 +296,16 @@ Route::middleware('authentication')->group(function () {
             Route::post('history/datatable/{id}', 'JournalUploadController@datatableShow');
             Route::get('history/progress-realtime/{id}', 'JournalUploadController@progressRealtime')->name('journal.zip.progress-realtime');
         });
+
+        Route::prefix('journal/zip-upload-v2')->group(function () {
+            Route::get('/', 'JournalUploadControllerV2@index')->name('journal.zip.v2.index');
+            Route::post('datatable', 'JournalUploadControllerV2@datatable');
+            Route::post('store', 'JournalUploadControllerV2@store')->name('journal.zip.v2.store');
+            Route::get('progress/{id}', 'JournalUploadControllerV2@progress')->name('journal.zip.v2.progress');
+            Route::get('history/{id}', 'JournalUploadControllerV2@show')->name('journal.zip.v2.show');
+            Route::post('history/datatable/{id}', 'JournalUploadControllerV2@datatableShow');
+            Route::get('history/progress-realtime/{id}', 'JournalUploadControllerV2@progressRealtime')->name('journal.zip.v2.progress-realtime');
+        });
     });
 
     Route::prefix('bill-isbn')->group(function () {
