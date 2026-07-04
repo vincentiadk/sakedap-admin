@@ -30,7 +30,15 @@ return [
     */
 
     'connections' => [
-
+        'odbc' => [
+            'driver' => 'odbc',
+            'dsn' => env('DB_ODBC_DSN', 'odbc:Driver={Oracle in instantclient_23_0};DBQ=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SID=ORACLE)));'), //'odbc:Driver={Oracle in instantclient_23_0};DBQ=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SID=INLISSTY)));',
+            'username' => env('DB_USERNAME', 'inlis'),
+            'password' => env('DB_PASSWORD', 'abcde'),
+            'charset' => 'AL32UTF8',
+            'prefix' => '',
+            'database' => '',
+        ],
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),

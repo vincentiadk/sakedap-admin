@@ -347,7 +347,15 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('compliance')->group(function () {
             Route::get('/', 'ComplianceController@index');
         });
+        Route::get('/dashboard', 'DashboardComplianceController@index')->name('dashboard_compliance');
 
+        Route::prefix('compliance-v3')->group(function () {
+            Route::get('/',                   'ComplianceV3Controller@index')->name('compliance_v3.index');
+            Route::get('/data',               'ComplianceV3Controller@data')->name('compliance_v3.data');
+            Route::get('/export',             'ComplianceV3Controller@export')->name('compliance_v3.export');
+            Route::get('/detail/{id}',        'ComplianceV3Controller@detail')->name('compliance_v3.detail');
+            Route::get('/detail/{id}/export', 'ComplianceV3Controller@exportDetail')->name('compliance_v3.detail.export');
+        });
         Route::prefix('coaching-schedule')->group(function () {
             Route::get('/', 'CoachingScheduleController@index');
         });
