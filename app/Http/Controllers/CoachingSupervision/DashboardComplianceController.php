@@ -385,8 +385,84 @@ class DashboardComplianceController extends Controller
                 'distribusi' => [], 'total' => null,
                 'provinces' => [], 'provinceIds' => [],
                 'isV2' => false, 'hasV2' => false, 'isMixed' => false,
-                //'content' => 'coaching-supervision.dashboard',
             ]);
+        }
+    }
+
+    public function chartData(Request $request)
+    {
+        try {
+            $conn        = $this->getOracleConnection();
+            $mode        = $request->get('mode', 'tahun'); // 'tahun' atau 'range'
+            $provinceIds = $request->province_ids ?? [];
+            $whereProvinsi = $this->buildProvinceWhere($provinceIds);
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:chart', [
+                'mode', 'chart_year', 'chart_start', 'chart_end', 'province_ids',
+            ]);
+
+            $data = Cache::remember($cacheKey, 3600, function () use ($conn, $mode, $request, $whereProvinsi) {
+                if ($mode === 'tahun') {
+                    // Group by bulan dalam satu tahun
+                    $year = (int) $request->get('chart_year', date('Y'));
+                    $sql  = "
+                        SELECT
+                            TO_NUMBER(TO_CHAR(PI.CREATEDATE, 'MM')) as PERIODE,
+                            COUNT(PI.ID)                             as TOTAL_ISBN,
+                            COUNT(PI.RECEIVED_DATE_KCKR)            as SUDAH_KCKR
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                            AND EXTRACT(YEAR FROM PI.CREATEDATE) = $year
+                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                        WHERE 1=1 $whereProvinsi
+                        GROUP BY TO_CHAR(PI.CREATEDATE, 'MM')
+                        ORDER BY PERIODE
+                    ";
+                } else {
+                    // Group by tahun dalam rentang
+                    $startYear = (int) $request->get('chart_start', date('Y') - 4);
+                    $endYear   = (int) $request->get('chart_end',   date('Y'));
+                    $sql       = "
+                        SELECT
+                            EXTRACT(YEAR FROM PI.CREATEDATE)        as PERIODE,
+                            COUNT(PI.ID)                            as TOTAL_ISBN,
+                            COUNT(PI.RECEIVED_DATE_KCKR)            as SUDAH_KCKR
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                            AND EXTRACT(YEAR FROM PI.CREATEDATE) BETWEEN $startYear AND $endYear
+                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                        WHERE 1=1 $whereProvinsi
+                        GROUP BY EXTRACT(YEAR FROM PI.CREATEDATE)
+                        ORDER BY PERIODE
+                    ";
+                }
+
+                $result = odbc_exec($conn, $sql);
+                $rows   = [];
+                while ($row = odbc_fetch_object($result)) {
+                    $rows[] = $row;
+                }
+                return $rows;
+            });
+
+            // Format label
+            $bulanNames = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            $labels = [];
+            $isbn   = [];
+            $kckr   = [];
+
+            foreach ($data as $row) {
+                $labels[] = $mode === 'tahun'
+                    ? ($bulanNames[(int)$row->PERIODE] ?? $row->PERIODE)
+                    : (string)(int)$row->PERIODE;
+                $isbn[]   = (int) $row->TOTAL_ISBN;
+                $kckr[]   = (int) $row->SUDAH_KCKR;
+            }
+
+            return response()->json(compact('labels', 'isbn', 'kckr'));
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

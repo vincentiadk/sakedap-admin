@@ -519,6 +519,7 @@ class ComplianceV3Controller extends Controller
         set_time_limit(0);
         ini_set('memory_limit', '512M');
 
+        try {
         $conn          = $this->getOracleConnection();
         $provinceIds   = $request->province_ids  ?? [];
         $kategori      = $request->kategori      ?? null;
@@ -588,6 +589,9 @@ class ComplianceV3Controller extends Controller
         }, 'Ringkasan', 'LAPORAN KEPATUHAN PENERBIT KCKR — GABUNGAN', $label, 19);
 
         return $this->streamXlsx($sp, $filename, $request);
+        } catch (\Exception $e) {
+            return response($e->getMessage(), 500);
+        }
     }
 
     public function exportDetail(Request $request, $id)
@@ -595,6 +599,7 @@ class ComplianceV3Controller extends Controller
         set_time_limit(0);
         ini_set('memory_limit', '512M');
 
+        try {
         $conn       = $this->getOracleConnection();
         $penerbitId = (int) $id;
         $dateFilter = $this->parseDateFilter($request);
@@ -742,6 +747,9 @@ class ComplianceV3Controller extends Controller
         $sheet->freezePane('A3');
 
         return $this->streamXlsx($sp, $filename, $request);
+        } catch (\Exception $e) {
+            return response($e->getMessage(), 500);
+        }
     }
 
     // ─── Spreadsheet builder ─────────────────────────────────────────────────

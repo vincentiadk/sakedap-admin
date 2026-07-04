@@ -348,6 +348,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'ComplianceController@index');
         });
         Route::get('/dashboard', 'DashboardComplianceController@index')->name('dashboard_compliance');
+        Route::get('/dashboard/chart-data', 'DashboardComplianceController@chartData')->name('dashboard_compliance.chart');
 
         Route::prefix('compliance-v3')->group(function () {
             Route::get('/',                   'ComplianceV3Controller@index')->name('compliance_v3.index');

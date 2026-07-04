@@ -96,7 +96,7 @@
     @endif
 
     {{-- Filter --}}
-    <div class="card shadow-sm mb-3">
+    <div class="card shadow-sm mb-3" id="dashFilterCard">
         <div class="card-body py-2">
             @php
                 $ft          = $dateFilter['type'] ?? 'tahun';
@@ -257,6 +257,66 @@
                         {{ number_format($total->RATA_RATA_KEPATUHAN ?? 0, 1) }}%
                     </h2>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Chart Perbandingan ISBN vs KCKR --}}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>📈 Perbandingan ISBN Terbit vs Sudah KCKR</span>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                {{-- Mode filter --}}
+                <select id="chartMode" class="form-select form-select-sm" style="width:auto" onchange="onChartModeChange()">
+                    <option value="tahun">Per Bulan (pilih tahun)</option>
+                    <option value="range">Per Tahun (rentang)</option>
+                </select>
+
+                {{-- Filter tahun --}}
+                <div id="chartWrapTahun" class="d-flex align-items-center gap-1">
+                    <select id="chartYear" class="form-select form-select-sm" style="width:auto">
+                        @for($y = date('Y'); $y >= 2015; $y--)
+                            <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                {{-- Filter rentang tahun --}}
+                <div id="chartWrapRange" class="d-flex align-items-center gap-1 d-none">
+                    <select id="chartStart" class="form-select form-select-sm" style="width:auto">
+                        @for($y = date('Y'); $y >= 2015; $y--)
+                            <option value="{{ $y }}" {{ $y == date('Y') - 4 ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                    <span class="text-muted" style="font-size:.85rem">s.d.</span>
+                    <select id="chartEnd" class="form-select form-select-sm" style="width:auto">
+                        @for($y = date('Y'); $y >= 2015; $y--)
+                            <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <button class="btn btn-primary btn-sm" onclick="loadChart()">Tampilkan</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="d-flex gap-3 mb-2" style="font-size:.8rem">
+                <span class="d-flex align-items-center gap-1">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#2a78d6;display:inline-block"></span>
+                    ISBN Terbit
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#1baf7a;display:inline-block"></span>
+                    Sudah KCKR
+                </span>
+                <span class="ms-auto text-muted" id="chartSubtitle" style="font-size:.75rem"></span>
+            </div>
+            <div id="chartLoading" class="text-center py-4 text-muted d-none">
+                <div class="spinner-border spinner-border-sm me-1"></div> Memuat...
+            </div>
+            <div id="chartError" class="alert alert-danger d-none"></div>
+            <div style="position:relative;width:100%;height:320px">
+                <canvas id="isbnKckrChart" role="img" aria-label="Grouped bar chart perbandingan ISBN terbit vs sudah KCKR"></canvas>
             </div>
         </div>
     </div>
@@ -667,6 +727,146 @@ Chart.register(ChartDataLabels);
 })();
 @endif
 
+// ── Chart ISBN vs KCKR ───────────────────────────────────────────────────────
+let isbnKckrChartInstance = null;
+
+function onChartModeChange() {
+    const mode = document.getElementById('chartMode').value;
+    document.getElementById('chartWrapTahun').classList.toggle('d-none', mode !== 'tahun');
+    document.getElementById('chartWrapRange').classList.toggle('d-none', mode !== 'range');
+}
+
+function loadChart() {
+    const mode  = document.getElementById('chartMode').value;
+    const params = new URLSearchParams({ mode });
+
+    if (mode === 'tahun') {
+        params.set('chart_year', document.getElementById('chartYear').value);
+    } else {
+        params.set('chart_start', document.getElementById('chartStart').value);
+        params.set('chart_end',   document.getElementById('chartEnd').value);
+    }
+
+    @if(!empty($provinceIds))
+        @foreach($provinceIds as $pid)
+            params.append('province_ids[]', '{{ $pid }}');
+        @endforeach
+    @endif
+
+    document.getElementById('chartLoading').classList.remove('d-none');
+    document.getElementById('chartError').classList.add('d-none');
+
+    fetch('{{ route("dashboard_compliance.chart") }}?' + params.toString())
+        .then(r => r.json())
+        .then(res => {
+            document.getElementById('chartLoading').classList.add('d-none');
+            if (res.error) {
+                document.getElementById('chartError').textContent = res.error;
+                document.getElementById('chartError').classList.remove('d-none');
+                return;
+            }
+
+            const subtitle = mode === 'tahun'
+                ? 'Tahun ' + document.getElementById('chartYear').value + ' — breakdown per bulan'
+                : document.getElementById('chartStart').value + '–' + document.getElementById('chartEnd').value + ' — breakdown per tahun';
+            document.getElementById('chartSubtitle').textContent = subtitle;
+
+            if (isbnKckrChartInstance) isbnKckrChartInstance.destroy();
+
+            isbnKckrChartInstance = new Chart(document.getElementById('isbnKckrChart'), {
+                type: 'bar',
+                data: {
+                    labels: res.labels,
+                    datasets: [
+                        {
+                            label: 'ISBN Terbit',
+                            data: res.isbn,
+                            backgroundColor: '#2a78d6',
+                            borderRadius: { topLeft: 4, topRight: 4 },
+                            borderSkipped: false,
+                            barPercentage: 0.75,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'end',
+                                clip: false,
+                                color: '#1a1a1a',
+                                font: { size: 10, weight: 'bold' },
+                                formatter: val => val > 0 ? val.toLocaleString('id') : '',
+                            }
+                        },
+                        {
+                            label: 'Sudah KCKR',
+                            data: res.kckr,
+                            backgroundColor: '#1baf7a',
+                            borderRadius: { topLeft: 4, topRight: 4 },
+                            borderSkipped: false,
+                            barPercentage: 0.75,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'end',
+                                clip: false,
+                                color: '#1a1a1a',
+                                font: { size: 10, weight: 'bold' },
+                                formatter: (val, ctx) => {
+                                    const i   = ctx.dataIndex;
+                                    const pct = res.isbn[i] > 0 ? (val / res.isbn[i] * 100).toFixed(1) : '0.0';
+                                    return val > 0 ? val.toLocaleString('id') + ' (' + pct + '%)' : '';
+                                },
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 24 } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: (items) => {
+                                    const i   = items[0].dataIndex;
+                                    const pct = res.isbn[i] > 0 ? Math.round(res.kckr[i] / res.isbn[i] * 100) : 0;
+                                    const gap = (res.isbn[i] - res.kckr[i]).toLocaleString('id');
+                                    return ['Kepatuhan: ' + pct + '%', 'Belum KCKR: ' + gap];
+                                }
+                            }
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#333', font: { size: 12 } },
+                        },
+                        y: {
+                            grid: { color: '#e1e0d9' },
+                            border: { display: false },
+                            grace: '15%',
+                            ticks: {
+                                color: '#333',
+                                font: { size: 11 },
+                                callback: v => v >= 1000 ? (v/1000).toFixed(1).replace('.0','')+'rb' : v
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(err => {
+            document.getElementById('chartLoading').classList.add('d-none');
+            document.getElementById('chartError').textContent = 'Gagal memuat data chart.';
+            document.getElementById('chartError').classList.remove('d-none');
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    onChartModeChange();
+    loadChart();
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 function downloadPDF() {
     const btn = document.querySelector('button[onclick="downloadPDF()"]');
     btn.disabled = true;
@@ -676,7 +876,7 @@ function downloadPDF() {
 
     const pdfHeader = document.getElementById('pdfHeader');
     pdfHeader.style.display = 'block';
-    const hidden = el.querySelectorAll('.btn, form, .card.shadow-sm.mb-4');
+    const hidden = el.querySelectorAll('.btn, form, #dashFilterCard');
     hidden.forEach(e => e.style.display = 'none');
 
     const SCALE = 2;

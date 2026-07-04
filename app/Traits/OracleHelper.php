@@ -9,13 +9,14 @@ trait OracleHelper
 {
     protected function getOracleConnection()
     {
-        $conn = odbc_pconnect(
+        $conn = @odbc_pconnect(
             config('database.connections.odbc.dsn'),
             config('database.connections.odbc.username'),
             config('database.connections.odbc.password')
         );
         if (!$conn) {
-            throw new \Exception("Connection failed: " . odbc_errormsg());
+            $msg = odbc_errormsg() ?: error_get_last()['message'] ?? 'DSN tidak ditemukan';
+            throw new \RuntimeException("Koneksi database gagal: $msg");
         }
         return $conn;
     }
