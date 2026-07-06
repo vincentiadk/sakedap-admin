@@ -291,8 +291,8 @@
                                 {{ $row->DEADLINE_KCKR ? date('d/m/Y', strtotime($row->DEADLINE_KCKR)) : '-' }}
                             </td>
                             <td>
-                                @if($row->RECEIVED_DATE_KCKR)
-                                    {{ date('d/m/Y', strtotime($row->RECEIVED_DATE_KCKR)) }}
+                                @if($row->TGL_KCKR)
+                                    {{ date('d/m/Y', strtotime($row->TGL_KCKR)) }}
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif

@@ -344,6 +344,10 @@ class ComplianceV3Controller extends Controller
     public function detail(Request $request, $id)
     {
         try {
+            $ctx        = $this->resolveProvinceContext([], $request->get('kckr_mode', 'perpusnas'));
+            $kckrCol    = $ctx['kckrCol'];
+            $kckrMode   = $ctx['kckrMode'];
+
             $conn       = $this->getOracleConnection();
             $penerbitId = (int) $id;
             $page       = max(1, (int) $request->get('page', 1));
@@ -395,26 +399,27 @@ class ComplianceV3Controller extends Controller
             if ($filterJenis === 'rekam') $searchWhere .= " AND (PT.JENIS_MEDIA != '1' OR PT.JENIS_MEDIA IS NULL)";
 
             // filter status terbit: hanya 2026+ records punya status terbit
-            if ($filterStatus === 'terbit')       $searchWhere .= " AND $is2026 AND (PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL)";
-            if ($filterStatus === 'belum_terbit') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL";
-            if ($filterStatus === 'sudah_kckr')   $searchWhere .= " AND PI.RECEIVED_DATE_KCKR IS NOT NULL";
-            if ($filterStatus === 'belum_kckr')   $searchWhere .= " AND PI.RECEIVED_DATE_KCKR IS NULL";
-            if ($filterHutang  === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > $dlTerbit";
-            if ($filterTeguran === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlTerbit + 30)";
+            $kc = $kckrCol; // alias pendek untuk readability
+            if ($filterStatus === 'terbit')       $searchWhere .= " AND $is2026 AND (PI.TANGGAL_TERBIT IS NOT NULL OR PI.$kc IS NOT NULL)";
+            if ($filterStatus === 'belum_terbit') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL";
+            if ($filterStatus === 'sudah_kckr')   $searchWhere .= " AND PI.$kc IS NOT NULL";
+            if ($filterStatus === 'belum_kckr')   $searchWhere .= " AND PI.$kc IS NULL";
+            if ($filterHutang  === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > $dlTerbit";
+            if ($filterTeguran === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + 30)";
             if ($filterTerlambat === 'ya') {
                 $searchWhere .= " AND (
-                    ($isPre26 AND ((PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV1)) OR (PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlKckrV1))))
-                    OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND ((PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV2)) OR (PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlKckrV2))))
+                    ($isPre26 AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV1)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV1))))
+                    OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV2)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV2))))
                 )";
             }
 
             // Summary: terbit metrics hanya 2026+, KCKR semua records
             $summaryKey = $this->makeCacheKey($request, "compliance_v3:detail:$penerbitId:summary", [
-                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
             ]);
-            $summary = (object) Cache::remember($summaryKey, 3600, function() use ($conn, $fromJoin, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26) {
+            $summary = (object) Cache::remember($summaryKey, 3600, function() use ($conn, $fromJoin, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
                 $sudahTerbit = "(PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL)";
-                $r = odbc_exec($conn, "
+                $sql = "
                     SELECT
                         COUNT(*) as TOTAL,
                         COUNT(CASE WHEN $is2026 AND $sudahTerbit THEN 1 END) as SUDAH_TERBIT,
@@ -435,7 +440,8 @@ class ComplianceV3Controller extends Controller
                                 ELSE 0 END, 1
                         ) as PERSENTASE_KCKR
                     $fromJoin
-                ");
+                ";
+                $r = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
                 return (array) odbc_fetch_object($r);
             });
 
@@ -443,7 +449,7 @@ class ComplianceV3Controller extends Controller
                 PI.ID, PI.ISBN_NO,
                 PI.CREATEDATE      as TGL_DAFTAR,
                 PI.TANGGAL_TERBIT,
-                PI.RECEIVED_DATE_KCKR,
+                PI.RECEIVED_DATE_KCKR as TGL_KCKR,
                 PI.KETERANGAN,
                 PT.TITLE, PT.KEPENG, PT.JENIS_MEDIA, PT.JILID_VOLUME,
                 CASE WHEN $isPre26 THEN NULL ELSE $dlTerbit END   as DEADLINE_TERBIT,
@@ -487,24 +493,25 @@ class ComplianceV3Controller extends Controller
             $pageKey = $this->makeCacheKey($request, "compliance_v3:detail:$penerbitId:page", [
                 'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
                 'filter_status', 'filter_jenis', 'filter_hutang', 'filter_teguran', 'filter_terlambat',
-                'search_judul', 'search_isbn',
+                'search_judul', 'search_isbn', 'kckr_mode',
             ]) . ':' . $page;
 
-            $cached = Cache::remember($pageKey, 3600, function() use ($conn, $fromJoin, $searchWhere, $selectCols, $page, $perPage) {
-                $countRes = odbc_exec($conn, "SELECT COUNT(*) as TOTAL $fromJoin $searchWhere");
+            $cached = Cache::remember($pageKey, 3600, function() use ($conn, $fromJoin, $searchWhere, $selectCols, $page, $perPage, $kckrCol) {
+                $countSql  = str_replace('RECEIVED_DATE_KCKR', $kckrCol, "SELECT COUNT(*) as TOTAL $fromJoin $searchWhere");
+                $countRes  = odbc_exec($conn, $countSql);
                 $total    = (int) (odbc_fetch_object($countRes)->TOTAL ?? 0);
                 $lastPage = max(1, (int) ceil($total / $perPage));
                 $page     = min($page, $lastPage);
                 $offset   = ($page - 1) * $perPage;
                 $end      = $offset + $perPage;
 
-                $sql = "
+                $sql = str_replace('RECEIVED_DATE_KCKR', $kckrCol, "
                     SELECT * FROM (
                         SELECT a.*, ROWNUM as RN FROM (
                             SELECT $selectCols $fromJoin $searchWhere ORDER BY TGL_DAFTAR DESC
                         ) a WHERE ROWNUM <= $end
                     ) WHERE RN > $offset
-                ";
+                ");
                 $result = odbc_exec($conn, $sql);
                 $titles = [];
                 while ($row = odbc_fetch_object($result)) {
@@ -529,7 +536,8 @@ class ComplianceV3Controller extends Controller
 
             return view('compliance_v3.detail', compact(
                 'penerbit', 'titles', 'dateFilter', 'kategoriLabel',
-                'summary', 'total', 'page', 'perPage', 'lastPage', 'filters'
+                'summary', 'total', 'page', 'perPage', 'lastPage', 'filters',
+                'kckrMode'
             ));
 
         } catch (\Exception $e) {
@@ -636,6 +644,10 @@ class ComplianceV3Controller extends Controller
         ini_set('memory_limit', '512M');
 
         try {
+        $ctx        = $this->resolveProvinceContext([], $request->get('kckr_mode', 'perpusnas'));
+        $kckrCol    = $ctx['kckrCol'];
+        $kckrMode   = $ctx['kckrMode'];
+
         $conn       = $this->getOracleConnection();
         $penerbitId = (int) $id;
         $dateFilter = $this->parseDateFilter($request);
@@ -645,7 +657,8 @@ class ComplianceV3Controller extends Controller
         $pResult      = odbc_exec($conn, "SELECT P.NAME, P.KATEGORI_ID FROM PENERBIT P WHERE P.ID = $penerbitId");
         $penerbit     = odbc_fetch_object($pResult);
         $penerbitName = $penerbit ? $penerbit->NAME : 'Penerbit';
-        $filename     = $this->safeName($penerbitName) . '_V3_' . date('d-m-Y') . '.xlsx';
+        $modeLabel    = $kckrMode === 'provinsi' ? '_Provinsi' : '';
+        $filename     = $this->safeName($penerbitName) . '_V3' . $modeLabel . '_' . date('d-m-Y') . '.xlsx';
 
         $dlTerbit = self::EXPR_DEADLINE_TERBIT;
         $dlKckrV1 = $this->exprDeadlineKckrV1();
@@ -655,10 +668,10 @@ class ComplianceV3Controller extends Controller
         $isPre26 = "PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD')";
 
         $exportKey = $this->makeCacheKey($request, "compliance_v3:export_detail:$penerbitId", [
-            'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
+            'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
         ]);
 
-        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $penerbitId, $dateWhere, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26) {
+        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $penerbitId, $dateWhere, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
             $sql = "
                 SELECT
                     PI.ISBN_NO, PT.TITLE, PT.KEPENG, PT.JILID_VOLUME, PT.JENIS_MEDIA,
@@ -704,19 +717,21 @@ class ComplianceV3Controller extends Controller
                 WHERE P.ID = $penerbitId
                 ORDER BY TGL_DAFTAR DESC
             ";
-            $result = odbc_exec($conn, $sql);
+            $result = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
             $data   = [];
+            $kckrColUpper = strtoupper($kckrCol);
             while ($row = odbc_fetch_object($result)) {
-                $jenis = $row->JENIS_MEDIA === '1' ? 'Karya Cetak' : 'Karya Rekam';
+                $jenis       = $row->JENIS_MEDIA === '1' ? 'Karya Cetak' : 'Karya Rekam';
+                $tglKckr     = $row->$kckrColUpper ?? null;
                 $data[] = [
                     $row->ISBN_NO, $row->TITLE, $row->KEPENG, $row->JILID_VOLUME, $jenis,
-                    $row->TGL_DAFTAR       ? date('d/m/Y', strtotime($row->TGL_DAFTAR))       : '',
-                    $row->DEADLINE_TERBIT  ? date('d/m/Y', strtotime($row->DEADLINE_TERBIT))  : '-',
-                    $row->TANGGAL_TERBIT   ? date('d/m/Y', strtotime($row->TANGGAL_TERBIT))   : '',
+                    $row->TGL_DAFTAR       ? date('d/m/Y', strtotime($row->TGL_DAFTAR))      : '',
+                    $row->DEADLINE_TERBIT  ? date('d/m/Y', strtotime($row->DEADLINE_TERBIT)) : '-',
+                    $row->TANGGAL_TERBIT   ? date('d/m/Y', strtotime($row->TANGGAL_TERBIT))  : '',
                     $row->STATUS_TERBIT,
-                    $row->BATAS_TEGURAN    ? date('d/m/Y', strtotime($row->BATAS_TEGURAN))    : '-',
-                    $row->DEADLINE_KCKR    ? date('d/m/Y', strtotime($row->DEADLINE_KCKR))    : '',
-                    $row->RECEIVED_DATE_KCKR ? date('d/m/Y', strtotime($row->RECEIVED_DATE_KCKR)) : '',
+                    $row->BATAS_TEGURAN    ? date('d/m/Y', strtotime($row->BATAS_TEGURAN))   : '-',
+                    $row->DEADLINE_KCKR    ? date('d/m/Y', strtotime($row->DEADLINE_KCKR))   : '',
+                    $tglKckr               ? date('d/m/Y', strtotime($tglKckr))              : '',
                     $row->STATUS_KCKR,
                     $row->TERLAMBAT_KCKR ?? '-',
                     $row->KETERANGAN ?? '',
@@ -748,8 +763,9 @@ class ComplianceV3Controller extends Controller
         ];
 
         $allHeaders = array_merge(['No'], $headers);
+        $modeText = $kckrMode === 'provinsi' ? ' [DATA KCKR PROVINSI]' : ' [DATA KCKR PERPUSNAS]';
         $sheet->mergeCells($coord(1, 1) . ':' . $coord(count($allHeaders), 1));
-        $sheet->getCell($coord(1, 1))->setValue('DAFTAR JUDUL — ' . strtoupper($penerbitName));
+        $sheet->getCell($coord(1, 1))->setValue('DAFTAR JUDUL — ' . strtoupper($penerbitName) . $modeText);
         $sheet->getStyle($coord(1, 1) . ':' . $coord(count($allHeaders), 1))->applyFromArray(array_merge($hStyle, [
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '0D47A1']],
         ]));

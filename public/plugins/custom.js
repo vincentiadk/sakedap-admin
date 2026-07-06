@@ -352,10 +352,13 @@ function configDataTable() {
                                                         var colDef = dt.column(idx).settings()[0].aoColumns[idx];
 
                                                         if (colDef.export !== false) {
-                                                            var headerText = $(this.header()).text().trim();
+                                                            var headerText = colDef.title
+                                                                ? colDef.title
+                                                                : $(this.header()).text().trim();
                                                             var dataKey = this.dataSrc();
 
-                                                            if (dataKey) {
+                                                            // dataKey bisa integer 0 (falsy) atau string — cek eksplisit
+                                                            if (dataKey !== null && dataKey !== undefined && dataKey !== '') {
                                                                 rowObject[headerText] = item[dataKey];
                                                             }
                                                         }
