@@ -276,14 +276,15 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                data: {
-                    executor_id: $('#executor_id').val(),
-                    delivery_service_id: $('#delivery_service_id').val(),
-                    date: $('#date').val(),
-                    date_type: $('#date_type').val(),
-                    status: $('#status').val(),
-                    receipt_no: $('#receipt_no').val(),
-                    branch_id: $('#branch_id').val(),
+                data: function(d) {
+                    d.executor_id         = $('#executor_id').val();
+                    d.delivery_service_id = $('#delivery_service_id').val();
+                    d.date                = $('#date').val();
+                    d.date_type           = $('#date_type').val();
+                    d.status              = $('#status').val();
+                    d.receipt_no          = $('#receipt_no').val();
+                    d.branch_id           = $('#branch_id').val();
+                    return d;
                 },
                 beforeSend: function() {
                     onLoading('show', '#datatable-serverside_wrapper');
