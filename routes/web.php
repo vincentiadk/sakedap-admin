@@ -400,6 +400,7 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('delivery')->group(function () {
             Route::get('/', 'DeliveryController@index');
             Route::post('datatable', 'DeliveryController@datatable');
+            Route::get('export', 'DeliveryController@export');
         });
 
         Route::prefix('promotion')->group(function () {

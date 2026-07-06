@@ -115,6 +115,9 @@
                     <i class="ph-package me-1 text-primary"></i>
                     <h6 class="mb-0 fw-semibold">Data Pengiriman</h6>
                 </div>
+                <button type="button" class="btn btn-sm btn-success" onclick="doExportServer()" title="Export semua data sesuai filter ke Excel (cepat)">
+                    <i class="ph-file-xls me-1"></i> Export Excel
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -269,6 +272,8 @@
             scrollX: true,
             destroy: true,
             order: [[0, 'desc']],
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
             ajax: {
                 url: '{{ url("report/delivery/datatable") }}',
                 dataType: 'JSON',
@@ -318,6 +323,10 @@
                 { data: 20, orderable: true,  className: 'align-middle', title: 'Biaya Kirim' },
                 { data: 21, orderable: true,  className: 'align-middle', title: 'Berat' },
                 { data: 22, orderable: true,  className: 'align-middle', title: 'Jumlah Paket' },
+                { data: 23, orderable: false, visible: false, title: 'Telp 1 Penerbit' },
+                { data: 24, orderable: false, visible: false, title: 'Telp 2 Penerbit' },
+                { data: 25, orderable: false, visible: false, title: 'Email 1 Penerbit' },
+                { data: 26, orderable: false, visible: false, title: 'Email 2 Penerbit' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
@@ -332,5 +341,18 @@
         }).on('draw.dt', function() {
             onLoading('close', '#datatable-serverside_wrapper');
         });
+    }
+
+    function doExportServer() {
+        const params = new URLSearchParams({
+            executor_id:         $('#executor_id').val()         || '',
+            delivery_service_id: $('#delivery_service_id').val() || '',
+            date:                $('#date').val()                 || '',
+            date_type:           $('#date_type').val()            || '',
+            status:              $('#status').val()               || '',
+            receipt_no:          $('#receipt_no').val()           || '',
+            branch_id:           $('#branch_id').val()            || '',
+        });
+        window.location.href = '{{ url("report/delivery/export") }}?' + params.toString();
     }
 </script>

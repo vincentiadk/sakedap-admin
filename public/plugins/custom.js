@@ -214,7 +214,7 @@ function configDataTable() {
                                     var self = this;
                                     var info = dt.page.info();
                                     var totalRecords = info.recordsDisplay;
-                                    var chunkSize = 50;
+                                    var chunkSize = 1000;
                                     var allData = [];
                                     var start = 0;
                                     var currentRequest = null;
@@ -348,7 +348,7 @@ function configDataTable() {
                                                         "No": index + 1
                                                     };
 
-                                                    dt.columns(':visible').every(function (idx) {
+                                                    dt.columns().every(function (idx) {
                                                         var colDef = dt.column(idx).settings()[0].aoColumns[idx];
 
                                                         if (colDef.export !== false) {
