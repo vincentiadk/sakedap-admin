@@ -392,47 +392,91 @@ class DashboardComplianceController extends Controller
     public function chartData(Request $request)
     {
         try {
-            $conn        = $this->getOracleConnection();
-            $mode        = $request->get('mode', 'tahun'); // 'tahun' atau 'range'
-            $provinceIds = $request->province_ids ?? [];
+            $conn          = $this->getOracleConnection();
+            $provinceIds   = $request->province_ids ?? [];
             $whereProvinsi = $this->buildProvinceWhere($provinceIds);
 
-            $cacheKey = $this->makeCacheKey($request, 'dashboard:chart', [
-                'mode', 'chart_year', 'chart_start', 'chart_end', 'province_ids',
+            // Tentukan mode & rentang dari filter utama dashboard
+            $filterType = $request->get('filter_type', 'tahun');
+
+            if ($filterType === 'tahun') {
+                $year      = (int) $request->get('filter_year', date('Y'));
+                $startDate = "$year-01-01";
+                $endDate   = "$year-12-31";
+                $granularity = 'bulan';
+            } elseif ($filterType === 'bulan') {
+                $year  = (int) $request->get('filter_year', date('Y'));
+                $month = (int) $request->get('filter_month', date('n'));
+                $startDate = sprintf('%04d-%02d-01', $year, $month);
+                $endDate   = date('Y-m-t', strtotime($startDate));
+                $granularity = 'hari';
+            } else {
+                // range — auto-detect granularitas berdasarkan lebar rentang
+                $startDate = $request->get('start_date', date('Y') - 4 . '-01-01');
+                $endDate   = $request->get('end_date',   date('Y') . '-12-31');
+                $diffDays  = (int) ((strtotime($endDate) - strtotime($startDate)) / 86400);
+                if ($diffDays <= 93) {
+                    $granularity = 'hari';
+                } elseif ($diffDays <= 730) {
+                    $granularity = 'bulan';
+                } else {
+                    $granularity = 'tahun';
+                }
+            }
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:chart2', [
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'province_ids',
             ]);
 
-            $data = Cache::remember($cacheKey, 3600, function () use ($conn, $mode, $request, $whereProvinsi) {
-                if ($mode === 'tahun') {
-                    // Group by bulan dalam satu tahun
-                    $year = (int) $request->get('chart_year', date('Y'));
-                    $sql  = "
+            $data = Cache::remember($cacheKey, 3600, function () use (
+                $conn, $granularity, $startDate, $endDate, $whereProvinsi
+            ) {
+                $sdSafe = preg_replace('/[^0-9\-]/', '', $startDate);
+                $edSafe = preg_replace('/[^0-9\-]/', '', $endDate);
+
+                if ($granularity === 'hari') {
+                    $sql = "
                         SELECT
-                            TO_NUMBER(TO_CHAR(PI.CREATEDATE, 'MM')) as PERIODE,
-                            COUNT(PI.ID)                             as TOTAL_ISBN,
-                            COUNT(PI.RECEIVED_DATE_KCKR)            as SUDAH_KCKR
+                            TO_CHAR(PI.CREATEDATE, 'YYYY-MM-DD') as PERIODE,
+                            COUNT(PI.ID)                         as TOTAL_ISBN,
+                            COUNT(PI.RECEIVED_DATE_KCKR)         as SUDAH_KCKR
                         FROM PENERBIT P
                         JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
-                            AND EXTRACT(YEAR FROM PI.CREATEDATE) = $year
+                            AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
+                            AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
                             AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
                         WHERE 1=1 $whereProvinsi
-                        GROUP BY TO_CHAR(PI.CREATEDATE, 'MM')
+                        GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY-MM-DD')
+                        ORDER BY PERIODE
+                    ";
+                } elseif ($granularity === 'bulan') {
+                    $sql = "
+                        SELECT
+                            TO_CHAR(PI.CREATEDATE, 'YYYY-MM')   as PERIODE,
+                            COUNT(PI.ID)                         as TOTAL_ISBN,
+                            COUNT(PI.RECEIVED_DATE_KCKR)         as SUDAH_KCKR
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                            AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
+                            AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
+                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                        WHERE 1=1 $whereProvinsi
+                        GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY-MM')
                         ORDER BY PERIODE
                     ";
                 } else {
-                    // Group by tahun dalam rentang
-                    $startYear = (int) $request->get('chart_start', date('Y') - 4);
-                    $endYear   = (int) $request->get('chart_end',   date('Y'));
-                    $sql       = "
+                    $sql = "
                         SELECT
-                            EXTRACT(YEAR FROM PI.CREATEDATE)        as PERIODE,
-                            COUNT(PI.ID)                            as TOTAL_ISBN,
-                            COUNT(PI.RECEIVED_DATE_KCKR)            as SUDAH_KCKR
+                            TO_CHAR(PI.CREATEDATE, 'YYYY')      as PERIODE,
+                            COUNT(PI.ID)                         as TOTAL_ISBN,
+                            COUNT(PI.RECEIVED_DATE_KCKR)         as SUDAH_KCKR
                         FROM PENERBIT P
                         JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
-                            AND EXTRACT(YEAR FROM PI.CREATEDATE) BETWEEN $startYear AND $endYear
+                            AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
+                            AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
                             AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
                         WHERE 1=1 $whereProvinsi
-                        GROUP BY EXTRACT(YEAR FROM PI.CREATEDATE)
+                        GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY')
                         ORDER BY PERIODE
                     ";
                 }
@@ -446,20 +490,29 @@ class DashboardComplianceController extends Controller
             });
 
             // Format label
-            $bulanNames = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            $bulanNames = ['01'=>'Jan','02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'Mei','06'=>'Jun',
+                           '07'=>'Jul','08'=>'Agu','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Des'];
             $labels = [];
             $isbn   = [];
             $kckr   = [];
 
             foreach ($data as $row) {
-                $labels[] = $mode === 'tahun'
-                    ? ($bulanNames[(int)$row->PERIODE] ?? $row->PERIODE)
-                    : (string)(int)$row->PERIODE;
-                $isbn[]   = (int) $row->TOTAL_ISBN;
-                $kckr[]   = (int) $row->SUDAH_KCKR;
+                if ($granularity === 'hari') {
+                    // YYYY-MM-DD → DD Mon
+                    $parts = explode('-', $row->PERIODE);
+                    $labels[] = (int)$parts[2] . ' ' . ($bulanNames[$parts[1]] ?? $parts[1]);
+                } elseif ($granularity === 'bulan') {
+                    // YYYY-MM → Mon YYYY (atau Mon saja jika satu tahun)
+                    $parts    = explode('-', $row->PERIODE);
+                    $labels[] = ($bulanNames[$parts[1]] ?? $parts[1]) . ' ' . $parts[0];
+                } else {
+                    $labels[] = $row->PERIODE;
+                }
+                $isbn[] = (int) $row->TOTAL_ISBN;
+                $kckr[] = (int) $row->SUDAH_KCKR;
             }
 
-            return response()->json(compact('labels', 'isbn', 'kckr'));
+            return response()->json(compact('labels', 'isbn', 'kckr', 'granularity'));
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

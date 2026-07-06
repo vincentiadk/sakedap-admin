@@ -265,39 +265,6 @@
     <div class="card shadow-sm mb-4">
         <div class="card-header fw-bold d-flex justify-content-between align-items-center flex-wrap gap-2">
             <span>📈 Perbandingan ISBN Terbit vs Sudah KCKR</span>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                {{-- Mode filter --}}
-                <select id="chartMode" class="form-select form-select-sm" style="width:auto" onchange="onChartModeChange()">
-                    <option value="tahun">Per Bulan (pilih tahun)</option>
-                    <option value="range">Per Tahun (rentang)</option>
-                </select>
-
-                {{-- Filter tahun --}}
-                <div id="chartWrapTahun" class="d-flex align-items-center gap-1">
-                    <select id="chartYear" class="form-select form-select-sm" style="width:auto">
-                        @for($y = date('Y'); $y >= 2015; $y--)
-                            <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-
-                {{-- Filter rentang tahun --}}
-                <div id="chartWrapRange" class="d-flex align-items-center gap-1 d-none">
-                    <select id="chartStart" class="form-select form-select-sm" style="width:auto">
-                        @for($y = date('Y'); $y >= 2015; $y--)
-                            <option value="{{ $y }}" {{ $y == date('Y') - 4 ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                    <span class="text-muted" style="font-size:.85rem">s.d.</span>
-                    <select id="chartEnd" class="form-select form-select-sm" style="width:auto">
-                        @for($y = date('Y'); $y >= 2015; $y--)
-                            <option value="{{ $y }}" {{ $y == date('Y') ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-
-                <button class="btn btn-primary btn-sm" onclick="loadChart()">Tampilkan</button>
-            </div>
         </div>
         <div class="card-body">
             <div class="d-flex gap-3 mb-2" style="font-size:.8rem">
@@ -730,21 +697,22 @@ Chart.register(ChartDataLabels);
 // ── Chart ISBN vs KCKR ───────────────────────────────────────────────────────
 let isbnKckrChartInstance = null;
 
-function onChartModeChange() {
-    const mode = document.getElementById('chartMode').value;
-    document.getElementById('chartWrapTahun').classList.toggle('d-none', mode !== 'tahun');
-    document.getElementById('chartWrapRange').classList.toggle('d-none', mode !== 'range');
-}
-
 function loadChart() {
-    const mode  = document.getElementById('chartMode').value;
-    const params = new URLSearchParams({ mode });
+    // Baca dari filter utama dashboard (URL params saat ini)
+    const p = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
 
-    if (mode === 'tahun') {
-        params.set('chart_year', document.getElementById('chartYear').value);
+    const ft = p.get('filter_type') || '{{ $dateFilter["type"] ?? "tahun" }}';
+    params.set('filter_type', ft);
+
+    if (ft === 'tahun') {
+        params.set('filter_year', p.get('filter_year') || '{{ request("filter_year", date("Y")) }}');
+    } else if (ft === 'bulan') {
+        params.set('filter_year',  p.get('filter_year')  || '{{ request("filter_year", date("Y")) }}');
+        params.set('filter_month', p.get('filter_month') || '{{ request("filter_month", date("n")) }}');
     } else {
-        params.set('chart_start', document.getElementById('chartStart').value);
-        params.set('chart_end',   document.getElementById('chartEnd').value);
+        params.set('start_date', p.get('start_date') || '{{ request("start_date") }}');
+        params.set('end_date',   p.get('end_date')   || '{{ request("end_date") }}');
     }
 
     @if(!empty($provinceIds))
@@ -766,9 +734,11 @@ function loadChart() {
                 return;
             }
 
-            const subtitle = mode === 'tahun'
-                ? 'Tahun ' + document.getElementById('chartYear').value + ' — breakdown per bulan'
-                : document.getElementById('chartStart').value + '–' + document.getElementById('chartEnd').value + ' — breakdown per tahun';
+            const granLabel = { hari: 'per hari', bulan: 'per bulan', tahun: 'per tahun' };
+            let subtitle = '';
+            if (ft === 'tahun') subtitle = 'Tahun ' + params.get('filter_year') + ' — breakdown per bulan';
+            else if (ft === 'bulan') subtitle = 'Bulan ' + params.get('filter_month') + '/' + params.get('filter_year') + ' — breakdown per hari';
+            else subtitle = (params.get('start_date') || '') + ' s.d. ' + (params.get('end_date') || '') + ' — ' + (granLabel[res.granularity] || '');
             document.getElementById('chartSubtitle').textContent = subtitle;
 
             if (isbnKckrChartInstance) isbnKckrChartInstance.destroy();
@@ -861,10 +831,7 @@ function loadChart() {
         });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    onChartModeChange();
-    loadChart();
-});
+document.addEventListener('DOMContentLoaded', () => loadChart());
 // ─────────────────────────────────────────────────────────────────────────────
 
 function downloadPDF() {
