@@ -65,7 +65,8 @@ class ComplianceV3Controller extends Controller
         ?string $filterTeguran,
         ?string $filterKckr,
         ?string $persentase = null,
-        ?string $filterRekomendasi = null
+        ?string $filterRekomendasi = null,
+        string $kckrCol = 'RECEIVED_DATE_KCKR'
     ): string {
         $cutoff = self::CUTOFF;
 
@@ -185,9 +186,11 @@ class ComplianceV3Controller extends Controller
             $outerWhere .= " AND PERSENTASE_KCKR BETWEEN $min AND $max";
         }
 
-        return $outerWhere
+        $query = $outerWhere
             ? "SELECT * FROM ($innerQuery) WHERE 1=1 $outerWhere"
             : $innerQuery;
+
+        return str_replace('RECEIVED_DATE_KCKR', $kckrCol, $query);
     }
 
     private function makeCacheKeyV3(Request $request, string $prefix): string
@@ -196,6 +199,7 @@ class ComplianceV3Controller extends Controller
             'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
             'province_ids', 'kategori', 'search',
             'filter_hutang', 'filter_teguran', 'filter_kckr', 'persentase', 'filter_rekomendasi',
+            'kckr_mode',
         ]);
     }
 
@@ -204,16 +208,32 @@ class ComplianceV3Controller extends Controller
     public function index(Request $request)
     {
         try {
+            $ctx         = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $isPerpusnas = $ctx['isPerpusnas'];
+            $kckrMode    = $ctx['kckrMode'];
+
             $conn      = $this->getOracleConnection();
-            $provinces = array_map(
-                fn($r) => (object) $r,
-                Cache::remember('compliance_v3:provinces', 3600, fn() =>
-                    array_map(fn($r) => (array) $r, $this->fetchProvinces($conn))
+            $provinces = $isPerpusnas
+                ? array_map(
+                    fn($r) => (object) $r,
+                    Cache::remember('compliance_v3:provinces', 3600, fn() =>
+                        array_map(fn($r) => (array) $r, $this->fetchProvinces($conn))
+                    )
                 )
-            );
-            return view('compliance_v3.index', compact('provinces'));
+                : [];
+
+            $userProvinceName = !$isPerpusnas ? (session('province_name') ?? '') : null;
+            $provinceIds      = $ctx['provinceIds'];
+
+            return view('compliance_v3.index', compact('provinces', 'isPerpusnas', 'kckrMode', 'userProvinceName', 'provinceIds'));
         } catch (\Exception $e) {
-            return view('compliance_v3.index', ['error' => 'Error: ' . $e->getMessage(), 'provinces' => []]);
+            return view('compliance_v3.index', [
+                'error' => 'Error: ' . $e->getMessage(),
+                'provinces' => [],
+                'isPerpusnas' => true,
+                'kckrMode' => 'perpusnas',
+                'userProvinceName' => null,
+            ]);
         }
     }
 
@@ -223,7 +243,6 @@ class ComplianceV3Controller extends Controller
             $conn              = $this->getOracleConnection();
             $page              = max(1, (int) $request->get('page', 1));
             $kategori          = $request->kategori           ?? null;
-            $provinceIds       = $request->province_ids       ?? [];
             $search            = trim($request->search        ?? '');
             $filterHutang      = $request->filter_hutang      ?? null;
             $filterTeguran     = $request->filter_teguran     ?? null;
@@ -232,6 +251,10 @@ class ComplianceV3Controller extends Controller
             $filterRekomendasi = $request->filter_rekomendasi ?? null;
             $sortCol           = $request->sort_col           ?? 'NAME';
             $sortDir           = $request->sort_dir           ?? 'ASC';
+
+            $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $provinceIds   = $ctx['provinceIds'];
+            $kckrCol       = $ctx['kckrCol'];
 
             $dateFilter    = $this->parseDateFilter($request);
             $dateWhere     = $this->buildDateWhere($dateFilter['start'], $dateFilter['end']);
@@ -243,11 +266,11 @@ class ComplianceV3Controller extends Controller
             $cached = Cache::remember($cacheKey, 3600, function() use (
                 $conn, $dateWhere, $provinceWhere, $kategori, $search,
                 $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi,
-                $page, $sortCol, $sortDir
+                $page, $sortCol, $sortDir, $kckrCol
             ) {
                 $baseQuery = $this->buildBaseQuery(
                     $dateWhere, $provinceWhere, $kategori, $search,
-                    $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi
+                    $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi, $kckrCol
                 );
 
                 $allowed = ['NAME','TOTAL_JUDUL','JUDUL_TERBIT','HUTANG_TERBIT',
@@ -520,8 +543,12 @@ class ComplianceV3Controller extends Controller
         ini_set('memory_limit', '512M');
 
         try {
+        $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+        $provinceIds   = $ctx['provinceIds'];
+        $kckrCol       = $ctx['kckrCol'];
+        $kckrMode      = $ctx['kckrMode'];
+
         $conn          = $this->getOracleConnection();
-        $provinceIds   = $request->province_ids  ?? [];
         $kategori      = $request->kategori      ?? null;
         $search        = trim($request->search   ?? '');
         $filterHutang  = $request->filter_hutang  ?? null;
@@ -534,12 +561,21 @@ class ComplianceV3Controller extends Controller
         $provinceWhere = $this->buildProvinceWhere($provinceIds);
         $baseQuery     = $this->buildBaseQuery(
             $dateWhere, $provinceWhere, $kategori, $search,
-            $filterHutang, $filterTeguran, $filterKckr, $persentase
+            $filterHutang, $filterTeguran, $filterKckr, $persentase, null, $kckrCol
         );
 
         $label    = $this->buildFilterLabel($request, $provinceIds);
         $periode  = str_replace(['/', ' ', '–', '-'], ['', '_', '-', '_'], $label['periode']);
-        $filename = 'ComplianceV3_' . $periode . '_' . date('d-m-Y') . '.xlsx';
+
+        $judulExport = $kckrMode === 'provinsi'
+            ? 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PROVINSI'
+            : 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PERPUSNAS';
+        if (!$ctx['isPerpusnas']) {
+            $provName    = session('province_name') ?? 'Provinsi';
+            $judulExport = "LAPORAN KEPATUHAN PENERBIT KCKR — " . strtoupper($provName);
+        }
+
+        $filename = 'ComplianceV3_' . ($kckrMode === 'provinsi' ? 'Provinsi_' : '') . $periode . '_' . date('d-m-Y') . '.xlsx';
 
         $exportKey = $this->makeCacheKeyV3($request, 'compliance_v3:export');
 
@@ -586,7 +622,7 @@ class ComplianceV3Controller extends Controller
             foreach ($rows as $r) {
                 $add(array_merge([$i++], $r));
             }
-        }, 'Ringkasan', 'LAPORAN KEPATUHAN PENERBIT KCKR — GABUNGAN', $label, 19);
+        }, 'Ringkasan', $judulExport, $label, 19);
 
         return $this->streamXlsx($sp, $filename, $request);
         } catch (\Exception $e) {

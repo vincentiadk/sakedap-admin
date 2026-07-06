@@ -18,7 +18,13 @@ class DashboardComplianceController extends Controller
             $dateFilter  = $this->parseDateFilter($request);
             $start_date  = $dateFilter['start'];
             $end_date    = $dateFilter['end'];
-            $provinceIds = $request->province_ids ?? [];
+
+            $kckrMode    = $request->get('kckr_mode', 'perpusnas');
+            $ctx         = $this->resolveProvinceContext($request->province_ids ?? [], $kckrMode);
+            $provinceIds = $ctx['provinceIds'];
+            $kckrCol     = $ctx['kckrCol'];
+            $isPerpusnas = $ctx['isPerpusnas'];
+            $kckrMode    = $ctx['kckrMode'];
 
             $cutoff = '2026-01-01';
             $hasV1  = $start_date < $cutoff;
@@ -26,22 +32,24 @@ class DashboardComplianceController extends Controller
             $isV2   = !$hasV1 && $hasV2;   // pure 2026+
             $isMixed = $hasV1 && $hasV2;   // range melintasi 2026
 
-            $provinces = array_map(
-                fn($r) => (object) $r,
-                Cache::remember('dashboard:provinces', 3600, fn() =>
-                    array_map(fn($r) => (array) $r, $this->fetchProvinces($conn))
+            $provinces = $isPerpusnas
+                ? array_map(
+                    fn($r) => (object) $r,
+                    Cache::remember('dashboard:provinces', 3600, fn() =>
+                        array_map(fn($r) => (array) $r, $this->fetchProvinces($conn))
+                    )
                 )
-            );
+                : [];
 
             $whereProvinsi = $this->buildProvinceWhere($provinceIds);
             $cacheKey      = $this->makeCacheKey($request, 'dashboard', [
                 'filter_type', 'filter_year', 'filter_month',
-                'start_date', 'end_date', 'province_ids',
+                'start_date', 'end_date', 'province_ids', 'kckr_mode',
             ]);
 
             if ($isMixed) {
                 // ── Logika hybrid: range mencakup pre-2026 DAN 2026+ ──────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $cutoff, $whereProvinsi) {
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $cutoff, $whereProvinsi, $kckrCol) {
                     $dlTerbit  = 'PI.CREATEDATE + 28';
                     $dlKckrV1  = "CASE WHEN P.KATEGORI_ID = 1 THEN ADD_MONTHS(PI.CREATEDATE, 3)
                                        ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.CREATEDATE, 3)
@@ -95,7 +103,7 @@ class DashboardComplianceController extends Controller
                             END
                         ORDER BY MIN(PERSENTASE_KCKR)
                     ";
-                    $result     = odbc_exec($conn, $query);
+                    $result     = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $query));
                     $distribusi = [];
                     while ($row = odbc_fetch_object($result)) {
                         $distribusi[] = (array) $row;
@@ -165,7 +173,7 @@ class DashboardComplianceController extends Controller
                             HAVING COUNT(DISTINCT PI.ID) > 0
                         )
                     ";
-                    $resultTotal = odbc_exec($conn, $queryTotal);
+                    $resultTotal = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $queryTotal));
                     $total       = (array) odbc_fetch_object($resultTotal);
 
                     return compact('distribusi', 'total');
@@ -173,7 +181,7 @@ class DashboardComplianceController extends Controller
 
             } elseif ($isV2) {
                 // ── Logika 2026+: berbasis tanggal_terbit ──────────────────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi) {
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol) {
                     $dlTerbit = 'PI.CREATEDATE + 28';
 
                     $query = "
@@ -220,7 +228,7 @@ class DashboardComplianceController extends Controller
                             END
                         ORDER BY MIN(PERSENTASE_KCKR)
                     ";
-                    $result     = odbc_exec($conn, $query);
+                    $result     = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $query));
                     $distribusi = [];
                     while ($row = odbc_fetch_object($result)) {
                         $distribusi[] = (array) $row;
@@ -271,7 +279,7 @@ class DashboardComplianceController extends Controller
                             HAVING COUNT(DISTINCT PI.ID) > 0
                         )
                     ";
-                    $resultTotal = odbc_exec($conn, $queryTotal);
+                    $resultTotal = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $queryTotal));
                     $total       = (array) odbc_fetch_object($resultTotal);
 
                     return compact('distribusi', 'total');
@@ -279,7 +287,7 @@ class DashboardComplianceController extends Controller
 
             } else {
                 // ── Logika s.d 2025: berbasis createdate ───────────────────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi) {
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol) {
                     $query = "
                         SELECT
                             CASE
@@ -323,7 +331,7 @@ class DashboardComplianceController extends Controller
                             END
                         ORDER BY MIN(PERSENTASE_KCKR)
                     ";
-                    $result     = odbc_exec($conn, $query);
+                    $result     = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $query));
                     $distribusi = [];
                     while ($row = odbc_fetch_object($result)) {
                         $distribusi[] = (array) $row;
@@ -364,7 +372,7 @@ class DashboardComplianceController extends Controller
                             HAVING COUNT(DISTINCT PI.ID) > 0
                         )
                     ";
-                    $resultTotal = odbc_exec($conn, $queryTotal);
+                    $resultTotal = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $queryTotal));
                     $total       = (array) odbc_fetch_object($resultTotal);
 
                     return compact('distribusi', 'total');
@@ -376,7 +384,7 @@ class DashboardComplianceController extends Controller
 
             return view('coaching-supervision.dashboard', compact(
                 'distribusi', 'total', 'start_date', 'end_date',
-                'provinceIds', 'provinces', 'dateFilter', 'isV2', 'hasV2', 'isMixed'
+                'provinceIds', 'provinces', 'dateFilter', 'isV2', 'hasV2', 'isMixed', 'isPerpusnas', 'kckrMode'
             ));
 
         } catch (\Exception $e) {
@@ -393,7 +401,9 @@ class DashboardComplianceController extends Controller
     {
         try {
             $conn          = $this->getOracleConnection();
-            $provinceIds   = $request->province_ids ?? [];
+            $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $provinceIds   = $ctx['provinceIds'];
+            $kckrCol       = $ctx['kckrCol'];
             $whereProvinsi = $this->buildProvinceWhere($provinceIds);
 
             // Tentukan mode & rentang dari filter utama dashboard
@@ -425,11 +435,11 @@ class DashboardComplianceController extends Controller
             }
 
             $cacheKey = $this->makeCacheKey($request, 'dashboard:chart2', [
-                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'province_ids',
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'province_ids', 'kckr_mode',
             ]);
 
             $data = Cache::remember($cacheKey, 3600, function () use (
-                $conn, $granularity, $startDate, $endDate, $whereProvinsi
+                $conn, $granularity, $startDate, $endDate, $whereProvinsi, $kckrCol
             ) {
                 $sdSafe = preg_replace('/[^0-9\-]/', '', $startDate);
                 $edSafe = preg_replace('/[^0-9\-]/', '', $endDate);
@@ -481,7 +491,7 @@ class DashboardComplianceController extends Controller
                     ";
                 }
 
-                $result = odbc_exec($conn, $sql);
+                $result = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
                 $rows   = [];
                 while ($row = odbc_fetch_object($result)) {
                     $rows[] = $row;

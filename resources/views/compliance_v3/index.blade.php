@@ -4,16 +4,58 @@
 <div class="container-fluid px-4">
 
     {{-- Header --}}
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    @php
+        $isPerpusnas      = $isPerpusnas ?? true;
+        $kckrMode         = $kckrMode ?? 'perpusnas';
+        $userProvinceName = $userProvinceName ?? null;
+        $currentParams    = request()->except('kckr_mode');
+        $urlPerpusnas     = request()->fullUrlWithQuery(array_merge($currentParams, ['kckr_mode' => 'perpusnas']));
+        $urlProvinsi      = request()->fullUrlWithQuery(array_merge($currentParams, ['kckr_mode' => 'provinsi']));
+    @endphp
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
         <div>
-            <h4 class="mb-0 fw-bold">Monitoring Kepatuhan Penerbit ISBN Gabungan</h4>
+            <h4 class="mb-0 fw-bold">
+                Monitoring Kepatuhan Penerbit ISBN Gabungan
+                @if(!$isPerpusnas && $userProvinceName)
+                    <span class="badge bg-success ms-2" style="font-size:.7rem">{{ $userProvinceName }}</span>
+                @endif
+            </h4>
             <small class="text-muted">
                 Sebelum-2026: berbasis Createdate &mdash;
                 2026+: berbasis Tanggal Terbit &mdash;
                 Kolom Terbit hanya terisi untuk judul 2026+
             </small>
         </div>
+        @if($isPerpusnas)
+        <div class="btn-group btn-group-sm" role="group">
+            <a href="{{ $urlPerpusnas }}"
+               class="btn {{ $kckrMode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
+                <i class="fas fa-landmark"></i> Data Perpusnas
+            </a>
+            <a href="{{ $urlProvinsi }}"
+               class="btn {{ $kckrMode === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
+                <i class="fas fa-map-marker-alt"></i> Data Provinsi
+            </a>
+        </div>
+        @endif
     </div>
+
+    @if($isPerpusnas)
+    <div class="alert {{ $kckrMode === 'provinsi' ? 'alert-success' : 'alert-primary' }} py-2 px-3 mb-3" style="font-size:.85rem">
+        @if($kckrMode === 'provinsi')
+            <i class="fas fa-map-marker-alt me-1"></i>
+            <strong>Mode: Data KCKR Provinsi</strong> — kolom KCKR dihitung dari <code>received_date_prov</code> (tanggal penerimaan di perpustakaan daerah).
+        @else
+            <i class="fas fa-landmark me-1"></i>
+            <strong>Mode: Data KCKR Perpusnas</strong> — kolom KCKR dihitung dari <code>received_date_kckr</code> (tanggal penerimaan di Perpustakaan Nasional).
+        @endif
+    </div>
+    @else
+    <div class="alert alert-success py-2 px-3 mb-3" style="font-size:.85rem">
+        <i class="fas fa-map-marker-alt me-1"></i>
+        <strong>Data KCKR Provinsi {{ $userProvinceName }}</strong> — menampilkan kepatuhan berdasarkan penerimaan KCKR di perpustakaan daerah Anda.
+    </div>
+    @endif
 
     @if(isset($error))
         <div class="alert alert-danger">{{ $error }}</div>
@@ -60,6 +102,7 @@
                     <input type="date" class="form-control form-control-sm" id="endDate">
                 </div>
 
+                @if($isPerpusnas)
                 <div class="col-md-2">
                     <label class="form-label form-label-sm mb-1">Provinsi</label>
                     <select class="form-select form-select-sm" id="provinceFilter" multiple size="1" style="height:31px">
@@ -68,6 +111,14 @@
                         @endforeach
                     </select>
                 </div>
+                @else
+                {{-- Sembunyikan filter, tetap ada di DOM agar JS tidak error --}}
+                <select id="provinceFilter" class="d-none" multiple>
+                    @foreach($provinceIds ?? [] as $pid)
+                        <option value="{{ $pid }}" selected>{{ $pid }}</option>
+                    @endforeach
+                </select>
+                @endif
 
                 <div class="col-auto">
                     <label class="form-label form-label-sm mb-1">Kategori</label>
@@ -356,6 +407,9 @@ function buildParams(page = 1) {
     if (v('filterRekomendasi')) params.set('filter_rekomendasi',  v('filterRekomendasi'));
     if (v('filterPersentase'))  params.set('persentase',          v('filterPersentase'));
     if (v('searchInput'))       params.set('search',              v('searchInput'));
+    // kckr_mode: ambil dari URL saat ini agar toggle tetap aktif saat reload data
+    const kckrMode = new URLSearchParams(window.location.search).get('kckr_mode');
+    if (kckrMode) params.set('kckr_mode', kckrMode);
     return params;
 }
 

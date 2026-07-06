@@ -69,19 +69,38 @@
             @endif
         </div>
         @php
+            $currentKckrMode = $kckrMode ?? 'perpusnas';
             $toCompliance = array_filter([
                 'filter_type'  => $dateFilter['type'] ?? 'tahun',
                 'filter_year'  => request('filter_year'),
                 'filter_month' => request('filter_month'),
                 'start_date'   => request('start_date'),
                 'end_date'     => request('end_date'),
+                'kckr_mode'    => $currentKckrMode,
             ]);
             if (!empty($provinceIds)) {
                 $toCompliance['province_ids'] = $provinceIds;
             }
             $detailRoute = route('compliance_v3.index');
+
+            // URL toggle mode untuk Perpusnas
+            $currentParams = array_filter(request()->except('kckr_mode'));
+            $urlPerpusnas  = request()->fullUrlWithQuery(array_merge($currentParams, ['kckr_mode' => 'perpusnas']));
+            $urlProvinsi   = request()->fullUrlWithQuery(array_merge($currentParams, ['kckr_mode' => 'provinsi']));
         @endphp
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            @if($isPerpusnas ?? true)
+            <div class="btn-group btn-group-sm" role="group" title="Pilih data KCKR yang ditampilkan">
+                <a href="{{ $urlPerpusnas }}"
+                   class="btn {{ $currentKckrMode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
+                    <i class="fas fa-landmark"></i> Data Perpusnas
+                </a>
+                <a href="{{ $urlProvinsi }}"
+                   class="btn {{ $currentKckrMode === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
+                    <i class="fas fa-map-marker-alt"></i> Data Provinsi
+                </a>
+            </div>
+            @endif
             <button onclick="downloadPDF()" class="btn btn-danger btn-sm">
                 <i class="fas fa-file-pdf"></i> Download PDF
             </button>
@@ -90,6 +109,18 @@
             </a>
         </div>
     </div>
+
+    @if($isPerpusnas ?? true)
+    <div class="alert {{ ($currentKckrMode === 'provinsi') ? 'alert-success' : 'alert-primary' }} py-2 px-3 mb-3" style="font-size:.85rem">
+        @if($currentKckrMode === 'provinsi')
+            <i class="fas fa-map-marker-alt me-1"></i>
+            <strong>Mode: Data KCKR Provinsi</strong> — menampilkan kepatuhan berdasarkan tanggal penerimaan KCKR di perpustakaan daerah (<code>received_date_prov</code>).
+        @else
+            <i class="fas fa-landmark me-1"></i>
+            <strong>Mode: Data KCKR Perpusnas</strong> — menampilkan kepatuhan berdasarkan tanggal penerimaan KCKR di Perpustakaan Nasional (<code>received_date_kckr</code>).
+        @endif
+    </div>
+    @endif
 
     @if(isset($error))
         <div class="alert alert-danger">{{ $error }}</div>
@@ -152,6 +183,7 @@
                             value="{{ request('end_date', '2026-12-31') }}" {{ $ft != 'range' ? 'disabled' : '' }}>
                     </div>
 
+                    @if($isPerpusnas ?? true)
                     <div class="col-auto">
                         <label class="form-label form-label-sm mb-1">Provinsi</label>
                         <select name="province_ids[]" class="form-select form-select-sm" multiple size="1" style="height:31px">
@@ -163,6 +195,12 @@
                         </select>
                         <div><small class="text-muted" style="font-size:.7rem">Kosong = semua provinsi</small></div>
                     </div>
+                    @else
+                    {{-- Non-Perpusnas: kirim province_id tersembunyi agar filter tetap teraplikasi --}}
+                    @foreach($provinceIds ?? [] as $pid)
+                        <input type="hidden" name="province_ids[]" value="{{ $pid }}">
+                    @endforeach
+                    @endif
 
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary btn-sm mt-3">

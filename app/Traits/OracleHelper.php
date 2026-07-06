@@ -50,6 +50,37 @@ trait OracleHelper
         return "AND P.PROVINCE_ID IN ($ids)";
     }
 
+    /**
+     * Resolve province context berdasarkan role user dan mode yang dipilih.
+     * Non-Perpusnas → paksa provinsi user sendiri + RECEIVED_DATE_PROV.
+     * Perpusnas + kckr_mode=provinsi → pakai RECEIVED_DATE_PROV.
+     * Perpusnas + kckr_mode=perpusnas (default) → pakai RECEIVED_DATE_KCKR.
+     *
+     * @return array{provinceIds: int[], kckrCol: string, isPerpusnas: bool, kckrMode: string}
+     */
+    protected function resolveProvinceContext(array $requestProvinceIds = [], string $kckrMode = 'perpusnas'): array
+    {
+        $isPerpusnas = (bool) \App\Helpers\Main::isPerpusnas();
+
+        if ($isPerpusnas) {
+            $kckrCol = ($kckrMode === 'provinsi') ? 'RECEIVED_DATE_PROV' : 'RECEIVED_DATE_KCKR';
+            return [
+                'provinceIds' => $requestProvinceIds,
+                'kckrCol'     => $kckrCol,
+                'isPerpusnas' => true,
+                'kckrMode'    => $kckrMode,
+            ];
+        }
+
+        $provinceId = (int) session('province_id');
+        return [
+            'provinceIds' => $provinceId ? [$provinceId] : [],
+            'kckrCol'     => 'RECEIVED_DATE_PROV',
+            'isPerpusnas' => false,
+            'kckrMode'    => 'provinsi',
+        ];
+    }
+
     protected function fetchProvinces($conn): array
     {
         $result    = odbc_exec($conn, "SELECT ID, NAMAPROPINSI FROM PROPINSI ORDER BY NAMAPROPINSI");
