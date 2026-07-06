@@ -557,9 +557,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (p.get('end_date'))   document.getElementById('endDate').value   = p.get('end_date');
     }
 
-    // Provinsi
-    if (p.has('province_ids[]')) {
-        const ids = p.getAll('province_ids[]');
+    // Provinsi — support province_ids[] (fetch) dan province_ids[0] (http_build_query)
+    const ids = p.getAll('province_ids[]');
+    if (!ids.length) {
+        // format PHP http_build_query: province_ids[0]=x, province_ids[1]=y, ...
+        for (const [key, val] of p.entries()) {
+            if (/^province_ids\[\d+\]$/.test(key)) ids.push(val);
+        }
+    }
+    if (ids.length) {
         [...document.getElementById('provinceFilter').options].forEach(o => {
             o.selected = ids.includes(o.value);
         });
