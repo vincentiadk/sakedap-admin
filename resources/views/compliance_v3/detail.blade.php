@@ -185,7 +185,8 @@
                     <label class="form-label form-label-sm mb-1">Terlambat KCKR</label>
                     <select class="form-select form-select-sm" name="filter_terlambat">
                         <option value="">Semua</option>
-                        <option value="ya" {{ ($filters['filterTerlambat'] ?? '')==='ya' ? 'selected' : '' }}>Terlambat</option>
+                        <option value="ya"    {{ ($filters['filterTerlambat'] ?? '')==='ya'    ? 'selected' : '' }}>Ya</option>
+                        <option value="tidak" {{ ($filters['filterTerlambat'] ?? '')==='tidak' ? 'selected' : '' }}>Tidak</option>
                     </select>
                 </div>
                 <div class="col-md-2">

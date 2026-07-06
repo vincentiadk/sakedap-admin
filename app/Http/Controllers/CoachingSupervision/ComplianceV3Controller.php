@@ -412,6 +412,12 @@ class ComplianceV3Controller extends Controller
                     OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV2)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV2))))
                 )";
             }
+            if ($filterTerlambat === 'tidak') {
+                $searchWhere .= " AND NOT (
+                    ($isPre26 AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV1)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV1))))
+                    OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV2)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV2))))
+                )";
+            }
 
             // Summary: terbit metrics hanya 2026+, KCKR semua records
             $summaryKey = $this->makeCacheKey($request, "compliance_v3:detail:$penerbitId:summary", [
