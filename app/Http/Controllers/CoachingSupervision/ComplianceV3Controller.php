@@ -632,10 +632,165 @@ class ComplianceV3Controller extends Controller
             }
         }, 'Ringkasan', $judulExport, $label, 19);
 
+        // ── Sheet 2: Daftar Judul (opsional) ──────────────────────────────
+        if ($request->boolean('with_judul')) {
+            $this->addJudulSheet($sp, $conn, $baseQuery, $dateWhere, $kckrCol, $judulExport, $label);
+        }
+
         return $this->streamXlsx($sp, $filename, $request);
         } catch (\Exception $e) {
             return response($e->getMessage(), 500);
         }
+    }
+
+    private function addJudulSheet(
+        \PhpOffice\PhpSpreadsheet\Spreadsheet $sp,
+        $conn,
+        string $baseQuery,
+        string $dateWhere,
+        string $kckrCol,
+        string $mainTitle,
+        array $label
+    ): void {
+        $cutoff   = self::CUTOFF;
+        $dlTerbit = self::EXPR_DEADLINE_TERBIT;
+        $dlKckrV1 = $this->exprDeadlineKckrV1();
+        $dlKckrV2 = $this->exprDeadlineKckrV2();
+        $is2026   = "PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')";
+        $isPre26  = "PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD')";
+
+        $sql = str_replace('RECEIVED_DATE_KCKR', $kckrCol, "
+            SELECT
+                P.NAME                                   as NAMA_PENERBIT,
+                P.CITY,
+                PI.ISBN_NO,
+                PT.TITLE,
+                PT.KEPENG,
+                PI.KETERANGAN                            as JILID_VOLUME,
+                PT.JENIS_MEDIA,
+                PI.CREATEDATE                            as TGL_DAFTAR,
+                PI.TANGGAL_TERBIT,
+                CASE WHEN $isPre26 THEN NULL ELSE $dlTerbit END as DEADLINE_TERBIT,
+                CASE
+                    WHEN $isPre26 THEN 'N/A (Pra-2026)'
+                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + 30) THEN 'Lewat Teguran'
+                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > $dlTerbit        THEN 'Hutang Terbit'
+                    WHEN PI.TANGGAL_TERBIT IS NULL                                THEN 'Belum Terbit'
+                    ELSE 'Terbit'
+                END                                      as STATUS_TERBIT,
+                CASE
+                    WHEN $isPre26 THEN ($dlKckrV1)
+                    WHEN PI.TANGGAL_TERBIT IS NOT NULL   THEN ($dlKckrV2)
+                    ELSE NULL
+                END                                      as DEADLINE_KCKR,
+                PI.RECEIVED_DATE_KCKR                    as TGL_KCKR,
+                CASE
+                    WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 'Sudah'
+                    WHEN $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 'Belum Terbit'
+                    ELSE 'Belum'
+                END                                      as STATUS_KCKR,
+                CASE
+                    WHEN $isPre26 AND (
+                        (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV1))
+                     OR (PI.RECEIVED_DATE_KCKR IS NULL    AND SYSDATE > ($dlKckrV1))
+                    ) THEN 'Ya'
+                    WHEN $is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND (
+                        (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV2))
+                     OR (PI.RECEIVED_DATE_KCKR IS NULL    AND SYSDATE > ($dlKckrV2))
+                    ) THEN 'Ya'
+                    ELSE 'Tidak'
+                END                                      as TERLAMBAT_KCKR
+            FROM PENERBIT P
+            JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                $dateWhere
+                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR PI.KETERANGAN IS NULL)
+            LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
+            WHERE P.ID IN (SELECT ID FROM ($baseQuery))
+            ORDER BY P.NAME ASC, PI.CREATEDATE DESC
+        ");
+
+        $result = odbc_exec($conn, $sql);
+
+        $Fill   = \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID;
+        $AlignH = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER;
+        $AlignV = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER;
+        $coord  = fn(int $col, int $row) =>
+            \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
+
+        $sheet = $sp->createSheet();
+        $sheet->setTitle('Daftar Judul');
+
+        $headers = [
+            '#', 'Nama Penerbit', 'Kota', 'No. ISBN', 'Judul',
+            'Kepengarangan', 'Jilid/Vol', 'Jenis Media',
+            'Tgl Daftar', 'Tgl Terbit', 'Status Terbit',
+            'Deadline KCKR', 'Tgl KCKR', 'Status KCKR', 'Terlambat',
+        ];
+        $colCount = count($headers);
+
+        $r1 = $this->writeTitleRows($sheet, $mainTitle . ' — DAFTAR JUDUL', $label, $colCount);
+        $hStyle = [
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill'      => ['fillType' => $Fill, 'startColor' => ['rgb' => '1565C0']],
+            'alignment' => ['horizontal' => $AlignH, 'vertical' => $AlignV, 'wrapText' => true],
+            'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'AAAAAA']]],
+        ];
+        foreach ($headers as $i => $h) {
+            $sheet->getCell($coord($i + 1, $r1))->setValue($h);
+            $sheet->getStyle($coord($i + 1, $r1))->applyFromArray($hStyle);
+        }
+        $sheet->getRowDimension($r1)->setRowHeight(22);
+
+        $rowNum = $r1 + 1;
+        $no     = 1;
+        while ($row = odbc_fetch_object($result)) {
+            $jenis    = ($row->JENIS_MEDIA === '1') ? 'Karya Cetak' : 'Karya Rekam';
+            $isEven   = ($rowNum % 2 === 0);
+            $baseBg   = $isEven ? 'F9F9F9' : 'FFFFFF';
+            $terlambat = $row->TERLAMBAT_KCKR ?? 'Tidak';
+
+            $values = [
+                $no++,
+                $row->NAMA_PENERBIT ?? '',
+                $row->CITY          ?? '',
+                $row->ISBN_NO       ?? '',
+                $row->TITLE         ?? '',
+                $row->KEPENG        ?? '',
+                $row->JILID_VOLUME  ?? '',
+                $jenis,
+                $row->TGL_DAFTAR      ? date('d/m/Y', strtotime($row->TGL_DAFTAR))      : '',
+                $row->TANGGAL_TERBIT  ? date('d/m/Y', strtotime($row->TANGGAL_TERBIT))  : '',
+                $row->STATUS_TERBIT   ?? '',
+                $row->DEADLINE_KCKR   ? date('d/m/Y', strtotime($row->DEADLINE_KCKR))   : '',
+                $row->TGL_KCKR        ? date('d/m/Y', strtotime($row->TGL_KCKR))        : '',
+                $row->STATUS_KCKR     ?? '',
+                $terlambat,
+            ];
+
+            foreach ($values as $idx => $val) {
+                $col  = $idx + 1;
+                $cell = $sheet->getCell($coord($col, $rowNum));
+                $cell->setValue($val ?? '');
+                $sheet->getStyle($coord($col, $rowNum))->applyFromArray([
+                    'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
+                    'alignment' => ['vertical' => $AlignV],
+                    'fill'      => ['fillType' => $Fill, 'startColor' => ['rgb' => $baseBg]],
+                ]);
+            }
+            // Merahkan kolom Terlambat (col 15) kalau 'Ya'
+            if ($terlambat === 'Ya') {
+                $sheet->getStyle($coord(15, $rowNum))->getFont()->getColor()->setRGB('C62828');
+                $sheet->getStyle($coord(15, $rowNum))->getFont()->setBold(true);
+            }
+            $rowNum++;
+        }
+
+        foreach (range(1, $colCount) as $c) {
+            $sheet->getColumnDimension(
+                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c)
+            )->setAutoSize(true);
+        }
+        $sheet->freezePane('A' . ($r1 + 1));
     }
 
     public function exportDetail(Request $request, $id)

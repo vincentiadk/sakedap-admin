@@ -289,8 +289,11 @@
                 <a id="btnBackDashboard" href="{{ route('dashboard_compliance') }}" class="btn btn-sm btn-outline-success btn-light">
                     <i class="fas fa-chart-pie"></i> Dashboard
                 </a>
-                <button class="btn btn-sm btn-light btn-outline-dark" onclick="doExport(0)" title="Export ringkasan penerbit (Excel)">
-                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                <button class="btn btn-sm btn-light btn-outline-dark" onclick="doExport(0)" title="Export ringkasan penerbit saja">
+                    <i class="bi bi-file-earmark-excel"></i> Export Penerbit
+                </button>
+                <button class="btn btn-sm btn-success" onclick="doExport(1)" title="Export ringkasan penerbit + daftar judul lengkap (kepengarangan)">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Export + Judul
                 </button>
             </div>
         </div>
@@ -539,7 +542,7 @@ function doExport(withDetail = 0) {
     const params  = buildParams(1);
     params.delete('page'); params.delete('sort_col'); params.delete('sort_dir');
     params.set('download_token', token);
-    params.set('with_detail', withDetail);
+    params.set('with_judul', withDetail);
     const url     = '{{ route("compliance_v3.export") }}?' + params.toString();
     const modal   = new bootstrap.Modal(document.getElementById('exportModal'));
     const bar     = document.getElementById('exportProgress');
