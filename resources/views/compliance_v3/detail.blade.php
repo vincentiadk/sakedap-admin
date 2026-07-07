@@ -4,6 +4,14 @@
 <div class="container-fluid px-4">
 
     {{-- Back + Header --}}
+    @php
+        $kckrModeDetail  = $kckrMode ?? 'perpusnas';
+        $isPerpusnasUser = \App\Helpers\Main::isPerpusnas();
+        $baseParams      = request()->except('kckr_mode');
+        $urlPerpusnas    = route('compliance_v3.detail', $penerbit->ID) . '?' . http_build_query(array_merge($baseParams, ['kckr_mode' => 'perpusnas']));
+        $urlProvinsi     = route('compliance_v3.detail', $penerbit->ID) . '?' . http_build_query(array_merge($baseParams, ['kckr_mode' => 'provinsi']));
+    @endphp
+
     <div class="d-flex align-items-start gap-3 mb-3">
         <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-secondary flex-shrink-0">&larr; Kembali</a>
 
@@ -17,8 +25,27 @@
                             <span class="badge bg-light text-dark border">No. SIUP: {{ $penerbit->NOSIUP }}</span>
                         @endif
                         <span class="badge bg-primary">Compliance Gabungan</span>
+                        @if($kckrModeDetail === 'provinsi')
+                            <span class="badge bg-success">Mode: Data Provinsi</span>
+                        @else
+                            <span class="badge bg-primary">Mode: Data Perpusnas</span>
+                        @endif
                     </div>
                 </div>
+                @if($isPerpusnasUser)
+                <div class="flex-shrink-0">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{{ $urlPerpusnas }}"
+                           class="btn {{ $kckrModeDetail === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-bank me-1"></i> Data Perpusnas
+                        </a>
+                        <a href="{{ $urlProvinsi }}"
+                           class="btn {{ $kckrModeDetail === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
+                            <i class="bi bi-building me-1"></i> Data Provinsi
+                        </a>
+                    </div>
+                </div>
+                @endif
             </div>
 
             <div class="row g-2" style="font-size:.82rem">
@@ -139,6 +166,7 @@
         <div class="card-body py-2">
             <form method="GET" action="{{ route('compliance_v3.detail', $penerbit->ID) }}" class="row g-2 align-items-end">
                 <input type="hidden" name="filter_type"  value="{{ $dateFilter['type'] }}">
+                <input type="hidden" name="kckr_mode"   value="{{ $kckrMode ?? 'perpusnas' }}">
                 @if($dateFilter['type'] === 'tahun')
                     <input type="hidden" name="filter_year" value="{{ request('filter_year', date('Y')) }}">
                 @elseif($dateFilter['type'] === 'bulan')
@@ -201,7 +229,7 @@
                 </div>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary btn-sm mt-3">Filter</button>
-                    <a href="{{ route('compliance_v3.detail', $penerbit->ID) }}?filter_type={{ $dateFilter['type'] }}&filter_year={{ request('filter_year', date('Y')) }}"
+                    <a href="{{ route('compliance_v3.detail', $penerbit->ID) }}?filter_type={{ $dateFilter['type'] }}&filter_year={{ request('filter_year', date('Y')) }}&kckr_mode={{ $kckrMode ?? 'perpusnas' }}"
                        class="btn btn-outline-secondary btn-sm mt-3">Reset</a>
                     <button type="button" class="btn btn-success btn-sm mt-3" onclick="doExport()">
                         <i class="bi bi-file-earmark-excel"></i> Export

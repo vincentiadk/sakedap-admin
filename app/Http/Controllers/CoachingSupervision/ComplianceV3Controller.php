@@ -374,7 +374,7 @@ class ComplianceV3Controller extends Controller
             $filterTeguran   = $request->filter_teguran   ?? '';
             $filterTerlambat = $request->filter_terlambat ?? '';
             $searchJudul     = trim($request->search_judul ?? '');
-            $searchIsbn      = trim($request->search_isbn  ?? '');
+            $searchIsbn      = str_replace('-','',trim($request->search_isbn))  ?? '';
 
             $dlTerbit = self::EXPR_DEADLINE_TERBIT;
             $dlKckrV1 = $this->exprDeadlineKckrV1();
