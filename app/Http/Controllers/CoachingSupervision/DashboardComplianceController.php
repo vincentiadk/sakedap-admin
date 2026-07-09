@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CoachingSupervision;
 
+use App\Helpers\ComplianceSettings;
 use App\Http\Controllers\Controller;
 use App\Traits\OracleHelper;
 use Illuminate\Http\Request;
@@ -42,15 +43,24 @@ class DashboardComplianceController extends Controller
                 : [];
 
             $whereProvinsi = $this->buildProvinceWhere($provinceIds);
-            $cacheKey      = $this->makeCacheKey($request, 'dashboard', [
+
+            $cs       = ComplianceSettings::get();
+            $dlKc     = (int) $cs['BatasWaktuKonfirmasiTerbitKaryaCetak'];
+            $dlKr     = (int) $cs['BatasWaktuKonfirmasiTerbitDigital'];
+            $teguran  = (int) $cs['BatasWaktuTeguranKonfirmasiTerbit'];
+            $minPct   = (int) $cs['BatasMinimumKepatuhanKCKR'];
+            $dlTerbitExpr = "CASE WHEN PT.JENIS_MEDIA = '1' THEN (PI.CREATEDATE + $dlKc) ELSE (PI.CREATEDATE + $dlKr) END";
+
+            $csVersion     = ComplianceSettings::cacheVersion();
+            $cacheKey      = $this->makeCacheKey($request, 'dashboard_' . $csVersion, [
                 'filter_type', 'filter_year', 'filter_month',
                 'start_date', 'end_date', 'province_ids', 'kckr_mode',
             ]);
 
             if ($isMixed) {
                 // ── Logika hybrid: range mencakup pre-2026 DAN 2026+ ──────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $cutoff, $whereProvinsi, $kckrCol) {
-                    $dlTerbit  = 'PI.CREATEDATE + 28';
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $cutoff, $whereProvinsi, $kckrCol, $dlTerbitExpr, $teguran, $minPct) {
+                    $dlTerbit  = $dlTerbitExpr;
                     $dlKckrV1  = "CASE WHEN P.KATEGORI_ID = 1 THEN ADD_MONTHS(PI.CREATEDATE, 3)
                                        ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.CREATEDATE, 3)
                                                  ELSE ADD_MONTHS(PI.CREATEDATE, 12) END END";
@@ -58,7 +68,18 @@ class DashboardComplianceController extends Controller
                                        ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.TANGGAL_TERBIT, 3)
                                                  ELSE ADD_MONTHS(PI.TANGGAL_TERBIT, 12) END END";
 
-                    // Distribusi berdasarkan % KCKR (V1-style: sudah / total)
+                    // Total wajib KCKR = sudah + tagihan (tagihan = masih belum setor)
+                    //   pra-2026 tagihan: belum setor KCKR (bukan semua pra-2026)
+                    //   2026+    tagihan: sudah konfirmasi terbit tapi belum setor KCKR
+                    $tagihanExpr = "SUM(CASE
+                        WHEN PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD') AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                        WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')
+                             AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                        ELSE 0 END)";
+                    $sudahExpr   = "SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+                    $ttExpr      = "($sudahExpr + $tagihanExpr)";
+
+                    // Distribusi berdasarkan % KCKR
                     $query = "
                         SELECT
                             CASE
@@ -78,20 +99,20 @@ class DashboardComplianceController extends Controller
                                 COUNT(DISTINCT PI.ID) as TOTAL_JUDUL,
                                 SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END) as SUDAH_KCKR,
                                 ROUND(
-                                    CASE WHEN COUNT(DISTINCT PI.ID) > 0
+                                    CASE WHEN $ttExpr > 0
                                         THEN SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)
-                                           / COUNT(DISTINCT PI.ID) * 100
+                                           / $ttExpr * 100
                                         ELSE 0 END, 1
                                 ) as PERSENTASE_KCKR
                             FROM PENERBIT P
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
-                            HAVING COUNT(DISTINCT PI.ID) > 0
+                            HAVING $ttExpr > 0
                         )
                         GROUP BY
                             CASE
@@ -123,9 +144,10 @@ class DashboardComplianceController extends Controller
                             SUM(HUTANG_TERBIT) as TOTAL_HUTANG_TERBIT,
                             SUM(LEWAT_TEGURAN) as TOTAL_LEWAT_TEGURAN,
                             -- Rekomendasi: V2 logic jika ada data 2026+, V1 jika tidak
-                            COUNT(CASE WHEN LEWAT_TEGURAN > 0 THEN 1 END) as PENERBIT_LEWAT_TEGURAN,
-                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= 20 THEN 1 END) as PENERBIT_BLOKIR_KCKR,
-                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > 20) THEN 1 END) as PENERBIT_BAIK
+                            -- Prioritas: Blokir KCKR > Blokir Terbit > Baik
+                            COUNT(CASE WHEN TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct THEN 1 END) as PENERBIT_BLOKIR_KCKR,
+                            COUNT(CASE WHEN LEWAT_TEGURAN > 0 AND NOT (TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct) THEN 1 END) as PENERBIT_LEWAT_TEGURAN,
+                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > $minPct) THEN 1 END) as PENERBIT_BAIK
                         FROM (
                             SELECT
                                 P.ID,
@@ -155,22 +177,22 @@ class DashboardComplianceController extends Controller
                                     AND SYSDATE > $dlTerbit THEN 1 ELSE 0 END) as HUTANG_TERBIT,
                                 SUM(CASE WHEN PI.CREATEDATE >= TO_DATE('$cutoff', 'YYYY-MM-DD')
                                     AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL
-                                    AND SYSDATE > ($dlTerbit + 30) THEN 1 ELSE 0 END) as LEWAT_TEGURAN,
+                                    AND SYSDATE > ($dlTerbit + $teguran) THEN 1 ELSE 0 END) as LEWAT_TEGURAN,
                                 ROUND(
-                                    CASE WHEN COUNT(DISTINCT PI.ID) > 0
+                                    CASE WHEN $ttExpr > 0
                                         THEN SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)
-                                           / COUNT(DISTINCT PI.ID) * 100
+                                           / $ttExpr * 100
                                         ELSE 0 END, 1
                                 ) as PERSENTASE_KCKR
                             FROM PENERBIT P
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
-                            HAVING COUNT(DISTINCT PI.ID) > 0
+                            HAVING $ttExpr > 0
                         )
                     ";
                     $resultTotal = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $queryTotal));
@@ -181,8 +203,8 @@ class DashboardComplianceController extends Controller
 
             } elseif ($isV2) {
                 // ── Logika 2026+: berbasis tanggal_terbit ──────────────────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol) {
-                    $dlTerbit = 'PI.CREATEDATE + 28';
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol, $dlTerbitExpr, $teguran, $minPct) {
+                    $dlTerbit = $dlTerbitExpr;
 
                     $query = "
                         SELECT
@@ -212,7 +234,7 @@ class DashboardComplianceController extends Controller
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
@@ -242,9 +264,10 @@ class DashboardComplianceController extends Controller
                             SUM(JUDUL_BELUM_TERBIT) as TOTAL_BELUM_TERBIT,
                             SUM(HUTANG_TERBIT) as TOTAL_HUTANG_TERBIT,
                             SUM(LEWAT_TEGURAN) as TOTAL_LEWAT_TEGURAN,
-                            COUNT(CASE WHEN LEWAT_TEGURAN > 0 THEN 1 END) as PENERBIT_LEWAT_TEGURAN,
-                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= 20 THEN 1 END) as PENERBIT_BLOKIR_KCKR,
-                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > 20) THEN 1 END) as PENERBIT_BAIK,
+                            -- Prioritas: Blokir KCKR > Blokir Terbit > Baik
+                            COUNT(CASE WHEN TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct THEN 1 END) as PENERBIT_BLOKIR_KCKR,
+                            COUNT(CASE WHEN LEWAT_TEGURAN > 0 AND NOT (TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct) THEN 1 END) as PENERBIT_LEWAT_TEGURAN,
+                            COUNT(CASE WHEN LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > $minPct) THEN 1 END) as PENERBIT_BAIK,
                             SUM(SUDAH_KCKR) as TOTAL_KCKR,
                             SUM(BELUM_KCKR) as TOTAL_BELUM_KCKR,
                             ROUND(AVG(PERSENTASE_KCKR), 1) as RATA_RATA_KEPATUHAN
@@ -255,7 +278,7 @@ class DashboardComplianceController extends Controller
                                 COUNT(DISTINCT CASE WHEN PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL THEN PI.ID END) as JUDUL_TERBIT,
                                 COUNT(DISTINCT CASE WHEN PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN PI.ID END) as JUDUL_BELUM_TERBIT,
                                 SUM(CASE WHEN PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > $dlTerbit THEN 1 ELSE 0 END) as HUTANG_TERBIT,
-                                SUM(CASE WHEN PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlTerbit + 30) THEN 1 ELSE 0 END) as LEWAT_TEGURAN,
+                                SUM(CASE WHEN PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlTerbit + $teguran) THEN 1 ELSE 0 END) as LEWAT_TEGURAN,
                                 SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END) as SUDAH_KCKR,
                                 SUM(CASE WHEN (PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL) AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1 ELSE 0 END) as BELUM_KCKR,
                                 SUM(CASE WHEN PI.TANGGAL_TERBIT IS NOT NULL AND (
@@ -272,7 +295,7 @@ class DashboardComplianceController extends Controller
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
@@ -315,7 +338,7 @@ class DashboardComplianceController extends Controller
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
@@ -346,8 +369,8 @@ class DashboardComplianceController extends Controller
                             SUM(JUMLAHJUDUL) as TOTAL_JUDUL,
                             SUM(JUMLAHSUDAHKCKR) as TOTAL_KCKR,
                             ROUND(AVG(PERSENTASE_KCKR), 1) as RATA_RATA_KEPATUHAN,
-                            COUNT(CASE WHEN JUMLAHTERLAMBATKCKR > 0 AND PERSENTASE_KCKR <= 20 THEN 1 END) as PENERBIT_BLOKIR_KCKR,
-                            COUNT(CASE WHEN NOT (JUMLAHTERLAMBATKCKR > 0 AND PERSENTASE_KCKR <= 20) THEN 1 END) as PENERBIT_BAIK
+                            COUNT(CASE WHEN JUMLAHTERLAMBATKCKR > 0 AND PERSENTASE_KCKR <= $minPct THEN 1 END) as PENERBIT_BLOKIR_KCKR,
+                            COUNT(CASE WHEN NOT (JUMLAHTERLAMBATKCKR > 0 AND PERSENTASE_KCKR <= $minPct) THEN 1 END) as PENERBIT_BAIK
                         FROM (
                             SELECT
                                 P.ID,
@@ -365,7 +388,7 @@ class DashboardComplianceController extends Controller
                             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                                 AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
                                 AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
-                                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                             WHERE 1=1 $whereProvinsi
                             GROUP BY P.ID
@@ -384,7 +407,8 @@ class DashboardComplianceController extends Controller
 
             return view('coaching-supervision.dashboard', compact(
                 'distribusi', 'total', 'start_date', 'end_date',
-                'provinceIds', 'provinces', 'dateFilter', 'isV2', 'hasV2', 'isMixed', 'isPerpusnas', 'kckrMode'
+                'provinceIds', 'provinces', 'dateFilter', 'isV2', 'hasV2', 'isMixed', 'isPerpusnas', 'kckrMode',
+                'minPct'
             ));
 
         } catch (\Exception $e) {
@@ -454,7 +478,7 @@ class DashboardComplianceController extends Controller
                         JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                             AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
                             AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
-                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                            AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                         WHERE 1=1 $whereProvinsi
                         GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY-MM-DD')
                         ORDER BY PERIODE
@@ -469,7 +493,7 @@ class DashboardComplianceController extends Controller
                         JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                             AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
                             AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
-                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                            AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                         WHERE 1=1 $whereProvinsi
                         GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY-MM')
                         ORDER BY PERIODE
@@ -484,7 +508,7 @@ class DashboardComplianceController extends Controller
                         JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                             AND PI.CREATEDATE >= TO_DATE('$sdSafe','YYYY-MM-DD')
                             AND PI.CREATEDATE <  TO_DATE('$edSafe','YYYY-MM-DD') + 1
-                            AND (PI.KETERANGAN IS NULL OR PI.KETERANGAN NOT LIKE '%LENGKAP%')
+                            AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                         WHERE 1=1 $whereProvinsi
                         GROUP BY TO_CHAR(PI.CREATEDATE, 'YYYY')
                         ORDER BY PERIODE

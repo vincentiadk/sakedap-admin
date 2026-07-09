@@ -434,6 +434,8 @@ function loadData(page = 1) {
 
 function dash(v) { return (v === undefined || v === null || v === '') ? '-' : v; }
 
+const THRESHOLD_PCT = {{ $minPct ?? 20 }};
+
 function renderTable(res) {
     const tbody = document.getElementById('tableBody');
     if (!res.data.length) {
@@ -453,15 +455,15 @@ function renderTable(res) {
             : `<span class="text-muted">-</span>`;
 
         const pct          = parseFloat(r.PERSENTASE_KCKR || 0);
-        const pctColor     = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger';
+        const pctColor     = pct >= THRESHOLD_PCT ? 'success' : pct >= 50 ? 'warning' : 'danger';
         const pctBadge     = `<span class="badge bg-${pctColor}">${pct}%</span>`;
 
-        const teguran      = parseInt(r.LEWAT_TEGURAN || 0);
+        const teguran       = parseInt(r.LEWAT_TEGURAN || 0);
         const terlambatKckr = parseInt(r.TERLAMBAT_KCKR || 0);
-        const rekBadge     = teguran > 0
-            ? `<span class="badge bg-danger">Blokir Konfirmasi Terbit</span>`
-            : (terlambatKckr > 0 && pct <= 20)
+        const rekBadge      = (terlambatKckr > 0 && pct <= THRESHOLD_PCT)
             ? `<span class="badge" style="background:#fd7e14">Blokir SS KCKR</span>`
+            : teguran > 0
+            ? `<span class="badge bg-danger">Blokir Konfirmasi Terbit</span>`
             : `<span class="badge bg-success">Baik</span>`;
 
         const detailUrl = `{{ url('/coaching-supervision/compliance-v3/detail') }}/${r.ID}?` + buildParams().toString();

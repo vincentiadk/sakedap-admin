@@ -263,6 +263,9 @@
                                                     @if(Main::isSuperAdmin())
                                                         <a href="{{ url('administration-system/setting-system') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-system' ? 'active' : '' }}">Pengaturan Sistem</a>
                                                     @endif
+                                                    @if(Main::isSuperAdmin() || Main::isPerpusnas())
+                                                        <a href="{{ url('administration-system/compliance-setting') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'compliance-setting' ? 'active' : '' }}">Pengaturan Kepatuhan KCKR</a>
+                                                    @endif
                                                     <a href="{{ url('administration-system/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
                                                     <a href="{{ url('administration-system/template-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'template-email' ? 'active' : '' }}">Template Email</a>
                                                     <a href="{{ url('administration-system/header-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'header-email' ? 'active' : '' }}">Header Email</a>

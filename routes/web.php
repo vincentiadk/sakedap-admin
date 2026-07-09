@@ -463,6 +463,11 @@ Route::middleware('authentication')->group(function () {
     });
 
     Route::prefix('administration-system')->namespace('AdministrationSystem')->group(function () {
+        Route::prefix('compliance-setting')->group(function () {
+            Route::get('/',      'ComplianceSettingController@index')->name('compliance_setting.index');
+            Route::post('save',  'ComplianceSettingController@save')->name('compliance_setting.save');
+        });
+
         Route::prefix('setting-system')->group(function () {
             Route::get('/', 'SettingSystemController@index');
             Route::post('submitted', 'SettingSystemController@submitted');

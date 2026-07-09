@@ -504,8 +504,8 @@
                                     <div>
                                         <strong style="color:#d96000">Blokir SS KCKR</strong>
                                         <span class="badge ms-1" style="background:#fd7e14">{{ number_format($blokirKckr) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terlambat menyerahkan KCKR dengan tingkat kepatuhan rendah (≤ 20%), namun belum masuk kategori Blokir Konfirmasi Terbit.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran = 0 AND Terlambat KCKR &gt; 0 AND % KCKR ≤ 20%</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terlambat menyerahkan KCKR dengan tingkat kepatuhan rendah (≤ {{ $minPct ?? 20 }}%), namun belum masuk kategori Blokir Konfirmasi Terbit.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran = 0 AND Terlambat KCKR &gt; 0 AND % KCKR ≤ {{ $minPct ?? 20 }}%</code></p>
                                     </div>
                                 </div>
                             </div>
@@ -515,8 +515,8 @@
                                     <div>
                                         <strong class="text-success">Baik</strong>
                                         <span class="badge bg-success ms-1">{{ number_format($baik) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang patuh: tidak ada judul melewati batas teguran, dan tidak terlambat KCKR atau kepatuhan sudah di atas 20%.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran = 0 AND (Terlambat KCKR = 0 ATAU % KCKR &gt; 20%)</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang patuh: tidak ada judul melewati batas teguran, dan tidak terlambat KCKR atau kepatuhan sudah di atas {{ $minPct ?? 20 }}%.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran = 0 AND (Terlambat KCKR = 0 ATAU % KCKR &gt; {{ $minPct ?? 20 }}%)</code></p>
                                     </div>
                                 </div>
                             </div>
@@ -568,8 +568,8 @@
                                     <div>
                                         <strong style="color:#d96000">Blokir SS KCKR</strong>
                                         <span class="badge ms-1" style="background:#fd7e14">{{ number_format($blokirKckrV1) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terlambat menyerahkan KCKR (berdasarkan 3 bulan dari tanggal ISBN diterima) dengan kepatuhan ≤ 20%.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Terlambat KCKR &gt; 0 AND % KCKR ≤ 20%</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terlambat menyerahkan KCKR (berdasarkan 3 bulan dari tanggal ISBN diterima) dengan kepatuhan ≤ {{ $minPct ?? 20 }}%.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Terlambat KCKR &gt; 0 AND % KCKR ≤ {{ $minPct ?? 20 }}%</code></p>
                                         <p class="mb-0 small text-muted">Deadline KCKR = tanggal ISBN + 3 bulan (berdasarkan kategori/jenis media)</p>
                                     </div>
                                 </div>
@@ -580,8 +580,8 @@
                                     <div>
                                         <strong class="text-success">Baik</strong>
                                         <span class="badge bg-success ms-1">{{ number_format($baikV1) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang patuh terhadap kewajiban KCKR: tidak terlambat atau kepatuhan sudah di atas 20%.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Terlambat KCKR = 0 ATAU % KCKR &gt; 20%</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang patuh terhadap kewajiban KCKR: tidak terlambat atau kepatuhan sudah di atas {{ $minPct ?? 20 }}%.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Terlambat KCKR = 0 ATAU % KCKR &gt; {{ $minPct ?? 20 }}%</code></p>
                                     </div>
                                 </div>
                             </div>

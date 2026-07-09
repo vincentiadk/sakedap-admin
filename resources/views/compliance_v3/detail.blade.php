@@ -149,7 +149,7 @@
                 @endforeach
                 @php
                     $pct      = (float)($summary->PERSENTASE_KCKR ?? 0);
-                    $pctColor = $pct >= 80 ? '#198754' : ($pct >= 50 ? '#ffc107' : '#dc3545');
+                    $pctColor = $pct >= ($minPct ?? 80) ? '#198754' : ($pct >= 50 ? '#ffc107' : '#dc3545');
                 @endphp
                 <div class="text-center px-3 py-2 bg-white rounded shadow-sm border-top border-2" style="min-width:110px;border-color:{{ $pctColor }}!important">
                     <div class="fs-5 fw-bold" style="color:{{ $pctColor }}">{{ $pct }}%</div>
@@ -162,20 +162,59 @@
     @endif
 
     {{-- Filter --}}
+    @php
+        $fType  = $dateFilter['type'];
+        $fYear  = request('filter_year',  date('Y'));
+        $fMonth = request('filter_month', date('n'));
+        $fStart = request('start_date',   date('Y-01-01'));
+        $fEnd   = request('end_date',     date('Y-12-31'));
+        $years  = range(date('Y'), 2010);
+        $months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    @endphp
     <div class="card shadow-sm mb-3">
         <div class="card-body py-2">
-            <form method="GET" action="{{ route('compliance_v3.detail', $penerbit->ID) }}" class="row g-2 align-items-end">
-                <input type="hidden" name="filter_type"  value="{{ $dateFilter['type'] }}">
-                <input type="hidden" name="kckr_mode"   value="{{ $kckrMode ?? 'perpusnas' }}">
-                @if($dateFilter['type'] === 'tahun')
-                    <input type="hidden" name="filter_year" value="{{ request('filter_year', date('Y')) }}">
-                @elseif($dateFilter['type'] === 'bulan')
-                    <input type="hidden" name="filter_year"  value="{{ request('filter_year',  date('Y')) }}">
-                    <input type="hidden" name="filter_month" value="{{ request('filter_month', 1) }}">
-                @else
-                    <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                    <input type="hidden" name="end_date"   value="{{ request('end_date') }}">
-                @endif
+            <form method="GET" action="{{ route('compliance_v3.detail', $penerbit->ID) }}" class="row g-2 align-items-end" id="detailFilterForm">
+                <input type="hidden" name="kckr_mode" value="{{ $kckrMode ?? 'perpusnas' }}">
+
+                {{-- Jenis Filter --}}
+                <div class="col-auto">
+                    <label class="form-label form-label-sm mb-1">Periode</label>
+                    <select class="form-select form-select-sm" name="filter_type" id="detailFilterType" onchange="toggleDetailDateFields()">
+                        <option value="tahun" {{ $fType==='tahun' ? 'selected':'' }}>Per Tahun</option>
+                        <option value="bulan" {{ $fType==='bulan' ? 'selected':'' }}>Per Bulan</option>
+                        <option value="range" {{ $fType==='range' ? 'selected':'' }}>Rentang Tanggal</option>
+                    </select>
+                </div>
+
+                {{-- Tahun --}}
+                <div class="col-auto" id="detailFieldYear">
+                    <label class="form-label form-label-sm mb-1">Tahun</label>
+                    <select class="form-select form-select-sm" name="filter_year" id="detailYear">
+                        @foreach($years as $y)
+                            <option value="{{ $y }}" {{ (int)$fYear===$y ? 'selected':'' }}>{{ $y }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Bulan --}}
+                <div class="col-auto d-none" id="detailFieldMonth">
+                    <label class="form-label form-label-sm mb-1">Bulan</label>
+                    <select class="form-select form-select-sm" name="filter_month" id="detailMonth">
+                        @foreach($months as $mi => $mn)
+                            <option value="{{ $mi+1 }}" {{ (int)$fMonth===($mi+1) ? 'selected':'' }}>{{ $mn }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Rentang --}}
+                <div class="col-auto d-none" id="detailFieldRange">
+                    <label class="form-label form-label-sm mb-1">Dari</label>
+                    <input type="date" class="form-control form-control-sm" name="start_date" id="detailStart" value="{{ $fStart }}">
+                </div>
+                <div class="col-auto d-none" id="detailFieldRangeEnd">
+                    <label class="form-label form-label-sm mb-1">Sampai</label>
+                    <input type="date" class="form-control form-control-sm" name="end_date" id="detailEnd" value="{{ $fEnd }}">
+                </div>
 
                 <div class="col-auto">
                     <label class="form-label form-label-sm mb-1">Status</label>
@@ -384,6 +423,16 @@
 </div>
 
 <script>
+function toggleDetailDateFields() {
+    const type = document.getElementById('detailFilterType').value;
+    document.getElementById('detailFieldYear').classList.toggle('d-none',     type === 'range');
+    document.getElementById('detailFieldMonth').classList.toggle('d-none',    type !== 'bulan');
+    document.getElementById('detailFieldRange').classList.toggle('d-none',    type !== 'range');
+    document.getElementById('detailFieldRangeEnd').classList.toggle('d-none', type !== 'range');
+}
+// Init on page load
+document.addEventListener('DOMContentLoaded', toggleDetailDateFields);
+
 function doExport() {
     const token  = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     const params = new URLSearchParams(window.location.search);

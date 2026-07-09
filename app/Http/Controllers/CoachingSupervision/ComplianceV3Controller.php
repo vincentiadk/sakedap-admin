@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\CoachingSupervision;
 
+use App\Helpers\ComplianceSettings;
 use App\Http\Controllers\Controller;
 use App\Traits\OracleHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Compliance V3 – Gabungan: pra-2026 + 2026+
@@ -22,7 +24,17 @@ class ComplianceV3Controller extends Controller
     private const PER_PAGE = 25;
     private const CUTOFF   = '2026-01-01';
 
-    private const EXPR_DEADLINE_TERBIT = 'PI.CREATEDATE + 28';
+    private function loadSettings(): array
+    {
+        return ComplianceSettings::get();
+    }
+
+    private function exprDeadlineTerbit(array $s): string
+    {
+        $kc = (int) $s['BatasWaktuKonfirmasiTerbitKaryaCetak'];
+        $kr = (int) $s['BatasWaktuKonfirmasiTerbitDigital'];
+        return "CASE WHEN PT.JENIS_MEDIA = '1' THEN (PI.CREATEDATE + $kc) ELSE (PI.CREATEDATE + $kr) END";
+    }
 
     private function exprDeadlineKckrV1(): string
     {
@@ -75,7 +87,10 @@ class ComplianceV3Controller extends Controller
             ? "AND UPPER(P.NAME) LIKE '%" . strtoupper(addslashes($search)) . "%'"
             : '';
 
-        $dlTerbit = self::EXPR_DEADLINE_TERBIT;
+        $settings = $this->loadSettings();
+        $dlTerbit = $this->exprDeadlineTerbit($settings);
+        $teguran  = (int) $settings['BatasWaktuTeguranKonfirmasiTerbit'];
+        $minPct   = (int) $settings['BatasMinimumKepatuhanKCKR'];
         $dlKckrV1 = $this->exprDeadlineKckrV1();
         $dlKckrV2 = $this->exprDeadlineKckrV2();
 
@@ -86,26 +101,39 @@ class ComplianceV3Controller extends Controller
         $sudahTerbit = "(PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL)";
         $belumTerbit = "(PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL)";
 
+        // Tagihan = masih tertagih = belum serahkan KCKR
+        //   pra-2026: semua yg BELUM setor (tanpa syarat terbit)
+        //   2026+   : sudah konfirmasi terbit tapi BELUM setor KCKR
+        $tagihan = "SUM(CASE
+            WHEN $isPre26 AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+            WHEN $is2026  AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+            ELSE 0 END)";
+
+        // Denominator persentase = total yang pernah wajib KCKR (sudah + masih belum)
+        $sudahKckrExpr = "SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+        $totalWajib    = "($sudahKckrExpr + $tagihan)";
+
         $innerQuery = "
             SELECT
                 P.ID, P.NAME, P.ALAMAT, P.PROVINSI, P.CITY,
+                P.TELP1, P.TELP2, P.EMAIL1, P.EMAIL2,
                 P.KATEGORI_ID, P.PROVINCE_ID, P.CREATEDATE,
                 CASE WHEN P.KATEGORI_ID = 1 THEN 'Pemerintah'
                      WHEN P.KATEGORI_ID = 2 THEN 'Swasta'
                      ELSE 'Lainnya' END as KATEGORI,
 
                 -- Total judul dalam range (semua tahun)
-                COUNT(DISTINCT PI.ID)                                                    as TOTAL_JUDUL,
+                COUNT(PI.ID)                                                             as TOTAL_JUDUL,
 
                 -- Berapa yang 2026+ (agar UI tahu apakah kolom terbit relevan)
-                COUNT(DISTINCT CASE WHEN $is2026 THEN PI.ID END)                        as JUDUL_2026_PLUS,
+                SUM(CASE WHEN $is2026 THEN 1 ELSE 0 END)                                as JUDUL_2026_PLUS,
 
                 -- Status Terbit: hanya dari records 2026+
-                COUNT(DISTINCT CASE WHEN $is2026 AND $sudahTerbit THEN PI.ID END)       as JUDUL_TERBIT,
-                COUNT(DISTINCT CASE WHEN $is2026 AND $belumTerbit THEN PI.ID END)       as JUDUL_BELUM_TERBIT,
+                SUM(CASE WHEN $is2026 AND $sudahTerbit THEN 1 ELSE 0 END)               as JUDUL_TERBIT,
+                SUM(CASE WHEN $is2026 AND $belumTerbit THEN 1 ELSE 0 END)               as JUDUL_BELUM_TERBIT,
                 SUM(CASE WHEN $is2026 AND $belumTerbit AND SYSDATE > $dlTerbit
                          THEN 1 ELSE 0 END)                                              as HUTANG_TERBIT,
-                SUM(CASE WHEN $is2026 AND $belumTerbit AND SYSDATE > ($dlTerbit + 30)
+                SUM(CASE WHEN $is2026 AND $belumTerbit AND SYSDATE > ($dlTerbit + $teguran)
                          THEN 1 ELSE 0 END)                                              as LEWAT_TEGURAN,
 
                 -- KCKR: dari semua records (pra-2026 dan 2026+)
@@ -135,12 +163,10 @@ class ComplianceV3Controller extends Controller
 
                 -- Terlambat KCKR: formula hybrid
                 SUM(CASE
-                    -- pra-2026: deadline dari createdate
                     WHEN $isPre26 AND (
                         (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV1))
                      OR (PI.RECEIVED_DATE_KCKR IS NULL    AND SYSDATE > ($dlKckrV1))
                     ) THEN 1
-                    -- 2026+: deadline dari tanggal_terbit (hanya jika terbit sudah diisi)
                     WHEN $is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND (
                         (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV2))
                      OR (PI.RECEIVED_DATE_KCKR IS NULL    AND SYSDATE > ($dlKckrV2))
@@ -148,25 +174,26 @@ class ComplianceV3Controller extends Controller
                     ELSE 0
                 END)                                                                     as TERLAMBAT_KCKR,
 
-                -- % KCKR = sudah / total judul (V1-style, konsisten untuk semua tahun)
+                -- % KCKR = sudah / (sudah + tagihan) — tagihan = masih belum setor
                 ROUND(
-                    CASE WHEN COUNT(DISTINCT PI.ID) > 0
-                        THEN SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)
-                           / COUNT(DISTINCT PI.ID) * 100
+                    CASE WHEN $totalWajib > 0
+                        THEN $sudahKckrExpr / $totalWajib * 100
                         ELSE 0 END, 1
                 )                                                                        as PERSENTASE_KCKR
 
             FROM PENERBIT P
             LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                 $dateWhere
-                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
             WHERE 1=1
                 $provinceWhere
                 $kategoriWhere
                 $searchWhere
-            GROUP BY P.ID, P.NAME, P.ALAMAT, P.PROVINSI, P.CITY, P.KATEGORI_ID, P.PROVINCE_ID, P.CREATEDATE
-            HAVING COUNT(DISTINCT PI.ID) > 0
+            GROUP BY P.ID, P.NAME, P.ALAMAT, P.PROVINSI, P.CITY,
+                     P.TELP1, P.TELP2, P.EMAIL1, P.EMAIL2,
+                     P.KATEGORI_ID, P.PROVINCE_ID, P.CREATEDATE
+            HAVING COUNT(PI.ID) > 0
         ";
 
         $outerWhere = '';
@@ -177,9 +204,10 @@ class ComplianceV3Controller extends Controller
         if ($filterKckr === 'sudah')    $outerWhere .= ' AND SUDAH_KCKR > 0';
         if ($filterKckr === 'belum')    $outerWhere .= ' AND BELUM_KCKR > 0';
 
-        if ($filterRekomendasi === 'blokir_terbit') $outerWhere .= ' AND LEWAT_TEGURAN > 0';
-        if ($filterRekomendasi === 'blokir_kckr')   $outerWhere .= ' AND LEWAT_TEGURAN = 0 AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= 20';
-        if ($filterRekomendasi === 'baik')           $outerWhere .= ' AND LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > 20)';
+        // Prioritas: Blokir KCKR > Blokir Terbit > Baik
+        if ($filterRekomendasi === 'blokir_kckr')   $outerWhere .= " AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct";
+        if ($filterRekomendasi === 'blokir_terbit') $outerWhere .= " AND LEWAT_TEGURAN > 0 AND NOT (TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct)";
+        if ($filterRekomendasi === 'baik')           $outerWhere .= " AND LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > $minPct)";
 
         if (!empty($persentase)) {
             [$min, $max] = $this->parsePersentaseRange($persentase);
@@ -195,7 +223,8 @@ class ComplianceV3Controller extends Controller
 
     private function makeCacheKeyV3(Request $request, string $prefix): string
     {
-        return $this->makeCacheKey($request, $prefix, [
+        $v = ComplianceSettings::cacheVersion();
+        return $this->makeCacheKey($request, "{$prefix}_{$v}", [
             'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
             'province_ids', 'kategori', 'search',
             'filter_hutang', 'filter_teguran', 'filter_kckr', 'persentase', 'filter_rekomendasi',
@@ -224,8 +253,9 @@ class ComplianceV3Controller extends Controller
 
             $userProvinceName = !$isPerpusnas ? (session('province_name') ?? '') : null;
             $provinceIds      = $ctx['provinceIds'];
+            $minPct           = $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
 
-            return view('compliance_v3.index', compact('provinces', 'isPerpusnas', 'kckrMode', 'userProvinceName', 'provinceIds'));
+            return view('compliance_v3.index', compact('provinces', 'isPerpusnas', 'kckrMode', 'userProvinceName', 'provinceIds', 'minPct'));
         } catch (\Exception $e) {
             return view('compliance_v3.index', [
                 'error' => 'Error: ' . $e->getMessage(),
@@ -376,7 +406,9 @@ class ComplianceV3Controller extends Controller
             $searchJudul     = trim($request->search_judul ?? '');
             $searchIsbn      = str_replace('-','',trim($request->search_isbn))  ?? '';
 
-            $dlTerbit = self::EXPR_DEADLINE_TERBIT;
+            $settings = $this->loadSettings();
+            $dlTerbit = $this->exprDeadlineTerbit($settings);
+            $teguran  = (int) $settings['BatasWaktuTeguranKonfirmasiTerbit'];
             $dlKckrV1 = $this->exprDeadlineKckrV1();
             $dlKckrV2 = $this->exprDeadlineKckrV2();
 
@@ -387,7 +419,7 @@ class ComplianceV3Controller extends Controller
                 FROM PENERBIT P
                 JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                     $dateWhere
-                    AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                    AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                 LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                 WHERE P.ID = $penerbitId
             ";
@@ -405,7 +437,7 @@ class ComplianceV3Controller extends Controller
             if ($filterStatus === 'sudah_kckr')   $searchWhere .= " AND PI.$kc IS NOT NULL";
             if ($filterStatus === 'belum_kckr')   $searchWhere .= " AND PI.$kc IS NULL";
             if ($filterHutang  === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > $dlTerbit";
-            if ($filterTeguran === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + 30)";
+            if ($filterTeguran === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + $teguran)";
             if ($filterTerlambat === 'ya') {
                 $searchWhere .= " AND (
                     ($isPre26 AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV1)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV1))))
@@ -420,10 +452,11 @@ class ComplianceV3Controller extends Controller
             }
 
             // Summary: terbit metrics hanya 2026+, KCKR semua records
-            $summaryKey = $this->makeCacheKey($request, "compliance_v3:detail:$penerbitId:summary", [
+            $csv        = ComplianceSettings::cacheVersion();
+            $summaryKey = $this->makeCacheKey($request, "compliance_v3:detail:{$penerbitId}:summary_{$csv}", [
                 'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
             ]);
-            $summary = (object) Cache::remember($summaryKey, 3600, function() use ($conn, $fromJoin, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
+            $summary = (object) Cache::remember($summaryKey, 3600, function() use ($conn, $fromJoin, $dlTerbit, $teguran, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
                 $sudahTerbit = "(PI.TANGGAL_TERBIT IS NOT NULL OR PI.RECEIVED_DATE_KCKR IS NOT NULL)";
                 $sql = "
                     SELECT
@@ -431,7 +464,7 @@ class ComplianceV3Controller extends Controller
                         COUNT(CASE WHEN $is2026 AND $sudahTerbit THEN 1 END) as SUDAH_TERBIT,
                         COUNT(CASE WHEN $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1 END) as BELUM_TERBIT,
                         COUNT(CASE WHEN $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > $dlTerbit THEN 1 END) as HUTANG_TERBIT,
-                        COUNT(CASE WHEN $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlTerbit + 30) THEN 1 END) as LEWAT_TEGURAN,
+                        COUNT(CASE WHEN $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlTerbit + $teguran) THEN 1 END) as LEWAT_TEGURAN,
                         COUNT(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 END) as SUDAH_KCKR,
                         COUNT(CASE WHEN ($isPre26 AND PI.RECEIVED_DATE_KCKR IS NULL)
                                      OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL)
@@ -441,8 +474,17 @@ class ComplianceV3Controller extends Controller
                             OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND ((PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV2)) OR (PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlKckrV2))))
                         THEN 1 END) as TERLAMBAT_KCKR,
                         ROUND(
-                            CASE WHEN COUNT(*) > 0
-                                THEN COUNT(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 END) / COUNT(*) * 100
+                            CASE WHEN (
+                                    COUNT(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 END)
+                                  + COUNT(CASE WHEN ($isPre26 AND PI.RECEIVED_DATE_KCKR IS NULL)
+                                                 OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL)
+                                               THEN 1 END)
+                                ) > 0
+                                THEN COUNT(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 END)
+                                   / (COUNT(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 END)
+                                    + COUNT(CASE WHEN ($isPre26 AND PI.RECEIVED_DATE_KCKR IS NULL)
+                                                   OR ($is2026 AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL)
+                                                 THEN 1 END)) * 100
                                 ELSE 0 END, 1
                         ) as PERSENTASE_KCKR
                     $fromJoin
@@ -459,14 +501,14 @@ class ComplianceV3Controller extends Controller
                 PI.KETERANGAN,
                 PT.TITLE, PT.KEPENG, PT.JENIS_MEDIA, PT.JILID_VOLUME,
                 CASE WHEN $isPre26 THEN NULL ELSE $dlTerbit END   as DEADLINE_TERBIT,
-                CASE WHEN $isPre26 THEN NULL ELSE ($dlTerbit + 30) END as BATAS_TEGURAN,
+                CASE WHEN $isPre26 THEN NULL ELSE ($dlTerbit + $teguran) END as BATAS_TEGURAN,
                 -- IS_PRE2026: 1 = pra-2026, 0 = 2026+
                 CASE WHEN $isPre26 THEN 1 ELSE 0 END               as IS_PRE2026,
                 -- Status Terbit: N/A untuk pra-2026
                 CASE
                     WHEN $isPre26                                                          THEN 'N/A'
                     WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.TANGGAL_TERBIT IS NULL  THEN 'Terbit'
-                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + 30)         THEN 'Lewat Teguran'
+                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + $teguran)         THEN 'Lewat Teguran'
                     WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > $dlTerbit                THEN 'Hutang Terbit'
                     WHEN PI.TANGGAL_TERBIT IS NULL                                        THEN 'Belum Terbit'
                     ELSE 'Terbit'
@@ -496,7 +538,7 @@ class ComplianceV3Controller extends Controller
                 END as TERLAMBAT_KCKR
             ";
 
-            $pageKey = $this->makeCacheKey($request, "compliance_v3:detail:$penerbitId:page", [
+            $pageKey = $this->makeCacheKey($request, "compliance_v3:detail:{$penerbitId}:page_{$csv}", [
                 'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date',
                 'filter_status', 'filter_jenis', 'filter_hutang', 'filter_teguran', 'filter_terlambat',
                 'search_judul', 'search_isbn', 'kckr_mode',
@@ -540,10 +582,12 @@ class ComplianceV3Controller extends Controller
                 'filterJenis', 'filterHutang', 'filterTeguran', 'filterTerlambat'
             );
 
+            $minPct = (int) $settings['BatasMinimumKepatuhanKCKR'];
+
             return view('compliance_v3.detail', compact(
                 'penerbit', 'titles', 'dateFilter', 'kategoriLabel',
                 'summary', 'total', 'page', 'perPage', 'lastPage', 'filters',
-                'kckrMode'
+                'kckrMode', 'minPct'
             ));
 
         } catch (\Exception $e) {
@@ -593,7 +637,8 @@ class ComplianceV3Controller extends Controller
 
         $exportKey = $this->makeCacheKeyV3($request, 'compliance_v3:export');
 
-        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $baseQuery) {
+        $minPct  = (int) $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
+        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $baseQuery, $minPct) {
             $result = odbc_exec($conn, "SELECT * FROM ($baseQuery) ORDER BY NAME ASC");
             $data   = [];
             while ($row = odbc_fetch_object($result)) {
@@ -602,15 +647,19 @@ class ComplianceV3Controller extends Controller
                 $pct        = (float) $row->PERSENTASE_KCKR;
                 $jml2026    = (int) $row->JUDUL_2026_PLUS;
 
-                $rekomendasi = $lewat > 0
-                    ? 'Blokir Konfirmasi Terbit'
-                    : ($terlambat > 0 && $pct <= 20 ? 'Blokir SS KCKR' : 'Baik');
+                $rekomendasi = ($terlambat > 0 && $pct <= $minPct)
+                    ? 'Blokir SS KCKR'
+                    : ($lewat > 0 ? 'Blokir Konfirmasi Terbit' : 'Baik');
 
                 $data[] = [
                     $row->NAME,
                     $row->KATEGORI,
                     $row->CITY,
                     $row->PROVINSI,
+                    $row->TELP1  ?? '',
+                    $row->TELP2  ?? '',
+                    $row->EMAIL1 ?? '',
+                    $row->EMAIL2 ?? '',
                     (int) $row->TOTAL_JUDUL,
                     // Kolom terbit: kosong jika tidak ada data 2026+
                     $jml2026 > 0 ? (int) $row->JUDUL_TERBIT       : '-',
@@ -636,7 +685,7 @@ class ComplianceV3Controller extends Controller
             foreach ($rows as $r) {
                 $add(array_merge([$i++], $r));
             }
-        }, 'Ringkasan', $judulExport, $label, 19);
+        }, 'Ringkasan', $judulExport, $label, 23);
 
         // ── Sheet 2: Daftar Judul (opsional) ──────────────────────────────
         if ($request->boolean('with_judul')) {
@@ -659,7 +708,9 @@ class ComplianceV3Controller extends Controller
         array $label
     ): void {
         $cutoff   = self::CUTOFF;
-        $dlTerbit = self::EXPR_DEADLINE_TERBIT;
+        $settings = $this->loadSettings();
+        $dlTerbit = $this->exprDeadlineTerbit($settings);
+        $teguran  = (int) $settings['BatasWaktuTeguranKonfirmasiTerbit'];
         $dlKckrV1 = $this->exprDeadlineKckrV1();
         $dlKckrV2 = $this->exprDeadlineKckrV2();
         $is2026   = "PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')";
@@ -669,6 +720,7 @@ class ComplianceV3Controller extends Controller
             SELECT
                 P.NAME                                   as NAMA_PENERBIT,
                 P.CITY,
+                P.TELP1, P.TELP2, P.EMAIL1, P.EMAIL2,
                 PI.ISBN_NO,
                 PT.TITLE,
                 PT.KEPENG,
@@ -679,7 +731,7 @@ class ComplianceV3Controller extends Controller
                 CASE WHEN $isPre26 THEN NULL ELSE $dlTerbit END as DEADLINE_TERBIT,
                 CASE
                     WHEN $isPre26 THEN 'N/A (Pra-2026)'
-                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + 30) THEN 'Lewat Teguran'
+                    WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + $teguran) THEN 'Lewat Teguran'
                     WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > $dlTerbit        THEN 'Hutang Terbit'
                     WHEN PI.TANGGAL_TERBIT IS NULL                                THEN 'Belum Terbit'
                     ELSE 'Terbit'
@@ -709,7 +761,7 @@ class ComplianceV3Controller extends Controller
             FROM PENERBIT P
             JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                 $dateWhere
-                AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR PI.KETERANGAN IS NULL)
+                AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
             WHERE P.ID IN (SELECT ID FROM ($baseQuery))
             ORDER BY P.NAME ASC, PI.CREATEDATE DESC
@@ -727,8 +779,8 @@ class ComplianceV3Controller extends Controller
         $sheet->setTitle('Daftar Judul');
 
         $headers = [
-            '#', 'Nama Penerbit', 'Kota', 'No. ISBN', 'Judul',
-            'Kepengarangan', 'Jilid/Vol', 'Jenis Media',
+            '#', 'Nama Penerbit', 'Kota', 'No. Telp 1', 'No. Telp 2', 'Email 1', 'Email 2',
+            'No. ISBN', 'Judul', 'Kepengarangan', 'Jilid/Vol', 'Jenis Media',
             'Tgl Daftar', 'Tgl Terbit', 'Status Terbit',
             'Deadline KCKR', 'Tgl KCKR', 'Status KCKR', 'Terlambat',
         ];
@@ -759,6 +811,10 @@ class ComplianceV3Controller extends Controller
                 $no++,
                 $row->NAMA_PENERBIT ?? '',
                 $row->CITY          ?? '',
+                $row->TELP1         ?? '',
+                $row->TELP2         ?? '',
+                $row->EMAIL1        ?? '',
+                $row->EMAIL2        ?? '',
                 $row->ISBN_NO       ?? '',
                 $row->TITLE         ?? '',
                 $row->KEPENG        ?? '',
@@ -783,18 +839,27 @@ class ComplianceV3Controller extends Controller
                     'fill'      => ['fillType' => $Fill, 'startColor' => ['rgb' => $baseBg]],
                 ]);
             }
-            // Merahkan kolom Terlambat (col 15) kalau 'Ya'
+            // Merahkan kolom Terlambat (col 19) kalau 'Ya'
             if ($terlambat === 'Ya') {
-                $sheet->getStyle($coord(15, $rowNum))->getFont()->getColor()->setRGB('C62828');
-                $sheet->getStyle($coord(15, $rowNum))->getFont()->setBold(true);
+                $sheet->getStyle($coord(19, $rowNum))->getFont()->getColor()->setRGB('C62828');
+                $sheet->getStyle($coord(19, $rowNum))->getFont()->setBold(true);
             }
             $rowNum++;
         }
 
-        foreach (range(1, $colCount) as $c) {
-            $sheet->getColumnDimension(
-                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c)
-            )->setAutoSize(true);
+        // Lebar kolom tetap agar tidak melampaui layar
+        // #, Nama Penerbit, Kota, Telp1, Telp2, Email1, Email2,
+        // ISBN, Judul, Kepengarangan, Jilid, Jenis Media,
+        // Tgl Daftar, Tgl Terbit, Status Terbit, Deadline KCKR, Tgl KCKR, Status KCKR, Terlambat
+        $colWidths = [5, 28, 14, 16, 16, 26, 26, 16, 38, 28, 10, 14, 12, 12, 14, 14, 12, 12, 10];
+        $wrapCols  = [2, 6, 7, 9, 10]; // Nama Penerbit, Email1, Email2, Judul, Kepengarangan
+        foreach ($colWidths as $i => $w) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->getColumnDimension($colLetter)->setWidth($w);
+            if (in_array($i + 1, $wrapCols)) {
+                $sheet->getStyle($colLetter . ($r1 + 1) . ':' . $colLetter . ($rowNum - 1))
+                    ->getAlignment()->setWrapText(true);
+            }
         }
         $sheet->freezePane('A' . ($r1 + 1));
     }
@@ -821,28 +886,31 @@ class ComplianceV3Controller extends Controller
         $modeLabel    = $kckrMode === 'provinsi' ? '_Provinsi' : '';
         $filename     = $this->safeName($penerbitName) . '_V3' . $modeLabel . '_' . date('d-m-Y') . '.xlsx';
 
-        $dlTerbit = self::EXPR_DEADLINE_TERBIT;
+        $settings = $this->loadSettings();
+        $dlTerbit = $this->exprDeadlineTerbit($settings);
+        $teguran  = (int) $settings['BatasWaktuTeguranKonfirmasiTerbit'];
         $dlKckrV1 = $this->exprDeadlineKckrV1();
         $dlKckrV2 = $this->exprDeadlineKckrV2();
 
         $is2026  = "PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')";
         $isPre26 = "PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD')";
 
-        $exportKey = $this->makeCacheKey($request, "compliance_v3:export_detail:$penerbitId", [
+        $csv       = ComplianceSettings::cacheVersion();
+        $exportKey = $this->makeCacheKey($request, "compliance_v3:export_detail:{$penerbitId}_{$csv}", [
             'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
         ]);
 
-        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $penerbitId, $dateWhere, $dlTerbit, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
+        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $penerbitId, $dateWhere, $dlTerbit, $teguran, $dlKckrV1, $dlKckrV2, $is2026, $isPre26, $kckrCol) {
             $sql = "
                 SELECT
                     PI.ISBN_NO, PT.TITLE, PT.KEPENG, PT.JILID_VOLUME, PT.JENIS_MEDIA,
                     PI.CREATEDATE as TGL_DAFTAR,
                     PI.TANGGAL_TERBIT,
                     CASE WHEN $isPre26 THEN NULL ELSE $dlTerbit END as DEADLINE_TERBIT,
-                    CASE WHEN $isPre26 THEN NULL ELSE ($dlTerbit + 30) END as BATAS_TEGURAN,
+                    CASE WHEN $isPre26 THEN NULL ELSE ($dlTerbit + $teguran) END as BATAS_TEGURAN,
                     CASE
                         WHEN $isPre26 THEN 'N/A (Pra-2026)'
-                        WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + 30) THEN 'Lewat Teguran'
+                        WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > ($dlTerbit + $teguran) THEN 'Lewat Teguran'
                         WHEN PI.TANGGAL_TERBIT IS NULL AND SYSDATE > $dlTerbit        THEN 'Hutang Terbit'
                         WHEN PI.TANGGAL_TERBIT IS NULL                                THEN 'Belum Terbit'
                         ELSE 'Terbit'
@@ -873,7 +941,7 @@ class ComplianceV3Controller extends Controller
                 FROM PENERBIT P
                 JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
                     $dateWhere
-                    AND (NOT UPPER(PI.KETERANGAN) LIKE '%LENGKAP%' OR UPPER(PI.KETERANGAN) IS NULL)
+                    AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                 LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
                 WHERE P.ID = $penerbitId
                 ORDER BY TGL_DAFTAR DESC
@@ -954,8 +1022,17 @@ class ComplianceV3Controller extends Controller
             }
             $rn++;
         }
-        foreach (range(1, count($allHeaders)) as $c) {
-            $sheet->getColumnDimension(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c))->setAutoSize(true);
+        // No, ISBN, Judul, Pengarang, Jilid, Jenis Media, Tgl Daftar, Deadline Terbit,
+        // Tgl Terbit, Status Terbit, Batas Teguran, Deadline KCKR, Tgl KCKR, Status KCKR,
+        // Terlambat KCKR, Keterangan
+        $detailWidths = [5, 16, 38, 28, 10, 14, 12, 14, 12, 14, 14, 14, 12, 12, 14, 22];
+        $detailWrap   = [3, 4, 16]; // Judul, Pengarang, Keterangan
+        foreach ($detailWidths as $i => $w) {
+            $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->getColumnDimension($col)->setWidth($w);
+            if (in_array($i + 1, $detailWrap) && $rn > 3) {
+                $sheet->getStyle($col . '3:' . $col . ($rn - 1))->getAlignment()->setWrapText(true);
+            }
         }
         $sheet->freezePane('A3');
 
@@ -1000,8 +1077,10 @@ class ComplianceV3Controller extends Controller
         // Kolom span tunggal (rowspan 2)
         $singleCols = [
             1 => '#',  2 => 'Nama Penerbit', 3 => 'Kategori',
-            4 => 'Kota', 5 => 'Provinsi',    6 => 'Total Judul',
-            18 => '% KCKR', 19 => 'Rekomendasi',
+            4 => 'Kota', 5 => 'Provinsi',
+            6 => 'No. Telp 1', 7 => 'No. Telp 2', 8 => 'Email 1', 9 => 'Email 2',
+            10 => 'Total Judul',
+            22 => '% KCKR', 23 => 'Rekomendasi',
         ];
         foreach ($singleCols as $col => $label_) {
             $sheet->getCell($coord($col, $r1))->setValue($label_);
@@ -1010,10 +1089,10 @@ class ComplianceV3Controller extends Controller
         }
 
         $groups = [
-            [7,  8,  'Status Terbit (2026+)'],
-            [9,  10, 'Keterlambatan Terbit (2026+)'],
-            [11, 13, 'Sudah KCKR'],
-            [14, 17, 'Belum KCKR'],
+            [11, 12, 'Status Terbit (2026+)'],
+            [13, 14, 'Keterlambatan Terbit (2026+)'],
+            [15, 17, 'Sudah KCKR'],
+            [18, 21, 'Belum KCKR'],
         ];
         foreach ($groups as [$from, $to, $title]) {
             $sheet->getCell($coord($from, $r1))->setValue($title);
@@ -1022,10 +1101,10 @@ class ComplianceV3Controller extends Controller
         }
 
         $subHeaders = [
-            7  => 'Terbit',       8  => 'Belum',
-            9  => 'Hutang',       10 => 'Lewat Teguran',
-            11 => 'Total',        12 => 'Cetak',        13 => 'Rekam',
-            14 => 'Total',        15 => 'Cetak',        16 => 'Rekam',        17 => 'Terlambat',
+            11 => 'Terbit',       12 => 'Belum',
+            13 => 'Hutang',       14 => 'Lewat Teguran',
+            15 => 'Total',        16 => 'Cetak',        17 => 'Rekam',
+            18 => 'Total',        19 => 'Cetak',        20 => 'Rekam',        21 => 'Terlambat',
         ];
         foreach ($subHeaders as $col => $label_) {
             $sheet->getCell($coord($col, $r2))->setValue($label_);
@@ -1036,10 +1115,10 @@ class ComplianceV3Controller extends Controller
         $sheet->getRowDimension($r2)->setRowHeight(20);
 
         $colBg = [
-            7  => 'E8F5E9', 8  => 'E8F5E9',
-            9  => 'FFFDE7', 10 => 'FFFDE7',
-            11 => 'C8E6C9', 12 => 'C8E6C9', 13 => 'C8E6C9',
-            14 => 'FFF3E0', 15 => 'FFF3E0', 16 => 'FFF3E0', 17 => 'FFCCBC',
+            11 => 'E8F5E9', 12 => 'E8F5E9',
+            13 => 'FFFDE7', 14 => 'FFFDE7',
+            15 => 'C8E6C9', 16 => 'C8E6C9', 17 => 'C8E6C9',
+            18 => 'FFF3E0', 19 => 'FFF3E0', 20 => 'FFF3E0', 21 => 'FFCCBC',
         ];
 
         $rowNum = $r2 + 1;
@@ -1060,18 +1139,28 @@ class ComplianceV3Controller extends Controller
                 }
                 $sheet->getStyle($coord($col, $rowNum))->applyFromArray($styleArr);
             }
-            // Merahkan kolom Terlambat KCKR (col 17) kalau > 0
-            if (!empty($rowData[16]) && $rowData[16] > 0) {
+            // Merahkan kolom Terlambat KCKR (col 21) kalau > 0
+            if (!empty($rowData[20]) && $rowData[20] > 0) {
                 $sheet->getStyle($coord(17, $rowNum))->getFont()->getColor()->setRGB('C62828');
                 $sheet->getStyle($coord(17, $rowNum))->getFont()->setBold(true);
             }
             $rowNum++;
         });
 
-        foreach (range(1, $colCount) as $c) {
-            $sheet->getColumnDimension(
-                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c)
-            )->setAutoSize(true);
+        // #, Nama Penerbit, Kategori, Kota, Provinsi, Telp1, Telp2, Email1, Email2,
+        // Total Judul,
+        // (Terbit: Judul Terbit, Belum Terbit, Hutang, Lewat Teguran),
+        // (KCKR Sudah: Total, Cetak, Rekam),
+        // (KCKR Belum: Total, Cetak, Rekam, Terlambat),
+        // % KCKR, Rekomendasi
+        $rekapWidths = [5, 28, 12, 14, 18, 16, 16, 26, 26, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 22];
+        $rekapWrap   = [2, 8, 9, 23]; // Nama Penerbit, Email1, Email2, Rekomendasi
+        foreach ($rekapWidths as $i => $w) {
+            $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->getColumnDimension($col)->setWidth($w);
+            if (in_array($i + 1, $rekapWrap) && $rowNum > $r2 + 1) {
+                $sheet->getStyle($col . ($r2 + 1) . ':' . $col . ($rowNum - 1))->getAlignment()->setWrapText(true);
+            }
         }
         $sheet->freezePane('A' . ($r2 + 1));
 
