@@ -997,20 +997,12 @@
             <div id="swal-viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; overflow: hidden;">
                 <div id="swal-viewer-content" style="width: 100%; height: 100%; position: relative;">
                     
-                    <div id="swal-pdf-controls" style="display: none; position: absolute; top: 15px; right: 25px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center;">
-                        <span id="swal-pdf-info" style="color: white; font-size: 13px; font-weight: 500; border-right: 1px solid #555; padding-right: 12px;">
-                            Halaman: <span id="swal-current-page-num">-</span> / <span id="swal-total-pages-num">-</span>
-                        </span>
+                    <div id="pdf-controls" style="display: none; justify-content: space-between; align-items: center; position: relative; top: 0; right: 0; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; 12px; align-items: center;">
+                        <span id="pdf-info" style="color: white; font-size: 13px; font-weight: 500; border-right: 1px solid #555; padding-right: 12px;">Halaman: <span id="current-page-num">-</span> / <span id="total-pages-num">-</span></span>
                         <div style="display: flex; gap: 8px;">
-                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-zoom-out" title="Zoom Out">
-                                <i class="ph-magnifying-glass-minus text-dark"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-fit" title="Fit Layout">
-                                <i class="ph-corners-out text-dark"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-light" id="swal-btn-pdf-zoom-in" title="Zoom In">
-                                <i class="ph-magnifying-glass-plus text-dark"></i>
-                            </button>
+                            <button type="button" class="btn btn-sm btn-light" id="btn-pdf-zoom-out" title="Zoom Out"><i class="ph-magnifying-glass-minus text-dark"></i></button>
+                            <button type="button" class="btn btn-sm btn-light" id="btn-pdf-fit" title="Fit Layout"><i class="ph-corners-out text-dark"></i></button>
+                            <button type="button" class="btn btn-sm btn-light" id="btn-pdf-zoom-in" title="Zoom In"><i class="ph-magnifying-glass-plus text-dark"></i></button>
                         </div>
                     </div>
 

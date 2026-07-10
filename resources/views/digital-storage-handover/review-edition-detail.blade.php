@@ -510,7 +510,7 @@
                         </div>
                         <div id="viewer-wrapper" style="position: relative; width: 100%; min-height: 400px; background: #f5f5f5; border: 1px solid #ddd;">
                             <div id="viewer-content" style="width: 100%; height: 100%; position: relative;">
-                                <div id="pdf-controls" style="display: none; position: absolute; top: 15px; right: 25px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 8px; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center;">
+                                <div id="pdf-controls" style="display: none; justify-content: space-between; align-items: center; position: relative; top: 0; right: 0; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px 15px; 12px; align-items: center;">
                                     <span id="pdf-info" style="color: white; font-size: 13px; font-weight: 500; border-right: 1px solid #555; padding-right: 12px;">Halaman: <span id="current-page-num">-</span> / <span id="total-pages-num">-</span></span>
                                     <div style="display: flex; gap: 8px;">
                                         <button type="button" class="btn btn-sm btn-light" id="btn-pdf-zoom-out" title="Zoom Out"><i class="ph-magnifying-glass-minus text-dark"></i></button>
