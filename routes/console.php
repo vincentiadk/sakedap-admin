@@ -10,6 +10,14 @@ Schedule::command('app:release-review-lock')
     ->runInBackground()
     ->evenInMaintenanceMode();
 
+Schedule::command('app:sync-isbn-received-date')
+    ->hourly()
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground()
+    ->evenInMaintenanceMode();
+
 Schedule::command('app:auto-block-publisher-kckr')
     ->dailyAt('00:00')
     ->timezone('Asia/Jakarta')
