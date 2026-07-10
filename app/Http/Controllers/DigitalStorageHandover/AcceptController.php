@@ -95,27 +95,10 @@ class AcceptController extends Controller
         // --- 2. Hitung Records (Sinkronisasi Total) ---
         $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id WHERE (catalogs.isdelete = 0 or catalogs.isdelete is null) AND worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "' AND catalogs.edeposit_col_id is not null", true)->TOTAL ?? 0;
         
-        // Ini kueri utama untuk total filtered. Menggunakan DISTINCT agar akurat 100%.
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(*) AS total FROM (
-                SELECT catalogs.id,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY 
-                            COALESCE(TO_CHAR(e_collections.deposit), 'NULL_' || catalogs.id) || '|' ||
-                            COALESCE(catalogs.title, 'NULL') || '|' ||
-                            COALESCE(TO_CHAR(catalogs.createdate, 'YYYYMMDDHH24MISS'), 'NULL') || '|' ||
-                            COALESCE(catalogs.isbn, 'NULL') || '|' ||
-                            COALESCE(catalogs.controlnumber, 'NULL')
-                        ORDER BY catalogs.id DESC
-                    ) as rn
-                FROM catalogs
-                JOIN worksheets ON worksheets.id = catalogs.worksheet_id
-                JOIN e_collections ON e_collections.id = catalogs.edeposit_col_id
-                LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id
-                LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id
-                LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
-                $whereClause
-            ) WHERE rn = 1
+            SELECT COUNT(DISTINCT catalogs.id) AS total
+            $baseJoins
+            $whereClause
         ", true)->TOTAL ?? 0;
 
         // --- 3. Query Data (Paginasi) ---
@@ -126,7 +109,7 @@ class AcceptController extends Controller
         $sql = "
             SELECT * FROM (
                 SELECT rownum as rnum, data.* FROM (
-                    SELECT DISTINCT
+                    SELECT
                         catalogs.id, catalogs.title, catalogs.isbn, catalogs.createdate,
                         catalogs.penerbit_id, catalogs.edeposit_col_id,
                         e_collections.received_at as received_at_e_collection,
