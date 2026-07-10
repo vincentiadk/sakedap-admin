@@ -807,15 +807,15 @@ class ComplianceV3Controller extends Controller
         }
         $sheet->getRowDimension($r1)->setRowHeight(22);
 
-        $rowNum = $r1 + 1;
-        $no     = 1;
+        // Kumpulkan semua data dulu lalu tulis sekaligus
+        $allRows  = [];
+        $redRows  = [];
+        $no       = 1;
         while ($row = odbc_fetch_object($result)) {
-            $jenis    = ($row->JENIS_MEDIA === '1') ? 'Karya Cetak' : 'Karya Rekam';
-            $isEven   = ($rowNum % 2 === 0);
-            $baseBg   = $isEven ? 'F9F9F9' : 'FFFFFF';
+            $jenis     = ($row->JENIS_MEDIA === '1') ? 'Karya Cetak' : 'Karya Rekam';
             $terlambat = $row->TERLAMBAT_KCKR ?? 'Tidak';
-
-            $values = [
+            if ($terlambat === 'Ya') $redRows[] = count($allRows);
+            $allRows[] = [
                 $no++,
                 $row->NAMA_PENERBIT ?? '',
                 $row->CITY          ?? '',
@@ -836,23 +836,29 @@ class ComplianceV3Controller extends Controller
                 $row->STATUS_KCKR     ?? '',
                 $terlambat,
             ];
+        }
 
-            foreach ($values as $idx => $val) {
-                $col  = $idx + 1;
-                $cell = $sheet->getCell($coord($col, $rowNum));
-                $cell->setValue($val ?? '');
-                $sheet->getStyle($coord($col, $rowNum))->applyFromArray([
-                    'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
-                    'alignment' => ['vertical' => $AlignV],
-                    'fill'      => ['fillType' => $Fill, 'startColor' => ['rgb' => $baseBg]],
-                ]);
+        $dataStart = $r1 + 1;
+        $rowNum    = $dataStart + count($allRows);
+
+        if ($allRows) {
+            // Tulis semua data sekaligus
+            $sheet->fromArray($allRows, null, 'A' . $dataStart);
+
+            $lastDataRow = $dataStart + count($allRows) - 1;
+
+            // Border + alignment seluruh area (1 pemanggilan)
+            $sheet->getStyle("A{$dataStart}:S{$lastDataRow}")->applyFromArray([
+                'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
+                'alignment' => ['vertical' => $AlignV],
+            ]);
+
+            // Warna merah kolom Terlambat (col 19 = 'S') per baris yang perlu
+            foreach ($redRows as $idx) {
+                $r = $dataStart + $idx;
+                $sheet->getStyle("S{$r}")->getFont()->getColor()->setRGB('C62828');
+                $sheet->getStyle("S{$r}")->getFont()->setBold(true);
             }
-            // Merahkan kolom Terlambat (col 19) kalau 'Ya'
-            if ($terlambat === 'Ya') {
-                $sheet->getStyle($coord(19, $rowNum))->getFont()->getColor()->setRGB('C62828');
-                $sheet->getStyle($coord(19, $rowNum))->getFont()->setBold(true);
-            }
-            $rowNum++;
         }
 
         // Lebar kolom tetap agar tidak melampaui layar
@@ -1122,38 +1128,52 @@ class ComplianceV3Controller extends Controller
         $sheet->getRowDimension($r1)->setRowHeight(22);
         $sheet->getRowDimension($r2)->setRowHeight(20);
 
-        $colBg = [
-            11 => 'E8F5E9', 12 => 'E8F5E9',
-            13 => 'FFFDE7', 14 => 'FFFDE7',
-            15 => 'C8E6C9', 16 => 'C8E6C9', 17 => 'C8E6C9',
-            18 => 'FFF3E0', 19 => 'FFF3E0', 20 => 'FFF3E0', 21 => 'FFCCBC',
-        ];
-
-        $rowNum = $r2 + 1;
-        $rowFetcher(function(array $rowData) use ($sheet, &$rowNum, $coord, $colBg, $Fill) {
-            $isEven = ($rowNum % 2 === 0);
-            foreach ($rowData as $idx => $val) {
-                $col  = $idx + 1;
-                $cell = $sheet->getCell($coord($col, $rowNum));
-                $cell->setValue($val ?? '');
-                $styleArr = [
-                    'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
-                    'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER],
-                ];
-                if (isset($colBg[$col])) {
-                    $styleArr['fill'] = ['fillType' => $Fill, 'startColor' => ['rgb' => $colBg[$col]]];
-                } elseif ($isEven) {
-                    $styleArr['fill'] = ['fillType' => $Fill, 'startColor' => ['rgb' => 'F9F9F9']];
-                }
-                $sheet->getStyle($coord($col, $rowNum))->applyFromArray($styleArr);
-            }
-            // Merahkan kolom Terlambat KCKR (col 21) kalau > 0
+        // Kumpulkan semua baris dulu, lalu tulis & style secara range — jauh lebih cepat
+        $allRows     = [];
+        $redRows     = []; // baris yang kolom Terlambat KCKR > 0
+        $rowFetcher(function(array $rowData) use (&$allRows, &$redRows): void {
             if (!empty($rowData[20]) && $rowData[20] > 0) {
-                $sheet->getStyle($coord(17, $rowNum))->getFont()->getColor()->setRGB('C62828');
-                $sheet->getStyle($coord(17, $rowNum))->getFont()->setBold(true);
+                $redRows[] = count($allRows);
             }
-            $rowNum++;
+            $allRows[] = $rowData;
         });
+
+        $dataStart = $r2 + 1;
+        $rowNum    = $dataStart + count($allRows); // baris terakhir + 1
+
+        // Tulis semua data sekaligus (jauh lebih cepat dari per-cell)
+        $sheet->fromArray($allRows, null, 'A' . $dataStart);
+
+        if ($allRows) {
+            $lastDataRow = $dataStart + count($allRows) - 1;
+            $lastCol     = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colCount);
+            $dataRange   = "A{$dataStart}:{$lastCol}{$lastDataRow}";
+
+            // 1. Border + alignment seluruh area data (1 pemanggilan)
+            $sheet->getStyle($dataRange)->applyFromArray([
+                'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
+                'alignment' => ['vertical' => $AlignV],
+            ]);
+
+            // 2. Warna kolom-kelompok per range kolom (per kolom: 1 pemanggilan masing-masing)
+            $colRanges = [
+                'K' => 'E8F5E9', 'L' => 'E8F5E9',
+                'M' => 'FFFDE7', 'N' => 'FFFDE7',
+                'O' => 'C8E6C9', 'P' => 'C8E6C9', 'Q' => 'C8E6C9',
+                'R' => 'FFF3E0', 'S' => 'FFF3E0', 'T' => 'FFF3E0', 'U' => 'FFCCBC',
+            ];
+            foreach ($colRanges as $colLetter => $rgb) {
+                $sheet->getStyle("{$colLetter}{$dataStart}:{$colLetter}{$lastDataRow}")
+                      ->getFill()->setFillType($Fill)->getStartColor()->setRGB($rgb);
+            }
+
+            // 3. Warna merah baris Terlambat > 0 (hanya kolom 21 = 'U', per baris yang perlu saja)
+            foreach ($redRows as $idx) {
+                $r = $dataStart + $idx;
+                $sheet->getStyle("U{$r}")->getFont()->getColor()->setRGB('C62828');
+                $sheet->getStyle("U{$r}")->getFont()->setBold(true);
+            }
+        }
 
         // #, Nama Penerbit, Kategori, Kota, Provinsi, Telp1, Telp2, Email1, Email2,
         // Total Judul,
