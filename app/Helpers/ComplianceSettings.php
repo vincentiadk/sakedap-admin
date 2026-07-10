@@ -6,14 +6,22 @@ use Illuminate\Support\Facades\Cache;
 
 class ComplianceSettings
 {
-    private const CACHE_KEY = 'compliance_setting_params';
     private const CACHE_TTL = 3600;
+
+    private static function cacheKey(): string
+    {
+        return 'compliance_setting_params_' . substr(md5(implode(',', self::PARAM_NAMES)), 0, 8);
+    }
 
     private const DEFAULTS = [
         'BatasWaktuKonfirmasiTerbitKaryaCetak' => 30,
         'BatasWaktuKonfirmasiTerbitDigital'    => 15,
         'BatasWaktuTeguranKonfirmasiTerbit'    => 30,
         'BatasMinimumKepatuhanKCKR'            => 20,
+        'AutoBlokir_Aktif'                     => '0',
+        'AutoBlokir_MulaiTanggal'              => null,
+        'RedaksiKonfirmasiSSKCKR'              => null,
+        'RedaksiKonfirmasiTanggalTerbitISBN'   => null,
     ];
 
     private const PARAM_NAMES = [
@@ -21,6 +29,10 @@ class ComplianceSettings
         'BatasWaktuKonfirmasiTerbitDigital',
         'BatasWaktuTeguranKonfirmasiTerbit',
         'BatasMinimumKepatuhanKCKR',
+        'AutoBlokir_Aktif',
+        'AutoBlokir_MulaiTanggal',
+        'RedaksiKonfirmasiSSKCKR',
+        'RedaksiKonfirmasiTanggalTerbitISBN',
     ];
 
     /**
@@ -38,7 +50,7 @@ class ComplianceSettings
      */
     public static function get(): array
     {
-        $rows = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+        $rows = Cache::remember(self::cacheKey(), self::CACHE_TTL, function () {
             $namesList = implode("','", self::PARAM_NAMES);
             return QueryAPI::get("SELECT name, value FROM settingparameters WHERE name IN ('$namesList')") ?? [];
         });
@@ -52,7 +64,11 @@ class ComplianceSettings
 
         $result = [];
         foreach (self::DEFAULTS as $key => $default) {
-            $result[$key] = isset($map[$key]) ? (int) $map[$key] : $default;
+            if (in_array($key, ['AutoBlokir_Aktif', 'AutoBlokir_MulaiTanggal', 'RedaksiKonfirmasiSSKCKR', 'RedaksiKonfirmasiTanggalTerbitISBN'])) {
+                $result[$key] = $map[$key] ?? $default;
+            } else {
+                $result[$key] = isset($map[$key]) ? (int) $map[$key] : $default;
+            }
         }
 
         return $result;

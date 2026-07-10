@@ -15,10 +15,18 @@ class ComplianceSettingController extends Controller
         'BatasWaktuKonfirmasiTerbitDigital',
         'BatasWaktuTeguranKonfirmasiTerbit',
         'BatasMinimumKepatuhanKCKR',
+        'AutoBlokir_Aktif',
+        'AutoBlokir_MulaiTanggal',
+        'RedaksiKonfirmasiSSKCKR',
+        'RedaksiKonfirmasiTanggalTerbitISBN',
     ];
 
-    private const CACHE_KEY = 'compliance_setting_params';
     private const CACHE_TTL = 3600;
+
+    private static function cacheKey(): string
+    {
+        return 'compliance_setting_params_' . substr(md5(implode(',', self::PARAM_NAMES)), 0, 8);
+    }
 
     public function __construct()
     {
@@ -46,6 +54,10 @@ class ComplianceSettingController extends Controller
             'BatasWaktuKonfirmasiTerbitDigital'    => 'required|integer|min:1',
             'BatasWaktuTeguranKonfirmasiTerbit'    => 'required|integer|min:1',
             'BatasMinimumKepatuhanKCKR'            => 'required|integer|min:0|max:100',
+            'AutoBlokir_Aktif'                     => 'required|in:0,1',
+            'AutoBlokir_MulaiTanggal'              => 'nullable|date',
+            'RedaksiKonfirmasiSSKCKR'              => 'nullable|string|max:2000',
+            'RedaksiKonfirmasiTanggalTerbitISBN'   => 'nullable|string|max:2000',
         ]);
 
         $currentDate = date('Y-m-d H:i:s');
@@ -89,7 +101,7 @@ class ComplianceSettingController extends Controller
             }
         }
 
-        Cache::forget(self::CACHE_KEY);
+        Cache::forget(self::cacheKey());
 
         return redirect()
             ->route('compliance_setting.index')
@@ -98,7 +110,7 @@ class ComplianceSettingController extends Controller
 
     private function loadParams(): array
     {
-        $rows = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+        $rows = Cache::remember(self::cacheKey(), self::CACHE_TTL, function () {
             $namesList = implode("','", self::PARAM_NAMES);
             return QueryAPI::get("SELECT name, value FROM settingparameters WHERE name IN ('$namesList')") ?? [];
         });
@@ -116,6 +128,10 @@ class ComplianceSettingController extends Controller
             'BatasWaktuKonfirmasiTerbitDigital'    => $map['BatasWaktuKonfirmasiTerbitDigital']    ?? 28,
             'BatasWaktuTeguranKonfirmasiTerbit'    => $map['BatasWaktuTeguranKonfirmasiTerbit']    ?? 30,
             'BatasMinimumKepatuhanKCKR'            => $map['BatasMinimumKepatuhanKCKR']            ?? 20,
+            'AutoBlokir_Aktif'                     => $map['AutoBlokir_Aktif']                     ?? '0',
+            'AutoBlokir_MulaiTanggal'              => $map['AutoBlokir_MulaiTanggal']              ?? null,
+            'RedaksiKonfirmasiSSKCKR'              => $map['RedaksiKonfirmasiSSKCKR']              ?? null,
+            'RedaksiKonfirmasiTanggalTerbitISBN'   => $map['RedaksiKonfirmasiTanggalTerbitISBN']   ?? null,
         ];
     }
 }

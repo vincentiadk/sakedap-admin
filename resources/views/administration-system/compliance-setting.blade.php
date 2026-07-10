@@ -1,3 +1,5 @@
+@include('layouts.components.summernote')
+
 <div class="page-header page-header-light shadow-sm mb-4">
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
@@ -181,6 +183,127 @@
                 </div>
             </div>
 
+            {{-- ── Auto Blokir ─────────────────────────────────────────────── --}}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header border-bottom bg-dark bg-opacity-10">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="ph-lock-simple text-dark fs-5"></i>
+                            <h6 class="mb-0 fw-semibold">Auto Blokir Otomatis</h6>
+                        </div>
+                        <small class="text-muted">
+                            Kendali on/off dan tanggal mulai untuk fitur auto blokir penerbit via scheduler.
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4 align-items-start">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Status Auto Blokir</label>
+                                <div class="d-flex gap-3 mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="AutoBlokir_Aktif" id="autoblokir_1"
+                                            value="1" {{ ($params['AutoBlokir_Aktif'] == '1') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="autoblokir_1">
+                                            <span class="badge bg-success bg-opacity-10 text-success px-2">Aktif</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="AutoBlokir_Aktif" id="autoblokir_0"
+                                            value="0" {{ ($params['AutoBlokir_Aktif'] != '1') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="autoblokir_0">
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-2">Tidak Aktif</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    Jika tidak aktif, scheduler tetap berjalan tapi tidak melakukan perubahan apapun.
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Mulai Berlaku</label>
+                                <input type="date" class="form-control @error('AutoBlokir_MulaiTanggal') is-invalid @enderror"
+                                    name="AutoBlokir_MulaiTanggal"
+                                    value="{{ old('AutoBlokir_MulaiTanggal', $params['AutoBlokir_MulaiTanggal'] ?? '') }}">
+                                @error('AutoBlokir_MulaiTanggal')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted d-block mt-1">
+                                    Kosongkan jika langsung berlaku saat diaktifkan.
+                                </small>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                @php
+                                    $isAktif    = ($params['AutoBlokir_Aktif'] ?? '0') == '1';
+                                    $mulai      = $params['AutoBlokir_MulaiTanggal'] ?? null;
+                                    $sudahMulai = !$mulai || date('Y-m-d') >= $mulai;
+                                @endphp
+                                <div class="alert mb-0 py-2 px-3 w-100
+                                    {{ $isAktif && $sudahMulai ? 'alert-success' : ($isAktif ? 'alert-warning' : 'alert-secondary') }}"
+                                    style="font-size:.82rem">
+                                    <i class="ph-info me-1"></i>
+                                    @if($isAktif && $sudahMulai)
+                                        Auto blokir <strong>sedang berjalan</strong>.
+                                    @elseif($isAktif && !$sudahMulai)
+                                        Aktif, mulai <strong>{{ \Carbon\Carbon::parse($mulai)->isoFormat('D MMM Y') }}</strong>.
+                                    @else
+                                        Auto blokir <strong>tidak aktif</strong>.
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Redaksi Notifikasi ───────────────────────────────────────── --}}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header border-bottom bg-info bg-opacity-10">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="ph-bell text-info fs-5"></i>
+                            <h6 class="mb-0 fw-semibold text-info">Redaksi Notifikasi Sistem</h6>
+                        </div>
+                        <small class="text-muted">
+                            Teks peringatan yang ditampilkan di dashboard penerbit. Kosongkan untuk tidak menampilkan.
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-archive-box me-1 text-info"></i>
+                                    Notifikasi Konfirmasi SS KCKR
+                                    <span class="text-muted fw-normal ms-1" style="font-size:.8rem">(RedaksiKonfirmasiSSKCKR)</span>
+                                </label>
+                                <textarea id="RedaksiKonfirmasiSSKCKR" name="RedaksiKonfirmasiSSKCKR"
+                                    >{{ old('RedaksiKonfirmasiSSKCKR', $params['RedaksiKonfirmasiSSKCKR'] ?? '') }}</textarea>
+                                @error('RedaksiKonfirmasiSSKCKR')
+                                    <div class="text-danger mt-1" style="font-size:.85rem">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">
+                                    Ditampilkan untuk penerbit yang memiliki tagihan KCKR belum disetor.
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="ph-calendar-blank me-1 text-info"></i>
+                                    Notifikasi Konfirmasi Tanggal Terbit ISBN
+                                    <span class="text-muted fw-normal ms-1" style="font-size:.8rem">(RedaksiKonfirmasiTanggalTerbitISBN)</span>
+                                </label>
+                                <textarea id="RedaksiKonfirmasiTanggalTerbitISBN" name="RedaksiKonfirmasiTanggalTerbitISBN"
+                                    >{{ old('RedaksiKonfirmasiTanggalTerbitISBN', $params['RedaksiKonfirmasiTanggalTerbitISBN'] ?? '') }}</textarea>
+                                @error('RedaksiKonfirmasiTanggalTerbitISBN')
+                                    <div class="text-danger mt-1" style="font-size:.85rem">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">
+                                    Ditampilkan untuk penerbit yang memiliki ISBN belum dikonfirmasi tanggal terbitnya.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- ── Ringkasan Konfigurasi ────────────────────────────────────── --}}
             <div class="col-12">
                 <div class="card border-0 shadow-sm bg-light">
@@ -239,4 +362,27 @@ function updateThresholdBar(val) {
     document.getElementById('thresholdLabel').textContent = val + '%';
     document.getElementById('thresholdHint').textContent  = val + '%';
 }
+
+$(function() {
+    var summernoteConfig = {
+        height: 200,
+        lang: 'id-ID',
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['link']],
+            ['view', ['codeview']],
+        ],
+    };
+
+    $('#RedaksiKonfirmasiSSKCKR').summernote(summernoteConfig);
+    $('#RedaksiKonfirmasiTanggalTerbitISBN').summernote(summernoteConfig);
+
+    // Pastikan konten summernote ter-sync ke textarea sebelum form submit
+    $('form').on('submit', function() {
+        $('#RedaksiKonfirmasiSSKCKR').val($('#RedaksiKonfirmasiSSKCKR').summernote('code'));
+        $('#RedaksiKonfirmasiTanggalTerbitISBN').val($('#RedaksiKonfirmasiTanggalTerbitISBN').summernote('code'));
+    });
+});
 </script>
