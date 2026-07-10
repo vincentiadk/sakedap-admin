@@ -310,7 +310,7 @@ class DashboardComplianceController extends Controller
 
             } else {
                 // ── Logika s.d 2025: berbasis createdate ───────────────────
-                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol) {
+                $cached = Cache::remember($cacheKey, 3600, function() use ($conn, $start_date, $end_date, $whereProvinsi, $kckrCol, $minPct) {
                     $query = "
                         SELECT
                             CASE
