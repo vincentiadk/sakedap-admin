@@ -2,6 +2,14 @@
 
 use Illuminate\Support\Facades\Schedule;
 
+Schedule::command('app:release-review-lock')
+    ->dailyAt('23:00')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground()
+    ->evenInMaintenanceMode();
+
 Schedule::command('app:auto-block-publisher-kckr')
     ->dailyAt('00:00')
     ->timezone('Asia/Jakarta')
