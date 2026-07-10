@@ -47,7 +47,7 @@
                                 <i class="ph-user-circle me-1"></i>
                                 Pelaksana Serah
                             </label>
-                            <input type="text" class="form-control" name="executor" id="executor" placeholder="Cari pelaksana serah">
+                            <select class="form-select" name="executor" id="executor" data-placeholder="Semua Pelaksana"></select>
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
@@ -276,12 +276,18 @@
             }, {
                 minimumInputLength: 0
             });
+
+            select2Serverside('#executor', 'executor');
         } else {
             select2Serverside('#province_id', 'location', {
                 for: 'province',
                 province_id: '{{ session("province_id") }}',
             }, {
                 minimumInputLength: 0
+            });
+
+            select2Serverside('#executor', 'executor', {
+                province_id: '{{ session("province_id") }}',
             });
         }
 

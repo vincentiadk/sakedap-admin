@@ -43,7 +43,7 @@ class BillISBNController extends Controller
         }
 
         if ($request->executor) {
-            $filter['nama_penerbit'] = $request->executor;
+            $filter['penerbit_id'] = $request->executor;
         }
 
         if ($request->title) {
