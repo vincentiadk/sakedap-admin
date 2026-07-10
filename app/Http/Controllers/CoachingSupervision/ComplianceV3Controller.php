@@ -436,8 +436,10 @@ class ComplianceV3Controller extends Controller
             if ($filterStatus === 'belum_terbit') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL";
             if ($filterStatus === 'sudah_kckr')   $searchWhere .= " AND PI.$kc IS NOT NULL";
             if ($filterStatus === 'belum_kckr')   $searchWhere .= " AND PI.$kc IS NULL";
-            if ($filterHutang  === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > $dlTerbit";
-            if ($filterTeguran === 'ya') $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + $teguran)";
+            if ($filterHutang  === 'ya')    $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > $dlTerbit";
+            if ($filterHutang  === 'tidak') $searchWhere .= " AND $is2026 AND NOT (PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > $dlTerbit)";
+            if ($filterTeguran === 'ya')    $searchWhere .= " AND $is2026 AND PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + $teguran)";
+            if ($filterTeguran === 'tidak') $searchWhere .= " AND $is2026 AND NOT (PI.TANGGAL_TERBIT IS NULL AND PI.$kc IS NULL AND SYSDATE > ($dlTerbit + $teguran))";
             if ($filterTerlambat === 'ya') {
                 $searchWhere .= " AND (
                     ($isPre26 AND ((PI.$kc IS NOT NULL AND PI.$kc > ($dlKckrV1)) OR (PI.$kc IS NULL AND SYSDATE > ($dlKckrV1))))
@@ -544,9 +546,14 @@ class ComplianceV3Controller extends Controller
                 'search_judul', 'search_isbn', 'kckr_mode',
             ]) . ':' . $page;
 
-            $cached = Cache::remember($pageKey, 3600, function() use ($conn, $fromJoin, $searchWhere, $selectCols, $page, $perPage, $kckrCol) {
+            // TTL lebih pendek untuk filter aktif agar hasil tidak stale
+            $hasActiveFilter = $filterStatus || $filterJenis || $filterHutang || $filterTeguran || $filterTerlambat || $searchJudul || $searchIsbn;
+            $pageTtl = $hasActiveFilter ? 120 : 3600;
+
+            $cached = Cache::remember($pageKey, $pageTtl, function() use ($conn, $fromJoin, $searchWhere, $selectCols, $page, $perPage, $kckrCol) {
                 $countSql  = str_replace('RECEIVED_DATE_KCKR', $kckrCol, "SELECT COUNT(*) as TOTAL $fromJoin $searchWhere");
                 $countRes  = odbc_exec($conn, $countSql);
+                if (!$countRes) throw new \RuntimeException('Count query error: ' . odbc_errormsg($conn));
                 $total    = (int) (odbc_fetch_object($countRes)->TOTAL ?? 0);
                 $lastPage = max(1, (int) ceil($total / $perPage));
                 $page     = min($page, $lastPage);
@@ -561,6 +568,7 @@ class ComplianceV3Controller extends Controller
                     ) WHERE RN > $offset
                 ");
                 $result = odbc_exec($conn, $sql);
+                if (!$result) throw new \RuntimeException('Page query error: ' . odbc_errormsg($conn));
                 $titles = [];
                 while ($row = odbc_fetch_object($result)) {
                     $titles[] = (array) $row;
@@ -587,7 +595,7 @@ class ComplianceV3Controller extends Controller
             return view('compliance_v3.detail', compact(
                 'penerbit', 'titles', 'dateFilter', 'kategoriLabel',
                 'summary', 'total', 'page', 'perPage', 'lastPage', 'filters',
-                'kckrMode', 'minPct'
+                'kckrMode', 'minPct', 'settings', 'teguran'
             ));
 
         } catch (\Exception $e) {

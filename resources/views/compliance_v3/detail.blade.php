@@ -161,6 +161,35 @@
     </div>
     @endif
 
+    {{-- Catatan perhitungan kepatuhan --}}
+    @php
+        $dlCetak   = $settings['BatasWaktuKonfirmasiTerbitKaryaCetak'] ?? 30;
+        $dlDigital = $settings['BatasWaktuKonfirmasiTerbitDigital']    ?? 15;
+    @endphp
+    <div class="alert alert-light border py-2 px-3 mb-3" style="font-size:.78rem;line-height:1.6">
+        <div class="fw-semibold text-secondary mb-1" style="font-size:.72rem;letter-spacing:.04em;text-transform:uppercase">📋 Cara Perhitungan</div>
+        <div class="row g-3">
+            <div class="col-auto">
+                <span class="badge bg-secondary me-1">2026+</span>
+                <strong>Tagihan KCKR</strong> dihitung dari ISBN yang sudah konfirmasi terbit
+                (<code>TANGGAL_TERBIT</code> terisi) tapi belum setor KCKR.
+                &nbsp;|&nbsp;
+                <strong>Deadline terbit</strong>: karya cetak <strong>{{ $dlCetak }}</strong> hari,
+                digital <strong>{{ $dlDigital }}</strong> hari sejak tanggal daftar ISBN.
+                &nbsp;|&nbsp;
+                <strong>Lewat teguran</strong>: lewat deadline terbit + <strong>{{ $teguran }}</strong> hari.
+            </div>
+            <div class="col-auto">
+                <span class="badge" style="background:#6c757d" class="me-1">Pra-2026</span>
+                <strong>Tagihan KCKR</strong> dihitung dari semua ISBN yang belum setor KCKR,
+                tanpa perlu konfirmasi terbit terlebih dahulu.
+                &nbsp;|&nbsp;
+                <strong>Deadline KCKR</strong>: penerbit pemerintah &amp; karya cetak <strong>3 bulan</strong>,
+                karya rekam <strong>12 bulan</strong> sejak tanggal daftar ISBN.
+            </div>
+        </div>
+    </div>
+
     {{-- Filter --}}
     @php
         $fType  = $dateFilter['type'];
@@ -238,14 +267,16 @@
                     <label class="form-label form-label-sm mb-1">Hutang Terbit</label>
                     <select class="form-select form-select-sm" name="filter_hutang">
                         <option value="">Semua</option>
-                        <option value="ya" {{ $filters['filterHutang']==='ya' ? 'selected' : '' }}>Ada Hutang (2026+)</option>
+                        <option value="ya"    {{ $filters['filterHutang']==='ya'    ? 'selected' : '' }}>Ada Hutang (2026+)</option>
+                        <option value="tidak" {{ $filters['filterHutang']==='tidak' ? 'selected' : '' }}>Tidak Ada Hutang (2026+)</option>
                     </select>
                 </div>
                 <div class="col-auto">
                     <label class="form-label form-label-sm mb-1">Lewat Teguran</label>
                     <select class="form-select form-select-sm" name="filter_teguran">
                         <option value="">Semua</option>
-                        <option value="ya" {{ $filters['filterTeguran']==='ya' ? 'selected' : '' }}>Lewat Teguran (2026+)</option>
+                        <option value="ya"    {{ $filters['filterTeguran']==='ya'    ? 'selected' : '' }}>Lewat Teguran (2026+)</option>
+                        <option value="tidak" {{ $filters['filterTeguran']==='tidak' ? 'selected' : '' }}>Belum Lewat (2026+)</option>
                     </select>
                 </div>
                 <div class="col-auto">
@@ -277,6 +308,21 @@
             </form>
         </div>
     </div>
+
+    {{-- Info filter 2026+ --}}
+    @php
+        $filterTegActive = ($filters['filterHutang'] || $filters['filterTeguran']);
+        $periodEnd = $dateFilter['end'] ?? date('Y-m-d');
+        $periodIncludes2026 = $periodEnd >= '2026-01-01';
+    @endphp
+    @if($filterTegActive && !$periodIncludes2026)
+    <div class="alert alert-warning py-2 mb-2">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        Filter <strong>Hutang Terbit</strong> dan <strong>Lewat Teguran</strong> hanya berlaku untuk data 2026+.
+        Periode yang dipilih (<strong>{{ $dateFilter['start'] }} – {{ $dateFilter['end'] }}</strong>) tidak mencakup 2026,
+        sehingga hasil filter akan kosong. Ubah periode agar mencakup tahun 2026.
+    </div>
+    @endif
 
     {{-- Tabel Judul --}}
     <div class="card shadow-sm">
