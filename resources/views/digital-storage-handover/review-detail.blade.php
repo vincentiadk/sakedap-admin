@@ -8,6 +8,12 @@
         <div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page-header">
             <div class="d-sm-flex align-items-center mb-3 mb-lg-0 ms-lg-3">
                 <div class="d-inline-flex mt-3 mt-sm-0">
+                    @if($isKdtValid)
+                    <span class="badge bg-success fs-6 me-2 px-3 py-2">
+                        <i class="ph-check-circle me-1"></i>
+                        KDT Tervalidasi
+                    </span>
+                    @endif
                     <button type="button" class="btn btn-secondary me-2" onclick="lookupCatalogHistory('E_COLLECTIONS', {{ $collection->ID }})">
                         <i class="ph-books me-1"></i>
                         Histori E-Collection
@@ -29,6 +35,16 @@
     <div class="alert alert-danger d-none" id="validation-element">
         <ul class="mb-0" id="validation-data"></ul>
     </div>
+    @if($isKdtValid)
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="ph-seal-check fs-5 flex-shrink-0"></i>
+        <div>
+            <strong>KDT telah tervalidasi.</strong>
+            Data bibliografi dikunci untuk menjaga konsistensi katalog.
+            Hanya <strong>Keterangan Fisik</strong> dan <strong>Kategori</strong> yang masih dapat diedit.
+        </div>
+    </div>
+    @endif
     <form id="form-data">
         <div class="card">
             <div class="card-header d-flex align-items-center">
@@ -75,11 +91,12 @@
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Meta Data</h5>
                     </div>
+                    @php $kdtLock = $isKdtValid ? 'disabled' : ''; @endphp
                     <div class="card-body">
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-select" name="worksheet_id" id="worksheet_id" readonly>
+                                <select class="form-select" name="worksheet_id" id="worksheet_id" readonly {{ $kdtLock }}>
                                     @if($collection->WORKSHEET_ID)
                                         @foreach($worksheet as $w)
                                             @if($collection->WORKSHEET_ID == $w->ID)
@@ -95,7 +112,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <textarea name="title" class="form-control" id="title" rows="5" placeholder="....................">{{ $collection->TITLE ?? $collection->TITLE_ORI }}</textarea>
+                                <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................." {{ $kdtLock }}>{{ $collection->TITLE ?? $collection->TITLE_ORI }}</textarea>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -114,10 +131,29 @@
                                 </div>
                             </div>
                         </div>
+                        @if($collection->CODE_TYPE == 1)
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">
+                                Status ISBN <span class="text-danger fw-bold">*</span>
+                                @if($isbnDepositStatus === 'sesuai')
+                                    <span class="badge bg-success ms-1">Sesuai</span>
+                                @elseif($isbnDepositStatus === 'tidak_sesuai')
+                                    <span class="badge bg-danger ms-1">Tidak Sesuai</span>
+                                @endif
+                            </label>
+                            <div class="col-md-10">
+                                <select class="form-select" name="isbn_deposit_status" id="isbn_deposit_status">
+                                    <option value="">-- Belum Ditandai --</option>
+                                    <option value="sesuai" {{ ($isbnDepositStatus === 'sesuai' || $isbnDepositStatus === null) ? 'selected' : '' }}>✓ ISBN Sesuai</option>
+                                    <option value="tidak_sesuai" {{ $isbnDepositStatus === 'tidak_sesuai' ? 'selected' : '' }}>✗ ISBN Tidak Sesuai</option>
+                                </select>
+                            </div>
+                        </div>
+                        @endif
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-select" name="city_id" id="city_id">
+                                <select class="form-select" name="city_id" id="city_id" {{ $kdtLock }}>
                                     <option value="{{ $collection->KABUPATEN_ID }}" selected>
                                         {{ $collection->NAMAPROPINSI }} -> {{ $collection->NAMAKAB }}
                                     </option>
@@ -127,7 +163,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Media <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id">
+                                <select class="form-select select2-basic" name="collection_media_id" id="collection_media_id" {{ $kdtLock }}>
                                     <option value=""></option>
                                     @foreach($media as $m)
                                         <option value="{{ $m->ID }}" {{ $collection->COLLECTION_MEDIA_ID == $m->ID ? 'selected' : '' }}>{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
@@ -145,7 +181,7 @@
                                             Tidak Ada
                                         </label>
                                     </span>
-                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN)) readonly @endif>
+                                    <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN) || $isKdtValid) readonly @endif>
                                 </div>
                             </div>
                         </div>
@@ -159,20 +195,20 @@
                                             Tidak Ada
                                         </label>
                                     </span>
-                                    <input type="text" class="form-control" name="series" id="series" value="{{ $collection->SERIES }}" placeholder="...................." @if(empty($collection->SERIES)) readonly @endif>
+                                    <input type="text" class="form-control" name="series" id="series" value="{{ $collection->SERIES }}" placeholder="...................." @if(empty($collection->SERIES) || $isKdtValid) readonly @endif>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Waktu Terbit</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal">
+                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal" {{ $kdtLock }}>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Tanggal Terima <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="received_at" id="received_at" value="{{ Carbon::parse($collection->RECEIVED_AT)->format('Y/m/d') }}" placeholder="Pilih Tanggal">
+                                <input type="text" class="form-control" name="received_at" id="received_at" value="{{ Carbon::parse($collection->RECEIVED_AT)->format('Y/m/d') }}" placeholder="Pilih Tanggal" {{ $kdtLock }}>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -212,13 +248,13 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jilid</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="binding" id="binding" value="{{ $collection->JILID }}" placeholder="....................">
+                                <input type="text" class="form-control" name="binding" id="binding" value="{{ $collection->JILID }}" placeholder="...................." {{ $kdtLock }}>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Isi</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="content_type" id="content_type">
+                                <select class="form-select select2-basic" name="content_type" id="content_type" {{ $kdtLock }}>
                                     <option value=""></option>
                                     @foreach($contentType as $ct)
                                         <option value="{{ $ct->NAME }}" {{ ($collection->JENIS_ISI ?: 'teks') == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
@@ -229,7 +265,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Wadah</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="container_type" id="container_type">
+                                <select class="form-select select2-basic" name="container_type" id="container_type" {{ $kdtLock }}>
                                     <option value=""></option>
                                     @foreach($containerType as $ct)
                                         <option value="{{ $ct->NAME }}" {{ ($collection->JENIS_WADAH ?: 'komputer') == $ct->NAME ? 'selected' : '' }}>{{ $ct->NAME }}</option>
@@ -240,7 +276,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Media</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="media_type" id="media_type">
+                                <select class="form-select select2-basic" name="media_type" id="media_type" {{ $kdtLock }}>
                                     <option value=""></option>
                                     @foreach($mediaType as $mt)
                                         <option value="{{ $mt->NAME }}" {{ ($collection->JENIS_MEDIA ?: 'sumber daya sambung jaring') == $mt->NAME ? 'selected' : '' }}>{{ $mt->NAME }}</option>
@@ -251,7 +287,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Kelas Besar</label>
                             <div class="col-md-10">
-                                <select class="form-select select2-basic" name="big_class_id" id="big_class_id">
+                                <select class="form-select select2-basic" name="big_class_id" id="big_class_id" {{ $kdtLock }}>
                                     <option value=""></option>
                                     @foreach($bigClass as $bc)
                                         <option value="{{ $bc->ID }}" {{ $collection->KELAS_BESAR_ID == $bc->ID ? 'selected' : '' }}>{{ $bc->CLASS }} - {{ $bc->DESCRIPTION }}</option>
@@ -284,7 +320,7 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Sinopsis</label>
                             <div class="col-md-10">
-                                <textarea name="description" class="form-control" id="description" rows="5" placeholder="....................">{{ $collection->DESCRIPTION }}</textarea>
+                                <textarea name="description" class="form-control" id="description" rows="5" placeholder="...................." {{ $kdtLock }}>{{ $collection->DESCRIPTION }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -307,7 +343,7 @@
                         <h5 class="hstack gap-2 mb-0">Kontributor</h5>
                     </div>
                     <div class="card-body">
-                        <select class="form-select" name="author[]" id="author" data-placeholder="Tulis beberapa" multiple>
+                        <select class="form-select" name="author[]" id="author" data-placeholder="Tulis beberapa" multiple {{ $kdtLock }}>
                             @foreach(explode(';', ($collection->AUTHOR ?? '')) as $c)
                                 <option value="{{ $c }}" selected>{{ $c }}</option>
                             @endforeach
@@ -1149,6 +1185,14 @@
     }
 
     function submitted(param) {
+        @if($collection->CODE_TYPE == 1)
+        if (param !== 'cancel-review' && !$('#isbn_deposit_status').val()) {
+            showValidation(['Status ISBN wajib diisi sebelum menyimpan.']);
+            $('.btn-to-top button').click();
+            return;
+        }
+        @endif
+
         $.ajax({
             url: '{{ url("digital-storage-handover/review/detail/" . $collection->ID) }}?param=' + param,
             type: 'POST',

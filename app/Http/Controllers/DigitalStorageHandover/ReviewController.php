@@ -358,19 +358,28 @@ class ReviewController extends Controller
                     'status.required' => 'Status tidak boleh kosong',
                 ]);
             } else {
-                $validation = Validator::make($request->all(), [
-                    'worksheet_id' => 'required',
-                    'city_id' => 'required',
-                    'title' => 'required',
+                $rules = [
+                    'worksheet_id'        => 'required',
+                    'city_id'             => 'required',
+                    'title'               => 'required',
                     'collection_media_id' => 'required',
-                    'received_at' => 'required',
-                ], [
-                    'worksheet_id.required' => 'Jenis bahan tidak boleh kosong',
-                    'city_id.required' => 'Kota tidak boleh kosong',
-                    'title.required' => 'Judul tidak boleh kosong',
+                    'received_at'         => 'required',
+                ];
+                $messages = [
+                    'worksheet_id.required'        => 'Jenis bahan tidak boleh kosong',
+                    'city_id.required'             => 'Kota tidak boleh kosong',
+                    'title.required'               => 'Judul tidak boleh kosong',
                     'collection_media_id.required' => 'Media tidak boleh kosong',
-                    'received_at.required' => 'Tanggal terima tidak boleh kosong',
-                ]);
+                    'received_at.required'         => 'Tanggal terima tidak boleh kosong',
+                ];
+
+                if ($collection->CODE_TYPE == 1) {
+                    $rules['isbn_deposit_status']              = 'required|in:sesuai,tidak_sesuai';
+                    $messages['isbn_deposit_status.required']  = 'Status ISBN wajib diisi';
+                    $messages['isbn_deposit_status.in']        = 'Status ISBN tidak valid';
+                }
+
+                $validation = Validator::make($request->all(), $rules, $messages);
             }
 
             if ($validation->fails()) {
@@ -460,6 +469,23 @@ class ReviewController extends Controller
                         }
                     }
 
+                    // Simpan status deposit ISBN jika koleksi ber-ISBN dan ada nilai yang dikirim
+                    if ($collection->CODE_TYPE == 1 && $request->filled('isbn_deposit_status')) {
+                        $isbnNoSave = trim(preg_replace('/[\s\-]/', '', $collection->CODE ?? ''));
+                        if ($isbnNoSave) {
+                            $piRow = QueryAPI::get("
+                                select id from penerbit_isbn
+                                where REPLACE(TRIM(isbn_no), '-', '') = '$isbnNoSave'
+                                  and rownum = 1
+                            ", true);
+                            if ($piRow && $piRow->ID) {
+                                QueryAPI::update('penerbit_isbn', $piRow->ID, [
+                                    'isbn_deposit_status' => $request->isbn_deposit_status,
+                                ]);
+                            }
+                        }
+                    }
+
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 
                     if ($updateCollection) {
@@ -539,6 +565,23 @@ class ReviewController extends Controller
                 e_collection_problems.collection_id = $id
         ");
 
+        $isKdtValid        = false;
+        $isbnDepositStatus = null;
+        $penerbitIsbnId    = null;
+        $isbnNo = preg_replace('/[\s\-]/', '', $collection->CODE ?? '');
+        if ($isbnNo && $collection->CODE_TYPE == 1) {
+            $penerbitIsbnRow = QueryAPI::get("
+                select pi.id, pi.isbn_deposit_status, pt.is_kdt_valid
+                from penerbit_isbn pi
+                left join penerbit_terbitan pt on pt.id = pi.penerbit_terbitan_id
+                where REPLACE(TRIM(pi.isbn_no), '-', '') = '$isbnNo'
+                  and rownum = 1
+            ", true);
+            $isKdtValid        = ($penerbitIsbnRow->IS_KDT_VALID        ?? 0)    == 1;
+            $isbnDepositStatus = $penerbitIsbnRow->ISBN_DEPOSIT_STATUS   ?? null;
+            $penerbitIsbnId    = $penerbitIsbnRow->ID                    ?? null;
+        }
+
         return view('layouts.index', [
             'data' => [
                 'worksheet' => QueryAPI::get("select * from worksheets where category = '$this->worksheetCategory'") ?? [],
@@ -555,6 +598,9 @@ class ReviewController extends Controller
                 'collectionCopy' => $collectionCopy,
                 'collectionProblemHistory' => $collectionProblemHistory,
                 'physicalDescription' => json_decode($collection->PHYSICAL_DESCRIPTION ?? ''),
+                'isKdtValid' => $isKdtValid,
+                'isbnDepositStatus' => $isbnDepositStatus,
+                'penerbitIsbnId' => $penerbitIsbnId,
                 'content' => 'digital-storage-handover.review-detail',
                 'plugins' => [
                     'select2',
