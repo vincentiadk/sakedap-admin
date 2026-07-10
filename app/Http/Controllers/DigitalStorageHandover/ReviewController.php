@@ -328,7 +328,7 @@ class ReviewController extends Controller
         } else {
             QueryAPI::update('e_collections', $collection->ID, [
                 'review_by' => session('username')
-            ]);
+            ], false);
 
             $collection = QueryAPI::get($sqlCollection, true);
         }
