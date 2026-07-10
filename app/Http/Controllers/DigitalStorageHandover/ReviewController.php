@@ -343,7 +343,7 @@ class ReviewController extends Controller
             if ($request->param == 'cancel-review') {
                 QueryAPI::update('e_collections', $collection->ID, [
                     'review_by' => null
-                ]);
+                ], false);
 
                 return response()->json([
                     'code' => 200,
