@@ -81,7 +81,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
-                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................."></textarea>
+                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................." readonly>{{ $collection->TITLE }}</textarea>
                     </div>
                 </div>
                 <div class="form-group row">

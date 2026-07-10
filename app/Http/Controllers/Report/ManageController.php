@@ -135,51 +135,13 @@ class ManageController extends Controller
             ) ri ON ri.eu_id = e.received_by
         ";
 
-        $baseQuery = "
-            SELECT c.id, e.deposit, c.title, c.createdate, c.isbn, c.controlnumber
-            FROM catalogs c
-            JOIN worksheets w ON w.id = c.worksheet_id
-            LEFT JOIN penerbit p ON p.id = c.penerbit_id
-            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-            LEFT JOIN users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN (
-                SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname
-                FROM e_users eu
-                JOIN e_admins ea ON ea.id = eu.userable_id
-                WHERE eu.userable_type = 'admins'
-                GROUP BY eu.id
-            ) ri ON ri.eu_id = e.received_by
-            $whereClause
-        ";
-
-        // 2. Query Deduplikasi (Satu-satunya sumber kebenaran)
-        // Kita gunakan ID unik per deposit di sini
-        $deduplicatedQuery = "
-            SELECT id FROM (
-                SELECT id, 
-                    ROW_NUMBER() OVER (
-                        PARTITION BY 
-                            COALESCE(TO_CHAR(deposit), 'NULL_' || id) || '|' ||
-                            COALESCE(title, 'NULL') || '|' ||
-                            COALESCE(TO_CHAR(createdate, 'YYYYMMDDHH24MISS'), 'NULL') || '|' ||
-                            COALESCE(isbn, 'NULL') || '|' ||
-                            COALESCE(controlnumber, 'NULL')
-                        ORDER BY id DESC
-                    ) as rn
-                FROM ($baseQuery)
-            ) WHERE rn = 1
-        ";
-
         // --- Execution ---
         $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs c JOIN worksheets w ON w.id = c.worksheet_id WHERE NVL(c.isdelete,0) = 0 AND w.category = '$this->worksheetCategory' AND c.edeposit_col_id IS NOT NULL", true)->TOTAL ?? 0;
-        
 
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(*) AS total 
-            FROM ($deduplicatedQuery)
+            SELECT COUNT(DISTINCT c.id) AS total
+            $filterJoins
+            $whereClause
         ", true)->TOTAL ?? 0;
 
         $endRow = $start + $length;
@@ -188,9 +150,10 @@ class ManageController extends Controller
             FROM (
                 SELECT ROWNUM AS rnum, id
                 FROM (
-                    SELECT id 
-                    FROM ($deduplicatedQuery)
-                    ORDER BY id DESC
+                    SELECT c.id
+                    $filterJoins
+                    $whereClause
+                    ORDER BY c.id DESC
                 )
                 WHERE ROWNUM <= $endRow
             )
