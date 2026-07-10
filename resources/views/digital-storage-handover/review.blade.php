@@ -124,6 +124,17 @@
                                 <input type="number" class="form-control" name="year" id="year" placeholder="Cari berdasarkan tahun">
                             </div>
                         </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-lock-simple me-1"></i>
+                                Status Penerbit
+                            </label>
+                            <select class="form-select" name="status_penerbit" id="status_penerbit">
+                                <option value="">Semua</option>
+                                <option value="0">Aktif</option>
+                                <option value="1">Blokir</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -193,6 +204,10 @@
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Update
+                            </th>
+                            <th class="text-center text-nowrap" style="min-width: 100px">
+                                <i class="ph-lock-simple me-1"></i>
+                                Status Penerbit
                             </th>
                         </tr>
                     </thead>
@@ -272,6 +287,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
             ],

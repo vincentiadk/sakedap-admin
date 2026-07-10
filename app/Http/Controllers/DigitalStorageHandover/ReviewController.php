@@ -46,6 +46,7 @@ class ReviewController extends Controller
             'e_collections.code',
             'e_collections.created_at',
             'e_collections.updated_at',
+            'penerbit.is_lock',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -93,6 +94,14 @@ class ReviewController extends Controller
 
         if ($request->media_id) {
             $whereCondition[] = "e_collections.collection_media_id = " . (int) $request->media_id;
+        }
+
+        if ($request->status_penerbit !== null && $request->status_penerbit !== '') {
+            if ($request->status_penerbit == '1') {
+                $whereCondition[] = "penerbit.is_lock = 1";
+            } else {
+                $whereCondition[] = "(penerbit.is_lock IS NULL OR penerbit.is_lock != 1)";
+            }
         }
 
         if ($request->date) {
@@ -171,6 +180,7 @@ class ReviewController extends Controller
                                 e_collections.*,
                                 penerbit.id as id_penerbit,
                                 penerbit.name as name_penerbit,
+                                penerbit.is_lock as penerbit_is_lock,
                                 collectionmedias.name as name_media
                             from
                                 e_collections
@@ -209,6 +219,11 @@ class ReviewController extends Controller
                     </a>
                 ';
 
+                $isLock = $val->PENERBIT_IS_LOCK ?? null;
+                $statusBadge = ($isLock == 1)
+                    ? '<span class="badge bg-danger bg-opacity-10 text-danger">Blokir</span>'
+                    : '<span class="badge bg-success bg-opacity-10 text-success">Aktif</span>';
+
                 $data[] = [
                     $start + 1,
                     $action,
@@ -219,6 +234,7 @@ class ReviewController extends Controller
                     $val->CODE,
                     \Carbon\Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
                     \Carbon\Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    $statusBadge,
                 ];
 
                 $start++;
