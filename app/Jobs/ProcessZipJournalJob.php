@@ -169,14 +169,31 @@ class ProcessZipJournalJob implements ShouldQueue
                     if (!$hash) {
                         throw new \Exception('Gagal membuat hash file');
                     }
-                    // contoh cek ke database / API dulu
-                    $existingFile = QueryAPI::get("
-                        SELECT *  FROM CATALOGFILES
-                        WHERE hash = '" . ($hash) . "'
-                    ", true);
-                    
-                    if ($existingFile) {
-                        throw new \Exception('File yang sama sudah pernah diupload.');
+
+                    // Sanitize hash: trim whitespace, convert to lowercase for consistency
+                    $hash = trim(strtolower($hash));
+
+                    // Cek duplikasi di CATALOGFILES
+                    try {
+                        $existingFile = QueryAPI::get("
+                            SELECT * FROM CATALOGFILES
+                            WHERE LOWER(TRIM(hash)) = '" . ($hash) . "'
+                        ", true);
+
+                        if ($existingFile) {
+                            throw new \Exception('File yang sama sudah pernah diupload.');
+                        }
+                    } catch (\Throwable $hashCheckError) {
+                        // Log detail error saat cek hash
+                        Log::channel('zip-upload')->error('Hash duplicate check error', [
+                            'history_id' => $this->historyId,
+                            'row_number' => $rowNumber,
+                            'file_name' => $fileName,
+                            'hash' => $hash,
+                            'hash_length' => strlen($hash),
+                            'error' => $hashCheckError->getMessage(),
+                        ]);
+                        throw $hashCheckError;
                     }
                     $payload = $this->mapExcelRowToEcollectionsPayload($item, $history, $penerbit);
 
@@ -185,11 +202,12 @@ class ProcessZipJournalJob implements ShouldQueue
                     if (!$createdCollection || !isset($createdCollection->ID)) {
                         throw new \Exception('Gagal menyimpan ke tabel e_collections');
                     }
+                    // Upload file dengan hash yang sudah di-sanitize
                     $uploadResult = QueryAPI::uploadFile([
                         'type' => 'konten_digital',
                         'id' => $createdCollection->ID,
                         'status' => 1,
-                        'hash' => $hash,
+                        'hash' => $hash,  // Already trimmed & lowercased
                         'mime' => $file->getMimeType(),
                         'filesize' => $file->getSize(),
                         'method' => 7,

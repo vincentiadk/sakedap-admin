@@ -18,14 +18,20 @@ class DownloadController extends Controller
             $filename = Redis::hget('download:' . $param, 'filename');
 
             if ($status !== 'completed' || empty($filename)) {
-                abort(404, 'File laporan belum siap atau tidak ditemukan.');
+                return redirect('report/download')->with('error', 'File belum siap, silakan tunggu dan coba lagi.');
             }
 
-            if (!Storage::exists($filename)) {
-                abort(404, 'File tidak ditemukan di server.');
+            $path = Redis::hget('download:' . $param, 'path');
+
+            if ($path && Storage::disk('public')->exists($path)) {
+                return Storage::disk('public')->download($path, $filename);
+            } elseif ($filename && Storage::disk('public')->exists($filename)) {
+                return Storage::disk('public')->download($filename);
+            } elseif ($filename && Storage::exists($filename)) {
+                return Storage::download($filename);
             }
 
-            return Storage::download($filename);
+            abort(404, 'File tidak ditemukan di server.');
         }
 
         $userId = session('id');
@@ -46,6 +52,8 @@ class DownloadController extends Controller
                 $typeText = 'Laporan Promosi';
             } else if ($types == 'report-service') {
                 $typeText = 'Laporan Pelayanan';
+            } else if ($types == 'compliance-v3') {
+                $typeText = 'Kepatuhan KCKR';
             } else {
                 $typeText = 'N/A';
             }

@@ -4,10 +4,13 @@ namespace App\Http\Controllers\CoachingSupervision;
 
 use App\Helpers\ComplianceSettings;
 use App\Http\Controllers\Controller;
+use App\Jobs\ComplianceV3ExportJob;
 use App\Traits\OracleHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Compliance V3 – Gabungan: pra-2026 + 2026+
@@ -290,13 +293,15 @@ class ComplianceV3Controller extends Controller
             $dateWhere     = $this->buildDateWhere($dateFilter['start'], $dateFilter['end']);
             $provinceWhere = $this->buildProvinceWhere($provinceIds);
 
+            $perPage  = min(1000, max(1, (int) $request->get('per_page', self::PER_PAGE)));
+
             $cacheKey = $this->makeCacheKeyV3($request, 'compliance_v3:data')
-                . ':' . $page . ':' . strtolower($sortCol) . ':' . strtolower($sortDir);
+                . ':' . $page . ':' . $perPage . ':' . strtolower($sortCol) . ':' . strtolower($sortDir);
 
             $cached = Cache::remember($cacheKey, 3600, function() use (
                 $conn, $dateWhere, $provinceWhere, $kategori, $search,
                 $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi,
-                $page, $sortCol, $sortDir, $kckrCol
+                $page, $perPage, $sortCol, $sortDir, $kckrCol
             ) {
                 $baseQuery = $this->buildBaseQuery(
                     $dateWhere, $provinceWhere, $kategori, $search,
@@ -308,7 +313,6 @@ class ComplianceV3Controller extends Controller
                 $sortCol = in_array(strtoupper($sortCol), $allowed) ? strtoupper($sortCol) : 'NAME';
                 $sortDir = strtoupper($sortDir) === 'DESC' ? 'DESC' : 'ASC';
 
-                $perPage = self::PER_PAGE;
                 $offset  = ($page - 1) * $perPage;
                 $end     = $offset + $perPage;
 
@@ -606,7 +610,7 @@ class ComplianceV3Controller extends Controller
     public function export(Request $request)
     {
         set_time_limit(0);
-        ini_set('memory_limit', '512M');
+        ini_set('memory_limit', '1024M');
 
         try {
         $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
@@ -807,14 +811,15 @@ class ComplianceV3Controller extends Controller
         }
         $sheet->getRowDimension($r1)->setRowHeight(22);
 
-        // Kumpulkan semua data dulu lalu tulis sekaligus
-        $allRows  = [];
-        $redRows  = [];
-        $no       = 1;
+        $dataStart = $r1 + 1;
+        $allRows   = [];
+        $redRows   = [];
+        $no        = 1;
+
         while ($row = odbc_fetch_object($result)) {
             $jenis     = ($row->JENIS_MEDIA === '1') ? 'Karya Cetak' : 'Karya Rekam';
             $terlambat = $row->TERLAMBAT_KCKR ?? 'Tidak';
-            if ($terlambat === 'Ya') $redRows[] = count($allRows);
+            if ($terlambat === 'Ya') $redRows[] = $no - 1;
             $allRows[] = [
                 $no++,
                 $row->NAMA_PENERBIT ?? '',
@@ -828,32 +833,29 @@ class ComplianceV3Controller extends Controller
                 $row->KEPENG        ?? '',
                 $row->JILID_VOLUME  ?? '',
                 $jenis,
-                $row->TGL_DAFTAR      ? date('d/m/Y', strtotime($row->TGL_DAFTAR))      : '',
-                $row->TANGGAL_TERBIT  ? date('d/m/Y', strtotime($row->TANGGAL_TERBIT))  : '',
-                $row->STATUS_TERBIT   ?? '',
-                $row->DEADLINE_KCKR   ? date('d/m/Y', strtotime($row->DEADLINE_KCKR))   : '',
-                $row->TGL_KCKR        ? date('d/m/Y', strtotime($row->TGL_KCKR))        : '',
-                $row->STATUS_KCKR     ?? '',
+                $row->TGL_DAFTAR     ? date('d/m/Y', strtotime($row->TGL_DAFTAR))     : '',
+                $row->TANGGAL_TERBIT ? date('d/m/Y', strtotime($row->TANGGAL_TERBIT)) : '',
+                $row->STATUS_TERBIT  ?? '',
+                $row->DEADLINE_KCKR  ? date('d/m/Y', strtotime($row->DEADLINE_KCKR))  : '',
+                $row->TGL_KCKR       ? date('d/m/Y', strtotime($row->TGL_KCKR))       : '',
+                $row->STATUS_KCKR    ?? '',
                 $terlambat,
             ];
         }
 
-        $dataStart = $r1 + 1;
-        $rowNum    = $dataStart + count($allRows);
-
         if ($allRows) {
-            // Tulis semua data sekaligus
             $sheet->fromArray($allRows, null, 'A' . $dataStart);
+            unset($allRows);
 
-            $lastDataRow = $dataStart + count($allRows) - 1;
+            $lastRow = $dataStart + $no - 2;
 
-            // Border + alignment seluruh area (1 pemanggilan)
-            $sheet->getStyle("A{$dataStart}:S{$lastDataRow}")->applyFromArray([
+            // Satu kali style untuk seluruh range
+            $sheet->getStyle("A{$dataStart}:S{$lastRow}")->applyFromArray([
                 'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'DDDDDD']]],
                 'alignment' => ['vertical' => $AlignV],
             ]);
 
-            // Warna merah kolom Terlambat (col 19 = 'S') per baris yang perlu
+            // Warna merah hanya untuk baris terlambat (jumlahnya kecil)
             foreach ($redRows as $idx) {
                 $r = $dataStart + $idx;
                 $sheet->getStyle("S{$r}")->getFont()->getColor()->setRGB('C62828');
@@ -861,19 +863,11 @@ class ComplianceV3Controller extends Controller
             }
         }
 
-        // Lebar kolom tetap agar tidak melampaui layar
-        // #, Nama Penerbit, Kota, Telp1, Telp2, Email1, Email2,
-        // ISBN, Judul, Kepengarangan, Jilid, Jenis Media,
-        // Tgl Daftar, Tgl Terbit, Status Terbit, Deadline KCKR, Tgl KCKR, Status KCKR, Terlambat
         $colWidths = [5, 28, 14, 16, 16, 26, 26, 16, 38, 28, 10, 14, 12, 12, 14, 14, 12, 12, 10];
-        $wrapCols  = [2, 6, 7, 9, 10]; // Nama Penerbit, Email1, Email2, Judul, Kepengarangan
         foreach ($colWidths as $i => $w) {
-            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
-            $sheet->getColumnDimension($colLetter)->setWidth($w);
-            if (in_array($i + 1, $wrapCols)) {
-                $sheet->getStyle($colLetter . ($r1 + 1) . ':' . $colLetter . ($rowNum - 1))
-                    ->getAlignment()->setWrapText(true);
-            }
+            $sheet->getColumnDimension(
+                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1)
+            )->setWidth($w);
         }
         $sheet->freezePane('A' . ($r1 + 1));
     }
@@ -1054,6 +1048,190 @@ class ComplianceV3Controller extends Controller
         } catch (\Exception $e) {
             return response($e->getMessage(), 500);
         }
+    }
+
+    // ─── Background-job export ───────────────────────────────────────────────
+
+    public function queueExport(Request $request)
+    {
+        $jobID  = uniqid('cv3_', true);
+        $params = $request->only([
+            'filter_type','filter_year','filter_month','start_date','end_date',
+            'province_ids','kckr_mode','kategori','search',
+            'filter_hutang','filter_teguran','filter_kckr','persentase','with_judul',
+        ]);
+
+        $userId  = session('id');
+        $userKey = "user:$userId:download";
+
+        Redis::lpush($userKey, $jobID);
+        Redis::hset('download:' . $jobID, 'status', 'queued');
+        Redis::hset('download:' . $jobID, 'type',   'compliance-v3');
+        Redis::hset('download:' . $jobID, 'date',   date('Y-m-d H:i:s'));
+        Redis::expire('download:' . $jobID, 3600 * 6);
+
+        ComplianceV3ExportJob::dispatch($jobID, $params)->onQueue('report');
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['jobID' => $jobID]);
+        }
+
+        return redirect()->route('compliance_v3.index')->with(['success' => 'Data kepatuhan sedang diproses. Cek hasilnya di <a href="/report/download" class="alert-link">halaman Download</a>.']);
+    }
+
+    public function exportStatus(string $jobID)
+    {
+        $status   = Redis::hget('download:' . $jobID, 'status')   ?? 'not_found';
+        $filename = Redis::hget('download:' . $jobID, 'filename') ?? null;
+        $progress = json_decode(Redis::hget('download:' . $jobID, 'progress') ?? '{}', true);
+
+        return response()->json([
+            'status'   => $status,
+            'filename' => $filename,
+            'pct'      => $progress['pct']   ?? 0,
+            'label'    => $progress['label'] ?? 'Menunggu antrian...',
+        ]);
+    }
+
+    public function buildExportFile(string $jobID, array $params): void
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
+        $request = new Request($params);
+
+        $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+        $provinceIds   = $ctx['provinceIds'];
+        $kckrCol       = $ctx['kckrCol'];
+        $kckrMode      = $ctx['kckrMode'];
+
+        $conn          = $this->getOracleConnection();
+        $kategori      = $request->kategori      ?? null;
+        $search        = trim($request->search   ?? '');
+        $filterHutang  = $request->filter_hutang  ?? null;
+        $filterTeguran = $request->filter_teguran ?? null;
+        $filterKckr    = $request->filter_kckr    ?? null;
+        $persentase    = $request->persentase     ?? null;
+
+        $dateFilter    = $this->parseDateFilter($request);
+        $dateWhere     = $this->buildDateWhere($dateFilter['start'], $dateFilter['end']);
+        $provinceWhere = $this->buildProvinceWhere($provinceIds);
+        $baseQuery     = $this->buildBaseQuery(
+            $dateWhere, $provinceWhere, $kategori, $search,
+            $filterHutang, $filterTeguran, $filterKckr, $persentase, null, $kckrCol
+        );
+
+        $label   = $this->buildFilterLabel($request, $provinceIds);
+        $periode = str_replace(['/', ' ', '–', '-'], ['', '_', '-', '_'], $label['periode']);
+
+        $judulExport = $kckrMode === 'provinsi'
+            ? 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PROVINSI'
+            : 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PERPUSNAS';
+        if (!$ctx['isPerpusnas']) {
+            $provName    = session('province_name') ?? 'Provinsi';
+            $judulExport = 'LAPORAN KEPATUHAN PENERBIT KCKR — ' . strtoupper($provName);
+        }
+
+        $safeFilename = 'ComplianceV3_' . ($kckrMode === 'provinsi' ? 'Provinsi_' : '') . $periode . '_' . date('d-m-Y') . '.xlsx';
+        $storagePath  = 'download/compliance-v3-' . $jobID . '.xlsx';
+
+        $exportKey = $this->makeCacheKeyV3($request, 'compliance_v3:export');
+        $minPct    = (int) $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
+
+        $progress = fn(int $pct, string $label) => Redis::hset('download:' . $jobID, 'progress', json_encode(['pct' => $pct, 'label' => $label]));
+
+        $progress(10, 'Mengambil data dari database...');
+
+        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $baseQuery, $minPct, $progress) {
+            // Count dulu untuk progress tracking
+            $countRes = odbc_exec($conn, "SELECT COUNT(*) as TOTAL FROM ($baseQuery)");
+            $total    = (int) (odbc_fetch_object($countRes)->TOTAL ?? 0);
+
+            $result = odbc_exec($conn, "SELECT * FROM ($baseQuery) ORDER BY NAME ASC");
+            $data   = [];
+            $fetched = 0;
+            while ($row = odbc_fetch_object($result)) {
+                $lewat     = (int) $row->LEWAT_TEGURAN;
+                $terlambat = (int) $row->TERLAMBAT_KCKR;
+                $pct       = (float) $row->PERSENTASE_KCKR;
+                $jml2026   = (int) $row->JUDUL_2026_PLUS;
+
+                $rekomendasi = ($terlambat > 0 && $pct <= $minPct)
+                    ? 'Blokir SS KCKR'
+                    : ($lewat > 0 ? 'Blokir Konfirmasi Terbit' : 'Baik');
+
+                $data[] = [
+                    $row->NAME, $row->KATEGORI, $row->CITY, $row->PROVINSI,
+                    $row->TELP1  ?? '', $row->TELP2  ?? '',
+                    $row->EMAIL1 ?? '', $row->EMAIL2 ?? '',
+                    (int) $row->TOTAL_JUDUL,
+                    $jml2026 > 0 ? (int) $row->JUDUL_TERBIT       : '-',
+                    $jml2026 > 0 ? (int) $row->JUDUL_BELUM_TERBIT : '-',
+                    $jml2026 > 0 ? (int) $row->HUTANG_TERBIT      : '-',
+                    $jml2026 > 0 ? $lewat                          : '-',
+                    (int) $row->SUDAH_KCKR,
+                    (int) $row->SUDAH_KCKR_CETAK,
+                    (int) $row->SUDAH_KCKR_REKAM,
+                    (int) $row->BELUM_KCKR,
+                    (int) $row->BELUM_KCKR_CETAK,
+                    (int) $row->BELUM_KCKR_REKAM,
+                    $terlambat, $pct, $rekomendasi,
+                ];
+
+                $fetched++;
+                if ($total > 0 && $fetched % 50 === 0) {
+                    $fetchPct = (int) (10 + ($fetched / $total) * 50);
+                    $progress($fetchPct, "Memproses data $fetched / $total penerbit...");
+                }
+            }
+            return $data;
+        });
+
+        $progress(60, 'Membuat file Excel...');
+
+        $i  = 1;
+        $sp = $this->makeSpreadsheetV3(function($add) use ($rows, &$i) {
+            foreach ($rows as $r) {
+                $add(array_merge([$i++], $r));
+            }
+        }, 'Ringkasan', $judulExport, $label, 23);
+
+        if ($request->boolean('with_judul')) {
+            $progress(75, 'Menambahkan sheet daftar judul...');
+            $this->addJudulSheet($sp, $conn, $baseQuery, $dateWhere, $kckrCol, $judulExport, $label);
+        }
+
+        $progress(88, 'Menyimpan file...');
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'cv3_');
+        $writer   = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($sp);
+        $writer->save($tempFile);
+
+        Storage::disk('public')->put($storagePath, file_get_contents($tempFile));
+        unlink($tempFile);
+
+        $progress(100, 'Selesai!');
+
+        Redis::hset('download:' . $jobID, 'status',   'completed');
+        Redis::hset('download:' . $jobID, 'filename', $safeFilename);
+        Redis::hset('download:' . $jobID, 'path',     $storagePath);
+    }
+
+    public function exportDownload(string $jobID)
+    {
+        $status = Redis::hget('download:' . $jobID, 'status');
+        if ($status !== 'completed') {
+            abort(404, 'File belum siap.');
+        }
+
+        $path     = Redis::hget('download:' . $jobID, 'path');
+        $filename = Redis::hget('download:' . $jobID, 'filename') ?? 'compliance_v3.xlsx';
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File tidak ditemukan di server.');
+        }
+
+        return Storage::disk('public')->download($path, $filename);
     }
 
     // ─── Spreadsheet builder ─────────────────────────────────────────────────

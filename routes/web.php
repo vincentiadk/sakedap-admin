@@ -353,7 +353,10 @@ Route::middleware('authentication')->group(function () {
         Route::prefix('compliance-v3')->group(function () {
             Route::get('/',                   'ComplianceV3Controller@index')->name('compliance_v3.index');
             Route::get('/data',               'ComplianceV3Controller@data')->name('compliance_v3.data');
-            Route::get('/export',             'ComplianceV3Controller@export')->name('compliance_v3.export');
+            Route::get('/export',                'ComplianceV3Controller@export')->name('compliance_v3.export');
+            Route::post('/queue-export',         'ComplianceV3Controller@queueExport')->name('compliance_v3.queue_export');
+            Route::get('/export-status/{jobID}', 'ComplianceV3Controller@exportStatus')->name('compliance_v3.export_status');
+            Route::get('/export-download/{jobID}', 'ComplianceV3Controller@exportDownload')->name('compliance_v3.export_download');
             Route::get('/detail/{id}',        'ComplianceV3Controller@detail')->name('compliance_v3.detail');
             Route::get('/detail/{id}/export', 'ComplianceV3Controller@exportDetail')->name('compliance_v3.detail.export');
         });

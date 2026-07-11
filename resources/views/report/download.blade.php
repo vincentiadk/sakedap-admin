@@ -8,6 +8,12 @@
     </div>
 </div>
 <div class="content pt-0">
+    @if(session('error'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-clock me-1"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
     <div class="card border-0 shadow-sm">
         <div class="card-header border-bottom">
             <div class="d-flex align-items-center justify-content-between">

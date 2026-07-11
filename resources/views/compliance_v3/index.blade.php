@@ -3,6 +3,13 @@
 @section('content')
 <div class="container-fluid px-4">
 
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+        <i class="bi bi-check-circle me-1"></i> {!! session('success') !!}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     {{-- Header --}}
     @php
         $isPerpusnas      = $isPerpusnas ?? true;
@@ -289,10 +296,10 @@
                 <a id="btnBackDashboard" href="{{ route('dashboard_compliance') }}" class="btn btn-sm btn-outline-success btn-light">
                     <i class="fas fa-chart-pie"></i> Dashboard
                 </a>
-                <button class="btn btn-sm btn-light btn-outline-dark" onclick="doExport(0)" title="Export ringkasan penerbit saja">
+                <button class="btn btn-sm btn-light btn-outline-dark" onclick="doExportDatatable(0)" title="Export ringkasan penerbit saja">
                     <i class="bi bi-file-earmark-excel"></i> Export Penerbit
                 </button>
-                <button class="btn btn-sm btn-success" onclick="doExport(1)" title="Export ringkasan penerbit + daftar judul lengkap (kepengarangan)">
+                <button class="btn btn-sm btn-success" onclick="doExportDatatable(1)" title="Export ringkasan penerbit + daftar judul lengkap">
                     <i class="bi bi-file-earmark-spreadsheet"></i> Export + Judul
                 </button>
             </div>
@@ -540,31 +547,162 @@ document.querySelectorAll('th.sortable').forEach(th => {
 });
 
 function doExport(withDetail = 0) {
-    const token   = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    const params  = buildParams(1);
+    const params = buildParams(1);
     params.delete('page'); params.delete('sort_col'); params.delete('sort_dir');
-    params.set('download_token', token);
     params.set('with_judul', withDetail);
-    const url     = '{{ route("compliance_v3.export") }}?' + params.toString();
-    const modal   = new bootstrap.Modal(document.getElementById('exportModal'));
-    const bar     = document.getElementById('exportProgress');
-    const status  = document.getElementById('exportStatus');
-    let pct = 0;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("compliance_v3.queue_export") }}';
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden'; csrf.name = '_token'; csrf.value = csrfToken;
+    form.appendChild(csrf);
+
+    for (const [key, val] of params.entries()) {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = key; inp.value = val;
+        form.appendChild(inp);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function doExportDatatable(withDetail = 0) {
+    const params = buildParams(1);
+    params.delete('page'); params.delete('sort_col'); params.delete('sort_dir');
+
+    const modalEl   = document.getElementById('modal-datatable-download');
+    const modalProg = new bootstrap.Modal(modalEl);
+    const bar       = document.getElementById('modal-datatable-download-progress');
+    const countEl   = document.getElementById('modal-datatable-download-progress-count');
+    const statusEl  = document.getElementById('modal-datatable-download-status');
+    const spinner   = modalEl.querySelector('.spinner-border');
+
+    function setUI(label) {
+        statusEl.textContent = label || 'Proses Download...';
+        spinner.classList.add('text-success'); spinner.classList.remove('text-danger'); spinner.style.display = '';
+        document.getElementById('btn-resume-download')?.classList.add('d-none');
+        document.getElementById('btn-retry-download')?.classList.add('d-none');
+        document.getElementById('btn-cancel-download')?.classList.remove('d-none');
+        bar.style.width = '0%'; bar.textContent = '0%';
+        bar.classList.add('bg-success'); bar.classList.remove('bg-info', 'bg-danger');
+    }
+
+    // ── Semua export pakai background job, poll progress di modal ──────────────
+    params.set('with_judul', withDetail);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+    countEl.textContent = 'Memproses di server...';
+    setUI('Mengirim permintaan...');
+    document.getElementById('btn-cancel-download')?.classList.add('d-none');
+    modalProg.show();
+
+    fetch('{{ route("compliance_v3.queue_export") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+        body: params.toString(),
+    })
+    .then(r => r.json())
+    .then(({ jobID }) => {
+        const statusUrl   = '{{ url("coaching-supervision/compliance-v3/export-status") }}/' + jobID;
+        const downloadUrl = '{{ url("coaching-supervision/compliance-v3/export-download") }}/' + jobID;
+
+        statusEl.textContent = 'Diproses di server...';
+
+        const poll = setInterval(() => {
+            fetch(statusUrl).then(r => r.json()).then(({ status: s, pct: p, label: l }) => {
+                if (p > 0) { bar.style.width = p + '%'; bar.textContent = p + '%'; }
+                statusEl.textContent = s === 'queued' ? 'Menunggu worker...' : (l || 'Diproses di server...');
+                countEl.textContent = p > 0 ? (p + '%') : '';
+
+                if (s === 'completed') {
+                    clearInterval(poll);
+                    bar.style.width = '100%'; bar.textContent = '100%';
+                    statusEl.textContent = 'Selesai! File sedang diunduh.';
+                    window.location.href = downloadUrl;
+                    setTimeout(() => modalProg.hide(), 2000);
+                } else if (s === 'failed') {
+                    clearInterval(poll);
+                    bar.classList.replace('bg-success', 'bg-danger');
+                    statusEl.textContent = 'Gagal. Silakan coba lagi.';
+                }
+            });
+        }, 2000);
+
+        setTimeout(() => clearInterval(poll), 600000);
+    })
+    .catch(() => {
+        statusEl.textContent = 'Gagal menghubungi server.';
+        spinner.style.display = 'none';
+    });
+}
+
+function _doExportLegacy(withDetail = 0) {
+    // kept for reference only — not called
+    const params = buildParams(1);
+    params.delete('page'); params.delete('sort_col'); params.delete('sort_dir');
+    params.set('with_judul', withDetail);
+
+    const modal  = new bootstrap.Modal(document.getElementById('exportModal'));
+    const bar    = document.getElementById('exportProgress');
+    const status = document.getElementById('exportStatus');
+    let pct = 5;
+    bar.style.width = pct + '%';
+    status.textContent = 'Mengirim permintaan...';
     modal.show();
-    window.location.href = url;
-    const animInterval = setInterval(() => {
-        if (pct < 85) { pct += 2; bar.style.width = pct + '%'; }
-    }, 400);
-    const pollInterval = setInterval(() => {
-        if (document.cookie.includes('dl_' + token)) {
-            clearInterval(animInterval); clearInterval(pollInterval);
-            bar.style.width = '100%';
-            status.textContent = 'Selesai! File sedang diunduh.';
-            setTimeout(() => modal.hide(), 1200);
-            document.cookie = 'dl_' + token + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-        }
-    }, 800);
-    setTimeout(() => { clearInterval(animInterval); clearInterval(pollInterval); modal.hide(); }, 300000);
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    fetch('{{ route("compliance_v3.queue_export") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': csrfToken },
+        body: params.toString(),
+    })
+    .then(r => r.json())
+    .then(({ jobID }) => {
+        const statusUrl   = '{{ route("compliance_v3.export_status", ["jobID" => "__JOB__"]) }}'.replace('__JOB__', jobID);
+        const downloadUrl = '{{ route("compliance_v3.export_download", ["jobID" => "__JOB__"]) }}'.replace('__JOB__', jobID);
+
+        const pollInterval = setInterval(() => {
+            fetch(statusUrl).then(r => r.json()).then(({ status: s, pct: p, label: l }) => {
+                if (p > 0) {
+                    bar.style.width = p + '%';
+                    bar.textContent = p + '%';
+                }
+                if (s === 'queued') {
+                    status.textContent = 'Menunggu antrian worker...';
+                } else if (s === 'processing' && p === 0) {
+                    status.textContent = 'Memulai proses export...';
+                } else {
+                    status.textContent = l || 'Sedang diproses...';
+                }
+
+                if (s === 'completed') {
+                    clearInterval(pollInterval);
+                    bar.style.width = '100%';
+                    bar.textContent = '100%';
+                    status.textContent = 'Selesai! File sedang diunduh.';
+                    window.location.href = downloadUrl;
+                    setTimeout(() => modal.hide(), 2000);
+                } else if (s === 'failed') {
+                    clearInterval(pollInterval);
+                    bar.classList.add('bg-danger');
+                    bar.classList.remove('bg-primary');
+                    status.textContent = 'Gagal membuat file. Silakan coba lagi.';
+                    setTimeout(() => modal.hide(), 3000);
+                }
+            });
+        }, 2000);
+
+        setTimeout(() => { clearInterval(pollInterval); modal.hide(); }, 600000);
+    })
+    .catch(() => {
+        bar.classList.replace('bg-primary', 'bg-danger');
+        status.textContent = 'Gagal menghubungi server. Silakan coba lagi.';
+        setTimeout(() => modal.hide(), 3000);
+    });
 }
 
 function resetFilter() {
