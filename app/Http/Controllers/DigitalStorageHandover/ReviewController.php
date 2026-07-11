@@ -373,7 +373,7 @@ class ReviewController extends Controller
                     'received_at.required'         => 'Tanggal terima tidak boleh kosong',
                 ];
 
-                if ($collection->CODE_TYPE == 1) {
+                if ($collection->CODE_TYPE === '1') {
                     $rules['isbn_deposit_status']              = 'required|in:sesuai,tidak_sesuai';
                     $messages['isbn_deposit_status.required']  = 'Status ISBN wajib diisi';
                     $messages['isbn_deposit_status.in']        = 'Status ISBN tidak valid';
@@ -470,7 +470,7 @@ class ReviewController extends Controller
                     }
 
                     // Simpan status deposit ISBN jika koleksi ber-ISBN dan ada nilai yang dikirim
-                    if ($collection->CODE_TYPE == 1 && $request->filled('isbn_deposit_status')) {
+                    if ($collection->CODE_TYPE === '1' && $request->filled('isbn_deposit_status')) {
                         $isbnNoSave = trim(preg_replace('/[\s\-]/', '', $collection->CODE ?? ''));
                         if ($isbnNoSave) {
                             $piRow = QueryAPI::get("
@@ -569,7 +569,7 @@ class ReviewController extends Controller
         $isbnDepositStatus = null;
         $penerbitIsbnId    = null;
         $isbnNo = preg_replace('/[\s\-]/', '', $collection->CODE ?? '');
-        if ($isbnNo && $collection->CODE_TYPE == 1) {
+        if ($isbnNo && $collection->CODE_TYPE === '1') {
             $penerbitIsbnRow = QueryAPI::get("
                 select pi.id, pi.isbn_deposit_status, pt.is_kdt_valid
                 from penerbit_isbn pi
