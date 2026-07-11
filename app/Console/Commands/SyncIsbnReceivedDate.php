@@ -167,6 +167,7 @@ class SyncIsbnReceivedDate extends Command
                 }
 
                 if ($res) {
+                    odbc_free_result($res);
                     // Insert historydata per baris dalam chunk ini
                     foreach ($chunk as $row) {
                         $ptId     = (int) $row->PENERBIT_TERBITAN_ID;
@@ -192,6 +193,8 @@ class SyncIsbnReceivedDate extends Command
                         $resHist = odbc_exec($conn, $sqlHist);
                         if (!$resHist) {
                             $this->warn("  historydata gagal (penerbit_terbitan_id=$ptId): " . odbc_errormsg($conn));
+                        } else {
+                            odbc_free_result($resHist);
                         }
 
                         $done++;
