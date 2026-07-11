@@ -168,6 +168,10 @@
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Validasi
                             </th>
+                            <th class="text-nowrap" style="min-width: 180px">
+                                <i class="ph-user me-1"></i>
+                                Diterima Oleh
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -249,6 +253,7 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-wrap' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

@@ -140,10 +140,13 @@ class AcceptController extends Controller
                         catalogs.penerbit_id, catalogs.edeposit_col_id,
                         e_collections.received_at as received_at_e_collection,
                         e_collections.is_need_verify as inv_e_collection,
+                        e_collections.received_by_name as received_username,
+                        u_recv.fullname as received_fullname,
                         penerbit.name as name_penerbit,
                         collectionmedias.name as name_media,
                         e_collections.code
                     $baseJoins
+                    LEFT JOIN users u_recv ON u_recv.username = e_collections.received_by_name
                     $whereClause
                     $orderBy
                 ) data
@@ -164,6 +167,11 @@ class AcceptController extends Controller
                 $action .= ' <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="verification(' . $val->EDEPOSIT_COL_ID . ')"><i class="ph-warning me-1"></i> Verifikasi</a>';
             }
 
+            $receivedBy = $val->RECEIVED_USERNAME ?? '-';
+            if (!empty($val->RECEIVED_FULLNAME)) {
+                $receivedBy .= ' — ' . $val->RECEIVED_FULLNAME;
+            }
+
             $data[] = [
                 $start + 1,
                 $action,
@@ -172,6 +180,7 @@ class AcceptController extends Controller
                 $val->NAME_MEDIA,
                 $val->CODE,
                 \Carbon\Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
+                $receivedBy,
             ];
             $start++;
         }
