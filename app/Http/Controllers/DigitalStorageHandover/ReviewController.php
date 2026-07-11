@@ -470,7 +470,7 @@ class ReviewController extends Controller
                     }
 
                     // Simpan status deposit ISBN jika koleksi ber-ISBN dan ada nilai yang dikirim
-                    if ($collection->CODE_TYPE === '1' && $request->filled('isbn_deposit_status')) {
+                    if ((int) $collection->CODE_TYPE === 1 && $request->filled('isbn_deposit_status')) {
                         $isbnNoSave = trim(preg_replace('/[\s\-]/', '', $collection->CODE ?? ''));
                         if ($isbnNoSave) {
                             $piRow = QueryAPI::get("
@@ -481,7 +481,7 @@ class ReviewController extends Controller
                             if ($piRow && $piRow->ID) {
                                 QueryAPI::update('penerbit_isbn', $piRow->ID, [
                                     'isbn_deposit_status' => $request->isbn_deposit_status,
-                                ]);
+                                ], false);
                             }
                         }
                     }
