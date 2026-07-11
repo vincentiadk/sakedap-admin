@@ -327,7 +327,8 @@ class ReviewController extends Controller
             }
         } else {
             QueryAPI::update('e_collections', $collection->ID, [
-                'review_by' => session('username')
+                'review_by' => session('username'),
+                'review_by_name' => session('username'),
             ], false);
 
             $collection = QueryAPI::get($sqlCollection, true);
@@ -342,7 +343,8 @@ class ReviewController extends Controller
 
             if ($request->param == 'cancel-review') {
                 QueryAPI::update('e_collections', $collection->ID, [
-                    'review_by' => null
+                    'review_by' => null,
+                    'review_by_name' => null,
                 ], false);
 
                 return response()->json([
@@ -452,20 +454,30 @@ class ReviewController extends Controller
 
                             $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
                             $updateData['received_by'] = $sessionId;
+                            $updateData['received_by_name'] = session('username');
                             $updateData['validated_at'] = $currentDateTime;
                             $updateData['validated_by'] = $sessionId;
+                            $updateData['validated_by_name'] = session('username');
                         } else if ($isStatus3) {
                             $updateData['revision_count'] = ($revisionCount ?: 0) + 1;
                             $updateData['problem'] = $request->problem;
                             $updateData['rejected_at'] = date('Y-m-d H:i:s');
+                            $updateData['rejected_by'] = $sessionId;
+                            $updateData['rejected_by_name'] = session('username');
                         } else if ($isStatus5) {
                             $updateData['reject'] = $request->reject;
                             $updateData['rejected_at'] = date('Y-m-d H:i:s');
+                            $updateData['rejected_by'] = $sessionId;
+                            $updateData['rejected_by_name'] = session('username');
                         } else {
                             $updateData['received_at'] = null;
                             $updateData['received_by'] = null;
+                            $updateData['received_by_name'] = null;
                             $updateData['validated_at'] = null;
                             $updateData['validated_by'] = null;
+                            $updateData['validated_by_name'] = null;
+                            $updateData['rejected_by'] = null;
+                            $updateData['rejected_by_name'] = null;
                         }
                     }
 
