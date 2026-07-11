@@ -72,6 +72,13 @@ return [
             'level' => 'debug',
         ],
 
+        'schedule' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/schedule.log'),
+            'days' => 30,
+            'level' => 'debug',
+        ],
+
         'report' => [
             'driver' => 'daily',
             'path' => storage_path('logs/report.log'),

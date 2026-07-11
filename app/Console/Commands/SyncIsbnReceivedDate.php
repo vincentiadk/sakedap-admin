@@ -134,12 +134,19 @@ class SyncIsbnReceivedDate extends Command
             $bar->start();
 
             foreach ($chunks as $chunk) {
-                // Build MERGE INTO
-                $unionRows = [];
+                // Build MERGE INTO — deduplikasi per ID, ambil ACCEPT_DATE terbaru
+                $deduped = [];
                 foreach ($chunk as $row) {
-                    $id   = (int) $row->PENERBIT_ISBN_ID;
-                    $tgl  = date('Y-m-d', strtotime($row->ACCEPT_DATE));
-                    $unionRows[] = "SELECT $id AS id, '$tgl' AS tgl FROM DUAL";
+                    $id  = (int) $row->PENERBIT_ISBN_ID;
+                    $tgl = strtotime($row->ACCEPT_DATE);
+                    if (!isset($deduped[$id]) || $tgl > $deduped[$id]['ts']) {
+                        $deduped[$id] = ['ts' => $tgl, 'tgl' => date('Y-m-d', $tgl)];
+                    }
+                }
+
+                $unionRows = [];
+                foreach ($deduped as $id => $val) {
+                    $unionRows[] = "SELECT $id AS id, '{$val['tgl']}' AS tgl FROM DUAL";
                 }
 
                 $union = implode(" UNION ALL ", $unionRows);
