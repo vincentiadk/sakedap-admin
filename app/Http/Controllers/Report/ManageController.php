@@ -7,6 +7,7 @@ use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Jobs\ExcelDownloadBackgroundJob;
@@ -29,19 +30,19 @@ class ManageController extends Controller
 
             $payload = [
                 'is_not_center_branch' => !Main::isSuperAdmin(),
-                'title' => $request->title,
+                'title'       => $request->title,
                 'executor_id' => $request->executor_id,
                 'province_id' => $request->province_id,
-                'year' => $request->year,
-                'media_id' => $request->media_id,
-                'date' => $request->date
+                'year'        => $request->year,
+                'media_id'    => $request->media_id,
+                'date'        => $request->date,
+                'fullname'    => $request->fullname,
             ];
 
             Redis::lpush($userKey, $jobID);
-            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-manage', $payload)
-                ->onQueue('report');
+            ExcelDownloadBackgroundJob::dispatch($jobID, 'report-manage', $payload)->onQueue('report');
 
-            return redirect('report/manage')->with(['success' => 'Data laporan sedang diproses']);
+            return redirect('report/manage')->with(['success' => 'Data laporan sedang diproses, cek di halaman Download']);
         }
 
         return view('layouts.index', [
@@ -74,7 +75,7 @@ class ManageController extends Controller
             'c.edition', 'e.serial', 'c.deweyno', 'c.volume', 'e.code', 'e.deposit',
             'c.controlnumber', 'c.publishyear', 'c.copyright', 'c.preview', 'c.akses',
             'c.author', 'TO_CHAR(e.price)', 
-            "CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END",
+            'e.received_by_name',
             'c.callnumber',
         ];
 
@@ -104,7 +105,7 @@ class ManageController extends Controller
 
         if ($request->fullname) {
             $fnReq = strtoupper(str_replace("'", "''", $request->fullname));
-            $whereCondition[] = "UPPER(CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END) LIKE '%$fnReq%'";
+            $whereCondition[] = "(UPPER(e.received_by_name) LIKE '%$fnReq%' OR UPPER(u.fullname) LIKE '%$fnReq%')";
         }
 
         if ($search) {
@@ -116,7 +117,7 @@ class ManageController extends Controller
 
         $whereClause = " WHERE " . implode(' AND ', $whereCondition);
 
-        // --- Joins & Base Query ---
+        // Full joins for detail query
         $filterJoins = "
             FROM catalogs c
             JOIN worksheets w ON w.id = c.worksheet_id
@@ -125,23 +126,38 @@ class ManageController extends Controller
             LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
             LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
             LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-            LEFT JOIN users u_receive ON u_receive.id = e.received_by
-            LEFT JOIN (
-                SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname
-                FROM e_users eu
-                JOIN e_admins ea ON ea.id = eu.userable_id
-                WHERE eu.userable_type = 'admins'
-                GROUP BY eu.id
-            ) ri ON ri.eu_id = e.received_by
         ";
+
+        // Slim joins for ID/count query — only tables referenced in WHERE
+        // Start from e_collections when filtering by received_by_name so Oracle uses the index first
+        $needsPenerbit  = (bool) $request->executor_id;
+        $needsKabupaten = (bool) $request->province_id;
+        $needsCollMedia = (bool) $request->media_id;
+        $needsUsers     = (bool) $request->fullname;
+
+        $slimJoins = "FROM e_collections e
+            JOIN catalogs c ON c.edeposit_col_id = e.id AND NVL(c.isdelete,0) = 0
+            JOIN worksheets w ON w.id = c.worksheet_id AND w.category = '$this->worksheetCategory'";
+        if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e.received_by_name";
+        if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit p ON p.id = c.penerbit_id";
+        if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id\n            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid";
+        if ($needsCollMedia) $slimJoins .= "\n            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id";
+
+        // Rebuild whereClause without the base conditions already in slimJoins ON clauses
+        $slimConditions = array_filter($whereCondition, fn($c) => !in_array($c, [
+            "NVL(c.isdelete,0) = 0",
+            "w.category = '$this->worksheetCategory'",
+            "c.edeposit_col_id IS NOT NULL",
+        ]));
+        $slimWhere = count($slimConditions) ? " WHERE " . implode(' AND ', $slimConditions) : "";
 
         // --- Execution ---
         $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs c JOIN worksheets w ON w.id = c.worksheet_id WHERE NVL(c.isdelete,0) = 0 AND w.category = '$this->worksheetCategory' AND c.edeposit_col_id IS NOT NULL", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             SELECT COUNT(DISTINCT c.id) AS total
-            $filterJoins
-            $whereClause
+            $slimJoins
+            $slimWhere
         ", true)->TOTAL ?? 0;
 
         $endRow = $start + $length;
@@ -150,16 +166,16 @@ class ManageController extends Controller
             FROM (
                 SELECT ROWNUM AS rnum, id
                 FROM (
-                    SELECT c.id
-                    $filterJoins
-                    $whereClause
+                    SELECT /*+ INDEX(e idx_ecol_received_by_name) */ c.id
+                    $slimJoins
+                    $slimWhere
                     ORDER BY c.id DESC
                 )
                 WHERE ROWNUM <= $endRow
             )
             WHERE rnum > $start
         ";
-
+        
         $pagedIdsData = QueryAPI::get($sqlIds);
         $finalData = [];
 
@@ -174,7 +190,8 @@ class ManageController extends Controller
                     e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection, e.created_at AS created_at_e_collection, 
                     e.received_at, e.serial AS serial_e_collection, e.price AS price_e_collection, e.article_subject AS a_subject,
                     p.id AS id_penerbit, p.name AS name_penerbit, pr.namapropinsi, kb.namakab, cm.name AS name_media,
-                    CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END AS fullname,
+                    e.received_by_name AS received_username,
+                    u.fullname AS received_fullname,
                     (SELECT MAX(cf.fileurl) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS fileurl_catalogfiles,
                     (SELECT MAX(cf.file_size) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS file_size_catalogfiles,
                     (SELECT MAX(cf.method) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS method_catalogfiles,
@@ -182,14 +199,12 @@ class ManageController extends Controller
                 FROM catalogs c
                 LEFT JOIN penerbit p ON p.id = c.penerbit_id
                 LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                LEFT JOIN users u ON u.username = e.received_by_name
                 LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
                 LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
                 LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-                LEFT JOIN users u_receive ON u_receive.id = e.received_by
-                LEFT JOIN (SELECT eu.id AS eu_id, MAX(ea.fullname) AS fullname FROM e_users eu JOIN e_admins ea ON ea.id = eu.userable_id WHERE eu.userable_type = 'admins' GROUP BY eu.id) ri ON ri.eu_id = e.received_by
                 WHERE c.id IN ($idString)
             ";
-
             $queryData = QueryAPI::get($sqlDetail) ?: [];
             $dataMap = [];
             foreach ($queryData as $row) $dataMap[$row->ID] = $row;
@@ -210,13 +225,17 @@ class ManageController extends Controller
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES ?? '', PATHINFO_EXTENSION)),
                     $val->CREATED_AT_E_COLLECTION ? \Carbon\Carbon::parse($val->CREATED_AT_E_COLLECTION)->format('d-m-Y, H:i') : '-',
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->format('d-m-Y, H:i') : '-',
-                    $val->PRICE_E_COLLECTION, $val->FULLNAME, $val->DOI_E_COLLECTION, $val->CALLNUMBER, $val->NOINDUK_DEP_CL,
+                    $val->PRICE_E_COLLECTION,
+                    ($val->RECEIVED_USERNAME ? $val->RECEIVED_USERNAME . ($val->RECEIVED_FULLNAME ? ' — ' . $val->RECEIVED_FULLNAME : '') : '-'),
+                    $val->DOI_E_COLLECTION, $val->CALLNUMBER, $val->NOINDUK_DEP_CL,
                 ];
             }
         }
 
         return response()->json(['draw' => $draw, 'recordsTotal' => $totalData, 'recordsFiltered' => $totalFiltered, 'data' => $finalData]);
     }
+
+
 
     public function detail($id)
     {

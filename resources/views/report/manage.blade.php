@@ -138,10 +138,15 @@
                         <i class="ph-list-checks me-1"></i>
                         <span id="record-count">0</span> Data
                     </span>
-                    {{-- <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-download-excel">
-                        <i class="ph-microsoft-excel-logo me-1"></i>
-                        Download Excel
-                    </button> --}}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="ph-columns me-1"></i> Kolom
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 200px; max-height: 400px; overflow-y: auto;">
+                            <p class="text-muted small px-2 mb-1">Tampilkan / Sembunyikan Kolom</p>
+                            <div id="col-toggle-list"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -491,53 +496,69 @@
                 }
             },
             columns: [
-                { orderable: true, className: 'align-middle text-center fw-semibold' },
-                { orderable: false, className: 'align-middle text-center', export: false },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle text-wrap' },
-                { orderable: true, className: 'align-middle' },
-                { orderable: true, className: 'align-middle' },
+                { orderable: true,  className: 'align-middle text-center fw-semibold' },
+                { orderable: false, className: 'align-middle text-center', visible: true },
+                { orderable: true,  className: 'align-middle', visible: false },           // ID Katalog
+                { orderable: true,  className: 'align-middle', visible: false },           // ID Pelaksana
+                { orderable: true,  className: 'align-middle text-wrap' },                 // Nama Pelaksana
+                { orderable: true,  className: 'align-middle' },                           // Periode
+                { orderable: true,  className: 'align-middle' },                           // Metode
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Provinsi
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Kota
+                { orderable: true,  className: 'align-middle text-wrap' },                 // Judul
+                { orderable: true,  className: 'align-middle text-wrap' },                 // Jenis Media
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Album
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Seri
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Edisi
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Serial
+                { orderable: true,  className: 'align-middle', visible: false },           // DDC
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Volume
+                { orderable: true,  className: 'align-middle' },                           // Kode
+                { orderable: true,  className: 'align-middle', visible: false },           // Deposit
+                { orderable: true,  className: 'align-middle', visible: false },           // INLIS
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Tahun Terbit
+                { orderable: true,  className: 'align-middle', visible: false },           // Copyright
+                { orderable: true,  className: 'align-middle', visible: false },           // Preview
+                { orderable: true,  className: 'align-middle', visible: false },           // Kunci
+                { orderable: true,  className: 'align-middle', visible: false },           // Manual
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Akses
+                { orderable: true,  className: 'align-middle text-wrap', visible: false }, // Kontributor
+                { orderable: true,  className: 'align-middle', visible: false },           // Subjek
+                { orderable: true,  className: 'align-middle', visible: false },           // Size File
+                { orderable: true,  className: 'align-middle', visible: false },           // Jenis File
+                { orderable: true,  className: 'align-middle', visible: false },           // Tgl Diserahkan
+                { orderable: true,  className: 'align-middle' },                           // Tgl Diterima
+                { orderable: true,  className: 'align-middle', visible: false },           // Harga
+                { orderable: true,  className: 'align-middle text-wrap' },                 // Diterima Oleh
+                { orderable: true,  className: 'align-middle', visible: false },           // DOI
+                { orderable: true,  className: 'align-middle', visible: false },           // NPL
+                { orderable: true,  className: 'align-middle', visible: false },           // NID
             ],
             initComplete: function (settings, json) {
                 var table = this.api();
                 const searchInput = $('div.dataTables_filter input');
 
                 searchInput.off().unbind();
-
                 searchInput.on('keyup', debounce(function () {
                     table.search(this.value).draw();
                 }, 500));
+
+                // Populate column toggle dropdown
+                var $list = $('#col-toggle-list');
+                $list.empty();
+                table.columns().every(function(i) {
+                    if (i === 0 || i === 1) return; // skip No & Aksi
+                    var col = this;
+                    var title = $(col.header()).text().trim();
+                    var checked = col.visible() ? 'checked' : '';
+                    var $item = $('<label class="dropdown-item d-flex align-items-center gap-2 py-1" style="cursor:pointer">' +
+                        '<input type="checkbox" ' + checked + ' style="cursor:pointer"> ' + title +
+                        '</label>');
+                    $item.find('input').on('change', function() {
+                        col.visible(this.checked);
+                    });
+                    $list.append($item);
+                });
 
                 updateRecordCount(json ? json.recordsFiltered : 0);
             },

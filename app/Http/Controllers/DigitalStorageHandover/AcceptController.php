@@ -44,7 +44,7 @@ class AcceptController extends Controller
         $length = intval($request->length ?? 10);
         $search = strtoupper(trim($request->search['value'] ?? ''));
 
-        // --- 1. Definisi Komponen Query (Sama untuk semua) ---
+        // --- 1. Definisi Komponen Query ---
         $baseJoins = "
             FROM catalogs
             LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id
@@ -55,8 +55,8 @@ class AcceptController extends Controller
         ";
 
         $whereCondition = [
-            "(catalogs.isdelete = 0 or catalogs.isdelete is null)", 
-            "worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'", 
+            "(catalogs.isdelete = 0 or catalogs.isdelete is null)",
+            "worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'",
             "catalogs.edeposit_col_id IS NOT NULL"
         ];
 
@@ -68,7 +68,7 @@ class AcceptController extends Controller
         if ($request->province_id) $whereCondition[] = "kabupaten.propinsiid = " . (int)$request->province_id;
         if ($request->year) $whereCondition[] = "catalogs.publishyear = " . (int)$request->year;
         if ($request->media_id) $whereCondition[] = "e_collections.collection_media_id = " . (int)$request->media_id;
-        
+
         if ($request->verified) {
             if ($request->verified == 'verified') $whereCondition[] = "e_collections.is_need_verify = 0";
             else $whereCondition[] = "(e_collections.is_need_verify = 1 or e_collections.is_need_verify is null)";
@@ -79,6 +79,11 @@ class AcceptController extends Controller
             $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
             $endDate = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
             $whereCondition[] = "(e_collections.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collections.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+        }
+
+        if ($request->fullname) {
+            $fnReq = strtoupper(str_replace("'", "''", $request->fullname));
+            $whereCondition[] = "(UPPER(e_collections.received_by_name) LIKE '%$fnReq%' OR UPPER(u.fullname) LIKE '%$fnReq%')";
         }
 
         if ($search) {
@@ -92,13 +97,34 @@ class AcceptController extends Controller
 
         $whereClause = " WHERE " . implode(' AND ', $whereCondition);
 
-        // --- 2. Hitung Records (Sinkronisasi Total) ---
+        // Slim joins for count/ID query — start from e_collections, add users only when needed
+        $needsUsers     = (bool) $request->fullname;
+        $needsPenerbit  = (bool) $request->executor_id;
+        $needsKabupaten = (bool) $request->province_id;
+        $needsCollMedia = (bool) $request->media_id;
+
+        $slimJoins = "FROM e_collections
+            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'";
+        if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e_collections.received_by_name";
+        if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id";
+        if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id";
+        if ($needsCollMedia) $slimJoins .= "\n            LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id";
+
+        $slimConditions = array_filter($whereCondition, fn($c) => !in_array($c, [
+            "(catalogs.isdelete = 0 or catalogs.isdelete is null)",
+            "worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'",
+            "catalogs.edeposit_col_id IS NOT NULL",
+        ]));
+        $slimWhere = count($slimConditions) ? " WHERE " . implode(' AND ', $slimConditions) : "";
+
+        // --- 2. Hitung Records ---
         $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id WHERE (catalogs.isdelete = 0 or catalogs.isdelete is null) AND worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "' AND catalogs.edeposit_col_id is not null", true)->TOTAL ?? 0;
-        
+
         $totalFiltered = QueryAPI::get("
             SELECT COUNT(DISTINCT catalogs.id) AS total
-            $baseJoins
-            $whereClause
+            $slimJoins
+            $slimWhere
         ", true)->TOTAL ?? 0;
 
         // --- 3. Query Data (Paginasi) ---

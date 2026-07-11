@@ -87,6 +87,13 @@
                             </label>
                             <input type="number" class="form-control" name="year" id="year" placeholder="Cari tahun">
                         </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user me-1"></i>
+                                Diterima Oleh
+                            </label>
+                            <input type="text" class="form-control" name="fullname" id="fullname" placeholder="Cari username / nama penerima">
+                        </div>
                     </div>
                 </form>
             </div>
