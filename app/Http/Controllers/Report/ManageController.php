@@ -62,7 +62,7 @@ class ManageController extends Controller
         $column = [
             'c.id', null, 'c.id', 'p.id', 'p.name', 'e.received_at', 'cfr.method', 'pr.namapropinsi', 
             'kb.namakab', 'c.title', 'cm.name', 'c.album', 'c.series', 'c.edition', 'e.serial', 
-            'c.deweyno', 'c.volume', 'c.isbn', 'e.deposit', 'c.controlnumber', 'c.publishyear', 
+            'c.deweyno', 'c.volume', 'e.code', 'e.deposit', 'c.controlnumber', 'c.publishyear', 
             'c.copyright', 'c.preview', null, 'cfr.method', 'c.akses', 'c.author', null, 
             'cfr.file_size', 'cfr.fileurl', 'e.created_at', 'c.createdate', 'e.price', 'fullname', 
             'c.callnumber', 'cl.noinduk_deposit',
@@ -71,7 +71,7 @@ class ManageController extends Controller
         $searchableColumns = [
             'c.id', 'p.id', 'p.name', 'TO_CHAR(e.received_at, \'YYYY-MM-DD HH24:MI:SS\')',
             'pr.namapropinsi', 'kb.namakab', 'c.title', 'cm.name', 'c.album', 'c.series',
-            'c.edition', 'e.serial', 'c.deweyno', 'c.volume', 'c.isbn', 'e.deposit',
+            'c.edition', 'e.serial', 'c.deweyno', 'c.volume', 'e.code', 'e.deposit',
             'c.controlnumber', 'c.publishyear', 'c.copyright', 'c.preview', 'c.akses',
             'c.author', 'TO_CHAR(e.price)', 
             "CASE WHEN ri.fullname IS NOT NULL THEN CAST(ri.fullname AS VARCHAR2(255)) ELSE u_receive.fullname END",
@@ -168,8 +168,9 @@ class ManageController extends Controller
             $idString = implode(',', array_unique($pagedIds));
 
             $sqlDetail = "
-                SELECT c.id, c.title, c.album, c.series, c.edition, c.deweyno, c.volume, c.isbn, c.controlnumber, 
-                    c.publishyear, c.copyright, c.preview, c.akses, c.author, c.callnumber,
+                SELECT 
+                    c.id, c.title, c.album, c.series, c.edition, c.deweyno, c.volume, c.isbn, c.controlnumber, 
+                    c.publishyear, c.copyright, c.preview, c.akses, c.author, c.callnumber, e.code,
                     e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection, e.created_at AS created_at_e_collection, 
                     e.received_at, e.serial AS serial_e_collection, e.price AS price_e_collection, e.article_subject AS a_subject,
                     p.id AS id_penerbit, p.name AS name_penerbit, pr.namapropinsi, kb.namakab, cm.name AS name_media,
@@ -203,7 +204,7 @@ class ManageController extends Controller
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y') : '-',
                     Main::method($val->METHOD_CATALOGFILES), $val->NAMAPROPINSI, $val->NAMAKAB, $val->TITLE,
                     $val->NAME_MEDIA, $val->ALBUM, $val->SERIES, $val->EDITION, Main::serial($val->SERIAL_E_COLLECTION),
-                    $val->DEWEYNO, $val->VOLUME, $val->ISBN, $val->DEPOSIT_E_COLLECTION, $val->CONTROLNUMBER,
+                    $val->DEWEYNO, $val->VOLUME, $val->CODE, $val->DEPOSIT_E_COLLECTION, $val->CONTROLNUMBER,
                     $val->PUBLISHYEAR, $val->COPYRIGHT, $val->PREVIEW, 'Tidak', $val->METHOD_CATALOGFILES == 4 ? 'Ya' : 'Tidak',
                     Main::access($val->AKSES), $val->AUTHOR, $val->A_SUBJECT, Main::formatFileSize($val->FILE_SIZE_CATALOGFILES),
                     strtoupper(pathinfo($val->FILEURL_CATALOGFILES ?? '', PATHINFO_EXTENSION)),

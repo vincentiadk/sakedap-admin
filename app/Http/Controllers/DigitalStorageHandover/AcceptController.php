@@ -36,7 +36,7 @@ class AcceptController extends Controller
     {
         $column = [
             'catalogs.id', null, 'penerbit.name', 'catalogs.title',
-            'collectionmedias.name', 'catalogs.isbn', 'catalogs.createdate',
+            'collectionmedias.name', 'e_collections.code', 'catalogs.createdate',
         ];
 
         $draw = intval($request->draw ?? 0);
@@ -115,7 +115,8 @@ class AcceptController extends Controller
                         e_collections.received_at as received_at_e_collection,
                         e_collections.is_need_verify as inv_e_collection,
                         penerbit.name as name_penerbit,
-                        collectionmedias.name as name_media
+                        collectionmedias.name as name_media,
+                        e_collections.code
                     $baseJoins
                     $whereClause
                     $orderBy
@@ -143,7 +144,7 @@ class AcceptController extends Controller
                 $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
                 $val->TITLE,
                 $val->NAME_MEDIA,
-                $val->ISBN,
+                $val->CODE,
                 \Carbon\Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
             ];
             $start++;
