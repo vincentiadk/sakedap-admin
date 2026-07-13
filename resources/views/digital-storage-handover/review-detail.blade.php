@@ -91,7 +91,7 @@
                     <div class="card-header">
                         <h5 class="hstack gap-2 mb-0">Meta Data</h5>
                     </div>
-                    @php $kdtLock = $isKdtValid ? 'disabled' : ''; @endphp
+                    @php $kdtLock = $isKdtValid ? 'readonly' : ''; @endphp
                     <div class="card-body">
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Jenis Bahan <span class="text-danger fw-bold">*</span></label>
