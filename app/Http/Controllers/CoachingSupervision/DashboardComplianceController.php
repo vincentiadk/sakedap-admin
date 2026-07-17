@@ -431,7 +431,7 @@ class DashboardComplianceController extends Controller
             $whereProvinsi = $this->buildProvinceWhere($provinceIds);
 
             // Tentukan mode & rentang dari filter utama dashboard
-            $filterType = $request->get('filter_type', 'tahun');
+            $filterType = $request->get('filter_type', 'range');
 
             if ($filterType === 'tahun') {
                 $year      = (int) $request->get('filter_year', date('Y'));

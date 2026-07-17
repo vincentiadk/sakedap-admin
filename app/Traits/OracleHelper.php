@@ -23,19 +23,19 @@ trait OracleHelper
 
     protected function parseDateFilter(Request $request): array
     {
-        $type = $request->filter_type ?? 'tahun';
+        $type = $request->filter_type ?? 'range';
 
         if ($type === 'bulan') {
-            $year  = $request->filter_year  ?? 2026;
-            $month = $request->filter_month ?? 1;
+            $year  = $request->filter_year  ?? date('Y');
+            $month = $request->filter_month ?? date('n');
             $start = sprintf('%04d-%02d-01', $year, $month);
             $end   = date('Y-m-d', strtotime("+1 month", strtotime($start)));
         } elseif ($type === 'range') {
-            $start = $request->start_date ?? '2026-01-01';
-            $end   = $request->end_date   ?? '2026-12-31';
+            $start = $request->start_date ?? '2021-01-01';
+            $end   = $request->end_date   ?? date('Y-m-d');
             $end   = date('Y-m-d', strtotime($end . ' +1 day'));
         } else {
-            $year  = $request->filter_year ?? 2026;
+            $year  = $request->filter_year ?? date('Y');
             $start = "{$year}-01-01";
             $end   = ($year + 1) . "-01-01";
         }

@@ -130,7 +130,7 @@
     <div class="card shadow-sm mb-3" id="dashFilterCard">
         <div class="card-body py-2">
             @php
-                $ft          = $dateFilter['type'] ?? 'tahun';
+                $ft          = $dateFilter['type'] ?? 'range';
                 $filterYear  = request('filter_year', date('Y'));
                 $filterMonth = request('filter_month', date('n'));
             @endphp
@@ -140,9 +140,9 @@
                     <div class="col-auto">
                         <label class="form-label form-label-sm mb-1">Tipe Filter</label>
                         <select class="form-select form-select-sm" name="filter_type" id="dashFilterType" onchange="toggleDashFilter()">
-                            <option value="tahun" {{ $ft == 'tahun' ? 'selected' : '' }}>Per Tahun</option>
-                            <option value="bulan" {{ $ft == 'bulan' ? 'selected' : '' }}>Per Bulan</option>
-                            <option value="range" {{ $ft == 'range' ? 'selected' : '' }}>Rentang Tanggal</option>
+                            <option value="range"  {{ $ft == 'range'  ? 'selected' : '' }}>Kumulatif</option>
+                            <option value="tahun"  {{ $ft == 'tahun'  ? 'selected' : '' }}>Per Tahun</option>
+                            <option value="bulan"  {{ $ft == 'bulan'  ? 'selected' : '' }}>Per Bulan</option>
                         </select>
                     </div>
 
@@ -175,12 +175,12 @@
                     <div id="dash_wrap_start" class="col-auto {{ $ft != 'range' ? 'd-none' : '' }}">
                         <label class="form-label form-label-sm mb-1">Dari</label>
                         <input type="date" name="start_date" class="form-control form-control-sm"
-                            value="{{ request('start_date', '2026-01-01') }}" {{ $ft != 'range' ? 'disabled' : '' }}>
+                            value="{{ request('start_date', '2021-01-01') }}" {{ $ft != 'range' ? 'disabled' : '' }}>
                     </div>
                     <div id="dash_wrap_end" class="col-auto {{ $ft != 'range' ? 'd-none' : '' }}">
                         <label class="form-label form-label-sm mb-1">Sampai</label>
                         <input type="date" name="end_date" class="form-control form-control-sm"
-                            value="{{ request('end_date', '2026-12-31') }}" {{ $ft != 'range' ? 'disabled' : '' }}>
+                            value="{{ request('end_date', date('Y-m-d')) }}" {{ $ft != 'range' ? 'disabled' : '' }}>
                     </div>
 
                     @if($isPerpusnas ?? true)
@@ -206,7 +206,7 @@
                         <button type="submit" class="btn btn-primary btn-sm mt-3">
                             <i class="fas fa-sync-alt"></i> Tampilkan
                         </button>
-                        <a href="{{ route('dashboard_compliance') }}?filter_type=tahun&filter_year={{ date('Y') }}"
+                        <a href="{{ route('dashboard_compliance') }}?filter_type=range&start_date=2021-01-01&end_date={{ date('Y-m-d') }}"
                            class="btn btn-outline-secondary btn-sm mt-3">Reset</a>
                     </div>
 
