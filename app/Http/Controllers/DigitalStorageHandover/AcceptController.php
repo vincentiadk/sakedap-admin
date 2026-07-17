@@ -105,7 +105,7 @@ class AcceptController extends Controller
 
         $slimJoins = "FROM e_collections 
             LEFT JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '$wsCat'";
+            LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '$wsCat'";
         if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e_collections.received_by_name";
         if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id";
         if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id";
