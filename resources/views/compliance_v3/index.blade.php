@@ -76,13 +76,13 @@
                 <div class="col-auto">
                     <label class="form-label form-label-sm mb-1">Tipe Filter</label>
                     <select class="form-select form-select-sm" id="filterType" onchange="onFilterTypeChange()">
+                        <option value="range">Kumulatif</option>
                         <option value="tahun">Per Tahun</option>
                         <option value="bulan">Per Bulan</option>
-                        <option value="range">Rentang Tanggal</option>
                     </select>
                 </div>
 
-                <div id="filterTahunWrap" class="col-auto">
+                <div id="filterTahunWrap" class="col-auto d-none">
                     <label class="form-label form-label-sm mb-1">Tahun</label>
                     <select class="form-select form-select-sm" id="filterYear">
                         @for($y = 2030; $y >= 2015; $y--)
@@ -100,13 +100,13 @@
                     </select>
                 </div>
 
-                <div id="filterRangeWrap" class="col-auto d-none">
+                <div id="filterRangeWrap" class="col-auto">
                     <label class="form-label form-label-sm mb-1">Dari</label>
-                    <input type="date" class="form-control form-control-sm" id="startDate">
+                    <input type="date" class="form-control form-control-sm" id="startDate" value="2021-01-01">
                 </div>
-                <div id="filterRangeWrap2" class="col-auto d-none">
+                <div id="filterRangeWrap2" class="col-auto">
                     <label class="form-label form-label-sm mb-1">Sampai</label>
-                    <input type="date" class="form-control form-control-sm" id="endDate">
+                    <input type="date" class="form-control form-control-sm" id="endDate" value="{{ date('Y-m-d') }}">
                 </div>
 
                 @if($isPerpusnas)
@@ -706,7 +706,9 @@ function _doExportLegacy(withDetail = 0) {
 }
 
 function resetFilter() {
-    document.getElementById('filterType').value        = 'tahun';
+    document.getElementById('filterType').value        = 'range';
+    document.getElementById('startDate').value         = '2021-01-01';
+    document.getElementById('endDate').value           = '{{ date("Y-m-d") }}';
     document.getElementById('filterYear').value        = '{{ date("Y") }}';
     document.getElementById('filterKategori').value    = '';
     document.getElementById('filterHutang').value      = '';

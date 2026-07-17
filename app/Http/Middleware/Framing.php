@@ -5,15 +5,11 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Helpers\Main;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class Framing
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $framing = str_replace(' ', '+', $request->framing);
@@ -55,7 +51,8 @@ class Framing
                     ]);
                     $request->session()->save();
 
-                    return redirect($segment);
+                    $response = redirect($segment);
+                    return $this->applySameSite($request, $response);
                 }
 
                 return redirect('/')->with(['failed' => 'User tidak ditemukan']);
@@ -67,7 +64,6 @@ class Framing
         $iframeDomain = trim(config('system.iframe_domain', ''));
 
         if ($iframeDomain === '*') {
-            // Boleh di-embed dari domain mana saja
             $response->headers->remove('X-Frame-Options');
             $response->headers->set('Content-Security-Policy', "frame-ancestors *");
         } else {
@@ -82,20 +78,26 @@ class Framing
             $response->headers->set('Content-Security-Policy', $csp);
         }
 
-        // Fix SameSite cookie agar session bisa dikirim di iframe cross-site
+        return $this->applySameSite($request, $response);
+    }
+
+    private function applySameSite(Request $request, Response $response): Response
+    {
+        $iframeDomain = trim(config('system.iframe_domain', ''));
+
         if ($request->isSecure() && $iframeDomain) {
             foreach ($response->headers->getCookies() as $cookie) {
                 $response->headers->setCookie(
-                    new \Symfony\Component\HttpFoundation\Cookie(
+                    new Cookie(
                         $cookie->getName(),
                         $cookie->getValue(),
                         $cookie->getExpiresTime(),
                         $cookie->getPath(),
                         $cookie->getDomain(),
-                        true,        // secure
+                        true,
                         $cookie->isHttpOnly(),
                         false,
-                        'None'       // SameSite=None supaya bisa cross-site
+                        'None'
                     )
                 );
             }
