@@ -45,20 +45,20 @@ class AcceptController extends Controller
         $search = strtoupper(trim($request->search['value'] ?? ''));
 
         // --- 1. Definisi Komponen Query ---
+        $wsCat = str_replace("'", "''", $this->worksheetCategory);
+
         $baseJoins = "
-            FROM catalogs
+            FROM e_collections
+            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
+                AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+                AND worksheets.category = '$wsCat'
             LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id
-            LEFT JOIN e_collections ON e_collections.id = catalogs.edeposit_col_id
             LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id
-            LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id
             LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
         ";
 
-        $whereCondition = [
-            "(catalogs.isdelete = 0 or catalogs.isdelete is null)",
-            "worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'",
-            "catalogs.edeposit_col_id IS NOT NULL"
-        ];
+        $whereCondition = [];
 
         if ($request->title) {
             $title = strtoupper(str_replace("'", "''", $request->title));
@@ -95,31 +95,33 @@ class AcceptController extends Controller
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
-        $whereClause = " WHERE " . implode(' AND ', $whereCondition);
+        $whereClause = count($whereCondition) ? " WHERE " . implode(' AND ', $whereCondition) : "";
 
-        // Slim joins for count/ID query — start from e_collections, add users only when needed
+        // Slim joins for count query — sama strukturnya dengan baseJoins, tambah optional joins
         $needsUsers     = (bool) $request->fullname;
         $needsPenerbit  = (bool) $request->executor_id;
         $needsKabupaten = (bool) $request->province_id;
         $needsCollMedia = (bool) $request->media_id;
 
-        $slimJoins = "FROM e_collections
-            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'";
+        $slimJoins = "FROM e_collections 
+            LEFT JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '$wsCat'";
         if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e_collections.received_by_name";
         if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id";
         if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id";
         if ($needsCollMedia) $slimJoins .= "\n            LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id";
 
-        $slimConditions = array_filter($whereCondition, fn($c) => !in_array($c, [
-            "(catalogs.isdelete = 0 or catalogs.isdelete is null)",
-            "worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "'",
-            "catalogs.edeposit_col_id IS NOT NULL",
-        ]));
-        $slimWhere = count($slimConditions) ? " WHERE " . implode(' AND ', $slimConditions) : "";
+        $slimWhere = count($whereCondition) ? " WHERE " . implode(' AND ', $whereCondition) : "";
 
         // --- 2. Hitung Records ---
-        $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id WHERE (catalogs.isdelete = 0 or catalogs.isdelete is null) AND worksheets.category = '" . str_replace("'", "''", $this->worksheetCategory) . "' AND catalogs.edeposit_col_id is not null", true)->TOTAL ?? 0;
+        $totalData = QueryAPI::get("
+            SELECT COUNT(*) AS total
+            FROM e_collections
+            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
+                AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+                AND worksheets.category = '$wsCat'
+        ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             SELECT COUNT(DISTINCT catalogs.id) AS total
@@ -147,6 +149,7 @@ class AcceptController extends Controller
                         e_collections.code
                     $baseJoins
                     LEFT JOIN users u_recv ON u_recv.username = e_collections.received_by_name
+                    LEFT JOIN users u ON u.username = e_collections.received_by_name
                     $whereClause
                     $orderBy
                 ) data
