@@ -213,6 +213,17 @@ trait OracleHelper
         }
     }
 
+    protected function odbcRowToArray(object $row): array
+    {
+        $arr = (array) $row;
+        array_walk_recursive($arr, function (&$v) {
+            if (is_string($v) && !mb_check_encoding($v, 'UTF-8')) {
+                $v = mb_convert_encoding($v, 'UTF-8', 'ISO-8859-1');
+            }
+        });
+        return $arr;
+    }
+
     protected function fmtDate(?string $val): string
     {
         return $val ? date('d/m/Y', strtotime($val)) : '';
