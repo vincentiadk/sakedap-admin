@@ -44,6 +44,8 @@ class ReviewController extends Controller
             'e_collections.title',
             'collectionmedias.name',
             'e_collections.code',
+            'e_collections.jilid',
+            'e_collections.series',
             'e_collections.created_at',
             'e_collections.updated_at',
             'penerbit.is_lock',
@@ -94,6 +96,11 @@ class ReviewController extends Controller
 
         if ($request->media_id) {
             $whereCondition[] = "e_collections.collection_media_id = " . (int) $request->media_id;
+        }
+
+        if ($request->review_by) {
+            $rb = strtoupper(str_replace("'", "''", $request->review_by));
+            $whereCondition[] = "upper(e_collections.review_by) like '%$rb%'";
         }
 
         if ($request->status_penerbit !== null && $request->status_penerbit !== '') {
@@ -232,6 +239,8 @@ class ReviewController extends Controller
                     ($val->TITLE ?? $val->TITLE_ORI),
                     $val->NAME_MEDIA,
                     $val->CODE,
+                    $val->JILID ?? '-',
+                    $val->SERIES ?? '-',
                     \Carbon\Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
                     \Carbon\Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
                     $statusBadge,
@@ -399,6 +408,9 @@ class ReviewController extends Controller
                     $currentDateTime = date('Y-m-d H:i:s');
                     $revisionCount = $collection->REVISION_COUNT ?? 0;
 
+                    $publishTs      = $request->filled('publish_time') ? strtotime($request->publish_time) : null;
+                    $editionDateVal = $request->filled('edition_date') ? date('Y-m-d H:i:s', strtotime($request->edition_date)) : null;
+
                     $updateData = [
                         'city_id' => $request->city_id,
                         'title_ori' => $request->title,
@@ -406,9 +418,9 @@ class ReviewController extends Controller
                         'slug' => Str::slug($request->title, '-'),
                         'series' => $request->series,
                         'serial' => $request->serial,
-                        'publication_month' => date('m', strtotime($request->publish_time)),
-                        'publication_year' => date('Y', strtotime($request->publish_time)),
-                        'publication_day' => date('d', strtotime($request->publish_time)),
+                        'publication_month' => $publishTs ? date('m', $publishTs) : null,
+                        'publication_year' => $publishTs ? date('Y', $publishTs) : null,
+                        'publication_day' => $publishTs ? date('d', $publishTs) : null,
                         'preview' => $request->preview,
                         'physical_description' => json_encode($request->physical_description),
                         'price' => str_replace([',', '.'], '', $request->price),
@@ -425,7 +437,7 @@ class ReviewController extends Controller
                         'author' => implode(';', ($request->author ?? [])),
                         'kelas_besar_id' => $request->big_class_id,
                         'edition' => $request->edition,
-                        'edition_date' => date('Y-m-d H:i:s', strtotime($request->edition_date)),
+                        'edition_date' => $editionDateVal,
                         'qrcbn' => $request->qrcbn,
                     ];
 
@@ -500,8 +512,10 @@ class ReviewController extends Controller
 
                     $updateCollection = QueryAPI::update('e_collections', $id, $updateData);
 
-                    if ($updateCollection) {
-                        if (($isStatus3 && $request->collection_problem) || $param == 'save') {
+                    if (!$updateCollection) {
+                        $response = ['code' => 500, 'message' => 'Gagal menyimpan data ke server'];
+                    } else {
+                    if (($isStatus3 && $request->collection_problem) || $param == 'save') {
                             $problemsToCreate = [];
 
                             if ($request->collection_problem && is_array($request->collection_problem)) {
@@ -522,12 +536,12 @@ class ReviewController extends Controller
                         if ($isStatus2 && $param == 'save-verification') {
                             QueryAPI::verificationCollection($id);
                         }
-                    }
 
                     $response = [
                         'code' => 200,
                         'message' => 'Data telah ' . ($param == 'save-verification' ? 'diverifikasi' : 'disimpan')
                     ];
+                    } // end if $updateCollection
                 } catch (\Exception $e) {
                     $response = [
                         'code' => $e->getCode(),

@@ -257,6 +257,7 @@ Route::middleware('authentication')->group(function () {
             Route::get('/', 'AcceptController@index');
             Route::post('datatable', 'AcceptController@datatable');
             Route::get('detail/{id}', 'AcceptController@detail');
+            Route::post('update/{id}', 'AcceptController@update');
             Route::post('verification', 'AcceptController@verification');
         });
 
@@ -462,6 +463,12 @@ Route::middleware('authentication')->group(function () {
 
         Route::prefix('download')->group(function () {
             Route::get('/', 'DownloadController@index');
+        });
+
+        Route::prefix('kinerja')->group(function () {
+            Route::get('/', 'KinerjaController@index');
+            Route::post('datatable', 'KinerjaController@datatable');
+            Route::get('export', 'KinerjaController@export');
         });
     });
 

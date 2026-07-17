@@ -35,39 +35,35 @@ class AcceptController extends Controller
     public function datatable(Request $request)
     {
         $column = [
-            'catalogs.id', null, 'penerbit.name', 'catalogs.title',
-            'collectionmedias.name', 'e_collections.code', 'catalogs.createdate',
+            'e_collections.id', null, 'e_collections.received_by_name',
+            'e_collections.description', 'collectionmedias.name',
+            'e_collections.code', 'e_collections.received_at',
         ];
 
-        $draw = intval($request->draw ?? 0);
-        $start = intval($request->start ?? 0);
+        $draw   = intval($request->draw   ?? 0);
+        $start  = intval($request->start  ?? 0);
         $length = intval($request->length ?? 10);
         $search = strtoupper(trim($request->search['value'] ?? ''));
 
-        // --- 1. Definisi Komponen Query ---
         $wsCat = str_replace("'", "''", $this->worksheetCategory);
 
         $baseJoins = "
             FROM e_collections
-            LEFT JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
-                AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+            JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
+                AND (collectionmedias.isdelete = 0 OR collectionmedias.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = collectionmedias.worksheet_id
                 AND worksheets.category = '$wsCat'
-            LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id
             LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id
-            LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
         ";
 
-        $whereCondition = [];
+        $whereCondition = ["e_collections.deleted_at IS NULL AND e_collections.status='2' "];
 
         if ($request->title) {
             $title = strtoupper(str_replace("'", "''", $request->title));
-            $whereCondition[] = "upper(catalogs.title) like '%$title%'";
+            $whereCondition[] = "upper(e_collections.title) like '%$title%'";
         }
-        if ($request->executor_id) $whereCondition[] = "catalogs.penerbit_id = " . (int)$request->executor_id;
         if ($request->province_id) $whereCondition[] = "kabupaten.propinsiid = " . (int)$request->province_id;
-        if ($request->year) $whereCondition[] = "catalogs.publishyear = " . (int)$request->year;
-        if ($request->media_id) $whereCondition[] = "e_collections.collection_media_id = " . (int)$request->media_id;
+        if ($request->media_id)    $whereCondition[] = "e_collections.collection_media_id = " . (int)$request->media_id;
 
         if ($request->verified) {
             if ($request->verified == 'verified') $whereCondition[] = "e_collections.is_need_verify = 0";
@@ -75,10 +71,10 @@ class AcceptController extends Controller
         }
 
         if ($request->date) {
-            $explodeDate = explode(' - ', $request->date);
-            $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
-            $endDate = \Carbon\Carbon::parse($explodeDate[1])->format('Y-m-d');
-            $whereCondition[] = "(e_collections.received_at >= to_date('$startDate', 'YYYY-MM-DD') and e_collections.received_at < to_date('$endDate', 'YYYY-MM-DD') + 1)";
+            [$d0, $d1] = explode(' - ', $request->date);
+            $startDate = \Carbon\Carbon::createFromFormat('Y/m/d', trim($d0))->format('Y-m-d');
+            $endDate   = \Carbon\Carbon::createFromFormat('Y/m/d', trim($d1))->format('Y-m-d');
+            $whereCondition[] = "(e_collections.received_at >= to_date('$startDate','YYYY-MM-DD') and e_collections.received_at < to_date('$endDate','YYYY-MM-DD') + 1)";
         }
 
         if ($request->fullname) {
@@ -95,61 +91,63 @@ class AcceptController extends Controller
             $whereCondition[] = '(' . implode(' or ', $terms) . ')';
         }
 
-        $whereClause = count($whereCondition) ? " WHERE " . implode(' AND ', $whereCondition) : "";
+        $whereClause = " WHERE " . implode(' AND ', $whereCondition);
 
-        // Slim joins for count query — sama strukturnya dengan baseJoins, tambah optional joins
+        // Slim joins untuk COUNT
         $needsUsers     = (bool) $request->fullname;
-        $needsPenerbit  = (bool) $request->executor_id;
         $needsKabupaten = (bool) $request->province_id;
-        $needsCollMedia = (bool) $request->media_id;
 
-        $slimJoins = "FROM e_collections 
-            LEFT JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id AND worksheets.category = '$wsCat'";
-        if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e_collections.received_by_name";
-        if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id";
+        $slimJoins = "FROM e_collections
+            JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
+                AND (collectionmedias.isdelete = 0 OR collectionmedias.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = collectionmedias.worksheet_id
+                AND worksheets.category = '$wsCat'";
         if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id";
-        if ($needsCollMedia) $slimJoins .= "\n            LEFT JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id";
-
-        $slimWhere = count($whereCondition) ? " WHERE " . implode(' AND ', $whereCondition) : "";
+        if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e_collections.received_by_name";
 
         // --- 2. Hitung Records ---
         $totalData = QueryAPI::get("
             SELECT COUNT(*) AS total
             FROM e_collections
-            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
-                AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+            JOIN collectionmedias ON collectionmedias.id = e_collections.collection_media_id
+                AND (collectionmedias.isdelete = 0 OR collectionmedias.isdelete IS NULL)
+            JOIN worksheets ON worksheets.id = collectionmedias.worksheet_id
                 AND worksheets.category = '$wsCat'
+            WHERE e_collections.deleted_at IS NULL
         ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(DISTINCT catalogs.id) AS total
+            SELECT COUNT(DISTINCT e_collections.id) AS total
             $slimJoins
-            $slimWhere
+            $whereClause
         ", true)->TOTAL ?? 0;
 
         // --- 3. Query Data (Paginasi) ---
-        $orderCol = $column[$request->order[0]['column'] ?? 0] ?? 'catalogs.createdate';
+        $orderCol = $column[$request->order[0]['column'] ?? 0] ?? 'e_collections.received_at';
         $orderDir = strtoupper($request->order[0]['dir'] ?? 'DESC');
-        $orderBy = "ORDER BY $orderCol $orderDir, catalogs.id DESC";
+        $orderBy  = "ORDER BY $orderCol $orderDir, e_collections.id DESC";
 
         $sql = "
             SELECT * FROM (
                 SELECT rownum as rnum, data.* FROM (
                     SELECT
-                        catalogs.id, catalogs.title, catalogs.isbn, catalogs.createdate,
-                        catalogs.penerbit_id, catalogs.edeposit_col_id,
+                        e_collections.id as ec_id,
+                        e_collections.code,
+                        e_collections.title,
+                        e_collections.description,
                         e_collections.received_at as received_at_e_collection,
                         e_collections.is_need_verify as inv_e_collection,
                         e_collections.received_by_name as received_username,
+                        e_collections.article_title,
                         u_recv.fullname as received_fullname,
-                        penerbit.name as name_penerbit,
                         collectionmedias.name as name_media,
-                        e_collections.code
+                        p.name as penerbit_name, e_collections.penerbit_id,
+                        cat.id as catalog_id
                     $baseJoins
                     LEFT JOIN users u_recv ON u_recv.username = e_collections.received_by_name
                     LEFT JOIN users u ON u.username = e_collections.received_by_name
+                    LEFT JOIN penerbit p ON p.id = e_collections.penerbit_id
+                    LEFT JOIN catalogs cat ON cat.edeposit_col_id = e_collections.id AND nvl(cat.isdelete, 0) = 0
                     $whereClause
                     $orderBy
                 ) data
@@ -162,12 +160,15 @@ class AcceptController extends Controller
         $data = [];
 
         foreach ($queryData as $val) {
-            $action = '<a href="' . url('digital-storage-handover/accept/detail/' . $val->ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>';
-            
-            if ($val->INV_E_COLLECTION == 0 || $val->INV_E_COLLECTION === '0') {
+            $action = '<a href="' . url('digital-storage-handover/accept/detail/' . $val->EC_ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>';
+
+            $hasCatalog  = !empty($val->CATALOG_ID);
+            $needsVerify = ($val->INV_E_COLLECTION != 0);
+
+            if ($hasCatalog && !$needsVerify) {
                 $action .= ' <a href="javascript:void(0);" class="btn btn-success btn-sm"><i class="ph-check me-1"></i> Terverifikasi</a>';
             } else {
-                $action .= ' <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="verification(' . $val->EDEPOSIT_COL_ID . ')"><i class="ph-warning me-1"></i> Verifikasi</a>';
+                $action .= ' <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="verification(' . $val->EC_ID . ')"><i class="ph-warning me-1"></i> Perlu Verifikasi</a>';
             }
 
             $receivedBy = $val->RECEIVED_USERNAME ?? '-';
@@ -175,14 +176,18 @@ class AcceptController extends Controller
                 $receivedBy .= ' — ' . $val->RECEIVED_FULLNAME;
             }
 
+            $receivedAt = $val->RECEIVED_AT_E_COLLECTION
+                ? \Carbon\Carbon::parse($val->RECEIVED_AT_E_COLLECTION)->isoFormat('dddd, D MMMM Y')
+                : '-';
+
             $data[] = [
                 $start + 1,
                 $action,
-                $val->PENERBIT_ID . ' | ' . $val->NAME_PENERBIT,
-                $val->TITLE,
-                $val->NAME_MEDIA,
+                $val->PENERBIT_ID . ' | ' . $val->PENERBIT_NAME,
+                $val->ARTICLE_TITLE ? $val->ARTICLE_TITLE : $val->TITLE,
+                $val->NAME_MEDIA ?? '-',
                 $val->CODE,
-                \Carbon\Carbon::parse($val->CREATEDATE)->isoFormat('dddd, D MMMM Y'),
+                $receivedAt,
                 $receivedBy,
             ];
             $start++;
@@ -198,98 +203,90 @@ class AcceptController extends Controller
 
     public function detail($id)
     {
+        $id = (int) $id;
+
         $collection = QueryAPI::get("
-            select
+            SELECT
                 c.*,
-                p.name as name_penerbit,
-                k.namakab as namakab,
-                ec.id as e_collections_id,
-                pr.namapropinsi as namapropinsi,
-                ec.code_type as code_type_e_collection,
-                ec.collection_media_id as cm_id_e_col,
-                ec.serial as serial_e_collection,
-                ec.received_at as received_at_e_collection,
-                ec.price as price_e_collection,
-                ec.jilid as jilid_e_collection,
-                ec.description as description_e_collection,
-                ec.jenis_isi as jenis_isi_e_collection,
-                ec.jenis_wadah as jenis_wadah_e_collection,
-                ec.jenis_media as jenis_media_e_collection,
-                ec.currency as currency_e_collection,
-                ec.jumlah_eks as jumlah_eks_e_collection,
-                ec.physical_description as pd_e_collection,
-                par.title as title_parent,
-                ccr.id as id_catalogcovers,
-                ccr.fileurl as fileurl_catalogcovers,
-                ccr.hash as hash_catalogcovers,
-                ccr.mime as mime_catalogcovers,
-                ccr.file_size as file_size_catalogcovers,
-                ccr.method as method_catalogcovers,
-                cfr.id as id_catalogfiles,
-                cfr.fileurl as fileurl_catalogfiles,
-                cfr.hash as hash_catalogfiles,
-                cfr.mime as mime_catalogfiles,
-                cfr.file_size as file_size_catalogfiles,
-                cfr.method as method_catalogfiles
-            from
-                catalogs c
-            left join
-                e_collections ec on ec.id = c.edeposit_col_id
-            left join
-                e_collections par on par.id = ec.parent_id
-            left join
-                penerbit p on p.id = c.penerbit_id
-            left join
-                kabupaten k on k.id = ec.kabupaten_id
-            left join
-                propinsi pr on pr.id = k.propinsiid
-            left join
-                (
-                    select
-                        *
-                    from (
-                        select
-                            cf.catalog_id,
-                            cf.id,
-                            cf.fileurl,
-                            cf.hash,
-                            cf.mime,
-                            cf.file_size,
-                            cf.method,
-                            row_number() over (order by cf.id desc) as rn
-                        from
-                            catalogfiles cf
-                        where
-                            cf.catalog_id = $id
-                    ) where rn = 1
-                ) cfr on cfr.catalog_id = c.id
-            left join
-                (
-                    select
-                        *
-                    from (
-                        select
-                            cc.catalog_id,
-                            cc.id,
-                            cc.fileurl,
-                            cc.hash,
-                            cc.mime,
-                            cc.file_size,
-                            cc.method,
-                            row_number() over (order by cc.id desc) as rn
-                        from
-                            catalogcovers cc
-                        where
-                            cc.catalog_id = $id
-                    ) where rn = 1
-                ) ccr on ccr.catalog_id = c.id
-            where
-                nvl(c.isdelete, 0) = 0
-                and c.id = $id
+                p.name AS name_penerbit,
+                k.namakab AS namakab,
+                ec.id AS e_collections_id,
+                pr.namapropinsi AS namapropinsi,
+                ec.code_type AS code_type_e_collection,
+                ec.collection_media_id AS cm_id_e_col,
+                ec.serial AS serial_e_collection,
+                ec.received_at AS received_at_e_collection,
+                ec.price AS price_e_collection,
+                ec.jilid AS jilid_e_collection,
+                ec.description AS description_e_collection,
+                ec.jenis_isi AS jenis_isi_e_collection,
+                ec.jenis_wadah AS jenis_wadah_e_collection,
+                ec.jenis_media AS jenis_media_e_collection,
+                ec.currency AS currency_e_collection,
+                ec.jumlah_eks AS jumlah_eks_e_collection,
+                ec.physical_description AS pd_e_collection,
+                ec.title AS ec_title,
+                ec.title_ori AS ec_title_ori,
+                ec.code AS ec_code,
+                ec.kabupaten_id AS city_id,
+                ec.akses,
+                ec.series,
+                ec.preview,
+                ec.qrcbn AS ec_qrcbn,
+                ec.edition AS ec_edition,
+                ec.edition_date AS ec_edition_date,
+                ec.publication_year AS publishyear,
+                ec.publication_month AS publish_month,
+                ec.publication_day AS publish_day,
+                ec.album,
+                ec.author,
+                ec.kelas_besar_id,
+                par.title AS title_parent,
+                ccr.id AS id_catalogcovers,
+                ccr.fileurl AS fileurl_catalogcovers,
+                ccr.hash AS hash_catalogcovers,
+                ccr.mime AS mime_catalogcovers,
+                ccr.file_size AS file_size_catalogcovers,
+                ccr.method AS method_catalogcovers,
+                cfr.id AS id_catalogfiles,
+                cfr.fileurl AS fileurl_catalogfiles,
+                cfr.hash AS hash_catalogfiles,
+                cfr.mime AS mime_catalogfiles,
+                cfr.file_size AS file_size_catalogfiles,
+                cfr.method AS method_catalogfiles
+            FROM e_collections ec
+            LEFT JOIN catalogs c ON c.edeposit_col_id = ec.id
+                AND nvl(c.isdelete, 0) = 0
+            LEFT JOIN e_collections par ON par.id = ec.parent_id
+            LEFT JOIN penerbit p ON p.id = c.penerbit_id
+            LEFT JOIN kabupaten k ON k.id = ec.kabupaten_id
+            LEFT JOIN propinsi pr ON pr.id = k.propinsiid
+            LEFT JOIN (
+                SELECT * FROM (
+                    SELECT cf.catalog_id, cf.id, cf.fileurl, cf.hash, cf.mime, cf.file_size, cf.method,
+                           row_number() OVER (ORDER BY cf.id DESC) AS rn
+                    FROM catalogfiles cf
+                    WHERE cf.catalog_id IN (
+                        SELECT id FROM catalogs WHERE edeposit_col_id = $id AND nvl(isdelete,0) = 0
+                    )
+                ) WHERE rn = 1
+            ) cfr ON cfr.catalog_id = c.id
+            LEFT JOIN (
+                SELECT * FROM (
+                    SELECT cc.catalog_id, cc.id, cc.fileurl, cc.hash, cc.mime, cc.file_size, cc.method,
+                           row_number() OVER (ORDER BY cc.id DESC) AS rn
+                    FROM catalogcovers cc
+                    WHERE cc.catalog_id IN (
+                        SELECT id FROM catalogs WHERE edeposit_col_id = $id AND nvl(isdelete,0) = 0
+                    )
+                ) WHERE rn = 1
+            ) ccr ON ccr.catalog_id = c.id
+            WHERE ec.deleted_at IS NULL
+              AND ec.id = $id
         ", true);
 
         $collectionCategory = [];
-        $collectionId = $collection->EDEPOSIT_COL_ID ?? 0;
+        $collectionId       = $id;
 
         $dataCollectionCategory = QueryAPI::get("
             select
@@ -342,6 +339,22 @@ class AcceptController extends Controller
                 ]
             ]
         ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $id = (int) $id;
+
+        $update = QueryAPI::update('e_collections', $id, [
+            'jilid'      => $request->binding,
+            'updated_by' => session('id'),
+        ], true);
+
+        if ($update) {
+            return response()->json(['code' => 200, 'message' => 'Berhasil disimpan'], 200);
+        }
+
+        return response()->json(['code' => 500, 'message' => 'Gagal menyimpan'], 500);
     }
 
     public function verification(Request $request)

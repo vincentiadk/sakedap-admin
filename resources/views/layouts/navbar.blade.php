@@ -252,6 +252,7 @@
                                                 <a href="{{ url('report/service') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'service' ? 'active' : '' }}">Layanan</a>
                                                 <a href="{{ url('report/asset') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'asset' ? 'active' : '' }}">Aset</a>
                                                 <a href="{{ url('report/download') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'download' ? 'active' : '' }}">Download</a>
+                                                <a href="{{ url('report/kinerja') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'kinerja' ? 'active' : '' }}">Laporan Kinerja</a>
                                             </div>
                                         </div>
                                     </div>

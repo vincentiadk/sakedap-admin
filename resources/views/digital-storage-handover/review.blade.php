@@ -135,6 +135,16 @@
                                 <option value="1">Blokir</option>
                             </select>
                         </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-user-check me-1"></i>
+                                Sedang Direview Oleh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ph-magnifying-glass"></i></span>
+                                <input type="text" class="form-control" name="review_by" id="review_by" placeholder="Username reviewer">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -196,6 +206,14 @@
                             <th class="text-nowrap" style="min-width: 120px">
                                 <i class="ph-qr-code me-1"></i>
                                 Kode
+                            </th>
+                            <th class="text-nowrap" style="min-width: 100px">
+                                <i class="ph-books me-1"></i>
+                                Jilid
+                            </th>
+                            <th class="text-nowrap" style="min-width: 120px">
+                                <i class="ph-list-numbers me-1"></i>
+                                Seri
                             </th>
                             <th class="text-center text-nowrap" style="min-width: 130px">
                                 <i class="ph-calendar-plus me-1"></i>
@@ -286,6 +304,8 @@
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: true, className: 'align-middle' },
+                { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },

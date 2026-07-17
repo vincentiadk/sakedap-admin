@@ -57,13 +57,13 @@
                     <div class="form-group row">
                         <label class="col-form-label col-md-2">Edisi</label>
                         <div class="col-md-10">
-                            <input type="text" class="form-control" name="edition" id="edition" value="{{ $collection->EDITION ?? $collection->EDITION }}" placeholder="...................." readonly>
+                            <input type="text" class="form-control" name="edition" id="edition" value="{{ $collection->EC_EDITION }}" placeholder="...................." readonly>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-form-label col-md-2">Tanggal Terbit Edisi <span class="text-danger fw-bold">*</span></label>
                         <div class="col-md-10">
-                            <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" value="{{ Carbon::parse($collection->EDITION_DATE)->format('Y/m/d') }}" placeholder="Pilih Tanggal" readonly readonly>
+                            <input type="text" class="form-control date-picker-single" name="edition_date" id="edition_date" value="{{ $collection->EC_EDITION_DATE ? Carbon::parse($collection->EC_EDITION_DATE)->format('Y/m/d') : '' }}" placeholder="Pilih Tanggal" readonly readonly>
                         </div>
                     </div>
                 @endif
@@ -81,7 +81,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Judul <span class="text-danger fw-bold">*</span></label>
                     <div class="col-md-10">
-                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................." readonly>{{ $collection->TITLE }}</textarea>
+                        <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................." readonly>{{ $collection->EC_TITLE ?? $collection->EC_TITLE_ORI }}</textarea>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -96,7 +96,7 @@
                                 <option value="4" {{ $collection->CODE_TYPE_E_COLLECTION == 4 ? 'selected' : ''  }}>ISSN</option>
                                 <option value="5" {{ $collection->CODE_TYPE_E_COLLECTION == 5 ? 'selected' : ''  }}>ISAN</option>
                             </select>
-                            <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->ISBN) ? '-' : $collection->ISBN }}" placeholder="...................." readonly>
+                            <input type="text" class="form-control" name="code" id="code" value="{{ $collection->EC_CODE ?? ($collection->ISBN ?? '-') }}" placeholder="...................." readonly>
                         </div>
                     </div>
                 </div>
@@ -127,11 +127,11 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 <label>
-                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('readonly', true) : $('#qrcbn').attr('readonly', false)" @if(empty($collection->QRCBN)) checked @endif readonly>
+                                    <input type="checkbox" class="form-check-input mt-0 me-1" onchange="$(this).is(':checked') ? $('#qrcbn').attr('readonly', true) : $('#qrcbn').attr('readonly', false)" @if(empty($collection->EC_QRCBN)) checked @endif readonly>
                                     Tidak Ada
                                 </label>
                             </span>
-                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->QRCBN }}" placeholder="...................." @if(empty($collection->QRCBN)) readonly @endif>
+                            <input type="text" class="form-control" name="qrcbn" id="qrcbn" value="{{ $collection->EC_QRCBN }}" placeholder="...................." @if(empty($collection->EC_QRCBN)) readonly @endif>
                         </div>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Waktu Terbit</label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ $collection->PUBLISHYEAR . '/' . $collection->PUBLISH_MONTH . '/' . $collection->PUBLISH_DAY }}" readonly>
+                        <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLISHYEAR && $collection->PUBLISH_MONTH && $collection->PUBLISH_DAY) ? $collection->PUBLISHYEAR . '/' . str_pad($collection->PUBLISH_MONTH,2,'0',STR_PAD_LEFT) . '/' . str_pad($collection->PUBLISH_DAY,2,'0',STR_PAD_LEFT) : '' }}" readonly>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -215,7 +215,12 @@
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Jilid</label>
                     <div class="col-md-10">
-                        <input type="text" class="form-control" name="binding" id="binding" value="{{ $collection->JILID_E_COLLECTION }}" placeholder="...................." readonly>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="binding" id="binding" value="{{ $collection->JILID_E_COLLECTION }}" placeholder="....................">
+                            <button type="button" class="btn btn-primary" onclick="saveJilid()">
+                                <i class="ph-floppy-disk me-1"></i> Simpan
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -544,6 +549,22 @@
 </div>
 
 <script>
+    function saveJilid() {
+        const binding = $('#binding').val();
+        $.ajax({
+            url: '{{ url("digital-storage-handover/accept/update/" . $collection->E_COLLECTIONS_ID) }}',
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            data: { binding },
+            success: function(res) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false });
+            },
+            error: function() {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan.' });
+            }
+        });
+    }
+
     let currentSound = null;
     let watermarkSound = null;
     let animationFrameId = null;
