@@ -49,9 +49,9 @@ class AcceptController extends Controller
 
         $baseJoins = "
             FROM e_collections
-            JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
+            LEFT JOIN catalogs ON catalogs.edeposit_col_id = e_collections.id
                 AND (catalogs.isdelete = 0 OR catalogs.isdelete IS NULL)
-            JOIN worksheets ON worksheets.id = catalogs.worksheet_id
+            LEFT JOIN worksheets ON worksheets.id = catalogs.worksheet_id
                 AND worksheets.category = '$wsCat'
             LEFT JOIN penerbit ON penerbit.id = catalogs.penerbit_id
             LEFT JOIN kabupaten ON kabupaten.id = e_collections.kabupaten_id
