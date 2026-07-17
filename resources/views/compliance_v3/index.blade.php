@@ -35,20 +35,22 @@
         </div>
         @if($isPerpusnas)
         <div class="btn-group btn-group-sm" role="group">
-            <a href="{{ $urlPerpusnas }}"
+            <button type="button" id="btnPerpusnas"
+               onclick="setKckrMode('perpusnas')"
                class="btn {{ $kckrMode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
                 <i class="fas fa-landmark"></i> Data Perpusnas
-            </a>
-            <a href="{{ $urlProvinsi }}"
+            </button>
+            <button type="button" id="btnProvinsi"
+               onclick="setKckrMode('provinsi')"
                class="btn {{ $kckrMode === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
                 <i class="fas fa-map-marker-alt"></i> Data Provinsi
-            </a>
+            </button>
         </div>
         @endif
     </div>
 
     @if($isPerpusnas)
-    <div class="alert {{ $kckrMode === 'provinsi' ? 'alert-success' : 'alert-primary' }} py-2 px-3 mb-3" style="font-size:.85rem">
+    <div id="kckrModeAlert" class="alert {{ $kckrMode === 'provinsi' ? 'alert-success' : 'alert-primary' }} py-2 px-3 mb-3" style="font-size:.85rem">
         @if($kckrMode === 'provinsi')
             <i class="fas fa-map-marker-alt me-1"></i>
             <strong>Mode: Data KCKR Provinsi</strong> — kolom KCKR dihitung dari <code>received_date_prov</code> (tanggal penerimaan di perpustakaan daerah).
@@ -383,6 +385,29 @@ th.sorted-desc::after { content: ' ▼'; font-size:.65rem; }
 
 <script>
 let currentPage = 1, currentSort = 'NAME', currentDir = 'ASC';
+let currentKckrMode = '{{ $kckrMode ?? "perpusnas" }}';
+
+function setKckrMode(mode) {
+    currentKckrMode = mode;
+
+    // Update tombol aktif
+    document.getElementById('btnPerpusnas').className = 'btn ' + (mode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary');
+    document.getElementById('btnProvinsi').className  = 'btn ' + (mode === 'provinsi'  ? 'btn-success' : 'btn-outline-success');
+
+    // Update alert
+    const alert = document.getElementById('kckrModeAlert');
+    if (alert) {
+        if (mode === 'provinsi') {
+            alert.className = 'alert alert-success py-2 px-3 mb-3';
+            alert.innerHTML = '<i class="fas fa-map-marker-alt me-1"></i><strong>Mode: Data KCKR Provinsi</strong> — kolom KCKR dihitung dari <code>received_date_prov</code> (tanggal penerimaan di perpustakaan daerah).';
+        } else {
+            alert.className = 'alert alert-primary py-2 px-3 mb-3';
+            alert.innerHTML = '<i class="fas fa-landmark me-1"></i><strong>Mode: Data KCKR Perpusnas</strong> — kolom KCKR dihitung dari <code>received_date_kckr</code> (tanggal penerimaan di Perpustakaan Nasional).';
+        }
+    }
+
+    loadData(1);
+}
 
 function onFilterTypeChange() {
     const t = document.getElementById('filterType').value;
@@ -417,9 +442,7 @@ function buildParams(page = 1) {
     if (v('filterRekomendasi')) params.set('filter_rekomendasi',  v('filterRekomendasi'));
     if (v('filterPersentase'))  params.set('persentase',          v('filterPersentase'));
     if (v('searchInput'))       params.set('search',              v('searchInput'));
-    // kckr_mode: ambil dari URL saat ini agar toggle tetap aktif saat reload data
-    const kckrMode = new URLSearchParams(window.location.search).get('kckr_mode');
-    if (kckrMode) params.set('kckr_mode', kckrMode);
+    params.set('kckr_mode', currentKckrMode);
     return params;
 }
 
