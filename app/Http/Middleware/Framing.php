@@ -39,10 +39,13 @@ class Framing
         }
 
         $response = $next($request);
-        $allowedDomain = config('system.iframe_domain');
+
+        $domains      = array_filter(explode(' ', config('system.iframe_domain', '')));
+        $frameOrigins = implode(' ', $domains);
+        $csp          = $frameOrigins ? "frame-ancestors 'self' {$frameOrigins}" : "frame-ancestors 'self'";
 
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('Content-Security-Policy', "frame-ancestors 'self' {$allowedDomain}");
+        $response->headers->set('Content-Security-Policy', $csp);
 
         return $response;
     }

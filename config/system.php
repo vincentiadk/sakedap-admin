@@ -5,7 +5,7 @@ return [
     'retry_login_interval' => 1,
     'aes_key' => null,
     'aes_iv' => null,
-    'iframe_domain' => null,
+    'iframe_domain' => env('IFRAME_DOMAIN', null),
     'limit_reset_password' => 2,
     'limit_file_original' => 1,
     'catalog_cover_max_upload' => 2048,
