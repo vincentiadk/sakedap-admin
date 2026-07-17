@@ -348,7 +348,7 @@ class ComplianceV3Controller extends Controller
                 $result = odbc_exec($conn, $sql);
                 $data   = [];
                 while ($row = odbc_fetch_object($result)) {
-                    $data[] = (array) $row;
+                    $data[] = $this->odbcRowToArray($row);
                 }
 
                 return [
