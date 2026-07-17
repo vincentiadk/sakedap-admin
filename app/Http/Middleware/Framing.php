@@ -41,18 +41,19 @@ class Framing
                 ", true);
 
                 if ($user) {
-                    session([
-                        'id'                 => $user->ID,
-                        'username'           => $user->USERNAME,
-                        'name'               => $user->FULLNAME,
-                        'email'              => $user->EMAILADDRESS,
-                        'province_id'        => $user->PROVINCE_ID ?: 31,
-                        'province_name'      => $user->NAMAPROPINSI ?: 'DKI Jakarta',
-                        'branch_id'          => $user->BRANCH_ID ?: 37,
-                        'branch_name'        => $user->NAME_BRANCH ?: 'Perpustakaan Nasional',
-                        'role_id'            => $user->ROLE_ID ?: 1,
+                    $request->session()->put([
+                        'id'                   => $user->ID,
+                        'username'             => $user->USERNAME,
+                        'name'                 => $user->FULLNAME,
+                        'email'                => $user->EMAILADDRESS,
+                        'province_id'          => $user->PROVINCE_ID ?: 31,
+                        'province_name'        => $user->NAMAPROPINSI ?: 'DKI Jakarta',
+                        'branch_id'            => $user->BRANCH_ID ?: 37,
+                        'branch_name'          => $user->NAME_BRANCH ?: 'Perpustakaan Nasional',
+                        'role_id'              => $user->ROLE_ID ?: 1,
                         'last_change_password' => $user->LASTCHANGEPASSWORD ?: null,
                     ]);
+                    $request->session()->save();
 
                     return redirect($segment);
                 }
