@@ -91,14 +91,14 @@
         <div class="d-flex gap-2 flex-wrap align-items-center">
             @if($isPerpusnas ?? true)
             <div class="btn-group btn-group-sm" role="group" title="Pilih data KCKR yang ditampilkan">
-                <a href="{{ $urlPerpusnas }}"
+                <button id="btnDashPerpusnas" onclick="setDashKckrMode('perpusnas')"
                    class="btn {{ $currentKckrMode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
                     <i class="fas fa-landmark"></i> Data Perpusnas
-                </a>
-                <a href="{{ $urlProvinsi }}"
+                </button>
+                <button id="btnDashProvinsi" onclick="setDashKckrMode('provinsi')"
                    class="btn {{ $currentKckrMode === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
                     <i class="fas fa-map-marker-alt"></i> Data Provinsi
-                </a>
+                </button>
             </div>
             @endif
             <button onclick="downloadPDF()" class="btn btn-danger btn-sm">
@@ -882,6 +882,14 @@ function loadChart() {
 }
 
 document.addEventListener('DOMContentLoaded', () => loadChart());
+
+function setDashKckrMode(mode) {
+    document.getElementById('btnDashPerpusnas').className = 'btn ' + (mode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary');
+    document.getElementById('btnDashProvinsi').className  = 'btn ' + (mode === 'provinsi'  ? 'btn-success' : 'btn-outline-success');
+    const url = new URL(window.location.href);
+    url.searchParams.set('kckr_mode', mode);
+    window.location.href = url.toString();
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 function downloadPDF() {
