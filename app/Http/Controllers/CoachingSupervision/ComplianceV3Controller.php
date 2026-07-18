@@ -618,20 +618,21 @@ class ComplianceV3Controller extends Controller
         $kckrCol       = $ctx['kckrCol'];
         $kckrMode      = $ctx['kckrMode'];
 
-        $conn          = $this->getOracleConnection();
-        $kategori      = $request->kategori      ?? null;
-        $search        = trim($request->search   ?? '');
-        $filterHutang  = $request->filter_hutang  ?? null;
-        $filterTeguran = $request->filter_teguran ?? null;
-        $filterKckr    = $request->filter_kckr    ?? null;
-        $persentase    = $request->persentase     ?? null;
+        $conn                = $this->getOracleConnection();
+        $kategori            = $request->kategori            ?? null;
+        $search              = trim($request->search         ?? '');
+        $filterHutang        = $request->filter_hutang        ?? null;
+        $filterTeguran       = $request->filter_teguran       ?? null;
+        $filterKckr          = $request->filter_kckr          ?? null;
+        $persentase          = $request->persentase           ?? null;
+        $filterRekomendasi   = $request->filter_rekomendasi   ?? null;
 
         $dateFilter    = $this->parseDateFilter($request);
         $dateWhere     = $this->buildDateWhere($dateFilter['start'], $dateFilter['end']);
         $provinceWhere = $this->buildProvinceWhere($provinceIds);
         $baseQuery     = $this->buildBaseQuery(
             $dateWhere, $provinceWhere, $kategori, $search,
-            $filterHutang, $filterTeguran, $filterKckr, $persentase, null, $kckrCol
+            $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi, $kckrCol
         );
 
         $label    = $this->buildFilterLabel($request, $provinceIds);
@@ -1055,22 +1056,17 @@ class ComplianceV3Controller extends Controller
 
     public function queueExport(Request $request)
     {
-        $jobID  = uniqid('cv3_', true);
+        $jobID  = (string) \Illuminate\Support\Str::uuid();
+        $userId = session('id');
+        $userKey = "user:$userId:download";
+
         $params = $request->only([
             'filter_type','filter_year','filter_month','start_date','end_date',
             'province_ids','kckr_mode','kategori','search',
-            'filter_hutang','filter_teguran','filter_kckr','persentase','with_judul',
+            'filter_hutang','filter_teguran','filter_kckr','persentase','filter_rekomendasi','with_judul',
         ]);
 
-        $userId  = session('id');
-        $userKey = "user:$userId:download";
-
         Redis::lpush($userKey, $jobID);
-        Redis::hset('download:' . $jobID, 'status', 'queued');
-        Redis::hset('download:' . $jobID, 'type',   'compliance-v3');
-        Redis::hset('download:' . $jobID, 'date',   date('Y-m-d H:i:s'));
-        Redis::expire('download:' . $jobID, 3600 * 6);
-
         ComplianceV3ExportJob::dispatch($jobID, $params)->onQueue('report');
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -1106,20 +1102,21 @@ class ComplianceV3Controller extends Controller
         $kckrCol       = $ctx['kckrCol'];
         $kckrMode      = $ctx['kckrMode'];
 
-        $conn          = $this->getOracleConnection();
-        $kategori      = $request->kategori      ?? null;
-        $search        = trim($request->search   ?? '');
-        $filterHutang  = $request->filter_hutang  ?? null;
-        $filterTeguran = $request->filter_teguran ?? null;
-        $filterKckr    = $request->filter_kckr    ?? null;
-        $persentase    = $request->persentase     ?? null;
+        $conn              = $this->getOracleConnection();
+        $kategori          = $request->kategori          ?? null;
+        $search            = trim($request->search       ?? '');
+        $filterHutang      = $request->filter_hutang      ?? null;
+        $filterTeguran     = $request->filter_teguran     ?? null;
+        $filterKckr        = $request->filter_kckr        ?? null;
+        $persentase        = $request->persentase         ?? null;
+        $filterRekomendasi = $request->filter_rekomendasi ?? null;
 
         $dateFilter    = $this->parseDateFilter($request);
         $dateWhere     = $this->buildDateWhere($dateFilter['start'], $dateFilter['end']);
         $provinceWhere = $this->buildProvinceWhere($provinceIds);
         $baseQuery     = $this->buildBaseQuery(
             $dateWhere, $provinceWhere, $kategori, $search,
-            $filterHutang, $filterTeguran, $filterKckr, $persentase, null, $kckrCol
+            $filterHutang, $filterTeguran, $filterKckr, $persentase, $filterRekomendasi, $kckrCol
         );
 
         $label   = $this->buildFilterLabel($request, $provinceIds);

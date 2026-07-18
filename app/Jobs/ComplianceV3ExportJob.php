@@ -29,6 +29,7 @@ class ComplianceV3ExportJob implements ShouldQueue
         Redis::hset('download:' . $this->jobID, 'status',   'processing');
         Redis::hset('download:' . $this->jobID, 'type',     'compliance-v3');
         Redis::hset('download:' . $this->jobID, 'date',     date('Y-m-d H:i:s'));
+        Redis::expire('download:' . $this->jobID, 3600 * 6);
         Redis::hset('download:' . $this->jobID, 'progress', json_encode(['pct' => 5, 'label' => 'Memulai proses export...']));
 
         try {
