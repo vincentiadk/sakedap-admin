@@ -1066,6 +1066,13 @@ class ComplianceV3Controller extends Controller
             'filter_hutang','filter_teguran','filter_kckr','persentase','filter_rekomendasi','with_judul',
         ]);
 
+        // Worker tidak punya session — resolve konteks provinsi/role di sini lalu ikutkan di params
+        $params['_ctx'] = $this->resolveProvinceContext(
+            (array) ($request->province_ids ?? []),
+            $request->get('kckr_mode', 'perpusnas')
+        );
+        $params['_province_name'] = session('province_name');
+
         Redis::lpush($userKey, $jobID);
         ComplianceV3ExportJob::dispatch($jobID, $params)->onQueue('report');
 
@@ -1097,7 +1104,8 @@ class ComplianceV3Controller extends Controller
 
         $request = new Request($params);
 
-        $ctx           = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+        // Konteks provinsi sudah di-resolve saat dispatch (worker tidak punya session)
+        $ctx           = $params['_ctx'] ?? $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
         $provinceIds   = $ctx['provinceIds'];
         $kckrCol       = $ctx['kckrCol'];
         $kckrMode      = $ctx['kckrMode'];
@@ -1126,7 +1134,7 @@ class ComplianceV3Controller extends Controller
             ? 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PROVINSI'
             : 'LAPORAN KEPATUHAN PENERBIT KCKR — DATA PERPUSNAS';
         if (!$ctx['isPerpusnas']) {
-            $provName    = session('province_name') ?? 'Provinsi';
+            $provName    = $params['_province_name'] ?? session('province_name') ?? 'Provinsi';
             $judulExport = 'LAPORAN KEPATUHAN PENERBIT KCKR — ' . strtoupper($provName);
         }
 
