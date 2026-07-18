@@ -215,6 +215,202 @@ class DashboardComplianceController extends Controller
         }
     }
 
+    public function prediksiData(Request $request)
+    {
+        try {
+            $conn = $this->getOracleConnection();
+            $ctx  = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $whereProvinsi = $this->buildProvinceWhere($ctx['provinceIds']);
+            $kckrCol = $ctx['kckrCol'];
+
+            $cs      = ComplianceSettings::get();
+            $dlKc    = (int) $cs['BatasWaktuKonfirmasiTerbitKaryaCetak'];
+            $dlKr    = (int) $cs['BatasWaktuKonfirmasiTerbitDigital'];
+            $teguran = (int) $cs['BatasWaktuTeguranKonfirmasiTerbit'];
+            $cutoff  = '2026-01-01';
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:prediksi_' . ComplianceSettings::cacheVersion(), ['province_ids', 'kckr_mode']);
+
+            $data = Cache::remember($cacheKey, 1800, function() use ($conn, $whereProvinsi, $kckrCol, $dlKc, $dlKr, $teguran, $cutoff) {
+                $daysExpr = "ROUND(CASE WHEN PT.JENIS_MEDIA = '1'
+                    THEN (PI.CREATEDATE + $dlKc + $teguran) - SYSDATE
+                    ELSE (PI.CREATEDATE + $dlKr + $teguran) - SYSDATE END)";
+
+                // Bucket summary: 0-30, 31-60, 61-90 hari sebelum blokir
+                $sqlBucket = "
+                    SELECT
+                        SUM(CASE WHEN MIN_DAYS BETWEEN 1  AND 30 THEN 1 ELSE 0 END) as D30,
+                        SUM(CASE WHEN MIN_DAYS BETWEEN 31 AND 60 THEN 1 ELSE 0 END) as D60,
+                        SUM(CASE WHEN MIN_DAYS BETWEEN 61 AND 90 THEN 1 ELSE 0 END) as D90
+                    FROM (
+                        SELECT PI.PENERBIT_ID, MIN($daysExpr) as MIN_DAYS
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                        JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
+                        WHERE PI.CREATEDATE >= TO_DATE('$cutoff', 'YYYY-MM-DD')
+                        AND PI.TANGGAL_TERBIT IS NULL
+                        AND PI.RECEIVED_DATE_KCKR IS NULL
+                        AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                        $whereProvinsi
+                        GROUP BY PI.PENERBIT_ID
+                        HAVING MIN($daysExpr) BETWEEN 1 AND 90
+                    )
+                ";
+                $r   = odbc_fetch_object(odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sqlBucket)));
+                $d30 = (int) ($r->D30 ?? 0);
+                $d60 = (int) ($r->D60 ?? 0);
+                $d90 = (int) ($r->D90 ?? 0);
+
+                // Timeline harian untuk 30 hari ke depan (untuk chart)
+                $sqlTimeline = "
+                    SELECT MIN_DAYS as DAY_N, COUNT(*) as CNT
+                    FROM (
+                        SELECT PI.PENERBIT_ID, MIN($daysExpr) as MIN_DAYS
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                        JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
+                        WHERE PI.CREATEDATE >= TO_DATE('$cutoff', 'YYYY-MM-DD')
+                        AND PI.TANGGAL_TERBIT IS NULL
+                        AND PI.RECEIVED_DATE_KCKR IS NULL
+                        AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                        $whereProvinsi
+                        GROUP BY PI.PENERBIT_ID
+                        HAVING MIN($daysExpr) BETWEEN 1 AND 30
+                    )
+                    GROUP BY MIN_DAYS
+                    ORDER BY MIN_DAYS
+                ";
+                $res      = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sqlTimeline));
+                $dayMap   = [];
+                while ($row = odbc_fetch_object($res)) {
+                    $dayMap[(int) $row->DAY_N] = (int) $row->CNT;
+                }
+                $timelineLabels = [];
+                $timelineData   = [];
+                for ($d = 1; $d <= 30; $d++) {
+                    $timelineLabels[] = 'H-' . $d;
+                    $timelineData[]   = $dayMap[$d] ?? 0;
+                }
+
+                return compact('d30', 'd60', 'd90', 'timelineLabels', 'timelineData');
+            });
+
+            return response()->json($data);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function provinsiData(Request $request)
+    {
+        try {
+            $conn       = $this->getOracleConnection();
+            $dateFilter = $this->parseDateFilter($request);
+            $start_date = $dateFilter['start'];
+            $end_date   = $dateFilter['end'];
+            $ctx        = $this->resolveProvinceContext([], $request->get('kckr_mode', 'perpusnas'));
+            $kckrCol    = $ctx['kckrCol'];
+
+            $cs      = ComplianceSettings::get();
+            $dlKc    = (int) $cs['BatasWaktuKonfirmasiTerbitKaryaCetak'];
+            $dlKr    = (int) $cs['BatasWaktuKonfirmasiTerbitDigital'];
+            $teguran = (int) $cs['BatasWaktuTeguranKonfirmasiTerbit'];
+            $minPct  = (int) $cs['BatasMinimumKepatuhanKCKR'];
+            $cutoff  = '2026-01-01';
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:provinsi_' . ComplianceSettings::cacheVersion(), [
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
+            ]);
+
+            $rows = Cache::remember($cacheKey, 3600, function() use (
+                $conn, $kckrCol, $start_date, $end_date, $cutoff, $dlKc, $dlKr, $teguran, $minPct
+            ) {
+                $dlKckrV1 = "CASE WHEN P.KATEGORI_ID = 1 THEN ADD_MONTHS(PI.CREATEDATE, 3)
+                                  ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.CREATEDATE, 3)
+                                            ELSE ADD_MONTHS(PI.CREATEDATE, 12) END END";
+                $dlKckrV2 = "CASE WHEN P.KATEGORI_ID = 1 THEN ADD_MONTHS(PI.TANGGAL_TERBIT, 3)
+                                  ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.TANGGAL_TERBIT, 3)
+                                            ELSE ADD_MONTHS(PI.TANGGAL_TERBIT, 12) END END";
+                $dlTerbit = "CASE WHEN PT.JENIS_MEDIA = '1' THEN (PI.CREATEDATE + $dlKc) ELSE (PI.CREATEDATE + $dlKr) END";
+
+                $sudahExpr   = "SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+                $tagihanExpr = "SUM(CASE
+                    WHEN PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD') AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD') AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    ELSE 0 END)";
+                $ttExpr = "($sudahExpr + $tagihanExpr)";
+                $lewatTeguranExpr = "SUM(CASE WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')
+                    AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL
+                    AND SYSDATE > ($dlTerbit + $teguran) THEN 1 ELSE 0 END)";
+
+                $sql = "
+                    SELECT
+                        PR.NAMAPROPINSI as NAMA,
+                        COUNT(*) as TOTAL_PENERBIT,
+                        ROUND(AVG(S.PERSENTASE_KCKR), 1) as AVG_KCKR,
+                        COUNT(CASE WHEN S.LEWAT_TEGURAN > 0 AND NOT (S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct) THEN 1 END) as BLOKIR_TERBIT,
+                        COUNT(CASE WHEN S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct AND S.LEWAT_TEGURAN = 0 THEN 1 END) as BLOKIR_KCKR,
+                        COUNT(CASE WHEN S.LEWAT_TEGURAN > 0 AND S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct THEN 1 END) as BLOKIR_KEDUANYA,
+                        COUNT(CASE WHEN S.LEWAT_TEGURAN = 0 AND (S.TERLAMBAT_KCKR = 0 OR S.PERSENTASE_KCKR > $minPct) THEN 1 END) as BAIK
+                    FROM PROPINSI PR
+                    JOIN (
+                        SELECT
+                            P.ID,
+                            P.PROVINCE_ID,
+                            ROUND(
+                                CASE WHEN $ttExpr > 0
+                                    THEN SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END) / $ttExpr * 100
+                                    ELSE 0 END, 1
+                            ) as PERSENTASE_KCKR,
+                            SUM(CASE
+                                WHEN PI.CREATEDATE < TO_DATE('$cutoff','YYYY-MM-DD') AND (
+                                    (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV1))
+                                 OR (PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlKckrV1))
+                                ) THEN 1
+                                WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD') AND PI.TANGGAL_TERBIT IS NOT NULL AND (
+                                    (PI.RECEIVED_DATE_KCKR IS NOT NULL AND PI.RECEIVED_DATE_KCKR > ($dlKckrV2))
+                                 OR (PI.RECEIVED_DATE_KCKR IS NULL AND SYSDATE > ($dlKckrV2))
+                                ) THEN 1
+                                ELSE 0 END) as TERLAMBAT_KCKR,
+                            SUM(CASE WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')
+                                AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL
+                                AND SYSDATE > ($dlTerbit + $teguran) THEN 1 ELSE 0 END) as LEWAT_TEGURAN
+                        FROM PENERBIT P
+                        LEFT JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                            AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
+                            AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
+                            AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                        LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
+                        GROUP BY P.ID, P.PROVINCE_ID
+                        HAVING $ttExpr > 0 OR $lewatTeguranExpr > 0
+                    ) S ON S.PROVINCE_ID = PR.ID
+                    GROUP BY PR.ID, PR.NAMAPROPINSI
+                    ORDER BY AVG_KCKR ASC
+                ";
+                $result = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
+                $data   = [];
+                while ($row = odbc_fetch_object($result)) {
+                    $data[] = [
+                        'nama'            => $row->NAMA,
+                        'total_penerbit'  => (int) $row->TOTAL_PENERBIT,
+                        'avg_kckr'        => (float) $row->AVG_KCKR,
+                        'blokir_terbit'   => (int) $row->BLOKIR_TERBIT,
+                        'blokir_kckr'     => (int) $row->BLOKIR_KCKR,
+                        'blokir_keduanya' => (int) $row->BLOKIR_KEDUANYA,
+                        'baik'            => (int) $row->BAIK,
+                    ];
+                }
+                return $data;
+            });
+
+            return response()->json($rows);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function chartData(Request $request)
     {
         try {

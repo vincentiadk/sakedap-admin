@@ -350,6 +350,8 @@ Route::middleware('authentication')->group(function () {
         });
         Route::get('/dashboard', 'DashboardComplianceController@index')->name('dashboard_compliance');
         Route::get('/dashboard/chart-data', 'DashboardComplianceController@chartData')->name('dashboard_compliance.chart');
+        Route::get('/dashboard/prediksi-data', 'DashboardComplianceController@prediksiData')->name('dashboard_compliance.prediksi');
+        Route::get('/dashboard/provinsi-data', 'DashboardComplianceController@provinsiData')->name('dashboard_compliance.provinsi');
 
         Route::prefix('compliance-v3')->group(function () {
             Route::get('/',                   'ComplianceV3Controller@index')->name('compliance_v3.index');

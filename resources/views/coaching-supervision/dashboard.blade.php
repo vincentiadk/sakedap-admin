@@ -2,15 +2,78 @@
 
 @section('content')
 <style>
-    #dashboardContent .card { border: none; border-radius: 12px; }
-    .stat-card { transition: transform .15s; }
-    .stat-card:hover { transform: translateY(-3px); }
+    body { background: #f4f6fb; }
+
+    #dashboardContent .card {
+        border: 1px solid rgba(15, 40, 80, .06);
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(15, 40, 80, .04), 0 4px 16px rgba(15, 40, 80, .05);
+    }
+    #dashboardContent .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(15, 40, 80, .07);
+        font-size: .88rem;
+        padding-top: .8rem;
+        padding-bottom: .8rem;
+    }
+    #dashboardContent h2 { letter-spacing: -.02em; }
+
+    .stat-card {
+        transition: transform .18s ease, box-shadow .18s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(15, 40, 80, .10) !important;
+    }
+    .stat-card .card-body { padding: 1.1rem .9rem; }
+    .stat-card h6 {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-weight: 600;
+    }
+    .stat-card h2, .stat-card h3 { letter-spacing: -.02em; margin-bottom: .1rem; }
+
+    /* icon bubble */
+    .icon-bubble {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: .45rem;
+        font-size: 1.05rem;
+    }
+
+    /* header section */
+    #dashboardContent h5.fw-bold {
+        font-size: 1rem;
+        letter-spacing: -.01em;
+    }
+
+    /* tombol lebih halus */
+    #dashboardContent .btn { border-radius: 10px; }
+    #dashboardContent .btn-group .btn { border-radius: 10px; }
+    #dashboardContent .btn-group .btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    #dashboardContent .btn-group .btn:last-child  { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+
+    /* filter card */
+    #dashFilterCard { background: #ffffff; }
+    #dashFilterCard .form-select, #dashFilterCard .form-control { border-radius: 8px; }
+
+    /* alert info mode */
+    #dashboardContent .alert { border: none; border-radius: 12px; }
+
     .badge-patuh-0  { background-color: #dc3545; }
     .badge-patuh-1  { background-color: #fd7e14; }
     .badge-patuh-2  { background-color: #ffc107; color: #000; }
     .badge-patuh-3  { background-color: #0dcaf0; color: #000; }
     .badge-patuh-4  { background-color: #198754; }
     .progress-bar-striped { animation: progress-bar-stripes 1s linear infinite; }
+    #dashboardContent .progress { border-radius: 99px; background: #eef1f7; }
+    #dashboardContent .progress-bar { border-radius: 99px; }
 
     @media print {
         @page { size: A4 landscape; margin: 10mm; }
@@ -59,13 +122,15 @@
         &nbsp;|&nbsp; <strong>Dicetak:</strong> {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y, H:i') }} WIB
     </div>
 </div>
-    <div class="d-flex justify-content-between align-items-center mb-4" >
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-4"
+         style="background:linear-gradient(120deg,#eaf1fd 0%,#f6f9ff 55%,#eef8f3 100%);border:1px solid rgba(42,120,214,.12)">
         <div>
-            <h2 class="mb-0">📊 Dashboard Kepatuhan Penerbit</h2>
+            <h2 class="mb-1 fw-bold" style="color:#173a63">📊 Dashboard Kepatuhan Penerbit</h2>
+            <div class="text-muted" style="font-size:.82rem">Pemantauan kepatuhan KCKR & konfirmasi terbit — {{ $periodeLabel }}</div>
             @if($isMixed ?? false)
-                <span class="badge bg-warning text-dark ms-1">Mode Campuran — pra-2026 + 2026+</span>
+                <span class="badge bg-warning text-dark mt-1">Mode Campuran — pra-2026 + 2026+</span>
             @elseif($hasV2 ?? false)
-                <span class="badge bg-primary ms-1">Mode 2026+ — berbasis Tanggal Terbit</span>
+                <span class="badge bg-primary mt-1">Mode 2026+ — berbasis Tanggal Terbit</span>
             @endif
         </div>
         @php
@@ -93,19 +158,19 @@
             <div class="btn-group btn-group-sm" role="group" title="Pilih data KCKR yang ditampilkan">
                 <button id="btnDashPerpusnas" onclick="setDashKckrMode('perpusnas')"
                    class="btn {{ $currentKckrMode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary' }}">
-                    <i class="fas fa-landmark"></i> Data Perpusnas
+                    <i class="ph-bank"></i> Data Perpusnas
                 </button>
                 <button id="btnDashProvinsi" onclick="setDashKckrMode('provinsi')"
                    class="btn {{ $currentKckrMode === 'provinsi' ? 'btn-success' : 'btn-outline-success' }}">
-                    <i class="fas fa-map-marker-alt"></i> Data Provinsi
+                    <i class="ph-map-pin"></i> Data Provinsi
                 </button>
             </div>
             @endif
             <button onclick="downloadPDF()" class="btn btn-danger btn-sm">
-                <i class="fas fa-file-pdf"></i> Download PDF
+                <i class="ph-file-pdf"></i> Download PDF
             </button>
             <a href="{{ $detailRoute }}?{{ http_build_query($toCompliance) }}" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-table"></i> Lihat Detail
+                <i class="ph-table"></i> Lihat Detail
             </a>
         </div>
     </div>
@@ -113,10 +178,10 @@
     @if($isPerpusnas ?? true)
     <div class="alert {{ ($currentKckrMode === 'provinsi') ? 'alert-success' : 'alert-primary' }} py-2 px-3 mb-3" style="font-size:.85rem">
         @if($currentKckrMode === 'provinsi')
-            <i class="fas fa-map-marker-alt me-1"></i>
+            <i class="ph-map-pin me-1"></i>
             <strong>Mode: Data KCKR Provinsi</strong> — menampilkan kepatuhan berdasarkan tanggal penerimaan KCKR di perpustakaan daerah (<code>received_date_prov</code>).
         @else
-            <i class="fas fa-landmark me-1"></i>
+            <i class="ph-bank me-1"></i>
             <strong>Mode: Data KCKR Perpusnas</strong> — menampilkan kepatuhan berdasarkan tanggal penerimaan KCKR di Perpustakaan Nasional (<code>received_date_kckr</code>).
         @endif
     </div>
@@ -204,7 +269,7 @@
 
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary btn-sm mt-3">
-                            <i class="fas fa-sync-alt"></i> Tampilkan
+                            <i class="ph-arrows-clockwise"></i> Tampilkan
                         </button>
                         <a href="{{ route('dashboard_compliance') }}?filter_type=range&start_date=2021-01-01&end_date={{ date('Y-m-d') }}"
                            class="btn btn-outline-secondary btn-sm mt-3">Reset</a>
@@ -250,36 +315,36 @@
     {{-- Stat Cards --}}
     <div class="row g-3 mb-4">
         <div class="col">
-            <div class="card shadow-sm stat-card h-100">
+            <div class="card stat-card h-100" style="border-top:4px solid #2a78d6">
                 <div class="card-body text-center">
-                    <div class="text-muted mb-1"><i class="fas fa-building fa-lg"></i></div>
+                    <div class="icon-bubble" style="background:#e8f0fc;color:#2a78d6"><i class="ph-buildings"></i></div>
                     <h6 class="text-muted">Total Penerbit</h6>
-                    <h2 class="text-primary fw-bold">{{ number_format($total->TOTAL_PENERBIT) }}</h2>
+                    <h2 class="fw-bold" style="color:#2a78d6">{{ number_format($total->TOTAL_PENERBIT) }}</h2>
                 </div>
             </div>
         </div>
         <div class="col">
-            <div class="card shadow-sm stat-card h-100">
+            <div class="card stat-card h-100" style="border-top:4px solid #0dcaf0">
                 <div class="card-body text-center">
-                    <div class="text-muted mb-1"><i class="fas fa-book fa-lg"></i></div>
+                    <div class="icon-bubble" style="background:#e3f8fd;color:#0aa2c0"><i class="ph-book"></i></div>
                     <h6 class="text-muted">Total Judul ISBN</h6>
-                    <h2 class="text-info fw-bold">{{ number_format($total->TOTAL_JUDUL) }}</h2>
+                    <h2 class="fw-bold" style="color:#0aa2c0">{{ number_format($total->TOTAL_JUDUL) }}</h2>
                 </div>
             </div>
         </div>
         <div class="col">
-            <div class="card shadow-sm stat-card h-100">
+            <div class="card stat-card h-100" style="border-top:4px solid #198754">
                 <div class="card-body text-center">
-                    <div class="text-muted mb-1"><i class="fas fa-check-circle fa-lg"></i></div>
+                    <div class="icon-bubble" style="background:#e6f6ee;color:#198754"><i class="ph-check-circle"></i></div>
                     <h6 class="text-muted">Total Sudah KCKR</h6>
-                    <h2 class="text-success fw-bold">{{ number_format($total->TOTAL_KCKR) }}</h2>
+                    <h2 class="fw-bold text-success">{{ number_format($total->TOTAL_KCKR) }}</h2>
                 </div>
             </div>
         </div>
         <div class="col">
-            <div class="card shadow-sm stat-card h-100">
+            <div class="card stat-card h-100" style="border-top:4px solid #fd7e14">
                 <div class="card-body text-center">
-                    <div class="mb-1" style="color:#fd7e14"><i class="fas fa-file-invoice fa-lg"></i></div>
+                    <div class="icon-bubble" style="background:#fff2e5;color:#fd7e14"><i class="ph-file-text"></i></div>
                     <h6 class="text-muted">Belum KCKR</h6>
                     <h2 class="fw-bold" style="color:#fd7e14">{{ number_format($belumKckrTop) }}</h2>
                     <small class="text-muted" style="font-size:.72rem">judul belum setor KCKR</small>
@@ -287,13 +352,16 @@
             </div>
         </div>
         <div class="col">
-            <div class="card shadow-sm stat-card h-100">
+            @php
+                $avgK = $total->RATA_RATA_KEPATUHAN ?? 0;
+                $avgColor = $avgK >= 61 ? '#198754' : ($avgK >= 41 ? '#d9a406' : '#dc3545');
+                $avgBg    = $avgK >= 61 ? '#e6f6ee' : ($avgK >= 41 ? '#fdf6e0' : '#fdeaec');
+            @endphp
+            <div class="card stat-card h-100" style="border-top:4px solid {{ $avgColor }}">
                 <div class="card-body text-center">
-                    <div class="text-muted mb-1"><i class="fas fa-chart-pie fa-lg"></i></div>
+                    <div class="icon-bubble" style="background:{{ $avgBg }};color:{{ $avgColor }}"><i class="ph-chart-pie"></i></div>
                     <h6 class="text-muted">Rata-rata Kepatuhan</h6>
-                    <h2 class="fw-bold {{ ($total->RATA_RATA_KEPATUHAN ?? 0) >= 61 ? 'text-success' : (($total->RATA_RATA_KEPATUHAN ?? 0) >= 41 ? 'text-warning' : 'text-danger') }}">
-                        {{ number_format($total->RATA_RATA_KEPATUHAN ?? 0, 1) }}%
-                    </h2>
+                    <h2 class="fw-bold" style="color:{{ $avgColor }}">{{ number_format($avgK, 1) }}%</h2>
                 </div>
             </div>
         </div>
@@ -352,11 +420,11 @@
     {{-- Distribusi Cards --}}
     @php
         $levels = [
-            'Sangat Tidak Patuh' => ['color' => 'danger',  'icon' => 'fa-times-circle',     'range' => '0% – 20%'],
-            'Tidak Patuh'        => ['color' => 'orange',  'icon' => 'fa-exclamation-circle','range' => '21% – 40%'],
-            'Cukup Patuh'        => ['color' => 'warning', 'icon' => 'fa-minus-circle',      'range' => '41% – 60%'],
-            'Patuh'              => ['color' => 'info',    'icon' => 'fa-check-circle',      'range' => '61% – 80%'],
-            'Sangat Patuh'       => ['color' => 'success', 'icon' => 'fa-star',              'range' => '81% – 100%'],
+            'Sangat Tidak Patuh' => ['color' => 'danger',  'icon' => 'ph-x-circle',     'range' => '0% – 20%'],
+            'Tidak Patuh'        => ['color' => 'orange',  'icon' => 'ph-warning-circle','range' => '21% – 40%'],
+            'Cukup Patuh'        => ['color' => 'warning', 'icon' => 'ph-minus-circle',      'range' => '41% – 60%'],
+            'Patuh'              => ['color' => 'info',    'icon' => 'ph-check-circle',      'range' => '61% – 80%'],
+            'Sangat Patuh'       => ['color' => 'success', 'icon' => 'ph-star',              'range' => '81% – 100%'],
         ];
         $distribusiMap = collect($distribusi)->keyBy('KATEGORI_PATUH');
     @endphp
@@ -383,7 +451,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <span class="badge" style="background:{{ $hex }};{{ $textDark }}">{{ $level['range'] }}</span>
-                            <i class="fas {{ $level['icon'] }} fa-lg" style="color:{{ $hex }}"></i>
+                            <i class="{{ $level['icon'] }} ph-lg" style="color:{{ $hex }}"></i>
                         </div>
                         <h6 class="fw-bold">{{ $nama }}</h6>
                         <h3 class="fw-bold mb-1" style="color:{{ $hex }}">{{ number_format($jumlah) }}</h3>
@@ -421,7 +489,7 @@
         <div class="col-md">
             <div class="card shadow-sm stat-card h-100 border-top border-3 border-success">
                 <div class="card-body text-center">
-                    <div class="text-success mb-1"><i class="fas fa-check-circle fa-lg"></i></div>
+                    <div class="text-success mb-1"><i class="ph-check-circle ph-lg"></i></div>
                     <h6 class="text-muted">Sudah Terbit</h6>
                     <h3 class="text-success fw-bold">{{ number_format($total->TOTAL_TERBIT ?? 0) }}</h3>
                     <small class="text-muted">judul</small>
@@ -433,7 +501,7 @@
         <div class="col-md">
             <div class="card shadow-sm stat-card h-100 border-top border-3 border-secondary">
                 <div class="card-body text-center">
-                    <div class="text-secondary mb-1"><i class="fas fa-hourglass-half fa-lg"></i></div>
+                    <div class="text-secondary mb-1"><i class="ph-hourglass-medium ph-lg"></i></div>
                     <h6 class="text-muted">Belum Terbit</h6>
                     <h3 class="text-secondary fw-bold">{{ number_format($total->TOTAL_BELUM_TERBIT ?? 0) }}</h3>
                     <small class="text-muted">judul</small>
@@ -445,7 +513,7 @@
         <div class="col-md">
             <div class="card shadow-sm stat-card h-100 border-top border-3 border-warning">
                 <div class="card-body text-center">
-                    <div class="text-warning mb-1"><i class="fas fa-exclamation-triangle fa-lg"></i></div>
+                    <div class="text-warning mb-1"><i class="ph-warning ph-lg"></i></div>
                     <h6 class="text-muted">Hutang Terbit</h6>
                     <h3 class="text-warning fw-bold">{{ number_format($total->TOTAL_HUTANG_TERBIT ?? 0) }}</h3>
                     <small class="text-muted">judul melewati deadline terbit</small>
@@ -457,7 +525,7 @@
         <div class="col-md">
             <div class="card shadow-sm stat-card h-100 border-top border-3 border-danger">
                 <div class="card-body text-center">
-                    <div class="text-danger mb-1"><i class="fas fa-bell fa-lg"></i></div>
+                    <div class="text-danger mb-1"><i class="ph-bell ph-lg"></i></div>
                     <h6 class="text-muted">Lewat Batas Teguran</h6>
                     <h3 class="text-danger fw-bold">{{ number_format($total->TOTAL_LEWAT_TEGURAN ?? 0) }}</h3>
                     <small class="text-muted">judul melewati +30 hari teguran</small>
@@ -533,7 +601,7 @@
                                 </div>
                             </div>
                             <div class="p-2 rounded" style="background:#f8f9fa;border:1px dashed #dee2e6">
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>
+                                <small class="text-muted"><i class="ph-info me-1"></i>
                                     <strong>Belum KCKR:</strong>
                                     @if($isMixed ?? false)
                                         Pra-2026 = semua judul tanpa KCKR; 2026+ = judul yang sudah konfirmasi terbit namun belum setor KCKR.
@@ -598,7 +666,7 @@
                                 </div>
                             </div>
                             <div class="p-2 rounded" style="background:#f8f9fa;border:1px dashed #dee2e6">
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>
+                                <small class="text-muted"><i class="ph-info me-1"></i>
                                     <strong>Belum KCKR (Pra-2026):</strong> Semua judul ISBN yang belum menyerahkan KCKR sejak terbit.
                                     Total: <strong style="color:#fd7e14">{{ number_format(($total->TOTAL_JUDUL ?? 0) - ($total->TOTAL_KCKR ?? 0)) }} judul</strong>
                                 </small>
@@ -612,6 +680,105 @@
     @endif
 
     @endif
+
+    {{-- ── Prediksi Blokir (hanya tampil jika ada data 2026+) ── --}}
+    @if(($hasV2 ?? false) || ($isMixed ?? false))
+    <div class="mt-4" id="prediksiSection">
+        <h5 class="fw-bold text-danger border-bottom pb-2 mb-3">
+            ⚠️ Prediksi Penerbit Akan Blokir Konfirmasi Terbit
+            <small class="text-muted fw-normal" style="font-size:.85rem">(dalam 90 hari ke depan)</small>
+        </h5>
+        <div id="prediksiLoading" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-1"></div> Memuat prediksi...
+        </div>
+        <div id="prediksiContent" class="d-none">
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-top border-3 border-danger">
+                        <div class="card-body text-center">
+                            <div class="text-danger mb-1"><i class="ph-warning-circle ph-lg"></i></div>
+                            <h6 class="text-muted">Dalam 30 Hari</h6>
+                            <h2 class="text-danger fw-bold" id="predD30">-</h2>
+                            <small class="text-muted">penerbit akan kena blokir</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-top border-3 border-warning">
+                        <div class="card-body text-center">
+                            <div class="text-warning mb-1"><i class="ph-clock ph-lg"></i></div>
+                            <h6 class="text-muted">31–60 Hari</h6>
+                            <h2 class="text-warning fw-bold" id="predD60">-</h2>
+                            <small class="text-muted">penerbit akan kena blokir</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-top border-3" style="border-color:#0dcaf0!important">
+                        <div class="card-body text-center">
+                            <div style="color:#0dcaf0" class="mb-1"><i class="ph-calendar ph-lg"></i></div>
+                            <h6 class="text-muted">61–90 Hari</h6>
+                            <h2 class="fw-bold" style="color:#0dcaf0" id="predD90">-</h2>
+                            <small class="text-muted">penerbit akan kena blokir</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold" style="font-size:.9rem">
+                    📅 Timeline — penerbit yang akan masuk blokir per hari (30 hari ke depan)
+                </div>
+                <div class="card-body">
+                    <div style="position:relative;width:100%;height:200px">
+                        <canvas id="prediksiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="prediksiError" class="alert alert-danger d-none"></div>
+    </div>
+    @endif
+
+    {{-- ── Heatmap Provinsi ── --}}
+    @if($isPerpusnas ?? true)
+    <div class="mt-4" id="heatmapSection">
+        <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">
+            🗺️ Heatmap Kepatuhan per Provinsi
+        </h5>
+        <div id="heatmapLoading" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-1"></div> Memuat data provinsi...
+        </div>
+        <div id="heatmapContent" class="d-none">
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header fw-semibold" style="font-size:.9rem">Ranking Kepatuhan KCKR per Provinsi</div>
+                        <div class="card-body" style="overflow-y:auto;max-height:460px">
+                            <canvas id="provinsiChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header fw-semibold" style="font-size:.9rem">Tile Map Provinsi</div>
+                        <div class="card-body" style="overflow-y:auto;max-height:460px">
+                            <div id="provinsiTiles" class="d-flex flex-wrap gap-2"></div>
+                            <div class="mt-3 d-flex flex-wrap gap-2" style="font-size:.75rem">
+                                <span><span style="display:inline-block;width:12px;height:12px;background:#dc3545;border-radius:2px"></span> 0–20%</span>
+                                <span><span style="display:inline-block;width:12px;height:12px;background:#fd7e14;border-radius:2px"></span> 21–40%</span>
+                                <span><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px"></span> 41–60%</span>
+                                <span><span style="display:inline-block;width:12px;height:12px;background:#0dcaf0;border-radius:2px"></span> 61–80%</span>
+                                <span><span style="display:inline-block;width:12px;height:12px;background:#198754;border-radius:2px"></span> 81–100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="heatmapError" class="alert alert-danger d-none"></div>
+    </div>
+    @endif
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -881,7 +1048,188 @@ function loadChart() {
         });
 }
 
-document.addEventListener('DOMContentLoaded', () => loadChart());
+document.addEventListener('DOMContentLoaded', () => {
+    loadChart();
+    loadPrediksi();
+    loadHeatmap();
+});
+
+// ── Prediksi Blokir ──────────────────────────────────────────────────────────
+let prediksiChartInstance = null;
+function loadPrediksi() {
+    const predSec = document.getElementById('prediksiSection');
+    if (!predSec) return;
+
+    const p = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
+    @if(!empty($provinceIds))
+        @foreach($provinceIds as $pid)
+            params.append('province_ids[]', '{{ $pid }}');
+        @endforeach
+    @endif
+    params.set('kckr_mode', p.get('kckr_mode') || 'perpusnas');
+
+    fetch('{{ route("dashboard_compliance.prediksi") }}?' + params.toString())
+        .then(r => r.json())
+        .then(res => {
+            document.getElementById('prediksiLoading').classList.add('d-none');
+            if (res.error) {
+                document.getElementById('prediksiError').textContent = res.error;
+                document.getElementById('prediksiError').classList.remove('d-none');
+                return;
+            }
+            document.getElementById('predD30').textContent = res.d30.toLocaleString('id');
+            document.getElementById('predD60').textContent = res.d60.toLocaleString('id');
+            document.getElementById('predD90').textContent = res.d90.toLocaleString('id');
+            document.getElementById('prediksiContent').classList.remove('d-none');
+
+            if (prediksiChartInstance) prediksiChartInstance.destroy();
+            prediksiChartInstance = new Chart(document.getElementById('prediksiChart'), {
+                type: 'bar',
+                data: {
+                    labels: res.timelineLabels,
+                    datasets: [{
+                        label: 'Penerbit masuk blokir',
+                        data: res.timelineData,
+                        backgroundColor: ctx => {
+                            const v = ctx.raw;
+                            if (v >= 10) return '#dc3545';
+                            if (v >= 5)  return '#fd7e14';
+                            if (v >= 1)  return '#ffc107';
+                            return '#e9ecef';
+                        },
+                        borderRadius: 3,
+                        datalabels: {
+                            display: ctx => ctx.raw > 0,
+                            anchor: 'end', align: 'top', clip: false,
+                            color: '#333', font: { size: 9, weight: 'bold' },
+                            formatter: v => v,
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 18 } },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 0 } },
+                        y: { beginAtZero: true, grace: '20%', ticks: { stepSize: 1, font: { size: 10 } } }
+                    }
+                }
+            });
+        })
+        .catch(() => {
+            document.getElementById('prediksiLoading').classList.add('d-none');
+            document.getElementById('prediksiError').textContent = 'Gagal memuat data prediksi.';
+            document.getElementById('prediksiError').classList.remove('d-none');
+        });
+}
+
+// ── Heatmap Provinsi ─────────────────────────────────────────────────────────
+let provinsiChartInstance = null;
+function loadHeatmap() {
+    const hmSec = document.getElementById('heatmapSection');
+    if (!hmSec) return;
+
+    const p = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
+    const ft = p.get('filter_type') || '{{ $dateFilter["type"] ?? "tahun" }}';
+    params.set('filter_type', ft);
+    if (ft === 'tahun') {
+        params.set('filter_year', p.get('filter_year') || '{{ request("filter_year", date("Y")) }}');
+    } else if (ft === 'bulan') {
+        params.set('filter_year',  p.get('filter_year')  || '{{ request("filter_year",  date("Y")) }}');
+        params.set('filter_month', p.get('filter_month') || '{{ request("filter_month", date("n")) }}');
+    } else {
+        params.set('start_date', p.get('start_date') || '{{ request("start_date", "2021-01-01") }}');
+        params.set('end_date',   p.get('end_date')   || '{{ request("end_date",   date("Y-m-d")) }}');
+    }
+    params.set('kckr_mode', p.get('kckr_mode') || 'perpusnas');
+
+    fetch('{{ route("dashboard_compliance.provinsi") }}?' + params.toString())
+        .then(r => r.json())
+        .then(rows => {
+            document.getElementById('heatmapLoading').classList.add('d-none');
+            if (rows.error) {
+                document.getElementById('heatmapError').textContent = rows.error;
+                document.getElementById('heatmapError').classList.remove('d-none');
+                return;
+            }
+            document.getElementById('heatmapContent').classList.remove('d-none');
+
+            const pctColor = pct => {
+                if (pct <= 20) return '#dc3545';
+                if (pct <= 40) return '#fd7e14';
+                if (pct <= 60) return '#ffc107';
+                if (pct <= 80) return '#0dcaf0';
+                return '#198754';
+            };
+            const textColor = pct => (pct > 20 && pct <= 60) ? '#000' : '#fff';
+
+            // Tile map
+            const tilesEl = document.getElementById('provinsiTiles');
+            tilesEl.innerHTML = '';
+            [...rows].sort((a, b) => b.avg_kckr - a.avg_kckr).forEach(row => {
+                const bg  = pctColor(row.avg_kckr);
+                const fg  = textColor(row.avg_kckr);
+                const blokir = row.blokir_terbit + row.blokir_kckr + row.blokir_keduanya;
+                const tile = document.createElement('div');
+                tile.title = `${row.nama}\n${row.total_penerbit} penerbit | ${row.avg_kckr}% KCKR\nBlokir: ${blokir} | Baik: ${row.baik}`;
+                tile.style.cssText = `background:${bg};color:${fg};border-radius:8px;padding:6px 10px;font-size:.75rem;cursor:default;min-width:110px;text-align:center`;
+                tile.innerHTML = `<div style="font-weight:600;font-size:.7rem;line-height:1.2">${row.nama}</div>
+                    <div style="font-size:1rem;font-weight:bold">${row.avg_kckr}%</div>
+                    <div style="font-size:.65rem;opacity:.85">${row.total_penerbit} penerbit</div>`;
+                tilesEl.appendChild(tile);
+            });
+
+            // Horizontal bar chart (sorted ascending by KCKR)
+            const labels  = rows.map(r => r.nama);
+            const values  = rows.map(r => r.avg_kckr);
+            const bgColors = values.map(v => pctColor(v));
+
+            if (provinsiChartInstance) provinsiChartInstance.destroy();
+
+            const chartEl = document.getElementById('provinsiChart');
+            chartEl.height = Math.max(300, rows.length * 22);
+
+            provinsiChartInstance = new Chart(chartEl, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Rata-rata Kepatuhan KCKR (%)',
+                        data: values,
+                        backgroundColor: bgColors,
+                        borderRadius: 4,
+                        datalabels: {
+                            anchor: 'end', align: 'right', clip: false,
+                            color: '#333', font: { size: 10, weight: 'bold' },
+                            formatter: v => v + '%',
+                        }
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { right: 40 } },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true, max: 110,
+                            ticks: { callback: v => v + '%', font: { size: 10 } }
+                        },
+                        y: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        })
+        .catch(() => {
+            document.getElementById('heatmapLoading').classList.add('d-none');
+            document.getElementById('heatmapError').textContent = 'Gagal memuat data provinsi.';
+            document.getElementById('heatmapError').classList.remove('d-none');
+        });
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function setDashKckrMode(mode) {
     document.getElementById('btnDashPerpusnas').className = 'btn ' + (mode === 'perpusnas' ? 'btn-primary' : 'btn-outline-primary');
@@ -895,7 +1243,7 @@ function setDashKckrMode(mode) {
 function downloadPDF() {
     const btn = document.querySelector('button[onclick="downloadPDF()"]');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
 
     const el = document.getElementById('dashboardContent');
 
@@ -903,6 +1251,16 @@ function downloadPDF() {
     pdfHeader.style.display = 'block';
     const hidden = el.querySelectorAll('.btn, form, #dashFilterCard');
     hidden.forEach(e => e.style.display = 'none');
+
+    // Buka semua scrollable container agar html2canvas capture full content
+    const scrollables = el.querySelectorAll('[style*="overflow"][style*="max-height"], [style*="max-height"][style*="overflow"]');
+    const scrollableStates = [];
+    scrollables.forEach(s => {
+        scrollableStates.push({ el: s, maxHeight: s.style.maxHeight, overflow: s.style.overflow, overflowY: s.style.overflowY });
+        s.style.maxHeight = 'none';
+        s.style.overflow  = 'visible';
+        s.style.overflowY = 'visible';
+    });
 
     const SCALE = 2;
 
@@ -914,6 +1272,11 @@ function downloadPDF() {
         backgroundColor: '#ffffff',
         windowWidth: 1700,
         onclone: (doc) => {
+            doc.querySelectorAll('[style]').forEach(s => {
+                s.style.maxHeight = 'none';
+                s.style.overflow  = 'visible';
+                s.style.overflowY = 'visible';
+            });
             doc.querySelectorAll('canvas').forEach(c => {
                 const original = document.getElementById(c.id);
                 if (original) {
@@ -928,6 +1291,11 @@ function downloadPDF() {
     }).then(canvas => {
         pdfHeader.style.display = 'none';
         hidden.forEach(e => e.style.display = '');
+        scrollableStates.forEach(s => {
+            s.el.style.maxHeight = s.maxHeight;
+            s.el.style.overflow  = s.overflow;
+            s.el.style.overflowY = s.overflowY;
+        });
 
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/jpeg', 0.92);
@@ -949,14 +1317,19 @@ function downloadPDF() {
         pdf.save(filename);
 
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF';
+        btn.innerHTML = '<i class="ph-file-pdf"></i> Download PDF';
     }).catch(err => {
         pdfHeader.style.display = 'none';
         hidden.forEach(e => e.style.display = '');
+        scrollableStates.forEach(s => {
+            s.el.style.maxHeight = s.maxHeight;
+            s.el.style.overflow  = s.overflow;
+            s.el.style.overflowY = s.overflowY;
+        });
         console.error(err);
         alert('Gagal: ' + err.message);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF';
+        btn.innerHTML = '<i class="ph-file-pdf"></i> Download PDF';
     });
 }
 </script>
