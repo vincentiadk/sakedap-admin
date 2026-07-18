@@ -415,7 +415,7 @@
         <div class="content-wrapper">
             <div class="content-inner">
                 <div class="modal fade" id="modal-datatable-download" data-bs-backdrop="static" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog" style="margin-top:200px">
                         <div class="modal-content">
                             <div class="modal-body text-center p-4">
                                 <div class="mb-3" id="download-icon-container">

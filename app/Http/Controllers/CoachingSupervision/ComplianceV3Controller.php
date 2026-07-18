@@ -1130,7 +1130,27 @@ class ComplianceV3Controller extends Controller
             $judulExport = 'LAPORAN KEPATUHAN PENERBIT KCKR — ' . strtoupper($provName);
         }
 
-        $safeFilename = 'ComplianceV3_' . ($kckrMode === 'provinsi' ? 'Provinsi_' : '') . $periode . '_' . date('d-m-Y') . '.xlsx';
+        // Kumpulkan label filter aktif untuk filename & keterangan di Excel
+        $filterLabels = [];
+        if ($kategori)          $filterLabels[] = 'Kategori:' . ($kategori == 1 ? 'Pemerintah' : 'Swasta');
+        if ($search)            $filterLabels[] = 'Cari:' . $search;
+        if ($filterHutang)      $filterLabels[] = 'Hutang:' . $filterHutang;
+        if ($filterTeguran)     $filterLabels[] = 'Teguran:' . $filterTeguran;
+        if ($filterKckr)        $filterLabels[] = 'KCKR:' . $filterKckr;
+        if ($filterRekomendasi) $filterLabels[] = 'Rekomendasi:' . match($filterRekomendasi) {
+            'blokir_terbit'   => 'Blokir Konfirmasi Terbit',
+            'blokir_kckr'     => 'Blokir SS KCKR',
+            'blokir_keduanya' => 'Blokir Konfirm + SSKCKR',
+            'baik'            => 'Baik',
+            default           => $filterRekomendasi,
+        };
+        if ($persentase)        $filterLabels[] = '% KCKR:' . $persentase;
+
+        $filterSuffix = !empty($filterLabels) ? '_' . implode('_', array_map(fn($f) => preg_replace('/[^a-zA-Z0-9]/', '', $f), $filterLabels)) : '';
+        $safeFilename = 'ComplianceV3_' . ($kckrMode === 'provinsi' ? 'Provinsi_' : '') . $periode . $filterSuffix . '_' . date('d-m-Y') . '.xlsx';
+
+        // Teks keterangan filter untuk ditulis di Excel
+        $filterNote = !empty($filterLabels) ? 'Filter: ' . implode(' | ', $filterLabels) : 'Filter: Semua Data';
         $storagePath  = 'download/compliance-v3-' . $jobID . '.xlsx';
 
         $minPct = (int) $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
@@ -1182,6 +1202,8 @@ class ComplianceV3Controller extends Controller
         }
 
         $progress(60, 'Membuat file Excel...');
+
+        $label['filter'] = $filterNote;
 
         $i  = 1;
         $sp = $this->makeSpreadsheetV3(function($add) use ($rows, &$i) {

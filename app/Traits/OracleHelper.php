@@ -195,14 +195,22 @@ trait OracleHelper
         $sheet->getCell('A3')->setValue('Diunduh: ' . date('d/m/Y H:i'));
         $sheet->getStyle('A3')->applyFromArray($subStyle);
 
-        $sheet->getStyle('A1:' . $lastCol . '3')
+        $nextRow = 4;
+        if (!empty($label['filter'])) {
+            $sheet->mergeCells('A4:' . $lastCol . '4');
+            $sheet->getCell('A4')->setValue($label['filter']);
+            $sheet->getStyle('A4')->applyFromArray($subStyle);
+            $nextRow = 5;
+        }
+
+        $sheet->getStyle('A1:' . $lastCol . ($nextRow - 1))
             ->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setRGB('E3F2FD');
 
-        $sheet->getRowDimension(4)->setRowHeight(6);
+        $sheet->getRowDimension($nextRow)->setRowHeight(6);
 
-        return 5; // header mulai di baris 5
+        return $nextRow + 1; // header mulai setelah spacer
     }
 
     protected function sendDownloadCookie(Request $request): void
