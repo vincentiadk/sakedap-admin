@@ -761,8 +761,8 @@ function loadChart() {
         params.set('filter_year',  p.get('filter_year')  || '{{ request("filter_year", date("Y")) }}');
         params.set('filter_month', p.get('filter_month') || '{{ request("filter_month", date("n")) }}');
     } else {
-        params.set('start_date', p.get('start_date') || '{{ request("start_date") }}');
-        params.set('end_date',   p.get('end_date')   || '{{ request("end_date") }}');
+        params.set('start_date', p.get('start_date') || '{{ request("start_date", "2021-01-01") }}');
+        params.set('end_date',   p.get('end_date')   || '{{ request("end_date",   date("Y-m-d")) }}');
     }
 
     @if(!empty($provinceIds))
