@@ -207,10 +207,10 @@ class ComplianceV3Controller extends Controller
         if ($filterKckr === 'sudah')    $outerWhere .= ' AND SUDAH_KCKR > 0';
         if ($filterKckr === 'belum')    $outerWhere .= ' AND BELUM_KCKR > 0';
 
-        // Prioritas: Blokir KCKR > Blokir Terbit > Baik
-        if ($filterRekomendasi === 'blokir_kckr')   $outerWhere .= " AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct";
-        if ($filterRekomendasi === 'blokir_terbit') $outerWhere .= " AND LEWAT_TEGURAN > 0 AND NOT (TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct)";
-        if ($filterRekomendasi === 'baik')           $outerWhere .= " AND LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > $minPct)";
+        if ($filterRekomendasi === 'blokir_terbit')  $outerWhere .= " AND LEWAT_TEGURAN > 0";
+        if ($filterRekomendasi === 'blokir_kckr')    $outerWhere .= " AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct AND LEWAT_TEGURAN = 0";
+        if ($filterRekomendasi === 'blokir_keduanya') $outerWhere .= " AND LEWAT_TEGURAN > 0 AND TERLAMBAT_KCKR > 0 AND PERSENTASE_KCKR <= $minPct";
+        if ($filterRekomendasi === 'baik')            $outerWhere .= " AND LEWAT_TEGURAN = 0 AND (TERLAMBAT_KCKR = 0 OR PERSENTASE_KCKR > $minPct)";
 
         if (!empty($persentase)) {
             [$min, $max] = $this->parsePersentaseRange($persentase);
@@ -659,9 +659,10 @@ class ComplianceV3Controller extends Controller
                 $pct        = (float) $row->PERSENTASE_KCKR;
                 $jml2026    = (int) $row->JUDUL_2026_PLUS;
 
-                $rekomendasi = ($terlambat > 0 && $pct <= $minPct)
-                    ? 'Blokir SS KCKR'
-                    : ($lewat > 0 ? 'Blokir Konfirmasi Terbit' : 'Baik');
+                if ($lewat > 0 && $terlambat > 0 && $pct <= $minPct)  $rekomendasi = 'Blokir Konfirm + SSKCKR';
+                elseif ($lewat > 0)                                     $rekomendasi = 'Blokir Konfirmasi Terbit';
+                elseif ($terlambat > 0 && $pct <= $minPct)             $rekomendasi = 'Blokir SS KCKR';
+                else                                                    $rekomendasi = 'Baik';
 
                 $data[] = [
                     $row->NAME,
@@ -1156,9 +1157,10 @@ class ComplianceV3Controller extends Controller
                 $pct       = (float) $row->PERSENTASE_KCKR;
                 $jml2026   = (int) $row->JUDUL_2026_PLUS;
 
-                $rekomendasi = ($terlambat > 0 && $pct <= $minPct)
-                    ? 'Blokir SS KCKR'
-                    : ($lewat > 0 ? 'Blokir Konfirmasi Terbit' : 'Baik');
+                if ($lewat > 0 && $terlambat > 0 && $pct <= $minPct)  $rekomendasi = 'Blokir Konfirm + SSKCKR';
+                elseif ($lewat > 0)                                     $rekomendasi = 'Blokir Konfirmasi Terbit';
+                elseif ($terlambat > 0 && $pct <= $minPct)             $rekomendasi = 'Blokir SS KCKR';
+                else                                                    $rekomendasi = 'Baik';
 
                 $data[] = [
                     $row->NAME, $row->KATEGORI, $row->CITY, $row->PROVINSI,

@@ -17,6 +17,7 @@ class ComplianceV3ExportJob implements ShouldQueue
 
     public $tries   = 1;
     public $timeout = 600;
+    public $memory  = 4096; // MB
 
     public function __construct(
         protected string $jobID,

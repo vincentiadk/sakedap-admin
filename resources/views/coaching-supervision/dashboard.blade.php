@@ -467,10 +467,11 @@
 
         {{-- Rekomendasi Sistem – Pie Chart + Keterangan --}}
         @php
-            $blokirTerbit = $total->PENERBIT_LEWAT_TEGURAN ?? 0;
-            $blokirKckr   = $total->PENERBIT_BLOKIR_KCKR   ?? 0;
-            $baik         = $total->PENERBIT_BAIK           ?? 0;
-            $rekTotal     = $blokirTerbit + $blokirKckr + $baik;
+            $blokirTerbit   = $total->PENERBIT_BLOKIR_TERBIT   ?? 0;
+            $blokirKckr     = $total->PENERBIT_BLOKIR_KCKR     ?? 0;
+            $blokirKeduanya = $total->PENERBIT_BLOKIR_KEDUANYA ?? 0;
+            $baik           = $total->PENERBIT_BAIK             ?? 0;
+            $rekTotal       = $blokirTerbit + $blokirKckr + $blokirKeduanya + $baik;
         @endphp
         <div class="col-12 mt-3">
             <div class="card shadow-sm border-top border-3 border-secondary">
@@ -493,8 +494,8 @@
                                     <div>
                                         <strong class="text-danger">Blokir Konfirmasi Terbit</strong>
                                         <span class="badge bg-danger ms-1">{{ number_format($blokirTerbit) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang memiliki judul ISBN melewati <strong>+30 hari</strong> setelah batas konfirmasi terbit tanpa melakukan konfirmasi.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran &gt; 0</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang melewati batas teguran konfirmasi terbit, namun KCKR-nya masih baik.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran &gt; 0 AND KCKR baik</code></p>
                                     </div>
                                 </div>
                             </div>
@@ -504,8 +505,19 @@
                                     <div>
                                         <strong style="color:#d96000">Blokir SS KCKR</strong>
                                         <span class="badge ms-1" style="background:#fd7e14">{{ number_format($blokirKckr) }} penerbit</span>
-                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terlambat menyerahkan KCKR dengan tingkat kepatuhan rendah (≤ {{ $minPct ?? 20 }}%), namun belum masuk kategori Blokir Konfirmasi Terbit.</p>
-                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran = 0 AND Terlambat KCKR &gt; 0 AND % KCKR ≤ {{ $minPct ?? 20 }}%</code></p>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit terlambat KCKR (≤ {{ $minPct ?? 20 }}%), namun konfirmasi terbit masih baik.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Terlambat KCKR &gt; 0 AND % KCKR ≤ {{ $minPct ?? 20 }}% AND Lewat Teguran = 0</code></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 p-3 rounded" style="background:#fdf0ff;border-left:4px solid #6f42c1">
+                                <div class="d-flex align-items-start gap-2">
+                                    <span style="font-size:1.1rem">🟣</span>
+                                    <div>
+                                        <strong style="color:#6f42c1">Blokir Konfirm + SSKCKR</strong>
+                                        <span class="badge ms-1" style="background:#6f42c1">{{ number_format($blokirKeduanya) }} penerbit</span>
+                                        <p class="mb-1 mt-1 small text-muted">Penerbit yang terkena kedua blokir sekaligus: lewat teguran konfirmasi terbit DAN terlambat KCKR.</p>
+                                        <p class="mb-0 small"><strong>Indikator:</strong> <code>Lewat Teguran &gt; 0 AND Terlambat KCKR &gt; 0 AND % KCKR ≤ {{ $minPct ?? 20 }}%</code></p>
                                     </div>
                                 </div>
                             </div>
@@ -685,9 +697,9 @@ Chart.register(ChartDataLabels);
     const rekEl = document.getElementById('rekChart');
     if (!rekEl) return;
     @if($hasV2 ?? false)
-        const rekLabels = ['Blokir Konfirmasi Terbit', 'Blokir SS KCKR', 'Baik'];
-        const rekData   = [{{ $blokirTerbit ?? 0 }}, {{ $blokirKckr ?? 0 }}, {{ $baik ?? 0 }}];
-        const rekColors = ['#dc3545', '#fd7e14', '#198754'];
+        const rekLabels = ['Blokir Konfirmasi Terbit', 'Blokir SS KCKR', 'Blokir Konfirm + SSKCKR', 'Baik'];
+        const rekData   = [{{ $blokirTerbit ?? 0 }}, {{ $blokirKckr ?? 0 }}, {{ $blokirKeduanya ?? 0 }}, {{ $baik ?? 0 }}];
+        const rekColors = ['#dc3545', '#fd7e14', '#6f42c1', '#198754'];
     @else
         const rekLabels = ['Blokir SS KCKR', 'Baik'];
         const rekData   = [{{ $total->PENERBIT_BLOKIR_KCKR ?? 0 }}, {{ $total->PENERBIT_BAIK ?? 0 }}];

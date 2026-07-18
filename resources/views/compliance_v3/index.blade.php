@@ -171,6 +171,7 @@
                         <option value="">Semua</option>
                         <option value="blokir_terbit">Blokir Konfirmasi Terbit</option>
                         <option value="blokir_kckr">Blokir SS KCKR</option>
+                        <option value="blokir_keduanya">Blokir Konfirm + SSKCKR</option>
                         <option value="baik">Baik</option>
                     </select>
                 </div>
@@ -490,10 +491,12 @@ function renderTable(res) {
 
         const teguran       = parseInt(r.LEWAT_TEGURAN || 0);
         const terlambatKckr = parseInt(r.TERLAMBAT_KCKR || 0);
-        const rekBadge      = (terlambatKckr > 0 && pct <= THRESHOLD_PCT)
-            ? `<span class="badge" style="background:#fd7e14">Blokir SS KCKR</span>`
+        const rekBadge = (teguran > 0 && terlambatKckr > 0 && pct <= THRESHOLD_PCT)
+            ? `<span class="badge" style="background:#6f42c1">Blokir Konfirm + SSKCKR</span>`
             : teguran > 0
             ? `<span class="badge bg-danger">Blokir Konfirmasi Terbit</span>`
+            : (terlambatKckr > 0 && pct <= THRESHOLD_PCT)
+            ? `<span class="badge" style="background:#fd7e14">Blokir SS KCKR</span>`
             : `<span class="badge bg-success">Baik</span>`;
 
         const detailUrl = `{{ url('/coaching-supervision/compliance-v3/detail') }}/${r.ID}?` + buildParams().toString();
