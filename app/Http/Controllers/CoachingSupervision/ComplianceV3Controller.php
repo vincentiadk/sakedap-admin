@@ -1133,58 +1133,53 @@ class ComplianceV3Controller extends Controller
         $safeFilename = 'ComplianceV3_' . ($kckrMode === 'provinsi' ? 'Provinsi_' : '') . $periode . '_' . date('d-m-Y') . '.xlsx';
         $storagePath  = 'download/compliance-v3-' . $jobID . '.xlsx';
 
-        $exportKey = $this->makeCacheKeyV3($request, 'compliance_v3:export');
-        $minPct    = (int) $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
+        $minPct = (int) $this->loadSettings()['BatasMinimumKepatuhanKCKR'];
 
         $progress = fn(int $pct, string $label) => Redis::hset('download:' . $jobID, 'progress', json_encode(['pct' => $pct, 'label' => $label]));
 
         $progress(10, 'Mengambil data dari database...');
 
-        $rows = Cache::remember($exportKey, 3600, function() use ($conn, $baseQuery, $minPct, $progress) {
-            // Count dulu untuk progress tracking
-            $countRes = odbc_exec($conn, "SELECT COUNT(*) as TOTAL FROM ($baseQuery)");
-            $total    = (int) (odbc_fetch_object($countRes)->TOTAL ?? 0);
+        $countRes = odbc_exec($conn, "SELECT COUNT(*) as TOTAL FROM ($baseQuery)");
+        $total    = (int) (odbc_fetch_object($countRes)->TOTAL ?? 0);
 
-            $result = odbc_exec($conn, "SELECT * FROM ($baseQuery) ORDER BY NAME ASC");
-            $data   = [];
-            $fetched = 0;
-            while ($row = odbc_fetch_object($result)) {
-                $lewat     = (int) $row->LEWAT_TEGURAN;
-                $terlambat = (int) $row->TERLAMBAT_KCKR;
-                $pct       = (float) $row->PERSENTASE_KCKR;
-                $jml2026   = (int) $row->JUDUL_2026_PLUS;
+        $result  = odbc_exec($conn, "SELECT * FROM ($baseQuery) ORDER BY NAME ASC");
+        $rows    = [];
+        $fetched = 0;
+        while ($row = odbc_fetch_object($result)) {
+            $lewat     = (int) $row->LEWAT_TEGURAN;
+            $terlambat = (int) $row->TERLAMBAT_KCKR;
+            $pct       = (float) $row->PERSENTASE_KCKR;
+            $jml2026   = (int) $row->JUDUL_2026_PLUS;
 
-                if ($lewat > 0 && $terlambat > 0 && $pct <= $minPct)  $rekomendasi = 'Blokir Konfirm + SSKCKR';
-                elseif ($lewat > 0)                                     $rekomendasi = 'Blokir Konfirmasi Terbit';
-                elseif ($terlambat > 0 && $pct <= $minPct)             $rekomendasi = 'Blokir SS KCKR';
-                else                                                    $rekomendasi = 'Baik';
+            if ($lewat > 0 && $terlambat > 0 && $pct <= $minPct)  $rekomendasi = 'Blokir Konfirm + SSKCKR';
+            elseif ($lewat > 0)                                     $rekomendasi = 'Blokir Konfirmasi Terbit';
+            elseif ($terlambat > 0 && $pct <= $minPct)             $rekomendasi = 'Blokir SS KCKR';
+            else                                                    $rekomendasi = 'Baik';
 
-                $data[] = [
-                    $row->NAME, $row->KATEGORI, $row->CITY, $row->PROVINSI,
-                    $row->TELP1  ?? '', $row->TELP2  ?? '',
-                    $row->EMAIL1 ?? '', $row->EMAIL2 ?? '',
-                    (int) $row->TOTAL_JUDUL,
-                    $jml2026 > 0 ? (int) $row->JUDUL_TERBIT       : '-',
-                    $jml2026 > 0 ? (int) $row->JUDUL_BELUM_TERBIT : '-',
-                    $jml2026 > 0 ? (int) $row->HUTANG_TERBIT      : '-',
-                    $jml2026 > 0 ? $lewat                          : '-',
-                    (int) $row->SUDAH_KCKR,
-                    (int) $row->SUDAH_KCKR_CETAK,
-                    (int) $row->SUDAH_KCKR_REKAM,
-                    (int) $row->BELUM_KCKR,
-                    (int) $row->BELUM_KCKR_CETAK,
-                    (int) $row->BELUM_KCKR_REKAM,
-                    $terlambat, $pct, $rekomendasi,
-                ];
+            $rows[] = [
+                $row->NAME, $row->KATEGORI, $row->CITY, $row->PROVINSI,
+                $row->TELP1  ?? '', $row->TELP2  ?? '',
+                $row->EMAIL1 ?? '', $row->EMAIL2 ?? '',
+                (int) $row->TOTAL_JUDUL,
+                $jml2026 > 0 ? (int) $row->JUDUL_TERBIT       : '-',
+                $jml2026 > 0 ? (int) $row->JUDUL_BELUM_TERBIT : '-',
+                $jml2026 > 0 ? (int) $row->HUTANG_TERBIT      : '-',
+                $jml2026 > 0 ? $lewat                          : '-',
+                (int) $row->SUDAH_KCKR,
+                (int) $row->SUDAH_KCKR_CETAK,
+                (int) $row->SUDAH_KCKR_REKAM,
+                (int) $row->BELUM_KCKR,
+                (int) $row->BELUM_KCKR_CETAK,
+                (int) $row->BELUM_KCKR_REKAM,
+                $terlambat, $pct, $rekomendasi,
+            ];
 
-                $fetched++;
-                if ($total > 0 && $fetched % 50 === 0) {
-                    $fetchPct = (int) (10 + ($fetched / $total) * 50);
-                    $progress($fetchPct, "Memproses data $fetched / $total penerbit...");
-                }
+            $fetched++;
+            if ($total > 0 && $fetched % 50 === 0) {
+                $fetchPct = (int) (10 + ($fetched / $total) * 50);
+                $progress($fetchPct, "Memproses data $fetched / $total penerbit...");
             }
-            return $data;
-        });
+        }
 
         $progress(60, 'Membuat file Excel...');
 

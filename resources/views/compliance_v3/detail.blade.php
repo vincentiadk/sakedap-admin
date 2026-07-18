@@ -327,7 +327,7 @@
     {{-- Tabel Judul --}}
     <div class="card shadow-sm">
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="table-responsive" id="judulTableWrap">
                 <table class="table table-hover table-sm mb-0 align-middle" style="font-size:.8rem">
                     <thead class="table-dark">
                         <tr>
@@ -431,13 +431,13 @@
         </div>
 
         @if($lastPage > 1)
-        <div class="card-footer py-2">
+        <div class="card-footer py-2" id="paginationWrap">
             <nav>
                 <ul class="pagination pagination-sm mb-0 justify-content-center">
                     @for($p = 1; $p <= $lastPage; $p++)
                         @if($p === 1 || $p === $lastPage || abs($p - $page) <= 2)
                         <li class="page-item {{ $p === $page ? 'active' : '' }}">
-                            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $p]) }}">{{ $p }}</a>
+                            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $p]) }}" onclick="goToPage({{ $p }}, event)">{{ $p }}</a>
                         </li>
                         @elseif(abs($p - $page) === 3)
                         <li class="page-item disabled"><span class="page-link">…</span></li>
@@ -502,14 +502,26 @@ function doExport() {
     setTimeout(() => { clearInterval(animI); clearInterval(pollI); modal.hide(); }, 300000);
 }
 
-document.querySelectorAll('.pagination .page-link').forEach(el => {
-    el.addEventListener('click', function(e) {
-        if (this.closest('.page-item').classList.contains('disabled') ||
-            this.closest('.page-item').classList.contains('active')) return;
-        const overlay = document.getElementById('pageLoadOverlay');
-        if (overlay) overlay.style.display = 'flex';
-    });
-});
+function goToPage(page, e) {
+    e.preventDefault();
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    const overlay = document.getElementById('pageLoadOverlay');
+    if (overlay) overlay.style.display = 'flex';
+    fetch(url.toString(), { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc    = parser.parseFromString(html, 'text/html');
+            const newTable  = doc.querySelector('#judulTableWrap');
+            const newPaging = doc.querySelector('#paginationWrap');
+            if (newTable)  document.getElementById('judulTableWrap').innerHTML  = newTable.innerHTML;
+            if (newPaging) document.getElementById('paginationWrap').innerHTML  = newPaging.innerHTML;
+            if (overlay) overlay.style.display = 'none';
+            window.history.pushState({}, '', url.toString());
+        })
+        .catch(() => { window.location.href = url.toString(); });
+}
 </script>
 
 <div id="pageLoadOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.6);z-index:9999;align-items:center;justify-content:center;gap:.5rem">
