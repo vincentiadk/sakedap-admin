@@ -309,8 +309,13 @@ class DashboardComplianceController extends Controller
             $dateFilter = $this->parseDateFilter($request);
             $start_date = $dateFilter['start'];
             $end_date   = $dateFilter['end'];
-            $ctx        = $this->resolveProvinceContext([], $request->get('kckr_mode', 'perpusnas'));
+            $ctx        = $this->resolveProvinceContext((array) ($request->province_ids ?? []), $request->get('kckr_mode', 'perpusnas'));
             $kckrCol    = $ctx['kckrCol'];
+            $provinceIds = $ctx['provinceIds'];
+
+            // 1 provinsi terpilih → breakdown per kabupaten/kota
+            $mode          = count($provinceIds) === 1 ? 'kota' : 'provinsi';
+            $whereProvinsi = $this->buildProvinceWhere($provinceIds);
 
             $cs      = ComplianceSettings::get();
             $dlKc    = (int) $cs['BatasWaktuKonfirmasiTerbitKaryaCetak'];
@@ -320,11 +325,11 @@ class DashboardComplianceController extends Controller
             $cutoff  = '2026-01-01';
 
             $cacheKey = $this->makeCacheKey($request, 'dashboard:provinsi_' . ComplianceSettings::cacheVersion(), [
-                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode',
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'kckr_mode', 'province_ids',
             ]);
 
             $rows = Cache::remember($cacheKey, 3600, function() use (
-                $conn, $kckrCol, $start_date, $end_date, $cutoff, $dlKc, $dlKr, $teguran, $minPct
+                $conn, $kckrCol, $start_date, $end_date, $cutoff, $dlKc, $dlKr, $teguran, $minPct, $mode, $whereProvinsi
             ) {
                 $dlKckrV1 = "CASE WHEN P.KATEGORI_ID = 1 THEN ADD_MONTHS(PI.CREATEDATE, 3)
                                   ELSE CASE WHEN PT.JENIS_MEDIA = '1' THEN ADD_MONTHS(PI.CREATEDATE, 3)
@@ -344,20 +349,33 @@ class DashboardComplianceController extends Controller
                     AND PI.TANGGAL_TERBIT IS NULL AND PI.RECEIVED_DATE_KCKR IS NULL
                     AND SYSDATE > ($dlTerbit + $teguran) THEN 1 ELSE 0 END)";
 
+                if ($mode === 'kota') {
+                    // 1 provinsi → group per kabupaten/kota (P.CITY free-text, dinormalisasi)
+                    $outerSelect = "NVL(INITCAP(TRIM(S.CITY)), 'Tidak Diketahui') as NAMA";
+                    $outerFrom   = '';
+                    $outerJoin   = '';
+                    $outerGroup  = "GROUP BY NVL(INITCAP(TRIM(S.CITY)), 'Tidak Diketahui')";
+                } else {
+                    $outerSelect = "PR.NAMAPROPINSI as NAMA";
+                    $outerFrom   = "PROPINSI PR JOIN";
+                    $outerJoin   = "ON S.PROVINCE_ID = PR.ID";
+                    $outerGroup  = "GROUP BY PR.ID, PR.NAMAPROPINSI";
+                }
+
                 $sql = "
                     SELECT
-                        PR.NAMAPROPINSI as NAMA,
+                        $outerSelect,
                         COUNT(*) as TOTAL_PENERBIT,
                         ROUND(AVG(S.PERSENTASE_KCKR), 1) as AVG_KCKR,
                         COUNT(CASE WHEN S.LEWAT_TEGURAN > 0 AND NOT (S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct) THEN 1 END) as BLOKIR_TERBIT,
                         COUNT(CASE WHEN S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct AND S.LEWAT_TEGURAN = 0 THEN 1 END) as BLOKIR_KCKR,
                         COUNT(CASE WHEN S.LEWAT_TEGURAN > 0 AND S.TERLAMBAT_KCKR > 0 AND S.PERSENTASE_KCKR <= $minPct THEN 1 END) as BLOKIR_KEDUANYA,
                         COUNT(CASE WHEN S.LEWAT_TEGURAN = 0 AND (S.TERLAMBAT_KCKR = 0 OR S.PERSENTASE_KCKR > $minPct) THEN 1 END) as BAIK
-                    FROM PROPINSI PR
-                    JOIN (
+                    FROM $outerFrom (
                         SELECT
                             P.ID,
                             P.PROVINCE_ID,
+                            P.CITY,
                             ROUND(
                                 CASE WHEN $ttExpr > 0
                                     THEN SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END) / $ttExpr * 100
@@ -382,10 +400,11 @@ class DashboardComplianceController extends Controller
                             AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
                             AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
                         LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
-                        GROUP BY P.ID, P.PROVINCE_ID
+                        WHERE 1=1 $whereProvinsi
+                        GROUP BY P.ID, P.PROVINCE_ID, P.CITY
                         HAVING $ttExpr > 0 OR $lewatTeguranExpr > 0
-                    ) S ON S.PROVINCE_ID = PR.ID
-                    GROUP BY PR.ID, PR.NAMAPROPINSI
+                    ) S $outerJoin
+                    $outerGroup
                     ORDER BY AVG_KCKR ASC
                 ";
                 $result = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
@@ -404,7 +423,263 @@ class DashboardComplianceController extends Controller
                 return $data;
             });
 
-            return response()->json($rows);
+            return response()->json(['mode' => $mode, 'rows' => $rows]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function breakdownData(Request $request)
+    {
+        try {
+            $conn       = $this->getOracleConnection();
+            $dateFilter = $this->parseDateFilter($request);
+            $start_date = $dateFilter['start'];
+            $end_date   = $dateFilter['end'];
+            $ctx        = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $whereProvinsi = $this->buildProvinceWhere($ctx['provinceIds']);
+            $kckrCol    = $ctx['kckrCol'];
+            $cutoff     = '2026-01-01';
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:breakdown2', [
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'province_ids', 'kckr_mode',
+            ]);
+
+            $data = Cache::remember($cacheKey, 3600, function() use ($conn, $kckrCol, $start_date, $end_date, $cutoff, $whereProvinsi) {
+                $sudahExpr   = "SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+                $tagihanExpr = "SUM(CASE
+                    WHEN PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD') AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD') AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    ELSE 0 END)";
+                $fromWhere = "
+                    FROM PENERBIT P
+                    JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                        AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
+                        AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
+                        AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                    LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
+                    WHERE 1=1 $whereProvinsi
+                ";
+
+                // 1) Breakdown kategori: Pemerintah vs Swasta
+                $sqlKategori = "
+                    SELECT CASE WHEN P.KATEGORI_ID = 1 THEN 'Pemerintah' ELSE 'Swasta' END as GRP,
+                        COUNT(DISTINCT P.ID) as PENERBIT,
+                        COUNT(PI.ID)         as TOTAL_JUDUL,
+                        $sudahExpr           as SUDAH,
+                        $tagihanExpr         as BELUM
+                    $fromWhere
+                    GROUP BY CASE WHEN P.KATEGORI_ID = 1 THEN 'Pemerintah' ELSE 'Swasta' END
+                ";
+
+                // 2) Breakdown media: Karya Cetak vs Karya Rekam
+                $sqlMedia = "
+                    SELECT CASE WHEN PT.JENIS_MEDIA = '1' THEN 'Karya Cetak' ELSE 'Karya Rekam' END as GRP,
+                        COUNT(DISTINCT P.ID) as PENERBIT,
+                        COUNT(PI.ID)         as TOTAL_JUDUL,
+                        $sudahExpr           as SUDAH,
+                        $tagihanExpr         as BELUM
+                    $fromWhere
+                    GROUP BY CASE WHEN PT.JENIS_MEDIA = '1' THEN 'Karya Cetak' ELSE 'Karya Rekam' END
+                ";
+
+                // 3) Top 10 penerbit penyumbang hutang KCKR terbesar
+                $sqlTop10 = "
+                    SELECT * FROM (
+                        SELECT P.ID, P.NAME,
+                            COUNT(PI.ID)  as TOTAL_JUDUL,
+                            $sudahExpr    as SUDAH,
+                            $tagihanExpr  as HUTANG
+                        $fromWhere
+                        GROUP BY P.ID, P.NAME
+                        HAVING $tagihanExpr > 0
+                        ORDER BY $tagihanExpr DESC
+                    ) WHERE ROWNUM <= 10
+                ";
+
+                $fetch = function($sql) use ($conn, $kckrCol) {
+                    $res  = odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql));
+                    $rows = [];
+                    while ($row = odbc_fetch_object($res)) {
+                        $rows[] = (array) $row;
+                    }
+                    return $rows;
+                };
+
+                $mapGroup = fn($rows) => array_map(function($r) {
+                    $wajib = (int) $r['SUDAH'] + (int) $r['BELUM'];
+                    return [
+                        'grp'      => $r['GRP'],
+                        'penerbit' => (int) $r['PENERBIT'],
+                        'judul'    => (int) $r['TOTAL_JUDUL'],
+                        'sudah'    => (int) $r['SUDAH'],
+                        'belum'    => (int) $r['BELUM'],
+                        'pct'      => $wajib > 0 ? round((int) $r['SUDAH'] / $wajib * 100, 1) : 0,
+                    ];
+                }, $rows);
+
+                // Status setoran karya rekam digital di e-Deposit (e_collections)
+                // 1 = in review, 2 = diterima, 3 = bermasalah
+                $sqlEcol = "
+                    SELECT TO_CHAR(E.STATUS) as STATUS, COUNT(*) as CNT
+                    FROM E_COLLECTIONS E
+                    JOIN PENERBIT P ON P.ID = E.PENERBIT_ID
+                    WHERE E.DELETED_AT IS NULL
+                    AND E.CREATED_AT >= TO_DATE('$start_date', 'YYYY-MM-DD')
+                    AND E.CREATED_AT <  TO_DATE('$end_date',   'YYYY-MM-DD')
+                    $whereProvinsi
+                    GROUP BY TO_CHAR(E.STATUS)
+                ";
+                $ecolMap = ['1' => 0, '2' => 0, '3' => 0];
+                foreach ($fetch($sqlEcol) as $r) {
+                    if (isset($ecolMap[$r['STATUS']])) {
+                        $ecolMap[$r['STATUS']] = (int) $r['CNT'];
+                    }
+                }
+
+                return [
+                    'kategori' => $mapGroup($fetch($sqlKategori)),
+                    'media'    => $mapGroup($fetch($sqlMedia)),
+                    'ecol'     => [
+                        'in_review'  => $ecolMap['1'],
+                        'diterima'   => $ecolMap['2'],
+                        'bermasalah' => $ecolMap['3'],
+                    ],
+                    'top10'    => array_map(fn($r) => [
+                        'id'     => (int) $r['ID'],
+                        'nama'   => $r['NAME'],
+                        'judul'  => (int) $r['TOTAL_JUDUL'],
+                        'sudah'  => (int) $r['SUDAH'],
+                        'hutang' => (int) $r['HUTANG'],
+                        'pct'    => ((int) $r['SUDAH'] + (int) $r['HUTANG']) > 0
+                            ? round((int) $r['SUDAH'] / ((int) $r['SUDAH'] + (int) $r['HUTANG']) * 100, 1) : 0,
+                    ], $fetch($sqlTop10)),
+                ];
+            });
+
+            return response()->json($data);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function insightData(Request $request)
+    {
+        try {
+            $conn       = $this->getOracleConnection();
+            $dateFilter = $this->parseDateFilter($request);
+            $start_date = $dateFilter['start'];
+            $end_date   = $dateFilter['end'];
+            $ctx        = $this->resolveProvinceContext($request->province_ids ?? [], $request->get('kckr_mode', 'perpusnas'));
+            $whereProvinsi = $this->buildProvinceWhere($ctx['provinceIds']);
+            $kckrCol    = $ctx['kckrCol'];
+            $cutoff     = '2026-01-01';
+
+            // Periode sebelumnya: geser mundur sepanjang periode aktif
+            $lenDays   = max(1, (int) ((strtotime($end_date) - strtotime($start_date)) / 86400));
+            $prevStart = date('Y-m-d', strtotime($start_date) - $lenDays * 86400);
+            $prevEnd   = $start_date;
+
+            $cacheKey = $this->makeCacheKey($request, 'dashboard:insight', [
+                'filter_type', 'filter_year', 'filter_month', 'start_date', 'end_date', 'province_ids', 'kckr_mode',
+            ]);
+
+            $data = Cache::remember($cacheKey, 3600, function() use (
+                $conn, $kckrCol, $start_date, $end_date, $prevStart, $prevEnd, $cutoff, $whereProvinsi
+            ) {
+                $sudahExpr   = "SUM(CASE WHEN PI.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+                $tagihanExpr = "SUM(CASE
+                    WHEN PI.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD') AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    WHEN PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD') AND PI.TANGGAL_TERBIT IS NOT NULL AND PI.RECEIVED_DATE_KCKR IS NULL THEN 1
+                    ELSE 0 END)";
+
+                // 1) Perbandingan periode: metrik ringkas periode aktif vs sebelumnya
+                $periodQuery = function($sd, $ed) use ($conn, $kckrCol, $whereProvinsi, $sudahExpr, $tagihanExpr) {
+                    $sql = "
+                        SELECT
+                            COUNT(DISTINCT P.ID) as PENERBIT,
+                            COUNT(PI.ID)         as TOTAL_JUDUL,
+                            $sudahExpr           as SUDAH,
+                            $tagihanExpr         as BELUM
+                        FROM PENERBIT P
+                        JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                            AND PI.CREATEDATE >= TO_DATE('$sd', 'YYYY-MM-DD')
+                            AND PI.CREATEDATE <  TO_DATE('$ed', 'YYYY-MM-DD')
+                            AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                        WHERE 1=1 $whereProvinsi
+                    ";
+                    $r = (array) odbc_fetch_object(odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sql)));
+                    $wajib = (int) ($r['SUDAH'] ?? 0) + (int) ($r['BELUM'] ?? 0);
+                    return [
+                        'penerbit' => (int) ($r['PENERBIT'] ?? 0),
+                        'judul'    => (int) ($r['TOTAL_JUDUL'] ?? 0),
+                        'sudah'    => (int) ($r['SUDAH'] ?? 0),
+                        'belum'    => (int) ($r['BELUM'] ?? 0),
+                        'pct'      => $wajib > 0 ? round((int) ($r['SUDAH'] ?? 0) / $wajib * 100, 1) : 0,
+                    ];
+                };
+
+                $current  = $periodQuery($start_date, $end_date);
+                $previous = $periodQuery($prevStart, $prevEnd);
+
+                // 2) Aging hutang KCKR: usia kewajiban yang belum disetor
+                //    pre-2026 dihitung dari CREATEDATE, 2026+ dari TANGGAL_TERBIT
+                $ageExpr = "CASE
+                    WHEN PI.CREATEDATE < TO_DATE('$cutoff','YYYY-MM-DD') THEN MONTHS_BETWEEN(SYSDATE, PI.CREATEDATE)
+                    ELSE MONTHS_BETWEEN(SYSDATE, PI.TANGGAL_TERBIT) END";
+                $sqlAging = "
+                    SELECT
+                        SUM(CASE WHEN $ageExpr <  3               THEN 1 ELSE 0 END) as B1,
+                        SUM(CASE WHEN $ageExpr >= 3  AND $ageExpr < 6  THEN 1 ELSE 0 END) as B2,
+                        SUM(CASE WHEN $ageExpr >= 6  AND $ageExpr < 12 THEN 1 ELSE 0 END) as B3,
+                        SUM(CASE WHEN $ageExpr >= 12                   THEN 1 ELSE 0 END) as B4
+                    FROM PENERBIT P
+                    JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                        AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
+                        AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
+                        AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                    WHERE PI.RECEIVED_DATE_KCKR IS NULL
+                    AND (PI.CREATEDATE < TO_DATE('$cutoff','YYYY-MM-DD') OR PI.TANGGAL_TERBIT IS NOT NULL)
+                    $whereProvinsi
+                ";
+                $ag = (array) odbc_fetch_object(odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sqlAging)));
+                $aging = [
+                    ['label' => '< 3 bulan',   'count' => (int) ($ag['B1'] ?? 0)],
+                    ['label' => '3–6 bulan',   'count' => (int) ($ag['B2'] ?? 0)],
+                    ['label' => '6–12 bulan',  'count' => (int) ($ag['B3'] ?? 0)],
+                    ['label' => '> 1 tahun',   'count' => (int) ($ag['B4'] ?? 0)],
+                ];
+
+                // 3) Rata-rata & median lama konfirmasi terbit (2026+, hari dari ISBN sampai konfirmasi)
+                $sqlKonfirm = "
+                    SELECT
+                        ROUND(AVG(PI.TANGGAL_TERBIT - PI.CREATEDATE), 1)    as AVG_HARI,
+                        ROUND(MEDIAN(PI.TANGGAL_TERBIT - PI.CREATEDATE), 1) as MEDIAN_HARI,
+                        COUNT(*)                                             as N
+                    FROM PENERBIT P
+                    JOIN PENERBIT_ISBN PI ON P.ID = PI.PENERBIT_ID
+                        AND PI.CREATEDATE >= TO_DATE('$start_date', 'YYYY-MM-DD')
+                        AND PI.CREATEDATE <  TO_DATE('$end_date',   'YYYY-MM-DD')
+                        AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
+                    WHERE PI.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')
+                    AND PI.TANGGAL_TERBIT IS NOT NULL
+                    AND PI.TANGGAL_TERBIT >= PI.CREATEDATE
+                    $whereProvinsi
+                ";
+                $kf = (array) odbc_fetch_object(odbc_exec($conn, str_replace('RECEIVED_DATE_KCKR', $kckrCol, $sqlKonfirm)));
+                $konfirmasi = [
+                    'avg'    => (float) ($kf['AVG_HARI'] ?? 0),
+                    'median' => (float) ($kf['MEDIAN_HARI'] ?? 0),
+                    'n'      => (int) ($kf['N'] ?? 0),
+                ];
+
+                return compact('current', 'previous', 'aging', 'konfirmasi');
+            });
+
+            $data['prev_label'] = $prevStart . ' s.d. ' . date('Y-m-d', strtotime($prevEnd) - 86400);
+            return response()->json($data);
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

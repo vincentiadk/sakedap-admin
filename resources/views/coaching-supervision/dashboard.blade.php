@@ -739,6 +739,137 @@
     </div>
     @endif
 
+    {{-- ── Breakdown Kategori & Media + Top 10 Hutang ── --}}
+    <div class="mt-4" id="breakdownSection">
+        <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">🧩 Breakdown Kepatuhan</h5>
+        <div id="breakdownLoading" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-1"></div> Memuat breakdown...
+        </div>
+        <div id="breakdownContent" class="d-none">
+            <div class="row g-3 mb-3">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">🏛️ Pemerintah vs Swasta</div>
+                        <div class="card-body">
+                            <div style="position:relative;width:100%;height:170px">
+                                <canvas id="kategoriChart"></canvas>
+                            </div>
+                            <div id="kategoriLegend" class="mt-2 d-flex flex-wrap gap-3" style="font-size:.78rem"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">💿 Karya Cetak vs Karya Rekam</div>
+                        <div class="card-body">
+                            <div style="position:relative;width:100%;height:170px">
+                                <canvas id="mediaChart"></canvas>
+                            </div>
+                            <div id="mediaLegend" class="mt-2 d-flex flex-wrap gap-3" style="font-size:.78rem"></div>
+                            <div id="ecolStrip" class="mt-2 p-2 rounded d-none" style="background:#f6f8fc;border:1px dashed #d8e0ee;font-size:.78rem">
+                                <div class="fw-semibold text-muted mb-1" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.04em">
+                                    Status Setoran Karya Rekam di e-Deposit
+                                </div>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <span>🔵 In Review: <strong id="ecolReview">-</strong> judul</span>
+                                    <span>🟢 Diterima: <strong id="ecolDiterima">-</strong> judul</span>
+                                    <span>🔴 Bermasalah: <strong id="ecolBermasalah">-</strong> judul</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                    <span>🔥 Top 10 Penerbit Penyumbang Hutang KCKR Terbesar</span>
+                    <small class="text-muted fw-normal">judul wajib KCKR yang belum disetor</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0 align-middle" style="font-size:.85rem">
+                            <thead style="background:#f6f8fc">
+                                <tr>
+                                    <th class="ps-3" style="width:40px">#</th>
+                                    <th>Penerbit</th>
+                                    <th class="text-end">Total Judul</th>
+                                    <th class="text-end">Sudah KCKR</th>
+                                    <th class="text-end">Hutang KCKR</th>
+                                    <th class="text-end pe-3" style="width:180px">% Kepatuhan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top10Body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="breakdownError" class="alert alert-danger d-none"></div>
+    </div>
+
+    {{-- ── Perbandingan Periode + Aging Hutang + Lama Konfirmasi ── --}}
+    <div class="mt-4" id="insightSection">
+        <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">📈 Tren & Kedalaman Data</h5>
+        <div id="insightLoading" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-1"></div> Memuat insight...
+        </div>
+        <div id="insightContent" class="d-none">
+            <div class="row g-3">
+                {{-- Perbandingan Periode --}}
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">⚖️ vs Periode Sebelumnya</div>
+                        <div class="card-body">
+                            <div class="text-muted mb-2" style="font-size:.72rem" id="prevPeriodLabel"></div>
+                            <div id="periodCompare"></div>
+                        </div>
+                    </div>
+                </div>
+                {{-- Aging Hutang --}}
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">⏳ Aging Hutang KCKR</div>
+                        <div class="card-body">
+                            <div style="position:relative;width:100%;height:190px">
+                                <canvas id="agingChart"></canvas>
+                            </div>
+                            <div class="text-muted mt-2" style="font-size:.72rem">
+                                Usia kewajiban KCKR yang belum disetor — pra-2026 sejak ISBN terbit, 2026+ sejak konfirmasi terbit.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{-- Lama Konfirmasi Terbit --}}
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">⏱️ Lama Konfirmasi Terbit <small class="text-muted fw-normal">(2026+)</small></div>
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="p-3 rounded" style="background:#e8f0fc">
+                                        <h3 class="fw-bold mb-0" style="color:#2a78d6" id="konfirmMedian">-</h3>
+                                        <small class="text-muted">hari (median)</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 rounded" style="background:#f0f9f4">
+                                        <h3 class="fw-bold mb-0 text-success" id="konfirmAvg">-</h3>
+                                        <small class="text-muted">hari (rata-rata)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-muted mt-3" style="font-size:.72rem">
+                                Dihitung dari tanggal ISBN terbit sampai penerbit melakukan konfirmasi terbit.
+                                Sampel: <span id="konfirmN">-</span> judul.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="insightError" class="alert alert-danger d-none"></div>
+    </div>
+
     {{-- ── Heatmap Provinsi ── --}}
     @if($isPerpusnas ?? true)
     <div class="mt-4" id="heatmapSection">
@@ -1051,6 +1182,8 @@ function loadChart() {
 document.addEventListener('DOMContentLoaded', () => {
     loadChart();
     loadPrediksi();
+    loadBreakdown();
+    loadInsight();
     loadHeatmap();
 });
 
@@ -1125,6 +1258,247 @@ function loadPrediksi() {
         });
 }
 
+// ── Breakdown Kategori/Media + Top 10 Hutang ─────────────────────────────────
+const bdCharts = {};
+function buildFilterParams() {
+    const p = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
+    const ft = p.get('filter_type') || '{{ $dateFilter["type"] ?? "tahun" }}';
+    params.set('filter_type', ft);
+    if (ft === 'tahun') {
+        params.set('filter_year', p.get('filter_year') || '{{ request("filter_year", date("Y")) }}');
+    } else if (ft === 'bulan') {
+        params.set('filter_year',  p.get('filter_year')  || '{{ request("filter_year",  date("Y")) }}');
+        params.set('filter_month', p.get('filter_month') || '{{ request("filter_month", date("n")) }}');
+    } else {
+        params.set('start_date', p.get('start_date') || '{{ request("start_date", "2021-01-01") }}');
+        params.set('end_date',   p.get('end_date')   || '{{ request("end_date",   date("Y-m-d")) }}');
+    }
+    @if(!empty($provinceIds))
+        @foreach($provinceIds as $pid)
+            params.append('province_ids[]', '{{ $pid }}');
+        @endforeach
+    @endif
+    params.set('kckr_mode', p.get('kckr_mode') || 'perpusnas');
+    return params;
+}
+
+function renderGroupChart(canvasId, legendId, rows) {
+    const labels = rows.map(r => r.grp);
+    if (bdCharts[canvasId]) bdCharts[canvasId].destroy();
+
+    // 100% stacked: gambar proporsi persen agar grup kecil tetap terbaca,
+    // angka absolut ditampilkan di label & tooltip
+    const totals   = rows.map(r => r.sudah + r.belum);
+    const sudahPct = rows.map((r, i) => totals[i] > 0 ? r.sudah / totals[i] * 100 : 0);
+    const belumPct = rows.map((r, i) => totals[i] > 0 ? r.belum / totals[i] * 100 : 0);
+
+    bdCharts[canvasId] = new Chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Sudah KCKR', data: sudahPct,
+                    backgroundColor: '#1baf7a', borderRadius: 4,
+                    datalabels: {
+                        color: '#fff', font: { size: 11, weight: 'bold' },
+                        formatter: (v, ctx) => v >= 8
+                            ? rows[ctx.dataIndex].sudah.toLocaleString('id') + ' (' + v.toFixed(1) + '%)' : '',
+                    }
+                },
+                {
+                    label: 'Belum KCKR', data: belumPct,
+                    backgroundColor: '#fd7e14', borderRadius: 4,
+                    datalabels: {
+                        color: '#fff', font: { size: 11, weight: 'bold' },
+                        formatter: (v, ctx) => v >= 8
+                            ? rows[ctx.dataIndex].belum.toLocaleString('id') + ' (' + v.toFixed(1) + '%)' : '',
+                    }
+                },
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const r   = rows[ctx.dataIndex];
+                            const abs = ctx.datasetIndex === 0 ? r.sudah : r.belum;
+                            return ` ${ctx.dataset.label}: ${abs.toLocaleString('id')} judul (${ctx.parsed.x.toFixed(1)}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true, min: 0, max: 100,
+                    ticks: { font: { size: 10 }, callback: v => v + '%' }
+                },
+                y: { stacked: true, ticks: { font: { size: 12 } } }
+            }
+        }
+    });
+    document.getElementById(legendId).innerHTML = rows.map(r =>
+        `<span><strong>${r.grp}</strong>: ${r.penerbit.toLocaleString('id')} penerbit · ${r.judul.toLocaleString('id')} judul ·
+         <span style="color:${r.pct >= 61 ? '#198754' : r.pct >= 41 ? '#d9a406' : '#dc3545'};font-weight:600">${r.pct}% patuh</span></span>`
+    ).join('');
+}
+
+function loadBreakdown() {
+    const sec = document.getElementById('breakdownSection');
+    if (!sec) return;
+
+    fetch('{{ route("dashboard_compliance.breakdown") }}?' + buildFilterParams().toString())
+        .then(r => r.json())
+        .then(res => {
+            document.getElementById('breakdownLoading').classList.add('d-none');
+            if (res.error) {
+                document.getElementById('breakdownError').textContent = res.error;
+                document.getElementById('breakdownError').classList.remove('d-none');
+                return;
+            }
+            document.getElementById('breakdownContent').classList.remove('d-none');
+
+            renderGroupChart('kategoriChart', 'kategoriLegend', res.kategori);
+            renderGroupChart('mediaChart', 'mediaLegend', res.media);
+
+            if (res.ecol) {
+                document.getElementById('ecolReview').textContent     = res.ecol.in_review.toLocaleString('id');
+                document.getElementById('ecolDiterima').textContent   = res.ecol.diterima.toLocaleString('id');
+                document.getElementById('ecolBermasalah').textContent = res.ecol.bermasalah.toLocaleString('id');
+                document.getElementById('ecolStrip').classList.remove('d-none');
+            }
+
+            const tbody = document.getElementById('top10Body');
+            if (!res.top10.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada hutang KCKR pada periode ini 🎉</td></tr>';
+                return;
+            }
+            const detailBase = '{{ url("coaching-supervision/compliance-v3/detail") }}/';
+            tbody.innerHTML = res.top10.map((r, i) => {
+                const pctColor = r.pct >= 61 ? '#198754' : r.pct >= 41 ? '#d9a406' : '#dc3545';
+                return `<tr>
+                    <td class="ps-3 text-muted">${i + 1}</td>
+                    <td><a href="${detailBase}${r.id}" class="text-decoration-none fw-semibold">${r.nama ?? '-'}</a></td>
+                    <td class="text-end">${r.judul.toLocaleString('id')}</td>
+                    <td class="text-end text-success">${r.sudah.toLocaleString('id')}</td>
+                    <td class="text-end fw-bold" style="color:#fd7e14">${r.hutang.toLocaleString('id')}</td>
+                    <td class="text-end pe-3">
+                        <div class="d-flex align-items-center justify-content-end gap-2">
+                            <div class="progress flex-grow-1" style="height:6px;max-width:90px">
+                                <div class="progress-bar" style="width:${r.pct}%;background:${pctColor}"></div>
+                            </div>
+                            <span style="color:${pctColor};font-weight:600;min-width:44px;text-align:right">${r.pct}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        })
+        .catch(() => {
+            document.getElementById('breakdownLoading').classList.add('d-none');
+            document.getElementById('breakdownError').textContent = 'Gagal memuat data breakdown.';
+            document.getElementById('breakdownError').classList.remove('d-none');
+        });
+}
+
+// ── Insight: Perbandingan Periode + Aging + Lama Konfirmasi ──────────────────
+let agingChartInstance = null;
+function loadInsight() {
+    const sec = document.getElementById('insightSection');
+    if (!sec) return;
+
+    fetch('{{ route("dashboard_compliance.insight") }}?' + buildFilterParams().toString())
+        .then(r => r.json())
+        .then(res => {
+            document.getElementById('insightLoading').classList.add('d-none');
+            if (res.error) {
+                document.getElementById('insightError').textContent = res.error;
+                document.getElementById('insightError').classList.remove('d-none');
+                return;
+            }
+            document.getElementById('insightContent').classList.remove('d-none');
+
+            // ── Perbandingan periode ──
+            document.getElementById('prevPeriodLabel').textContent = 'Dibandingkan: ' + res.prev_label;
+            const rowsCompare = [
+                { label: 'Penerbit Aktif', cur: res.current.penerbit, prev: res.previous.penerbit },
+                { label: 'Judul ISBN',     cur: res.current.judul,    prev: res.previous.judul },
+                { label: 'Sudah KCKR',     cur: res.current.sudah,    prev: res.previous.sudah },
+                { label: '% Kepatuhan',    cur: res.current.pct,      prev: res.previous.pct, pct: true },
+            ];
+            document.getElementById('periodCompare').innerHTML = rowsCompare.map(r => {
+                const diff = r.cur - r.prev;
+                const diffPct = r.prev > 0 ? (diff / r.prev * 100) : (r.cur > 0 ? 100 : 0);
+                const up   = diff > 0, flat = diff === 0;
+                const arrow = flat ? '▬' : (up ? '▲' : '▼');
+                const color = flat ? '#6c757d' : (up ? '#198754' : '#dc3545');
+                const fmt   = v => r.pct ? v.toFixed(1) + '%' : v.toLocaleString('id');
+                const diffTxt = r.pct
+                    ? (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' poin'
+                    : (diff >= 0 ? '+' : '') + diff.toLocaleString('id') + ' (' + (diffPct >= 0 ? '+' : '') + diffPct.toFixed(1) + '%)';
+                return `<div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="font-size:.85rem">
+                    <div>
+                        <div class="fw-semibold">${r.label}</div>
+                        <small class="text-muted">sebelumnya: ${fmt(r.prev)}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold" style="font-size:1.05rem">${fmt(r.cur)}</div>
+                        <small style="color:${color};font-weight:600">${arrow} ${diffTxt}</small>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // ── Aging chart ──
+            const agingColors = ['#ffc107', '#fd7e14', '#e35d6a', '#dc3545'];
+            if (agingChartInstance) agingChartInstance.destroy();
+            agingChartInstance = new Chart(document.getElementById('agingChart'), {
+                type: 'bar',
+                data: {
+                    labels: res.aging.map(a => a.label),
+                    datasets: [{
+                        data: res.aging.map(a => a.count),
+                        backgroundColor: agingColors,
+                        borderRadius: 5,
+                        datalabels: {
+                            anchor: 'end', align: 'top', clip: false,
+                            color: '#333', font: { size: 11, weight: 'bold' },
+                            formatter: v => v > 0 ? v.toLocaleString('id') : '',
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 20 } },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                        y: {
+                            beginAtZero: true, grace: '15%',
+                            ticks: {
+                                font: { size: 10 },
+                                callback: v => v >= 1000 ? (v/1000).toFixed(1).replace('.0','') + 'rb' : v
+                            }
+                        }
+                    }
+                }
+            });
+
+            // ── Lama konfirmasi terbit ──
+            document.getElementById('konfirmMedian').textContent = res.konfirmasi.n > 0 ? res.konfirmasi.median.toLocaleString('id') : '—';
+            document.getElementById('konfirmAvg').textContent    = res.konfirmasi.n > 0 ? res.konfirmasi.avg.toLocaleString('id')    : '—';
+            document.getElementById('konfirmN').textContent      = res.konfirmasi.n.toLocaleString('id');
+        })
+        .catch(() => {
+            document.getElementById('insightLoading').classList.add('d-none');
+            document.getElementById('insightError').textContent = 'Gagal memuat insight.';
+            document.getElementById('insightError').classList.remove('d-none');
+        });
+}
+
 // ── Heatmap Provinsi ─────────────────────────────────────────────────────────
 let provinsiChartInstance = null;
 function loadHeatmap() {
@@ -1145,16 +1519,29 @@ function loadHeatmap() {
         params.set('end_date',   p.get('end_date')   || '{{ request("end_date",   date("Y-m-d")) }}');
     }
     params.set('kckr_mode', p.get('kckr_mode') || 'perpusnas');
+    @if(!empty($provinceIds))
+        @foreach($provinceIds as $pid)
+            params.append('province_ids[]', '{{ $pid }}');
+        @endforeach
+    @endif
 
     fetch('{{ route("dashboard_compliance.provinsi") }}?' + params.toString())
         .then(r => r.json())
-        .then(rows => {
+        .then(res => {
             document.getElementById('heatmapLoading').classList.add('d-none');
-            if (rows.error) {
-                document.getElementById('heatmapError').textContent = rows.error;
+            if (res.error) {
+                document.getElementById('heatmapError').textContent = res.error;
                 document.getElementById('heatmapError').classList.remove('d-none');
                 return;
             }
+            const rows   = res.rows || res;
+            const isKota = res.mode === 'kota';
+            const unit   = isKota ? 'Kabupaten/Kota' : 'Provinsi';
+            const hmTitle = document.querySelector('#heatmapSection h5');
+            if (hmTitle) hmTitle.innerHTML = '🗺️ Heatmap Kepatuhan per ' + unit;
+            const hdrs = document.querySelectorAll('#heatmapContent .card-header');
+            if (hdrs[0]) hdrs[0].textContent = 'Ranking Kepatuhan KCKR per ' + unit;
+            if (hdrs[1]) hdrs[1].textContent = 'Tile Map ' + unit;
             document.getElementById('heatmapContent').classList.remove('d-none');
 
             const pctColor = pct => {
