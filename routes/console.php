@@ -25,16 +25,6 @@ Schedule::command('app:sync-isbn-received-date')
     ->before(fn() => $scheduleLog('app:sync-isbn-received-date', 'START'))
     ->after(fn() => $scheduleLog('app:sync-isbn-received-date', 'DONE'));
 
-Schedule::command('app:auto-block-publisher-kckr')
-    ->dailyAt('00:00')
-    ->timezone('Asia/Jakarta')
-    ->withoutOverlapping()
-    ->onOneServer()
-    ->runInBackground()
-    ->evenInMaintenanceMode()
-    ->before(fn() => $scheduleLog('app:auto-block-publisher-kckr', 'START'))
-    ->after(fn() => $scheduleLog('app:auto-block-publisher-kckr', 'DONE'));
-
 Schedule::command('app:auto-grant-command')
     ->dailyAt('03:00')
     ->timezone('Asia/Jakarta')
@@ -54,6 +44,16 @@ Schedule::command('app:ro-update-status')
     ->evenInMaintenanceMode()
     ->before(fn() => $scheduleLog('app:ro-update-status', 'START'))
     ->after(fn() => $scheduleLog('app:ro-update-status', 'DONE'));
+
+Schedule::command('compliance:recompute-status')
+    ->everyFiveMinutes()
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->runInBackground()
+    ->evenInMaintenanceMode()
+    ->before(fn() => $scheduleLog('compliance:recompute-status', 'START'))
+    ->after(fn() => $scheduleLog('compliance:recompute-status', 'DONE'));
 
 Schedule::exec('find ' . storage_path('logs') . ' -name "laravel-*.log" -mtime +7 -delete')
     ->weekly();
