@@ -299,7 +299,7 @@ class ComplianceRecomputeStatus extends Command
                 // Histori status hanya dicatat kalau LABEL benar-benar berubah.
                 // Perubahan is_lock murni (tanpa perubahan label) tidak menulis riwayat baru.
                 if ($d['label_changed']) {
-                    $note        = "Lewat Teguran: {$d['lewat']} | Terlambat KCKR: {$d['terlambat']} ({$d['pct']}%) | Ambang KCKR: {$minPct}% | is_lock: {$d['old_lock']} → {$newLock}";
+                    $note        = "Lewat Teguran: {$d['lewat']} | Terlambat KCKR: {$d['terlambat']} ({$d['pct']}%) | Ambang KCKR: {$minPct}% | is_lock: {$d['old_lock']} --> {$newLock}";
                     $noteSafe    = str_replace("'", "''", $note);
                     $oldValueSql = $oldStatus === null ? 'NULL' : "'" . str_replace("'", "''", $oldStatus) . "'";
 
