@@ -78,10 +78,13 @@ class ComplianceRecomputeStatus extends Command
                 $oldStatus = trim((string) ($row->STATUS_AKHIR ?? ''));
                 $oldStatus = $oldStatus === '' ? null : $oldStatus;
 
-                // is_lock dihitung langsung dari angka mentah SSKCKR — independen dari
-                // --kckr-block, supaya kunci tetap konsisten meski labelnya dibatasi.
-                $targetLock  = ((int) $row->TERLAMBAT_KCKR > 0 && (float) $row->PERSENTASE_KCKR <= $minPct) ? 1 : 0;
                 $currentLock = (int) ($row->IS_LOCK ?? 0);
+
+                // is_lock hanya dihitung ulang dari angka mentah SSKCKR kalau --kckr-block
+                // dipasang. Tanpa flag itu, is_lock dibiarkan apa adanya (tidak diubah).
+                $targetLock = $kckrBlockOn
+                    ? (((int) $row->TERLAMBAT_KCKR > 0 && (float) $row->PERSENTASE_KCKR <= $minPct) ? 1 : 0)
+                    : $currentLock;
 
                 $labelChanged = $oldStatus !== $newStatus;
                 $lockChanged  = $currentLock !== $targetLock;
