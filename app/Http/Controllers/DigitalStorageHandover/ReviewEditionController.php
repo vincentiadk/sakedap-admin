@@ -431,6 +431,7 @@ class ReviewEditionController extends Controller
 
                             $updateData['received_at'] = date('Y-m-d H:i:s', strtotime($request->received_at));
                             $updateData['received_by'] = $sessionId;
+                            $updateData['received_by_name'] = session('username');
                             $updateData['validated_at'] = $currentDateTime;
                             $updateData['validated_by'] = $sessionId;
                         } else if ($isStatus3) {
@@ -443,6 +444,7 @@ class ReviewEditionController extends Controller
                         } else {
                             $updateData['received_at'] = null;
                             $updateData['received_by'] = null;
+                            $updateData['received_by_name'] = null;
                             $updateData['validated_at'] = null;
                             $updateData['validated_by'] = null;
                         }
