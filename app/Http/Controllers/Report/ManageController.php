@@ -85,17 +85,20 @@ class ManageController extends Controller
         $search = strtoupper(trim($request->search['value'] ?? ''));
 
         // --- Build Where Clause ---
-        $whereCondition = ["NVL(c.isdelete,0) = 0", "w.category = '$this->worksheetCategory'", "c.edeposit_col_id IS NOT NULL"];
-        
+        // Basis sekarang e_collections (bukan catalogs) — supaya angka konsisten dengan
+        // halaman "Serah Simpan Digital - Diterima": semua yang sudah diterima (status=2)
+        // ikut terhitung, baik yang sudah dikatalog maupun yang belum.
+        $whereCondition = ["e.deleted_at IS NULL", "e.status = '2'", "w.category = '$this->worksheetCategory'"];
+
         if ($request->title) {
             $title = strtoupper(str_replace("'", "''", $request->title));
-            $whereCondition[] = "UPPER(c.title) LIKE '%$title%'";
+            $whereCondition[] = "UPPER(NVL(c.title, e.title)) LIKE '%$title%'";
         }
-        if ($request->executor_id) $whereCondition[] = "c.penerbit_id = " . (int)$request->executor_id;
+        if ($request->executor_id) $whereCondition[] = "e.penerbit_id = " . (int)$request->executor_id;
         if ($request->province_id) $whereCondition[] = "kb.propinsiid = " . (int)$request->province_id;
-        if ($request->year) $whereCondition[] = "c.publishyear = " . (int)$request->year;
+        if ($request->year) $whereCondition[] = "e.publication_year = " . (int)$request->year;
         if ($request->media_id) $whereCondition[] = "e.collection_media_id = " . (int)$request->media_id;
-        
+
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
             $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
@@ -117,45 +120,39 @@ class ManageController extends Controller
 
         $whereClause = " WHERE " . implode(' AND ', $whereCondition);
 
-        // Full joins for detail query
-        $filterJoins = "
-            FROM catalogs c
-            JOIN worksheets w ON w.id = c.worksheet_id
-            LEFT JOIN penerbit p ON p.id = c.penerbit_id
-            LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
-            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
-            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
-            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-        ";
-
         // Slim joins for ID/count query — only tables referenced in WHERE
-        // Start from e_collections when filtering by received_by_name so Oracle uses the index first
         $needsPenerbit  = (bool) $request->executor_id;
         $needsKabupaten = (bool) $request->province_id;
-        $needsCollMedia = (bool) $request->media_id;
         $needsUsers     = (bool) $request->fullname;
+        $needsCatalog   = (bool) $request->title; // title search butuh NVL(c.title, e.title)
 
         $slimJoins = "FROM e_collections e
-            JOIN catalogs c ON c.edeposit_col_id = e.id AND NVL(c.isdelete,0) = 0
-            JOIN worksheets w ON w.id = c.worksheet_id AND w.category = '$this->worksheetCategory'";
+            JOIN collectionmedias cm ON cm.id = e.collection_media_id
+            JOIN worksheets w ON w.id = cm.worksheet_id AND w.category = '$this->worksheetCategory'";
+        if ($needsCatalog)   $slimJoins .= "\n            LEFT JOIN catalogs c ON c.edeposit_col_id = e.id AND NVL(c.isdelete,0) = 0";
         if ($needsUsers)     $slimJoins .= "\n            LEFT JOIN users u ON u.username = e.received_by_name";
-        if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit p ON p.id = c.penerbit_id";
+        if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit p ON p.id = e.penerbit_id";
         if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id\n            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid";
-        if ($needsCollMedia) $slimJoins .= "\n            LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id";
 
         // Rebuild whereClause without the base conditions already in slimJoins ON clauses
         $slimConditions = array_filter($whereCondition, fn($c) => !in_array($c, [
-            "NVL(c.isdelete,0) = 0",
+            "e.deleted_at IS NULL",
+            "e.status = '2'",
             "w.category = '$this->worksheetCategory'",
-            "c.edeposit_col_id IS NOT NULL",
         ]));
         $slimWhere = count($slimConditions) ? " WHERE " . implode(' AND ', $slimConditions) : "";
 
         // --- Execution ---
-        $totalData = QueryAPI::get("SELECT COUNT(*) AS total FROM catalogs c JOIN worksheets w ON w.id = c.worksheet_id WHERE NVL(c.isdelete,0) = 0 AND w.category = '$this->worksheetCategory' AND c.edeposit_col_id IS NOT NULL", true)->TOTAL ?? 0;
+        $totalData = QueryAPI::get("
+            SELECT COUNT(*) AS total
+            FROM e_collections e
+            JOIN collectionmedias cm ON cm.id = e.collection_media_id
+            JOIN worksheets w ON w.id = cm.worksheet_id AND w.category = '$this->worksheetCategory'
+            WHERE e.deleted_at IS NULL AND e.status = '2'
+        ", true)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
-            SELECT COUNT(DISTINCT c.id) AS total
+            SELECT COUNT(DISTINCT e.id) AS total
             $slimJoins
             $slimWhere
         ", true)->TOTAL ?? 0;
@@ -166,16 +163,16 @@ class ManageController extends Controller
             FROM (
                 SELECT ROWNUM AS rnum, id
                 FROM (
-                    SELECT /*+ INDEX(e idx_ecol_received_by_name) */ c.id
+                    SELECT e.id
                     $slimJoins
                     $slimWhere
-                    ORDER BY c.id DESC
+                    ORDER BY e.id DESC
                 )
                 WHERE ROWNUM <= $endRow
             )
             WHERE rnum > $start
         ";
-        
+
         $pagedIdsData = QueryAPI::get($sqlIds);
         $finalData = [];
 
@@ -184,10 +181,20 @@ class ManageController extends Controller
             $idString = implode(',', array_unique($pagedIds));
 
             $sqlDetail = "
-                SELECT 
-                    c.id, c.title, c.album, c.series, c.edition, c.deweyno, c.volume, c.isbn, c.controlnumber, 
-                    c.publishyear, c.copyright, c.preview, c.akses, c.author, c.callnumber, e.code,
-                    e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection, e.created_at AS created_at_e_collection, 
+                SELECT
+                    e.id AS e_id, c.id AS c_id,
+                    NVL(c.title, e.title) AS title,
+                    NVL(c.album, e.album) AS album,
+                    NVL(c.series, e.series) AS series,
+                    NVL(c.edition, e.edition) AS edition,
+                    c.deweyno, c.volume, c.controlnumber, c.callnumber,
+                    NVL(c.publishyear, e.publication_year) AS publishyear,
+                    c.copyright,
+                    NVL(c.preview, e.preview) AS preview,
+                    NVL(c.akses, e.akses) AS akses,
+                    NVL(c.author, e.author) AS author,
+                    e.code,
+                    e.deposit AS deposit_e_collection, e.article_doi AS doi_e_collection, e.created_at AS created_at_e_collection,
                     e.received_at, e.serial AS serial_e_collection, e.price AS price_e_collection, e.article_subject AS a_subject,
                     p.id AS id_penerbit, p.name AS name_penerbit, pr.namapropinsi, kb.namakab, cm.name AS name_media,
                     e.received_by_name AS received_username,
@@ -196,26 +203,30 @@ class ManageController extends Controller
                     (SELECT MAX(cf.file_size) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS file_size_catalogfiles,
                     (SELECT MAX(cf.method) KEEP (DENSE_RANK LAST ORDER BY cf.id) FROM catalogfiles cf WHERE cf.catalog_id = c.id) AS method_catalogfiles,
                     (SELECT MAX(cl.noinduk_deposit) KEEP (DENSE_RANK LAST ORDER BY cl.id) FROM collections cl WHERE cl.catalog_id = c.id) AS noinduk_dep_cl
-                FROM catalogs c
-                LEFT JOIN penerbit p ON p.id = c.penerbit_id
-                LEFT JOIN e_collections e ON e.id = c.edeposit_col_id
+                FROM e_collections e
+                LEFT JOIN catalogs c ON c.edeposit_col_id = e.id AND NVL(c.isdelete,0) = 0
+                LEFT JOIN penerbit p ON p.id = e.penerbit_id
                 LEFT JOIN users u ON u.username = e.received_by_name
                 LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id
                 LEFT JOIN propinsi pr ON pr.id = kb.propinsiid
                 LEFT JOIN collectionmedias cm ON cm.id = e.collection_media_id
-                WHERE c.id IN ($idString)
+                WHERE e.id IN ($idString)
             ";
             $queryData = QueryAPI::get($sqlDetail) ?: [];
             $dataMap = [];
-            foreach ($queryData as $row) $dataMap[$row->ID] = $row;
+            foreach ($queryData as $row) $dataMap[$row->E_ID] = $row;
 
             $counter = $start + 1;
             foreach ($pagedIds as $id) {
                 if (!isset($dataMap[$id])) continue;
                 $val = $dataMap[$id];
-                $action = '<a href="' . url('report/manage/detail/' . $val->ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>';
+
+                $action = !empty($val->C_ID)
+                    ? '<a href="' . url('report/manage/detail/' . $val->C_ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>'
+                    : '<span class="badge bg-secondary">Belum Dikatalog</span>';
+
                 $finalData[] = [
-                    $counter++, $action, $val->ID, $val->ID_PENERBIT, $val->NAME_PENERBIT,
+                    $counter++, $action, $val->C_ID, $val->ID_PENERBIT, $val->NAME_PENERBIT,
                     $val->RECEIVED_AT ? \Carbon\Carbon::parse($val->RECEIVED_AT)->isoFormat('D MMMM Y') : '-',
                     Main::method($val->METHOD_CATALOGFILES), $val->NAMAPROPINSI, $val->NAMAKAB, $val->TITLE,
                     $val->NAME_MEDIA, $val->ALBUM, $val->SERIES, $val->EDITION, Main::serial($val->SERIAL_E_COLLECTION),

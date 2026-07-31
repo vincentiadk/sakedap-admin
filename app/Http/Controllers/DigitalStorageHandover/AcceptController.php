@@ -64,6 +64,8 @@ class AcceptController extends Controller
         }
         if ($request->province_id) $whereCondition[] = "kabupaten.propinsiid = " . (int)$request->province_id;
         if ($request->media_id)    $whereCondition[] = "e_collections.collection_media_id = " . (int)$request->media_id;
+        if ($request->executor_id) $whereCondition[] = "e_collections.penerbit_id = " . (int)$request->executor_id;
+        if ($request->year)        $whereCondition[] = "e_collections.publication_year = " . (int)$request->year;
 
         if ($request->verified) {
             if ($request->verified == 'verified') $whereCondition[] = "e_collections.is_need_verify = 0";
