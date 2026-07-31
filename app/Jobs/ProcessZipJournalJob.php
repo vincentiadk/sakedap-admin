@@ -380,6 +380,7 @@ class ProcessZipJournalJob implements ShouldQueue
             'jenis_media' => 'sumber daya sambung jaring',
             'received_at' => $receivedDate,
             'received_by' => $this->user['id'],
+            'received_by_name' => $this->user['username'],
             'collection_media_id' => 203,
             'worksheet_id' => 142,
             'title' => $item['judul_jurnal'] ?? null,
