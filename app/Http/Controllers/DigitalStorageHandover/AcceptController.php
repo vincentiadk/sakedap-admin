@@ -162,11 +162,11 @@ class AcceptController extends Controller
         foreach ($queryData as $val) {
             $action = '<a href="' . url('digital-storage-handover/accept/detail/' . $val->EC_ID) . '" class="btn btn-primary btn-sm"><i class="ph-info me-1"></i> Detail</a>';
 
-            $hasCatalog  = !empty($val->CATALOG_ID);
-            $needsVerify = ($val->INV_E_COLLECTION != 0);
+            $hasCatalog   = !empty($val->CATALOG_ID);
+            $needsReverify = $hasCatalog && (int) $val->INV_E_COLLECTION === 1;
 
-            if ($hasCatalog && !$needsVerify) {
-                $action .= ' <a href="javascript:void(0);" class="btn btn-success btn-sm"><i class="ph-check me-1"></i> Terverifikasi</a>';
+            if ($needsReverify) {
+                $action .= ' <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="verification(' . $val->EC_ID . ')"><i class="ph-arrows-clockwise me-1"></i> Verifikasi Ulang</a>';
             } else {
                 $action .= ' <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="verification(' . $val->EC_ID . ')"><i class="ph-warning me-1"></i> Perlu Verifikasi</a>';
             }
