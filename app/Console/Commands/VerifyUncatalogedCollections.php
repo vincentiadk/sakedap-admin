@@ -38,10 +38,10 @@ class VerifyUncatalogedCollections extends Command
             $rows = QueryAPI::get("
                 SELECT e.id, e.title, e.received_by_name
                 FROM e_collections e
-                LEFT JOIN catalogs c ON c.edeposit_col_id = e.id AND NVL(c.isdelete,0) = 0
                 WHERE e.deleted_at IS NULL
                 AND e.status = '2'
-                AND c.id IS NULL
+                AND e.catalog_id IS NULL
+                and title is not null
             ") ?? [];
             $queryDuration = round(microtime(true) - $tQuery, 2);
 
