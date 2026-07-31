@@ -346,8 +346,9 @@ class AcceptController extends Controller
         $id = (int) $id;
 
         $update = QueryAPI::update('e_collections', $id, [
-            'jilid'      => $request->binding,
-            'updated_by' => session('id'),
+            'jilid'          => $request->binding,
+            'is_need_verify' => 1,
+            'updated_by'     => session('id'),
         ], true);
 
         if ($update) {
@@ -360,7 +361,11 @@ class AcceptController extends Controller
     public function verification(Request $request)
     {
         $id = $request->id;
-        $verif = QueryAPI::verificationCollection($id, session('username'));
+
+        $collection = QueryAPI::get("SELECT received_by_name FROM e_collections WHERE id = " . (int) $id, true);
+        $acceptedBy = $collection->RECEIVED_BY_NAME ?? session('username');
+
+        $verif = QueryAPI::verificationCollection($id, $acceptedBy);
 
         if ($verif) {
             $update = QueryAPI::update('e_collections', $id, [
