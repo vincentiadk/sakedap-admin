@@ -26,7 +26,7 @@ class ProcessZipJournalJobV2 implements ShouldQueue
 
     public $historyId;
     public $user;
-    public $tries = 3;
+    public $tries = 1;
     public $timeout = 600;
 
     public function __construct($historyId, $user)
@@ -171,14 +171,30 @@ class ProcessZipJournalJobV2 implements ShouldQueue
                         throw new \Exception('Gagal membuat hash file');
                     }
 
-                    // Cek duplikasi hash SEBELUM upload
-                    $existingFile = QueryAPI::get("
-                        SELECT *  FROM CATALOGFILES
-                        WHERE hash = '" . ($hash) . "'
-                    ", true);
+                    // Sanitize hash: trim whitespace, convert to lowercase for consistency
+                    $hash = trim(strtolower($hash));
 
-                    if ($existingFile) {
-                        throw new \Exception('File yang sama sudah pernah diupload.');
+                    // Cek duplikasi di CATALOGFILES
+                    try {
+                        $existingFile = QueryAPI::get("
+                            SELECT * FROM CATALOGFILES
+                            WHERE LOWER(TRIM(hash)) = '" . ($hash) . "'
+                        ", true);
+
+                        if ($existingFile) {
+                            throw new \Exception('File yang sama sudah pernah diupload.');
+                        }
+                    } catch (\Throwable $hashCheckError) {
+                        // Log detail error saat cek hash
+                        Log::channel('zip-upload')->error('Hash duplicate check error', [
+                            'history_id' => $this->historyId,
+                            'row_number' => $rowNumber,
+                            'file_name' => $fileName,
+                            'hash' => $hash,
+                            'hash_length' => strlen($hash),
+                            'error' => $hashCheckError->getMessage(),
+                        ]);
+                        throw $hashCheckError;
                     }
 
                     // UPLOAD FILE LEBIH DULU (sebelum create collection)
@@ -191,11 +207,12 @@ class ProcessZipJournalJobV2 implements ShouldQueue
 
                     $tempCollectionId = null;
 
+                    // Upload file dengan hash yang sudah di-sanitize
                     $uploadResult = QueryAPI::uploadFile([
                         'type' => 'konten_digital',
                         'id' => $tempCollectionId,
-                        'status' => 1,
-                        'hash' => $hash,
+                        'status' => 1,  // e_collections (status = 1)
+                        'hash' => $hash,  // Already trimmed & lowercased
                         'mime' => $file->getMimeType(),
                         'filesize' => $file->getSize(),
                         'method' => 7,
@@ -216,8 +233,25 @@ class ProcessZipJournalJobV2 implements ShouldQueue
                             ?? null;
                     }
 
+                    // Validasi penerbit sebelum create collection
+                    if (!$penerbit || !$penerbit->ID) {
+                        throw new \Exception('Data penerbit tidak ditemukan atau tidak valid');
+                    }
+
+                    if (empty($history->PENERBIT_ID)) {
+                        throw new \Exception('Penerbit ID dari history upload kosong');
+                    }
+
                     // File upload sukses, baru create collection di database
                     $payload = $this->mapExcelRowToEcollectionsPayload($item, $history, $penerbit);
+
+                    // Log penerbit_id yang akan digunakan
+                    Log::channel('zip-upload')->info('Creating collection with penerbit', [
+                        'history_id' => $this->historyId,
+                        'row_number' => $rowNumber,
+                        'penerbit_id' => $history->PENERBIT_ID,
+                        'penerbit_name' => $penerbit->NAME ?? null,
+                    ]);
 
                     $this->setRowProgressToRedis($rowNumber, [
                         'status' => 'running',
@@ -279,13 +313,17 @@ class ProcessZipJournalJobV2 implements ShouldQueue
                     try {
                         $verifikasi = QueryAPI::verificationCollection($createdCollection->ID, $this->user['username']);
                         if (!$verifikasi) {
-                            throw new \Exception('Gagal verifikasi artikel menjadi katalog');
+                            throw new \Exception('Gagal verifikasi artikel menjadi katalog - API return false');
                         }
                     } catch (\Throwable $e) {
-                        Log::channel('zip-upload')->error('Verification failed', [
+                        Log::channel('zip-upload')->error('Verification collection failed', [
                             'history_id' => $this->historyId,
+                            'row_number' => $rowNumber,
                             'collection_id' => $createdCollection->ID,
+                            'title' => $title,
+                            'file_name' => $fileName,
                             'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
                         ]);
                         throw $e;
                     }

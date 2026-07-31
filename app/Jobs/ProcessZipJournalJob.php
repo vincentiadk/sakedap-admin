@@ -26,7 +26,7 @@ class ProcessZipJournalJob implements ShouldQueue
 
     public $historyId;
     public $user;
-    public $tries = 3;
+    public $tries = 1;
     public $timeout = 600; // 10 menit
 
     public function __construct($historyId, $user)
