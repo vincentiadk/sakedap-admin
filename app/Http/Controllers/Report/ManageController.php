@@ -134,12 +134,11 @@ class ManageController extends Controller
         if ($needsPenerbit)  $slimJoins .= "\n            LEFT JOIN penerbit p ON p.id = e.penerbit_id";
         if ($needsKabupaten) $slimJoins .= "\n            LEFT JOIN kabupaten kb ON kb.id = e.kabupaten_id\n            LEFT JOIN propinsi pr ON pr.id = kb.propinsiid";
 
-        // Rebuild whereClause without the base conditions already in slimJoins ON clauses
-        $slimConditions = array_filter($whereCondition, fn($c) => !in_array($c, [
-            "e.deleted_at IS NULL",
-            "e.status = '2'",
-            "w.category = '$this->worksheetCategory'",
-        ]));
+        // Rebuild whereClause: buang HANYA kondisi yang benar-benar sudah di-enforce
+        // lewat ON clause JOIN (w.category). e.deleted_at & e.status BUKAN bagian dari
+        // JOIN manapun di sini, jadi wajib selalu ikut tampil di WHERE — kalau ikut
+        // dibuang, data status lain (belum diterima/ditolak/dsb) akan bocor ke laporan.
+        $slimConditions = array_filter($whereCondition, fn($c) => $c !== "w.category = '$this->worksheetCategory'");
         $slimWhere = count($slimConditions) ? " WHERE " . implode(' AND ', $slimConditions) : "";
 
         // --- Execution ---
