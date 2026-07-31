@@ -53,6 +53,7 @@ class AcceptArticleJournalController extends Controller
         // ─── Build WHERE ─────────────────────────────────────────────────────
         $conditions = [
             "e.deleted_at IS NULL",
+            "e.status = '2'",
             "worksheets.category = '" . $this->escStr($this->worksheetCategory) . "'",
             "e.collection_media_id = 203",
         ];
@@ -136,12 +137,13 @@ class AcceptArticleJournalController extends Controller
 
         // ─── totalData ───────────────────────────────────────────────────────
         $wsCategory = $this->worksheetCategory;
-        $totalData = \Illuminate\Support\Facades\Cache::remember("datatable_total_{$wsCategory}", 300, function () use ($wsCategory) {
+        $totalData = \Illuminate\Support\Facades\Cache::remember("datatable_total_{$wsCategory}_v2", 300, function () use ($wsCategory) {
             return QueryAPI::get("
                 SELECT COUNT(e.id) AS total
                 FROM e_collections e
                 LEFT JOIN worksheets ON worksheets.id = e.worksheet_id
                 WHERE e.deleted_at IS NULL
+                AND e.status = '2'
                 AND worksheets.category = '$wsCategory'
             ", true)->TOTAL ?? 0;
         });
