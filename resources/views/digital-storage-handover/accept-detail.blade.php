@@ -100,6 +100,20 @@
                         </div>
                     </div>
                 </div>
+                @if($collection->CODE_TYPE_E_COLLECTION == 1)
+                <div class="form-group row">
+                    <label class="col-form-label col-md-2">Status ISBN</label>
+                    <div class="col-md-10 d-flex align-items-center">
+                        @if($isbnDepositStatus === 'sesuai')
+                            <span class="badge bg-success fs-6"><i class="ph-check-circle me-1"></i> Sesuai</span>
+                        @elseif($isbnDepositStatus === 'tidak_sesuai')
+                            <span class="badge bg-danger fs-6"><i class="ph-x-circle me-1"></i> Tidak Sesuai</span>
+                        @else
+                            <span class="badge bg-secondary fs-6"><i class="ph-minus-circle me-1"></i> Belum Diverifikasi</span>
+                        @endif
+                    </div>
+                </div>
+                @endif
                 <div class="form-group row">
                     <label class="col-form-label col-md-2">Kota</label>
                     <div class="col-md-10">

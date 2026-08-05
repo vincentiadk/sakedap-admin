@@ -84,6 +84,11 @@ class AcceptController extends Controller
             $whereCondition[] = "(UPPER(e_collections.received_by_name) LIKE '%$fnReq%' OR UPPER(u.fullname) LIKE '%$fnReq%')";
         }
 
+        if ($request->code) {
+            $codeReq = strtoupper(str_replace("'", "''", $request->code));
+            $whereCondition[] = "UPPER(REPLACE(e_collections.code, '-', '')) LIKE '%" . str_replace('-', '', $codeReq) . "%'";
+        }
+
         if ($search) {
             $searchEsc = str_replace("'", "''", $search);
             $terms = [];
@@ -94,6 +99,16 @@ class AcceptController extends Controller
         }
 
         $whereClause = " WHERE " . implode(' AND ', $whereCondition);
+
+        if ($request->isbn_status) {
+            $isbnStatus = $request->isbn_status;
+            if ($isbnStatus === 'null') {
+                $whereCondition[] = "e_collections.code_type = '1' AND NOT EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status IS NOT NULL)";
+            } else {
+                $statusSafe = str_replace("'", "''", $isbnStatus);
+                $whereCondition[] = "EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status = '$statusSafe')";
+            }
+        }
 
         // Slim joins untuk COUNT
         $needsUsers     = (bool) $request->fullname;
@@ -287,6 +302,19 @@ class AcceptController extends Controller
               AND ec.id = $id
         ", true);
 
+        // Status ISBN dari penerbit_isbn
+        $isbnDepositStatus = null;
+        $isbnNo = preg_replace('/[\s\-]/', '', $collection->EC_CODE ?? '');
+        if ($isbnNo && ($collection->CODE_TYPE_E_COLLECTION ?? null) == '1') {
+            $penerbitIsbnRow = QueryAPI::get("
+                SELECT pi.isbn_deposit_status
+                FROM penerbit_isbn pi
+                WHERE REPLACE(TRIM(pi.isbn_no), '-', '') = '$isbnNo'
+                  AND rownum = 1
+            ", true);
+            $isbnDepositStatus = $penerbitIsbnRow->ISBN_DEPOSIT_STATUS ?? null;
+        }
+
         $collectionCategory = [];
         $collectionId       = $id;
 
@@ -326,6 +354,7 @@ class AcceptController extends Controller
                 'mediaType' => QueryAPI::get("select * from fieldrefs where tag = '338'") ?? [],
                 'bigClass' => QueryAPI::get("select * from master_kelas_besar") ?? [],
                 'collection' => $collection,
+                'isbnDepositStatus' => $isbnDepositStatus,
                 'collectionCategory' => $collectionCategory,
                 'collectionContributor' => explode(';', ($collection->AUTHOR ?? '')),
                 'collectionCopy' => $collectionCopy,

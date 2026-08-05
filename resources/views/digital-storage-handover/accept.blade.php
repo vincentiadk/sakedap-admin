@@ -94,6 +94,25 @@
                             </label>
                             <input type="text" class="form-control" name="fullname" id="fullname" placeholder="Cari username / nama penerima">
                         </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-barcode me-1"></i>
+                                Kode / ISBN
+                            </label>
+                            <input type="text" class="form-control" name="code" id="code_filter" placeholder="Cari kode atau ISBN">
+                        </div>
+                        <div class="col-lg-4 col-md-6" id="wrap_isbn_status" style="display:none">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-seal-check me-1"></i>
+                                Status ISBN
+                            </label>
+                            <select class="form-select" name="isbn_status" id="isbn_status">
+                                <option value="">Semua Status</option>
+                                <option value="sesuai">Sesuai</option>
+                                <option value="tidak_sesuai">Tidak Sesuai</option>
+                                <option value="null">Belum Diverifikasi</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -204,6 +223,18 @@
                 minimumInputLength: 0
             });
         }
+
+        // Show/hide filter Status ISBN saat media Buku Elektronik dipilih
+        const BUKU_ELEKTRONIK_ID = {{ collect($media ?? [])->first(fn($m) => str_contains(strtolower($m->NAME ?? ''), 'elektronik'))?->ID ?? 'null' }};
+        $('#media_id').on('change', function () {
+            const val = $(this).val();
+            if (val && parseInt(val) === BUKU_ELEKTRONIK_ID) {
+                $('#wrap_isbn_status').show();
+            } else {
+                $('#wrap_isbn_status').hide();
+                $('#isbn_status').val('');
+            }
+        });
 
         loadData();
     });
