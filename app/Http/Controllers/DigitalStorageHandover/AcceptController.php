@@ -89,6 +89,16 @@ class AcceptController extends Controller
             $whereCondition[] = "UPPER(REPLACE(e_collections.code, '-', '')) LIKE '%" . str_replace('-', '', $codeReq) . "%'";
         }
 
+        if ($request->isbn_status) {
+            $isbnStatus = $request->isbn_status;
+            if ($isbnStatus === 'null') {
+                $whereCondition[] = "e_collections.code_type = '1' AND NOT EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status IS NOT NULL)";
+            } else {
+                $statusSafe = str_replace("'", "''", $isbnStatus);
+                $whereCondition[] = "EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status = '$statusSafe')";
+            }
+        }
+
         if ($search) {
             $searchEsc = str_replace("'", "''", $search);
             $terms = [];
@@ -99,16 +109,6 @@ class AcceptController extends Controller
         }
 
         $whereClause = " WHERE " . implode(' AND ', $whereCondition);
-
-        if ($request->isbn_status) {
-            $isbnStatus = $request->isbn_status;
-            if ($isbnStatus === 'null') {
-                $whereCondition[] = "e_collections.code_type = '1' AND NOT EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status IS NOT NULL)";
-            } else {
-                $statusSafe = str_replace("'", "''", $isbnStatus);
-                $whereCondition[] = "EXISTS (SELECT 1 FROM penerbit_isbn pi WHERE REPLACE(TRIM(pi.isbn_no),'-','') = REPLACE(TRIM(e_collections.code),'-','') AND pi.isbn_deposit_status = '$statusSafe')";
-            }
-        }
 
         // Slim joins untuk COUNT
         $needsUsers     = (bool) $request->fullname;
