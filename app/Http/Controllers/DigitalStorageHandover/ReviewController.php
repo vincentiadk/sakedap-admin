@@ -534,7 +534,7 @@ class ReviewController extends Controller
                         }
 
                         if ($isStatus2 && $param == 'save-verification') {
-                            QueryAPI::verificationCollection($id);
+                            QueryAPI::verificationCollection($id, session('username'));
                         }
 
                     $response = [
