@@ -13,7 +13,7 @@ class VerifyUncatalogedCollections extends Command
                             {--chunk=200  : Jumlah baris per batch}
                             {--preview=20 : Jumlah baris preview saat dry-run}';
 
-    protected $description = 'Panggil API verifikasi (verifikasikoleksiditerima) untuk e_collections berstatus diterima (status=2) yang belum punya catalog_id';
+    protected $description = 'Panggil API verifikasi untuk e_collections berstatus diterima (status=2) yang tidak punya relasi di tabel catalogs (edeposit_col_id)';
 
     private const FALLBACK_ACTOR = 'SISTEM';
 
@@ -36,12 +36,13 @@ class VerifyUncatalogedCollections extends Command
         try {
             $tQuery = microtime(true);
             $rows = QueryAPI::get("
-                SELECT e.id, e.title, e.received_by_name
-                FROM e_collections e
-                WHERE e.deleted_at IS NULL
-                AND e.status = '2'
-                AND e.catalog_id IS NULL
-                and title is not null
+                SELECT ec.id, ec.title, ec.received_by_name
+                FROM e_collections ec
+                LEFT JOIN collections co ON co.edeposit_col_id = ec.id
+                WHERE (co.edeposit_col_id IS NULL OR ec.catalog_id IS NULL)
+                  AND ec.status = 2
+                  AND ec.deleted_at IS NULL
+                  AND ec.title IS NOT NULL
             ") ?? [];
             $queryDuration = round(microtime(true) - $tQuery, 2);
 
