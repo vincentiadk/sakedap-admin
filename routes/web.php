@@ -474,6 +474,12 @@ Route::middleware('authentication')->group(function () {
             Route::post('datatable', 'KinerjaController@datatable');
             Route::get('export', 'KinerjaController@export');
         });
+
+        Route::prefix('validation-performance')->group(function () {
+            Route::get('/',       'ValidationPerformanceController@index')->name('validation_performance.index');
+            Route::post('data',   'ValidationPerformanceController@data')->name('validation_performance.data');
+            Route::get('export',  'ValidationPerformanceController@export')->name('validation_performance.export');
+        });
     });
 
     Route::prefix('administration-system')->namespace('AdministrationSystem')->group(function () {
