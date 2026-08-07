@@ -110,12 +110,12 @@ class ValidationPerformanceController extends Controller
             $mediaLabel = $found['name'] ?? "Media ID {$mediaId}";
         }
 
-        $label = [
-            'periode'  => date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)),
-            'provinsi' => $mediaLabel, // slot kedua di writeTitleRows dipakai untuk media
+        $meta = [
+            'periode' => date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)),
+            'media'   => $mediaLabel,
         ];
 
-        return $this->buildWorkbook($payload, $label, $granular, $request);
+        return $this->buildWorkbook($payload, $meta, $granular, $request);
     }
 
     // ── Pembangun data bersama ───────────────────────────────────────────────
@@ -337,7 +337,7 @@ class ValidationPerformanceController extends Controller
 
     // ── Excel ────────────────────────────────────────────────────────────────
 
-    private function buildWorkbook(array $payload, array $label, string $granular, Request $request)
+    private function buildWorkbook(array $payload, array $meta, string $granular, Request $request)
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
@@ -347,7 +347,7 @@ class ValidationPerformanceController extends Controller
         // Sheet 1 — Ringkasan (pasangan label/nilai, bukan tabel biasa)
         $s1 = $spreadsheet->createSheet();
         $s1->setTitle('Ringkasan');
-        $row = $this->writeTitleRows($s1, 'Kinerja Validasi Koleksi — Ringkasan', $label, 2);
+        $row = $this->tulisJudul($s1, 'Kinerja Validasi Koleksi — Ringkasan', $meta, 2);
         $ringkasanRows = [
             ['Total validasi',                  (int) ($r['total_validasi'] ?? 0)],
             ['Jumlah validator',                (int) ($r['jml_validator'] ?? 0)],
@@ -370,7 +370,7 @@ class ValidationPerformanceController extends Controller
 
         // Sheet 2 — Per validator
         $this->sheetTabel(
-            $spreadsheet, 'Per Validator', 'Kinerja per Validator', $label,
+            $spreadsheet, 'Per Validator', 'Kinerja per Validator', $meta,
             ['Validator', 'NIP', 'Koleksi', 'Hari Kerja', 'Per Hari', 'Median (menit)', 'Jeda Panjang', 'Jeda < 1 mnt'],
             array_map(fn($v) => [
                 $v['validator'] ?? '(tidak dikenal)',
@@ -387,7 +387,7 @@ class ValidationPerformanceController extends Controller
 
         // Sheet 3 — Tren
         $this->sheetTabel(
-            $spreadsheet, 'Tren', 'Tren per ' . ucfirst($granular), $label,
+            $spreadsheet, 'Tren', 'Tren per ' . ucfirst($granular), $meta,
             ['Periode', 'Koleksi', 'Validator', 'Hari', 'Median (menit)'],
             array_map(fn($t) => [
                 $t['periode'] ?? '',
@@ -401,7 +401,7 @@ class ValidationPerformanceController extends Controller
 
         // Sheet 4 — Per media
         $this->sheetTabel(
-            $spreadsheet, 'Per Media', 'Per Jenis Media (semua media)', $label,
+            $spreadsheet, 'Per Media', 'Per Jenis Media (semua media)', $meta,
             ['Media', 'Koleksi', 'Validator', 'Median (menit)'],
             array_map(fn($m) => [
                 $m['media'] ?? '',
@@ -426,7 +426,7 @@ class ValidationPerformanceController extends Controller
         \PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet,
         string $tabTitle,
         string $mainTitle,
-        array $label,
+        array $meta,
         array $headers,
         array $rows,
         array $widths
@@ -434,7 +434,7 @@ class ValidationPerformanceController extends Controller
         $sheet = $spreadsheet->createSheet();
         $sheet->setTitle($tabTitle);
 
-        $headerRow = $this->writeTitleRows($sheet, $mainTitle, $label, count($headers));
+        $headerRow = $this->tulisJudul($sheet, $mainTitle, $meta, count($headers));
 
         $col = 1;
         foreach ($headers as $h) {
@@ -468,5 +468,45 @@ class ValidationPerformanceController extends Controller
     private function menit($v): string
     {
         return ($v === null || $v === '') ? '-' : $v . ' menit';
+    }
+
+    /**
+     * Kop sheet: judul, baris periode + jenis media, tanggal unduh.
+     * Ditulis lokal (bukan OracleHelper::writeTitleRows) karena laporan ini
+     * memakai label "Jenis Media", bukan "Provinsi" yang di-hardcode helper itu.
+     *
+     * @return int nomor baris tempat header tabel harus mulai
+     */
+    private function tulisJudul(
+        \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet,
+        string $mainTitle,
+        array $meta,
+        int $colCount
+    ): int {
+        $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colCount);
+
+        $sheet->mergeCells("A1:{$lastCol}1");
+        $sheet->setCellValue('A1', $mainTitle);
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 13, 'color' => ['rgb' => '0D47A1']],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        $sheet->mergeCells("A2:{$lastCol}2");
+        $sheet->setCellValue('A2', 'Periode: ' . ($meta['periode'] ?? '-')
+            . '     |     Jenis Media: ' . ($meta['media'] ?? '-'));
+        $sheet->getStyle('A2')->applyFromArray(['font' => ['size' => 10, 'color' => ['rgb' => '444444']]]);
+
+        $sheet->mergeCells("A3:{$lastCol}3");
+        $sheet->setCellValue('A3', 'Diunduh: ' . date('d/m/Y H:i'));
+        $sheet->getStyle('A3')->applyFromArray(['font' => ['size' => 10, 'color' => ['rgb' => '444444']]]);
+
+        $sheet->getStyle("A1:{$lastCol}3")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('E3F2FD');
+
+        $sheet->getRowDimension(4)->setRowHeight(6);
+
+        return 5; // header tabel mulai di baris 5
     }
 }
