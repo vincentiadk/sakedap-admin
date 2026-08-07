@@ -381,6 +381,12 @@ class ProcessZipJournalJob implements ShouldQueue
             'received_at' => $receivedDate,
             'received_by' => $this->user['id'],
             'received_by_name' => $this->user['username'],
+            // Upload jurnal langsung berstatus tervalidasi (status=2). Kolom
+            // validasi disamakan dengan data penerima; validated_at memakai
+            // waktu insert, setara created_at yang diisi QueryAPI::create.
+            'validated_at' => date('Y-m-d H:i:s'),
+            'validated_by' => $this->user['id'],
+            'validated_by_name' => $this->user['username'],
             'collection_media_id' => 203,
             'worksheet_id' => 142,
             'title' => $item['judul_jurnal'] ?? null,
