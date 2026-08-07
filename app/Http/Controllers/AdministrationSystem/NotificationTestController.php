@@ -66,15 +66,18 @@ class NotificationTestController extends Controller
 
         $safe = str_replace("'", "''", mb_strtoupper($term));
 
-        $where = ctype_digit($term)
+        $cari = ctype_digit($term)
             ? "P.ID = " . (int) $term
             : "UPPER(P.NAME) LIKE '%{$safe}%'";
 
+        // Notifikasi kepatuhan hanya berlaku untuk penerbit ber-ISBN, jadi
+        // pencarian dibatasi ke penerbit yang sumber datanya dari DB ISBN.
         $rows = QueryAPI::get("
             SELECT * FROM (
                 SELECT P.ID, P.NAME, P.EMAIL1, P.EMAIL2, P.STATUS_AKHIR
                 FROM PENERBIT P
-                WHERE {$where}
+                WHERE UPPER(P.SOURCE_DB) = 'ISBN'
+                  AND ({$cari})
                 ORDER BY P.NAME
             ) WHERE ROWNUM <= 20
         ") ?? [];
