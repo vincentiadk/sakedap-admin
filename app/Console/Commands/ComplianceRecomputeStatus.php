@@ -15,7 +15,8 @@ class ComplianceRecomputeStatus extends Command
                             {--dry-run    : Tampilkan ringkasan tanpa eksekusi}
                             {--chunk=200  : Jumlah penerbit per batch}
                             {--preview=20 : Jumlah baris preview saat dry-run}
-                            {--kckr-block : Aktifkan klasifikasi Blokir SSKCKR & Blokir Konfirmasi Terbit dan SSKCKR (default: mati, hanya Blokir Konfirmasi Terbit yang jalan)}';
+                            {--kckr-block : Aktifkan klasifikasi Blokir SSKCKR & Blokir Konfirmasi Terbit dan SSKCKR (default: mati, hanya Blokir Konfirmasi Terbit yang jalan)}
+                            {--reset-notif : Reset penanda email blokir (IS_NOTIF_BLOKIR_*) saat blokir dicabut (default: mati, kolom notifikasi tidak disentuh)}';
 
     protected $description = 'Hitung ulang status kepatuhan penerbit dan simpan riwayatnya ke PENERBIT_STATUS. Default: hanya klasifikasi Blokir Konfirmasi Terbit yang aktif, blokir SSKCKR diabaikan sampai --kckr-block dipasang.';
 
@@ -34,6 +35,7 @@ class ComplianceRecomputeStatus extends Command
         $chunkSize   = max(1, (int) ($this->option('chunk')   ?? 200));
         $previewMax  = max(1, (int) ($this->option('preview') ?? 20));
         $kckrBlockOn = (bool) $this->option('kckr-block');
+        $resetNotifOn = (bool) $this->option('reset-notif');
         $terminal    = gethostname() ?: '127.0.0.1';
         $now         = date('Y-m-d H:i:s');
 
@@ -46,6 +48,7 @@ class ComplianceRecomputeStatus extends Command
         $this->info('╚══════════════════════════════════════════╝');
         $this->line("  Mode        : " . ($isDryRun ? 'DRY RUN — tidak ada yang akan diubah' : "EKSEKUSI (chunk {$chunkSize}/batch)"));
         $this->line("  Blokir SSKCKR : " . ($kckrBlockOn ? 'AKTIF' : 'NONAKTIF (default) — hanya Blokir Konfirmasi Terbit yang jalan'));
+        $this->line("  Reset notif   : " . ($resetNotifOn ? 'AKTIF — penanda email blokir direset saat blokir dicabut' : 'NONAKTIF (default) — kolom IS_NOTIF_*/TGL_NOTIF_* tidak disentuh'));
         $this->line('');
 
         try {
@@ -101,6 +104,11 @@ class ComplianceRecomputeStatus extends Command
                         'lewat'         => (int) $row->LEWAT_TEGURAN,
                         'terlambat'     => (int) $row->TERLAMBAT_KCKR,
                         'pct'           => (float) $row->PERSENTASE_KCKR,
+                        // Penanda email blokir yang sudah menyala; dipakai untuk
+                        // memperingatkan kalau --reset-notif dimatikan padahal
+                        // penerbit ini butuh direset.
+                        'notif_kt'      => (int) ($row->IS_NOTIF_BLOKIR_KT_EMAIL ?? 0),
+                        'notif_kckr'    => (int) ($row->IS_NOTIF_BLOKIR_KCKR_EMAIL ?? 0),
                     ];
                 }
             }
@@ -109,6 +117,22 @@ class ComplianceRecomputeStatus extends Command
             $this->info("  Dievaluasi : " . count($rows) . " penerbit");
             $this->line("  Berubah    : {$total} penerbit (status dan/atau is_lock)");
             $this->line('');
+
+            // Mematikan --reset-notif aman selama belum ada email blokir terkirim.
+            // Begitu ada, penanda yang tertinggal menyala akan membuat siklus blokir
+            // berikutnya lewat tanpa pemberitahuan — jadi kondisinya diteriakkan,
+            // bukan didiamkan.
+            if (!$resetNotifOn) {
+                $perluReset = count(array_filter($diffs, fn($d) => $d['label_changed']
+                    && $this->resetNotifClause($d['new']) !== ''
+                    && ($d['notif_kt'] === 1 || $d['notif_kckr'] === 1)));
+
+                if ($perluReset > 0) {
+                    $this->warn("  PERHATIAN: {$perluReset} penerbit blokirnya dicabut tapi penanda email blokirnya masih menyala.");
+                    $this->warn("  Tanpa --reset-notif mereka tidak akan dikirimi email lagi saat diblokir berikutnya.");
+                    $this->line('');
+                }
+            }
 
             if ($total === 0) {
                 $this->info('✓ Tidak ada perubahan status. Selesai.');
@@ -139,7 +163,7 @@ class ComplianceRecomputeStatus extends Command
             }
 
             $tWrite = microtime(true);
-            [$done, $failed] = $this->executeChunked($conn, $diffs, $chunkSize, $now, $terminal, $minPct);
+            [$done, $failed] = $this->executeChunked($conn, $diffs, $chunkSize, $now, $terminal, $minPct, $resetNotifOn);
             $writeDuration = round(microtime(true) - $tWrite, 2);
             $totalDuration = $lap();
 
@@ -249,6 +273,7 @@ class ComplianceRecomputeStatus extends Command
         $sql = "
             SELECT
                 P.ID, P.NAME, P.STATUS_AKHIR, P.IS_LOCK,
+                P.IS_NOTIF_BLOKIR_KT_EMAIL, P.IS_NOTIF_BLOKIR_KCKR_EMAIL,
                 $lewatTeguran AS LEWAT_TEGURAN,
                 $terlambat    AS TERLAMBAT_KCKR,
                 $persentase   AS PERSENTASE_KCKR
@@ -258,7 +283,8 @@ class ComplianceRecomputeStatus extends Command
                 AND PI.CREATEDATE <  TO_DATE('$endDate', 'YYYY-MM-DD')
                 AND (PI.KETERANGAN IS NULL OR UPPER(PI.KETERANGAN) NOT LIKE '%LENGKAP%')
             LEFT JOIN PENERBIT_TERBITAN PT ON PI.PENERBIT_TERBITAN_ID = PT.ID
-            GROUP BY P.ID, P.NAME, P.STATUS_AKHIR, P.IS_LOCK
+            GROUP BY P.ID, P.NAME, P.STATUS_AKHIR, P.IS_LOCK,
+                     P.IS_NOTIF_BLOKIR_KT_EMAIL, P.IS_NOTIF_BLOKIR_KCKR_EMAIL
             HAVING $totalWajib > 0 OR $lewatTeguran > 0
         ";
 
@@ -277,7 +303,7 @@ class ComplianceRecomputeStatus extends Command
 
     // ── Eksekusi ─────────────────────────────────────────────────────────────
 
-    private function executeChunked($conn, array $diffs, int $chunkSize, string $now, string $terminal, int $minPct): array
+    private function executeChunked($conn, array $diffs, int $chunkSize, string $now, string $terminal, int $minPct, bool $resetNotifOn = false): array
     {
         $total  = count($diffs);
         $done   = 0;
@@ -335,7 +361,13 @@ class ComplianceRecomputeStatus extends Command
                 // blokir yang benar-benar dicabut. Tanpa ini, penerbit yang pernah
                 // diblokir lalu pulih tidak akan pernah dikirimi email blokir lagi
                 // pada siklus tunggakan berikutnya (lihat compliance:send-notifications).
-                $resetNotif = $d['label_changed'] ? $this->resetNotifClause($newStatus) : '';
+                //
+                // Default mati: selama email kepatuhan belum benar-benar dikirim,
+                // kolom notifikasi tidak perlu disentuh sama sekali. Nyalakan
+                // --reset-notif bersamaan dengan mulai berjalannya pengiriman email.
+                $resetNotif = ($resetNotifOn && $d['label_changed'])
+                    ? $this->resetNotifClause($newStatus)
+                    : '';
 
                 $sqlUpdate = "UPDATE PENERBIT SET STATUS_AKHIR = '{$newSafe}', IS_LOCK = {$newLock}{$resetNotif} WHERE ID = {$id}";
                 $resUpdate = odbc_exec($conn, $sqlUpdate);
