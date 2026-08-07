@@ -330,7 +330,14 @@ class ComplianceRecomputeStatus extends Command
 
                 // is_lock selalu diikutkan dalam UPDATE, terlepas dari apakah label berubah —
                 // supaya kunci tetap sinkron dengan angka SSKCKR terbaru tiap run.
-                $sqlUpdate = "UPDATE PENERBIT SET STATUS_AKHIR = '{$newSafe}', IS_LOCK = {$newLock} WHERE ID = {$id}";
+                //
+                // Penanda notifikasi direset hanya saat LABEL berubah, dan hanya untuk
+                // blokir yang benar-benar dicabut. Tanpa ini, penerbit yang pernah
+                // diblokir lalu pulih tidak akan pernah dikirimi email blokir lagi
+                // pada siklus tunggakan berikutnya (lihat compliance:send-notifications).
+                $resetNotif = $d['label_changed'] ? $this->resetNotifClause($newStatus) : '';
+
+                $sqlUpdate = "UPDATE PENERBIT SET STATUS_AKHIR = '{$newSafe}', IS_LOCK = {$newLock}{$resetNotif} WHERE ID = {$id}";
                 $resUpdate = odbc_exec($conn, $sqlUpdate);
                 if (!$resUpdate) {
                     $failed++;
@@ -350,5 +357,31 @@ class ComplianceRecomputeStatus extends Command
 
         $bar->finish();
         return [$done, $failed];
+    }
+
+    /**
+     * Potongan SET untuk mereset penanda email blokir yang sudah tidak berlaku lagi.
+     *
+     * Reset dilakukan per-jenis, bukan sekadar "kalau kembali Aktif" — supaya transisi
+     * "Blokir Konfirmasi Terbit dan SSKCKR" -> "Blokir Konfirmasi Terbit" juga
+     * membuka kembali notifikasi SSKCKR untuk siklus berikutnya.
+     *
+     * Kolom _WA sengaja belum disentuh karena belum ada pengirim WhatsApp. Kalau
+     * kanal itu diaktifkan nanti, tambahkan resetnya di sini juga.
+     */
+    private function resetNotifClause(string $newStatus): string
+    {
+        $masihBlokirKt   = in_array($newStatus, [self::STATUS_BLOKIR_TERBIT, self::STATUS_BLOKIR_KEDUANYA], true);
+        $masihBlokirKckr = in_array($newStatus, [self::STATUS_BLOKIR_KCKR,   self::STATUS_BLOKIR_KEDUANYA], true);
+
+        $clause = '';
+        if (!$masihBlokirKt) {
+            $clause .= ', IS_NOTIF_BLOKIR_KT_EMAIL = 0, TGL_NOTIF_BLOKIR_KT_EMAIL = NULL';
+        }
+        if (!$masihBlokirKckr) {
+            $clause .= ', IS_NOTIF_BLOKIR_KCKR_EMAIL = 0, TGL_NOTIF_BLOKIR_KCKR_EMAIL = NULL';
+        }
+
+        return $clause;
     }
 }

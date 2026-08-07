@@ -266,6 +266,7 @@
                                                     @endif
                                                     @if(Main::isSuperAdmin() || Main::isPerpusnas())
                                                         <a href="{{ url('administration-system/compliance-setting') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'compliance-setting' ? 'active' : '' }}">Pengaturan Kepatuhan KCKR</a>
+                                                        <a href="{{ url('administration-system/notification-test') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'notification-test' ? 'active' : '' }}">Uji Notifikasi Kepatuhan</a>
                                                     @endif
                                                     <a href="{{ url('administration-system/promotion') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'promotion' ? 'active' : '' }}">Promosi</a>
                                                     <a href="{{ url('administration-system/template-email') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'template-email' ? 'active' : '' }}">Template Email</a>

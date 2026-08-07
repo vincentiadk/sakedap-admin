@@ -482,6 +482,13 @@ Route::middleware('authentication')->group(function () {
             Route::post('save',  'ComplianceSettingController@save')->name('compliance_setting.save');
         });
 
+        Route::prefix('notification-test')->group(function () {
+            Route::get('/',              'NotificationTestController@index')->name('notification_test.index');
+            Route::get('search-publisher', 'NotificationTestController@searchPublisher')->name('notification_test.search');
+            Route::post('preview',       'NotificationTestController@preview')->name('notification_test.preview');
+            Route::post('send',          'NotificationTestController@send')->name('notification_test.send');
+        });
+
         Route::prefix('setting-system')->group(function () {
             Route::get('/', 'SettingSystemController@index');
             Route::post('submitted', 'SettingSystemController@submitted');

@@ -12,6 +12,7 @@ class Main
     const COLLECTION_PRINTED = 'KC';
     const COLLECTION_ANALOG = 'KRA';
     const IS_SUPER_ADMIN = 1;
+    const IS_ADMINISTRATOR = 6;
     const IS_PERPUSNAS = 37;
     const CACHE_NAME_CONFIG_APP = 'app_configuration';
     const CONFIG_PARAM = [
@@ -266,7 +267,7 @@ class Main
      */
     public static function isSuperAdmin()
     {
-        return (int) (session('role_id') == static::IS_SUPER_ADMIN);
+        return (int) (session('role_id') == static::IS_SUPER_ADMIN || session('role_id') == static::IS_ADMINISTRATOR);
     }
 
     public static function isPerpusnas()
