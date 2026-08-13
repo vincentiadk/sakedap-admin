@@ -495,6 +495,14 @@ Route::middleware('authentication')->group(function () {
             Route::post('send',          'NotificationTestController@send')->name('notification_test.send');
         });
 
+        Route::prefix('notification-history')->group(function () {
+            Route::get('/',        'ComplianceNotificationHistoryController@index')->name('notification_history.index');
+            Route::get('history',  'ComplianceNotificationHistoryController@history')->name('notification_history.history');
+            Route::get('summary',  'ComplianceNotificationHistoryController@summary')->name('notification_history.summary');
+            Route::get('detail',   'ComplianceNotificationHistoryController@detail')->name('notification_history.detail');
+            Route::get('export',   'ComplianceNotificationHistoryController@exportDetail')->name('notification_history.export');
+        });
+
         Route::prefix('setting-system')->group(function () {
             Route::get('/', 'SettingSystemController@index');
             Route::post('submitted', 'SettingSystemController@submitted');

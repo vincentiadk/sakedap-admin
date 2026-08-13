@@ -463,7 +463,7 @@ class ComplianceSendNotifications extends Command
                 // berikutnya mencoba ulang.
                 if ($writeMarks) {
                     $this->markSent($conn, (int) $row->ID, $def);
-                    $this->logEmailHistory($conn, (int) $row->ID, $def, $item['recipients'], $terminal);
+                    $this->logEmailHistory($conn, (int) $row->ID, $jenis, $def, $item['recipients'], $terminal);
                 }
 
             } catch (\Throwable $e) {
@@ -508,11 +508,14 @@ class ComplianceSendNotifications extends Command
      * dipakai riwayat PENERBIT_STATUS, PENERBIT_TERBITAN, dll), supaya email
      * yang terkirim kelihatan di tab histori penerbit — bukan cuma di log file.
      */
-    private function logEmailHistory($conn, int $penerbitId, array $def, array $recipients, string $terminal): void
+    private function logEmailHistory($conn, int $penerbitId, string $jenis, array $def, array $recipients, string $terminal): void
     {
         $now         = date('Y-m-d H:i:s');
         $tujuan      = implode(', ', $recipients);
-        $note        = "Email kepatuhan \"{$def['label']}\" dikirim ke {$tujuan}";
+        // Prefix [jenis-key] dipasang supaya halaman ringkasan bisa mengelompokkan
+        // berdasarkan kunci yang stabil, bukan nebak dari teks label (yang bisa
+        // berubah redaksinya kapan saja).
+        $note        = "[{$jenis}] Email kepatuhan \"{$def['label']}\" dikirim ke {$tujuan}";
         $noteSafe    = str_replace("'", "''", $note);
         $terminalSafe = str_replace("'", "''", $terminal);
 
