@@ -91,25 +91,13 @@
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="ph-identification-card me-1"></i>
-                                ISBN
+                                Kode
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="ph-barcode"></i>
                                 </span>
-                                <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Cari berdasarkan ISBN">
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="ph-qr-code me-1"></i>
-                                QRCBN
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ph-scan"></i>
-                                </span>
-                                <input type="text" class="form-control" name="qrcbn" id="qrcbn" placeholder="Cari berdasarkan QRCBN">
+                                <input type="text" class="form-control" name="isbn" id="isbn" placeholder="Cari berdasarkan Kode">
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6">

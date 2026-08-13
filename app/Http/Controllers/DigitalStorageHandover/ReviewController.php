@@ -150,7 +150,19 @@ class ReviewController extends Controller
             $terms = [];
 
             foreach ($column as $c) {
-                if ($c) {
+                if (!$c) {
+                    continue;
+                }
+
+                if ($c === 'e_collections.code') {
+                    // Sama seperti filter ISBN: kolom code itu CHAR (dipadding
+                    // spasi) dan masih pakai tanda hubung, jadi kotak pencarian
+                    // umum ini juga perlu buang tanda hubung dari DUA sisi
+                    // (bukan cuma dari kolomnya) supaya ketik dengan/tanpa "-"
+                    // sama-sama ketemu.
+                    $searchNoDash = str_replace('-', '', $searchEsc);
+                    $terms[] = "REPLACE(TRIM($c), '-', '') like '%$searchNoDash%'";
+                } else {
                     $terms[] = "upper($c) like '%$searchEsc%'";
                 }
             }
