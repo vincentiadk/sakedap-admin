@@ -84,8 +84,12 @@ class ReviewController extends Controller
         }
 
         if ($request->isbn) {
+            // e_collections.code itu CHAR (dipadding spasi di belakang) dan nilainya
+            // masih pakai tanda hubung (mis. "978-634-7497-82-6"). Tanda hubung &
+            // spasi di kolom harus ikut dibuang juga, bukan cuma dari input user —
+            // kalau tidak, exact match ini tidak akan pernah cocok.
             $isbn = str_replace(['-', "'"], ['', "''"], $request->isbn);
-            $whereCondition[] = "e_collections.code = '$isbn'";
+            $whereCondition[] = "REPLACE(TRIM(e_collections.code), '-', '') = '$isbn'";
         }
 
         if ($request->qrcbn) {
