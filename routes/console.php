@@ -64,7 +64,7 @@ Schedule::command('compliance:recompute-status')
 // Pengaturan Kepatuhan (BatasMinimumKepatuhanKCKR, AutoBlokir_Aktif,
 // AutoBlokir_MulaiTanggal) — tidak perlu ubah baris ini untuk itu.
 Schedule::command('compliance:send-notifications --to=auto --force')
-    ->dailyAt('07:00')
+    ->dailyAt('12:00')
     ->timezone('Asia/Jakarta')
     ->withoutOverlapping(30)
     ->onOneServer()
