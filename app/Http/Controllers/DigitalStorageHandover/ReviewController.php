@@ -122,19 +122,15 @@ class ReviewController extends Controller
             }
         }
 
-        // Peta persentase-per-penerbit yang di-cache — dipakai buat mewarnai baris
-        // (lookup ringan per-ID di hasil halaman ini), BUKAN buat filter bucket.
+        // Peta persentase-per-penerbit yang di-cache (10 menit) — SATU-SATUNYA
+        // sumber % KCKR di halaman ini, dipakai baik buat mewarnai baris maupun
+        // buat filter bucket. Tidak ada query agregat ke PENERBIT_ISBN yang
+        // dijalankan live per request lagi (lihat cabang $pctBucket di bawah).
         $pctMap = $this->fetchPersentaseKckrMap();
 
-        // Filter % KCKR: SENGAJA bukan "penerbit.id IN (...)" dari daftar ribuan ID —
-        // QueryAPI::get() mengirim SQL lewat query string HTTP, dan daftar ID
-        // sebanyak itu (puluhan KB) kena limit panjang URL (400 Bad Request).
-        // Jadi filter bucket-nya berupa JOIN subquery ringkas: cuma kirim dua
-        // angka batas bucket, agregasinya dihitung di sisi Oracle.
-        $pctJoin = '';
+        $pctBucket = null;
         if ($request->persentase_kckr && isset(self::PERSENTASE_BUCKETS[$request->persentase_kckr])) {
-            [$min, $max] = self::PERSENTASE_BUCKETS[$request->persentase_kckr];
-            $pctJoin = $this->persentaseKckrJoinSql($min, $max);
+            $pctBucket = self::PERSENTASE_BUCKETS[$request->persentase_kckr];
         }
 
         if ($request->date) {
@@ -163,15 +159,16 @@ class ReviewController extends Controller
         }
 
         // 2. TIMPA ORDER BY JIKA ADA REQUEST SORT DARI DATATABLE
-        if ($order && isset($column[$order[0]['column']])) {
-            $orderColumnIndex = $order[0]['column'];
-            $orderDir = strtolower($order[0]['dir']) === 'asc' ? 'asc' : 'desc';
-            $orderColName = $column[$orderColumnIndex];
-
-            if (!empty($orderColName)) {
-                // Gunakan e_collections.id desc di belakang sebagai tie-breaker
-                $orderBy = "order by $orderColName $orderDir, e_collections.id desc";
-            }
+        // $sortColumn/$sortDir disimpan terpisah (bukan cuma di dalam string
+        // $orderBy) karena jalur filter % KCKR di bawah butuh keduanya buat
+        // sorting di PHP, bukan di SQL.
+        $sortColumn = 'e_collections.id';
+        $sortDir = 'desc';
+        if ($order && isset($column[$order[0]['column']]) && !empty($column[$order[0]['column']])) {
+            $sortColumn = $column[$order[0]['column']];
+            $sortDir = strtolower($order[0]['dir']) === 'asc' ? 'asc' : 'desc';
+            // Gunakan e_collections.id desc di belakang sebagai tie-breaker
+            $orderBy = "order by $sortColumn $sortDir, e_collections.id desc";
         }
 
         $totalData = QueryAPI::get("
@@ -184,56 +181,130 @@ class ReviewController extends Controller
                 worksheet_id = 20
         ", true)->TOTAL ?? 0;
 
-        // 3. HAPUS JOIN KE WORKSHEETS
-        $totalFiltered = QueryAPI::get("
-            select
-                count(e_collections.id) as total
-            from
-                e_collections
-            left join
-                penerbit on penerbit.id = e_collections.penerbit_id
-            left join
-                kabupaten on kabupaten.id = e_collections.kabupaten_id
-            left join
-                collectionmedias on collectionmedias.id = e_collections.collection_media_id
-            $pctJoin
-            $whereClause
-        ", true)->TOTAL ?? 0;
+        if ($pctBucket !== null) {
+            // ── Jalur filter % KCKR ──────────────────────────────────────────
+            // TIDAK ada query agregat ke PENERBIT_ISBN di sini sama sekali.
+            // Ambil cuma id + penerbit_id + nilai sort (ringan, ~1 detik untuk
+            // puluhan ribu baris), saring & urutkan di PHP pakai $pctMap yang
+            // sudah di-cache, baru ambil detail lengkap utuk halaman yang mau
+            // ditampilkan saja (IN-list pendek, aman dari limit panjang URL).
+            [$min, $max] = $pctBucket;
 
-        // 4. HAPUS JOIN KE WORKSHEETS PADA QUERY UTAMA
-        $queryData = QueryAPI::get("
-            select
-                *
-            from (
+            $lightRows = QueryAPI::get("
+                select
+                    e_collections.id as id,
+                    penerbit.id as penerbit_id,
+                    $sortColumn as sort_val
+                from
+                    e_collections
+                left join
+                    penerbit on penerbit.id = e_collections.penerbit_id
+                left join
+                    kabupaten on kabupaten.id = e_collections.kabupaten_id
+                left join
+                    collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                $whereClause
+            ") ?? [];
+
+            $matched = array_values(array_filter($lightRows, function ($r) use ($pctMap, $min, $max) {
+                $pid = $r->PENERBIT_ID ? (int) $r->PENERBIT_ID : null;
+                if ($pid === null || !array_key_exists($pid, $pctMap)) {
+                    return false;
+                }
+                $pct = $pctMap[$pid];
+                return $pct >= $min && $pct <= $max;
+            }));
+
+            usort($matched, function ($a, $b) use ($sortDir) {
+                $cmp = $a->SORT_VAL <=> $b->SORT_VAL;
+                return $sortDir === 'asc' ? $cmp : -$cmp;
+            });
+
+            $totalFiltered = count($matched);
+            $pageIds = array_map(fn($r) => (int) $r->ID, array_slice($matched, $start, $length - $start));
+
+            $queryData = [];
+            if (!empty($pageIds)) {
+                $idsCsv = implode(',', $pageIds);
+                $pageRows = QueryAPI::get("
                     select
-                        rownum as rnum,
-                        data.*
+                        e_collections.*,
+                        penerbit.id as id_penerbit,
+                        penerbit.name as name_penerbit,
+                        penerbit.is_lock as penerbit_is_lock,
+                        collectionmedias.name as name_media
                     from
-                        (
-                            select
-                                e_collections.*,
-                                penerbit.id as id_penerbit,
-                                penerbit.name as name_penerbit,
-                                penerbit.is_lock as penerbit_is_lock,
-                                collectionmedias.name as name_media
-                            from
-                                e_collections
-                            left join
-                                penerbit on penerbit.id = e_collections.penerbit_id
-                            left join
-                                kabupaten on kabupaten.id = e_collections.kabupaten_id
-                            left join
-                                collectionmedias on collectionmedias.id = e_collections.collection_media_id
-                            $pctJoin
-                            $whereClause
-                            $orderBy
-                        ) data
+                        e_collections
+                    left join
+                        penerbit on penerbit.id = e_collections.penerbit_id
+                    left join
+                        collectionmedias on collectionmedias.id = e_collections.collection_media_id
                     where
-                        rownum <= $length
-                )
-            where
-                rnum > $start
-        ");
+                        e_collections.id in ($idsCsv)
+                ") ?? [];
+
+                // IN(...) tidak menjamin urutan hasil — susun ulang sesuai $pageIds.
+                $byId = [];
+                foreach ($pageRows as $r) {
+                    $byId[(int) $r->ID] = $r;
+                }
+                foreach ($pageIds as $id) {
+                    if (isset($byId[$id])) {
+                        $queryData[] = $byId[$id];
+                    }
+                }
+            }
+        } else {
+            // ── Jalur normal (tanpa filter % KCKR) — sama seperti sebelumnya ──
+            // 3. HAPUS JOIN KE WORKSHEETS
+            $totalFiltered = QueryAPI::get("
+                select
+                    count(e_collections.id) as total
+                from
+                    e_collections
+                left join
+                    penerbit on penerbit.id = e_collections.penerbit_id
+                left join
+                    kabupaten on kabupaten.id = e_collections.kabupaten_id
+                left join
+                    collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                $whereClause
+            ", true)->TOTAL ?? 0;
+
+            // 4. HAPUS JOIN KE WORKSHEETS PADA QUERY UTAMA
+            $queryData = QueryAPI::get("
+                select
+                    *
+                from (
+                        select
+                            rownum as rnum,
+                            data.*
+                        from
+                            (
+                                select
+                                    e_collections.*,
+                                    penerbit.id as id_penerbit,
+                                    penerbit.name as name_penerbit,
+                                    penerbit.is_lock as penerbit_is_lock,
+                                    collectionmedias.name as name_media
+                                from
+                                    e_collections
+                                left join
+                                    penerbit on penerbit.id = e_collections.penerbit_id
+                                left join
+                                    kabupaten on kabupaten.id = e_collections.kabupaten_id
+                                left join
+                                    collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                                $whereClause
+                                $orderBy
+                            ) data
+                        where
+                            rownum <= $length
+                    )
+                where
+                    rnum > $start
+            ");
+        }
 
         if ($queryData) {
             foreach ($queryData as $val) {
@@ -334,34 +405,12 @@ class ReviewController extends Controller
     }
 
     /**
-     * JOIN subquery yang menyaring penerbit ke satu bucket % KCKR — dipakai
-     * sebagai INNER JOIN tambahan di query e_collections, hanya saat filter
-     * persentase_kckr dipasang. Ini agregat berat (scan PENERBIT_ISBN) yang
-     * SENGAJA tidak dijalankan di setiap page-load; cuma saat filter ini aktif.
-     */
-    private function persentaseKckrJoinSql(int $min, int $max): string
-    {
-        ['join' => $isbnJoin, 'totalWajib' => $totalWajib, 'persentase' => $persentase]
-            = $this->persentaseKckrFormula('PKCKR', 'PIKCKR');
-
-        return "
-            INNER JOIN (
-                SELECT PKCKR.ID AS PENERBIT_ID
-                FROM PENERBIT PKCKR
-                $isbnJoin
-                GROUP BY PKCKR.ID
-                HAVING $totalWajib > 0 AND $persentase BETWEEN $min AND $max
-            ) pctf ON pctf.PENERBIT_ID = penerbit.id
-        ";
-    }
-
-    /**
      * Rumus % KCKR yang SAMA dengan compliance:recompute-status / ComplianceV3Controller
      * / ComplianceNotification (SUDAH_KCKR / TOTAL_WAJIB * 100, TOTAL_WAJIB =
-     * SUDAH_KCKR + TAGIHAN). Dipakai bersama oleh fetchPersentaseKckrMap() (agregat
-     * global, di-cache) dan persentaseKckrJoinSql() (subquery per-filter) — dengan
-     * alias tabel yang beda-beda di tiap pemanggil supaya tidak tabrakan nama saat
-     * di-nest sebagai subquery.
+     * SUDAH_KCKR + TAGIHAN). Sumbernya cuma dipakai oleh fetchPersentaseKckrMap()
+     * (satu-satunya tempat yang menjalankan agregat ke PENERBIT_ISBN, di-cache
+     * 10 menit) — filter bucket di datatable() TIDAK menjalankan agregat ini
+     * lagi secara live, cukup baca peta yang sudah di-cache.
      */
     private function persentaseKckrFormula(string $penerbitAlias, string $isbnAlias): array
     {
