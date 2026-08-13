@@ -137,6 +137,20 @@
                         </div>
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold">
+                                <i class="ph-percent me-1"></i>
+                                % KCKR
+                            </label>
+                            <select class="form-select" name="persentase_kckr" id="persentase_kckr">
+                                <option value="">Semua</option>
+                                <option value="0-20">0–20% (Sangat Tidak Patuh)</option>
+                                <option value="21-40">21–40% (Tidak Patuh)</option>
+                                <option value="41-60">41–60% (Cukup Patuh)</option>
+                                <option value="61-80">61–80% (Patuh)</option>
+                                <option value="81-100">&gt;80% (Sangat Patuh)</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">
                                 <i class="ph-user-check me-1"></i>
                                 Sedang Direview Oleh
                             </label>
@@ -176,6 +190,14 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <small class="text-muted fw-semibold">Warna baris menandakan % KCKR penerbit:</small>
+                <span class="d-flex align-items-center gap-1 small"><span class="legend-dot row-pct-merah"></span> 0–20%</span>
+                <span class="d-flex align-items-center gap-1 small"><span class="legend-dot row-pct-oranye"></span> 21–40%</span>
+                <span class="d-flex align-items-center gap-1 small"><span class="legend-dot row-pct-hijau"></span> 41–60%</span>
+                <span class="d-flex align-items-center gap-1 small"><span class="legend-dot row-pct-biru"></span> 61–80%</span>
+                <span class="d-flex align-items-center gap-1 small"><span class="legend-dot"></span> &gt; 80% (tanpa warna)</span>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover table-bordered display nowrap w-100" id="datatable-serverside">
                     <thead class="table-light">
@@ -227,6 +249,10 @@
                                 <i class="ph-lock-simple me-1"></i>
                                 Status Penerbit
                             </th>
+                            <th class="text-center text-nowrap" style="min-width: 90px">
+                                <i class="ph-percent me-1"></i>
+                                % KCKR
+                            </th>
                         </tr>
                     </thead>
                 </table>
@@ -234,6 +260,27 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Warna baris per bucket % KCKR — soft/pastel senada dengan gaya badge
+       "bg-opacity-10" yang dipakai di seluruh aplikasi ini. */
+    #datatable-serverside tbody tr.row-pct-merah  > * { background-color: rgba(220, 53, 69, .12) !important; }
+    #datatable-serverside tbody tr.row-pct-oranye > * { background-color: rgba(253, 126, 20, .14) !important; }
+    #datatable-serverside tbody tr.row-pct-hijau  > * { background-color: rgba(25, 135, 84, .12) !important; }
+    #datatable-serverside tbody tr.row-pct-biru   > * { background-color: rgba(13, 110, 253, .10) !important; }
+
+    .legend-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        border: 1px solid rgba(0,0,0,.15);
+    }
+    .legend-dot.row-pct-merah  { background-color: rgba(220, 53, 69, .5); }
+    .legend-dot.row-pct-oranye { background-color: rgba(253, 126, 20, .55); }
+    .legend-dot.row-pct-hijau  { background-color: rgba(25, 135, 84, .5); }
+    .legend-dot.row-pct-biru   { background-color: rgba(13, 110, 253, .45); }
+</style>
 
 <script>
     $(function() {
@@ -310,6 +357,7 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle text-center' },
+                { orderable: false, className: 'align-middle text-center' },
             ],
             initComplete: function (settings, json) {
                 var table = this.api();

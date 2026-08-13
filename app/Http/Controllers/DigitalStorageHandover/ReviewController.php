@@ -8,11 +8,22 @@ use App\Helpers\QueryAPI;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
     private $worksheetCategory;
+
+    // Sama seperti bucket "% KCKR" di halaman Kepatuhan (ComplianceV3Controller),
+    // supaya operator melihat pengelompokan yang konsisten di kedua tempat.
+    private const PERSENTASE_BUCKETS = [
+        '0-20'   => [0, 20],
+        '21-40'  => [21, 40],
+        '41-60'  => [41, 60],
+        '61-80'  => [61, 80],
+        '81-100' => [81, 100],
+    ];
 
     public function __construct()
     {
@@ -111,6 +122,21 @@ class ReviewController extends Controller
             }
         }
 
+        // Peta persentase-per-penerbit yang di-cache — dipakai buat mewarnai baris
+        // (lookup ringan per-ID di hasil halaman ini), BUKAN buat filter bucket.
+        $pctMap = $this->fetchPersentaseKckrMap();
+
+        // Filter % KCKR: SENGAJA bukan "penerbit.id IN (...)" dari daftar ribuan ID —
+        // QueryAPI::get() mengirim SQL lewat query string HTTP, dan daftar ID
+        // sebanyak itu (puluhan KB) kena limit panjang URL (400 Bad Request).
+        // Jadi filter bucket-nya berupa JOIN subquery ringkas: cuma kirim dua
+        // angka batas bucket, agregasinya dihitung di sisi Oracle.
+        $pctJoin = '';
+        if ($request->persentase_kckr && isset(self::PERSENTASE_BUCKETS[$request->persentase_kckr])) {
+            [$min, $max] = self::PERSENTASE_BUCKETS[$request->persentase_kckr];
+            $pctJoin = $this->persentaseKckrJoinSql($min, $max);
+        }
+
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
             $startDate = \Carbon\Carbon::parse($explodeDate[0])->format('Y-m-d');
@@ -170,6 +196,7 @@ class ReviewController extends Controller
                 kabupaten on kabupaten.id = e_collections.kabupaten_id
             left join
                 collectionmedias on collectionmedias.id = e_collections.collection_media_id
+            $pctJoin
             $whereClause
         ", true)->TOTAL ?? 0;
 
@@ -197,6 +224,7 @@ class ReviewController extends Controller
                                 kabupaten on kabupaten.id = e_collections.kabupaten_id
                             left join
                                 collectionmedias on collectionmedias.id = e_collections.collection_media_id
+                            $pctJoin
                             $whereClause
                             $orderBy
                         ) data
@@ -231,19 +259,33 @@ class ReviewController extends Controller
                     ? '<span class="badge bg-danger bg-opacity-10 text-danger">Blokir</span>'
                     : '<span class="badge bg-success bg-opacity-10 text-success">Aktif</span>';
 
+                // % KCKR penerbit pemilik koleksi ini + warna barisnya. Penerbit
+                // yang belum pernah punya kewajiban KCKR (tidak ada di peta) tidak
+                // diwarnai — beda dari 0% (kewajiban ada, kepatuhan nol).
+                $pct = null;
+                $rowClass = '';
+                $pctBadge = '<span class="text-muted">-</span>';
+                if ($val->ID_PENERBIT && array_key_exists((int) $val->ID_PENERBIT, $pctMap)) {
+                    $pct = $pctMap[(int) $val->ID_PENERBIT];
+                    [$rowClass, $badgeColor] = $this->pctColor($pct);
+                    $pctBadge = "<span class=\"badge bg-{$badgeColor} bg-opacity-10 text-{$badgeColor}\">{$pct}%</span>";
+                }
+
                 $data[] = [
-                    $start + 1,
-                    $action,
-                    $val->REVIEW_BY,
-                    $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
-                    ($val->TITLE ?? $val->TITLE_ORI),
-                    $val->NAME_MEDIA,
-                    $val->CODE,
-                    $val->JILID ?? '-',
-                    $val->SERIES ?? '-',
-                    \Carbon\Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
-                    \Carbon\Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
-                    $statusBadge,
+                    'DT_RowClass' => $rowClass,
+                    0  => $start + 1,
+                    1  => $action,
+                    2  => $val->REVIEW_BY,
+                    3  => $val->ID_PENERBIT . ' | ' . $val->NAME_PENERBIT,
+                    4  => ($val->TITLE ?? $val->TITLE_ORI),
+                    5  => $val->NAME_MEDIA,
+                    6  => $val->CODE,
+                    7  => $val->JILID ?? '-',
+                    8  => $val->SERIES ?? '-',
+                    9  => \Carbon\Carbon::parse($val->CREATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    10 => \Carbon\Carbon::parse($val->UPDATED_AT)->isoFormat('dddd, D MMMM Y'),
+                    11 => $statusBadge,
+                    12 => $pctBadge,
                 ];
 
                 $start++;
@@ -256,6 +298,112 @@ class ReviewController extends Controller
             'recordsFiltered' => $totalFiltered,
             'data' => $data
         ]);
+    }
+
+    /**
+     * Peta [penerbit_id => persentase_kckr], dihitung dengan rumus yang SAMA
+     * dengan compliance:recompute-status / ComplianceV3Controller / ComplianceNotification
+     * (SUDAH_KCKR / TOTAL_WAJIB * 100, TOTAL_WAJIB = SUDAH_KCKR + TAGIHAN).
+     *
+     * Di-cache 10 menit: ini agregat atas seluruh PENERBIT_ISBN, terlalu berat
+     * untuk dihitung ulang di setiap keystroke/halaman DataTable pada laman
+     * operasional yang sering dibuka ini. Staleness 10 menit cukup aman untuk
+     * sekadar filter & pewarnaan baris (bukan keputusan blokir).
+     */
+    private function fetchPersentaseKckrMap(): array
+    {
+        return Cache::remember('review_persentase_kckr_map', 600, function () {
+            ['join' => $isbnJoin, 'totalWajib' => $totalWajib, 'persentase' => $persentase]
+                = $this->persentaseKckrFormula('P', 'PI');
+
+            $rows = QueryAPI::get("
+                SELECT P.ID AS PENERBIT_ID, $persentase AS PERSENTASE_KCKR
+                FROM PENERBIT P
+                $isbnJoin
+                GROUP BY P.ID
+                HAVING $totalWajib > 0
+            ") ?? [];
+
+            $map = [];
+            foreach ($rows as $r) {
+                $map[(int) $r->PENERBIT_ID] = (float) $r->PERSENTASE_KCKR;
+            }
+
+            return $map;
+        });
+    }
+
+    /**
+     * JOIN subquery yang menyaring penerbit ke satu bucket % KCKR — dipakai
+     * sebagai INNER JOIN tambahan di query e_collections, hanya saat filter
+     * persentase_kckr dipasang. Ini agregat berat (scan PENERBIT_ISBN) yang
+     * SENGAJA tidak dijalankan di setiap page-load; cuma saat filter ini aktif.
+     */
+    private function persentaseKckrJoinSql(int $min, int $max): string
+    {
+        ['join' => $isbnJoin, 'totalWajib' => $totalWajib, 'persentase' => $persentase]
+            = $this->persentaseKckrFormula('PKCKR', 'PIKCKR');
+
+        return "
+            INNER JOIN (
+                SELECT PKCKR.ID AS PENERBIT_ID
+                FROM PENERBIT PKCKR
+                $isbnJoin
+                GROUP BY PKCKR.ID
+                HAVING $totalWajib > 0 AND $persentase BETWEEN $min AND $max
+            ) pctf ON pctf.PENERBIT_ID = penerbit.id
+        ";
+    }
+
+    /**
+     * Rumus % KCKR yang SAMA dengan compliance:recompute-status / ComplianceV3Controller
+     * / ComplianceNotification (SUDAH_KCKR / TOTAL_WAJIB * 100, TOTAL_WAJIB =
+     * SUDAH_KCKR + TAGIHAN). Dipakai bersama oleh fetchPersentaseKckrMap() (agregat
+     * global, di-cache) dan persentaseKckrJoinSql() (subquery per-filter) — dengan
+     * alias tabel yang beda-beda di tiap pemanggil supaya tidak tabrakan nama saat
+     * di-nest sebagai subquery.
+     */
+    private function persentaseKckrFormula(string $penerbitAlias, string $isbnAlias): array
+    {
+        $startDate = '2021-01-01';
+        $endDate   = date('Y-m-d', strtotime('+1 day'));
+        $cutoff    = '2026-01-01';
+
+        $isPre26 = "$isbnAlias.CREATEDATE <  TO_DATE('$cutoff','YYYY-MM-DD')";
+        $is2026  = "$isbnAlias.CREATEDATE >= TO_DATE('$cutoff','YYYY-MM-DD')";
+
+        $tagihan = "SUM(CASE
+            WHEN $isPre26 AND $isbnAlias.RECEIVED_DATE_KCKR IS NULL THEN 1
+            WHEN $is2026  AND $isbnAlias.TANGGAL_TERBIT IS NOT NULL AND $isbnAlias.RECEIVED_DATE_KCKR IS NULL THEN 1
+            ELSE 0 END)";
+        $sudahKckr  = "SUM(CASE WHEN $isbnAlias.RECEIVED_DATE_KCKR IS NOT NULL THEN 1 ELSE 0 END)";
+        $totalWajib = "($sudahKckr + $tagihan)";
+        $persentase = "ROUND(CASE WHEN $totalWajib > 0 THEN $sudahKckr / $totalWajib * 100 ELSE 0 END, 1)";
+
+        $join = "
+            LEFT JOIN PENERBIT_ISBN $isbnAlias ON $penerbitAlias.ID = $isbnAlias.PENERBIT_ID
+                AND $isbnAlias.CREATEDATE >= TO_DATE('$startDate', 'YYYY-MM-DD')
+                AND $isbnAlias.CREATEDATE <  TO_DATE('$endDate', 'YYYY-MM-DD')
+                AND ($isbnAlias.KETERANGAN IS NULL OR UPPER($isbnAlias.KETERANGAN) NOT LIKE '%LENGKAP%')
+        ";
+
+        return ['join' => $join, 'totalWajib' => $totalWajib, 'persentase' => $persentase];
+    }
+
+    /**
+     * Warna baris + badge untuk satu nilai % KCKR, sesuai permintaan:
+     * 0-20% merah, 21-40% oranye, 41-60% hijau, 61-80% biru, >80% polos.
+     * @return array{0:string,1:string} [class CSS untuk <tr>, warna badge Bootstrap]
+     */
+    private function pctColor(float $pct): array
+    {
+        return match (true) {
+            $pct <= 20 => ['row-pct-merah', 'danger'],
+            $pct <= 40 => ['row-pct-oranye', 'warning'],
+            $pct <= 60 => ['row-pct-hijau', 'success'],
+            $pct <= 80 => ['row-pct-biru', 'primary'],
+            default    => ['', 'secondary'],
+        };
     }
 
     public function detail(Request $request, $id)
