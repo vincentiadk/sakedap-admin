@@ -15,10 +15,10 @@ class ComplianceRecomputeStatus extends Command
                             {--dry-run    : Tampilkan ringkasan tanpa eksekusi}
                             {--chunk=200  : Jumlah penerbit per batch}
                             {--preview=20 : Jumlah baris preview saat dry-run}
-                            {--kckr-block : Aktifkan klasifikasi Blokir SSKCKR & Blokir Konfirmasi Terbit dan SSKCKR (default: mati, hanya Blokir Konfirmasi Terbit yang jalan)}
+                            {--kckr-block : Paksa aktifkan klasifikasi & kunci Blokir SSKCKR terlepas dari setting AutoBlokir_Aktif (override manual, buat testing). Operasional normal cukup diatur lewat Pengaturan Kepatuhan, tidak perlu flag ini.}
                             {--reset-notif : Reset penanda email blokir (IS_NOTIF_BLOKIR_*) saat blokir dicabut (default: mati, kolom notifikasi tidak disentuh)}';
 
-    protected $description = 'Hitung ulang status kepatuhan penerbit dan simpan riwayatnya ke PENERBIT_STATUS. Default: hanya klasifikasi Blokir Konfirmasi Terbit yang aktif, blokir SSKCKR diabaikan sampai --kckr-block dipasang.';
+    protected $description = 'Hitung ulang status kepatuhan penerbit dan simpan riwayatnya ke PENERBIT_STATUS. Klasifikasi & kunci Blokir SSKCKR mengikuti setting AutoBlokir_Aktif/AutoBlokir_MulaiTanggal di Pengaturan Kepatuhan (atau dipaksa lewat --kckr-block).';
 
     private const START_DATE = '2021-01-01';
     private const CUTOFF     = '2026-01-01';
@@ -47,7 +47,6 @@ class ComplianceRecomputeStatus extends Command
         $this->info('║   Recompute Status Kepatuhan Penerbit    ║');
         $this->info('╚══════════════════════════════════════════╝');
         $this->line("  Mode        : " . ($isDryRun ? 'DRY RUN — tidak ada yang akan diubah' : "EKSEKUSI (chunk {$chunkSize}/batch)"));
-        $this->line("  Blokir SSKCKR : " . ($kckrBlockOn ? 'AKTIF' : 'NONAKTIF (default) — hanya Blokir Konfirmasi Terbit yang jalan'));
         $this->line("  Reset notif   : " . ($resetNotifOn ? 'AKTIF — penanda email blokir direset saat blokir dicabut' : 'NONAKTIF (default) — kolom IS_NOTIF_*/TGL_NOTIF_* tidak disentuh'));
         $this->line('');
 
@@ -58,7 +57,18 @@ class ComplianceRecomputeStatus extends Command
             $dlKr    = (int) $cs['BatasWaktuKonfirmasiTerbitDigital'];
             $teguran = (int) $cs['BatasWaktuTeguranKonfirmasiTerbit'];
 
+            // Klasifikasi & kunci Blokir SSKCKR aktif kalau SALAH SATU benar:
+            // (a) setting AutoBlokir_Aktif+AutoBlokir_MulaiTanggal di Pengaturan
+            //     Kepatuhan mengizinkan — ini jalur operasional normal, murni
+            //     dikendalikan admin lewat halaman, tanpa perlu ubah cron/kode; atau
+            // (b) --kckr-block dipasang manual — override buat testing/debug,
+            //     supaya bisa dicoba tanpa mengubah setting yang berlaku produksi.
+            $autoBlokirActive = ComplianceSettings::isAutoBlokirActive($cs);
+            $kckrActive       = $kckrBlockOn || $autoBlokirActive;
+
             $this->line("  Min KCKR : {$minPct}%");
+            $this->line("  Blokir SSKCKR : " . ($kckrActive ? 'AKTIF' . ($kckrBlockOn && !$autoBlokirActive ? ' (dipaksa via --kckr-block)' : '') : 'NONAKTIF — hanya Blokir Konfirmasi Terbit yang jalan'));
+            $this->line("  Auto Blokir (setting) : " . ($autoBlokirActive ? 'AKTIF' : 'NONAKTIF/belum mulai'));
             $this->line('');
 
             $conn = $this->getOracleConnection();
@@ -76,16 +86,17 @@ class ComplianceRecomputeStatus extends Command
                     (int) $row->TERLAMBAT_KCKR,
                     (float) $row->PERSENTASE_KCKR,
                     $minPct,
-                    $kckrBlockOn
+                    $kckrActive
                 );
                 $oldStatus = trim((string) ($row->STATUS_AKHIR ?? ''));
                 $oldStatus = $oldStatus === '' ? null : $oldStatus;
 
                 $currentLock = (int) ($row->IS_LOCK ?? 0);
 
-                // is_lock hanya dihitung ulang dari angka mentah SSKCKR kalau --kckr-block
-                // dipasang. Tanpa flag itu, is_lock dibiarkan apa adanya (tidak diubah).
-                $targetLock = $kckrBlockOn
+                // is_lock hanya dihitung ulang dari angka mentah SSKCKR kalau klasifikasi
+                // SSKCKR aktif ($kckrActive — lihat penjelasan di atas). Kalau tidak,
+                // is_lock dibiarkan apa adanya (tidak diubah).
+                $targetLock = $kckrActive
                     ? (((int) $row->TERLAMBAT_KCKR > 0 && (float) $row->PERSENTASE_KCKR <= $minPct) ? 1 : 0)
                     : $currentLock;
 
@@ -200,14 +211,14 @@ class ComplianceRecomputeStatus extends Command
     // ── Klasifikasi ──────────────────────────────────────────────────────────
     // Identik dengan logika rekomendasi di ComplianceV3Controller/DashboardComplianceController.
     //
-    // $kckrBlockOn = false (default): kriteria SSKCKR (terlambat KCKR + % KCKR) sama sekali
+    // $kckrActive = false: kriteria SSKCKR (terlambat KCKR + % KCKR) sama sekali
     // tidak dipakai — hasil hanya Aktif atau Blokir Konfirmasi Terbit. Status "Blokir SSKCKR"
-    // dan "Blokir Konfirmasi Terbit dan SSKCKR" tidak akan pernah muncul sampai flag ini
-    // diaktifkan lewat --kckr-block.
+    // dan "Blokir Konfirmasi Terbit dan SSKCKR" tidak akan pernah muncul sampai
+    // AutoBlokir_Aktif dinyalakan (atau dipaksa lewat --kckr-block).
 
-    private function classify(int $lewatTeguran, int $terlambatKckr, float $persentaseKckr, int $minPct, bool $kckrBlockOn = false): string
+    private function classify(int $lewatTeguran, int $terlambatKckr, float $persentaseKckr, int $minPct, bool $kckrActive = false): string
     {
-        if (!$kckrBlockOn) {
+        if (!$kckrActive) {
             return $lewatTeguran > 0 ? self::STATUS_BLOKIR_TERBIT : self::STATUS_AKTIF;
         }
 

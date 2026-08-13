@@ -35,6 +35,8 @@ class ComplianceSendNotifications extends Command
     private const STATUS_BLOKIR_KCKR     = ComplianceNotification::STATUS_BLOKIR_KCKR;
     private const STATUS_BLOKIR_KEDUANYA = ComplianceNotification::STATUS_BLOKIR_KEDUANYA;
 
+    private const ACTOR = 'SISTEM';
+
     private ComplianceNotification $notif;
 
     public function handle(): int
@@ -46,6 +48,7 @@ class ComplianceSendNotifications extends Command
         $cooldown     = max(0, (int) $this->option('cooldown'));
         $reminderDays = max(1, (int) $this->option('reminder-days'));
         $penerbitId   = $this->option('penerbit') !== null ? (int) $this->option('penerbit') : null;
+        $terminal     = gethostname() ?: '127.0.0.1';
 
         $tStart = microtime(true);
         $lap    = fn() => round(microtime(true) - $tStart, 2);
@@ -133,6 +136,15 @@ class ComplianceSendNotifications extends Command
             $dlKr   = (int) $cs['BatasWaktuKonfirmasiTerbitDigital'];
             $teguran = (int) $cs['BatasWaktuTeguranKonfirmasiTerbit'];
 
+            // Saklar bisnis email blokir-kckr: diatur admin lewat Pengaturan
+            // Kepatuhan (AutoBlokir_Aktif + AutoBlokir_MulaiTanggal), independen
+            // dari status resmi PENERBIT.STATUS_AKHIR / --kckr-block di
+            // compliance:recompute-status.
+            $autoBlokirActive       = ComplianceSettings::isAutoBlokirActive($cs);
+            $autoBlokirMulaiTanggal = (string) ($cs['AutoBlokir_MulaiTanggal'] ?? '');
+            $this->line('  Auto Blokir (setting) : ' . ($autoBlokirActive ? 'AKTIF' : 'NONAKTIF/belum mulai — email blokir-kckr dilewati'));
+            $this->line('');
+
             $redaksi = $this->notif->loadRedaksi();
 
             // Ini surat resmi — kalau redaksinya belum diisi admin, jenis tersebut
@@ -160,11 +172,11 @@ class ComplianceSendNotifications extends Command
 
             // ── Susun antrian kirim ──────────────────────────────────────────
             $queue   = [];
-            $skipped = ['sudah_dikirim' => 0, 'cooldown' => 0, 'email_kosong' => 0, 'imun' => 0];
+            $skipped = ['sudah_dikirim' => 0, 'cooldown' => 0, 'email_kosong' => 0, 'imun' => 0, 'autoblokir_nonaktif' => 0];
 
             foreach ($rows as $row) {
                 foreach ($jenisList as $jenis) {
-                    if (!$isPreview && !$this->isEligible($jenis, $row, $minPct, $cooldown, $skipped)) {
+                    if (!$isPreview && !$this->isEligible($jenis, $row, $minPct, $cooldown, $skipped, $autoBlokirActive, $reminderDays, $autoBlokirMulaiTanggal)) {
                         continue;
                     }
 
@@ -221,7 +233,7 @@ class ComplianceSendNotifications extends Command
             }
 
             // ── Kirim ────────────────────────────────────────────────────────
-            [$sent, $failed] = $this->sendQueue($conn, $queue, $redaksi, $minPct, $marksWritten);
+            [$sent, $failed] = $this->sendQueue($conn, $queue, $redaksi, $minPct, $marksWritten, $autoBlokirMulaiTanggal, $terminal);
 
             $this->line('');
             $this->info("✓ Selesai: {$sent} email terkirim" . ($failed > 0 ? ", {$failed} gagal" : '') . '.');
@@ -306,37 +318,69 @@ class ComplianceSendNotifications extends Command
 
     // ── Kelayakan kirim ──────────────────────────────────────────────────────
 
-    private function isEligible(string $jenis, object $row, int $minPct, int $cooldown, array &$skipped): bool
-    {
+    private function isEligible(
+        string $jenis,
+        object $row,
+        int $minPct,
+        int $cooldown,
+        array &$skipped,
+        bool $autoBlokirActive = true,
+        int $reminderDays = 7,
+        string $autoBlokirMulaiTanggal = ''
+    ): bool {
         $def    = self::JENIS[$jenis];
         $status = trim((string) ($row->STATUS_AKHIR ?? ''));
         $imun   = (int) ($row->IS_IMUN_AUTO_BLOKIR ?? 0) === 1;
 
-        $kenaBlokirKt   = in_array($status, [self::STATUS_BLOKIR_TERBIT, self::STATUS_BLOKIR_KEDUANYA], true);
-        $kenaBlokirKckr = in_array($status, [self::STATUS_BLOKIR_KCKR,   self::STATUS_BLOKIR_KEDUANYA], true);
+        $kenaBlokirKt = in_array($status, [self::STATUS_BLOKIR_TERBIT, self::STATUS_BLOKIR_KEDUANYA], true);
 
         // Kondisi substansi: apakah penerbit ini memang sasaran jenis email tsb?
         //
-        // Pengingat memakai angka mentah (LEWAT_TEGURAN / TERLAMBAT_KCKR), bukan
-        // hanya STATUS_AKHIR. Alasannya: selama recompute berjalan tanpa
-        // --kckr-block, STATUS_AKHIR tidak pernah menjadi 'Blokir SSKCKR', jadi
-        // mengandalkan status saja akan mengirimi "akan diblokir dalam N hari"
-        // kepada penerbit yang sebenarnya sudah lewat jatuh tempo.
+        // Pengingat dan blokir-kckr memakai angka mentah (TERLAMBAT_KCKR /
+        // PERSENTASE_KCKR), bukan STATUS_AKHIR. Alasannya: selama recompute
+        // berjalan tanpa --kckr-block, STATUS_AKHIR tidak pernah menjadi
+        // 'Blokir SSKCKR', jadi mengandalkan status saja membuat email
+        // "resiko tinggi terblokir" ini tidak pernah terkirim ke penerbit
+        // yang kepatuhannya sudah di bawah ambang (default 20%).
+        $kenaBlokirKckr = (int) ($row->TERLAMBAT_KCKR ?? 0) > 0
+                        && (float) ($row->PERSENTASE_KCKR ?? 0) <= $minPct;
+
+        // pengingat-kckr dan blokir-kckr sengaja memakai KONDISI SUBSTANSI YANG SAMA
+        // ($kenaBlokirKckr = sudah di bawah ambang KCKR sekarang). Ini bukan dua
+        // populasi berbeda — ini SATU populasi (penerbit yang pasti kena blokir),
+        // dibedakan hanya oleh WAKTU: sebelum AutoBlokir_MulaiTanggal tiba mereka
+        // dapat pengingat ("akan diblokir tanggal X"), begitu tanggal itu tiba dan
+        // fitur diaktifkan admin, pengingat berhenti dan blokir resmi jalan.
+        //
+        // pengingat-kckr sendiri tidak dikirim berulang tiap run (itu tugas
+        // --cooldown). Alurnya: (1) run pertama kali ke penerbit ini -> langsung
+        // kirim sekali sebagai pemberitahuan awal, apa pun jaraknya ke tanggal
+        // blokir; (2) run-run berikutnya -> diam, sampai tinggal <= N hari lagi
+        // (--reminder-days, default 7 = "H-7") sebelum AutoBlokir_MulaiTanggal,
+        // baru kirim pengingat terakhir.
+        $belumPernahDiingatkanKckr = trim((string) ($row->TGL_NOTIF_KCKR_EMAIL ?? '')) === '';
+        $mendekatiTanggalMulai     = $this->withinDaysBefore($autoBlokirMulaiTanggal, $reminderDays);
+
         $match = match ($jenis) {
             'blokir-kt'      => $kenaBlokirKt,
-            'blokir-kckr'    => $kenaBlokirKckr,
+            'blokir-kckr'    => $kenaBlokirKckr && $autoBlokirActive,
 
             'pengingat-kt'   => !$kenaBlokirKt
                                 && (int) ($row->LEWAT_TEGURAN ?? 0) === 0
                                 && (int) ($row->KT_MENDEKATI ?? 0) > 0,
 
-            'pengingat-kckr' => !$kenaBlokirKckr
-                                && (int) ($row->TERLAMBAT_KCKR ?? 0) === 0
-                                && (int) ($row->KCKR_MENDEKATI ?? 0) > 0
-                                && (float) ($row->PERSENTASE_KCKR ?? 0) <= $minPct,
+            'pengingat-kckr' => $kenaBlokirKckr
+                                && !$autoBlokirActive
+                                && ($belumPernahDiingatkanKckr || $mendekatiTanggalMulai),
         };
 
         if (!$match) {
+            // Catat kasus "sebenarnya kena, tapi auto blokir belum aktif" secara
+            // terpisah — supaya kelihatan di ringkasan kalau ada yang harusnya
+            // dikirimi blokir-kckr tapi saklar admin belum mengizinkan.
+            if ($jenis === 'blokir-kckr' && $kenaBlokirKckr && !$autoBlokirActive) {
+                $skipped['autoblokir_nonaktif']++;
+            }
             return false;
         }
 
@@ -369,9 +413,31 @@ class ComplianceSendNotifications extends Command
         return true;
     }
 
+    /**
+     * True kalau $targetDate sudah dekat: hari ini berada di antara "sekarang"
+     * dan $days hari sebelum $targetDate (inklusif). Dipakai untuk jendela
+     * "H-N" pengingat blokir-kckr terhadap AutoBlokir_MulaiTanggal.
+     */
+    private function withinDaysBefore(string $targetDate, int $days): bool
+    {
+        $targetDate = trim($targetDate);
+        if ($targetDate === '') {
+            return false;
+        }
+
+        $ts = strtotime($targetDate);
+        if ($ts === false) {
+            return false;
+        }
+
+        $sisaHari = (int) round((strtotime(date('Y-m-d', $ts)) - strtotime('today')) / 86400);
+
+        return $sisaHari >= 0 && $sisaHari <= $days;
+    }
+
     // ── Pengiriman ───────────────────────────────────────────────────────────
 
-    private function sendQueue($conn, array $queue, array $redaksi, int $minPct, bool $writeMarks): array
+    private function sendQueue($conn, array $queue, array $redaksi, int $minPct, bool $writeMarks, string $autoBlokirMulaiTanggal = '', string $terminal = '127.0.0.1'): array
     {
         $sent   = 0;
         $failed = 0;
@@ -385,18 +451,19 @@ class ComplianceSendNotifications extends Command
             $def   = self::JENIS[$jenis];
             $row   = $item['row'];
 
-            $body = $this->notif->buildHtml($redaksi[$def['param']], $jenis, $row, $minPct);
+            $body = $this->notif->buildHtml($redaksi[$def['param']], $jenis, $row, $minPct, $autoBlokirMulaiTanggal);
 
             try {
                 $this->notif->send($item['recipients'], $jenis, $body);
 
                 $sent++;
 
-                // Penanda hanya ditulis kalau email benar-benar terkirim ke alamat
-                // asli penerbit. Gagal kirim sengaja TIDAK ditandai, supaya run
+                // Penanda & histori hanya ditulis kalau email benar-benar terkirim ke
+                // alamat asli penerbit. Gagal kirim sengaja TIDAK dicatat, supaya run
                 // berikutnya mencoba ulang.
                 if ($writeMarks) {
                     $this->markSent($conn, (int) $row->ID, $def);
+                    $this->logEmailHistory($conn, (int) $row->ID, $def, $item['recipients'], $terminal);
                 }
 
             } catch (\Throwable $e) {
@@ -429,6 +496,43 @@ class ComplianceSendNotifications extends Command
             Log::channel('daily')->error('ComplianceSendNotifications: UPDATE penanda gagal', [
                 'penerbit_id' => $penerbitId,
                 'kolom'       => $def['flag'],
+                'error'       => odbc_errormsg($conn),
+            ]);
+            return;
+        }
+        odbc_free_result($res);
+    }
+
+    /**
+     * Catat pengiriman ke historydata (tabel log aktivitas generik yang sama
+     * dipakai riwayat PENERBIT_STATUS, PENERBIT_TERBITAN, dll), supaya email
+     * yang terkirim kelihatan di tab histori penerbit — bukan cuma di log file.
+     */
+    private function logEmailHistory($conn, int $penerbitId, array $def, array $recipients, string $terminal): void
+    {
+        $now         = date('Y-m-d H:i:s');
+        $tujuan      = implode(', ', $recipients);
+        $note        = "Email kepatuhan \"{$def['label']}\" dikirim ke {$tujuan}";
+        $noteSafe    = str_replace("'", "''", $note);
+        $terminalSafe = str_replace("'", "''", $terminal);
+
+        $sql = "INSERT INTO historydata
+                    (action, tablename, actionby, actiondate, actionterminal, note, idref)
+                VALUES (
+                    'EMAIL',
+                    'PENERBIT',
+                    '" . self::ACTOR . "',
+                    TO_DATE('{$now}','YYYY-MM-DD HH24:MI:SS'),
+                    '{$terminalSafe}',
+                    '{$noteSafe}',
+                    {$penerbitId}
+                )";
+
+        $res = odbc_exec($conn, $sql);
+        if (!$res) {
+            Log::channel('daily')->error('ComplianceSendNotifications: INSERT historydata gagal', [
+                'penerbit_id' => $penerbitId,
+                'jenis'       => $def['label'],
                 'error'       => odbc_errormsg($conn),
             ]);
             return;

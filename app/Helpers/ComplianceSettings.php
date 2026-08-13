@@ -73,4 +73,28 @@ class ComplianceSettings
 
         return $result;
     }
+
+    /**
+     * Gerbang aktivasi fitur auto blokir SSKCKR, dikendalikan admin lewat
+     * halaman Pengaturan Kepatuhan (AutoBlokir_Aktif / AutoBlokir_MulaiTanggal),
+     * tanpa perlu ubah kode/cron.
+     *
+     * Aktif hanya kalau AutoBlokir_Aktif = '1' DAN (tanggal mulai kosong,
+     * ATAU hari ini sudah >= tanggal mulai).
+     */
+    public static function isAutoBlokirActive(?array $settings = null): bool
+    {
+        $cs = $settings ?? self::get();
+
+        if ((string) ($cs['AutoBlokir_Aktif'] ?? '0') !== '1') {
+            return false;
+        }
+
+        $mulai = trim((string) ($cs['AutoBlokir_MulaiTanggal'] ?? ''));
+        if ($mulai === '') {
+            return true;
+        }
+
+        return date('Y-m-d') >= substr($mulai, 0, 10);
+    }
 }

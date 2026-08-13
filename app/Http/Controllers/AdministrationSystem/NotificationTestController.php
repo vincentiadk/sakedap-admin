@@ -213,9 +213,11 @@ class NotificationTestController extends Controller
             ], 404);
         }
 
-        $minPct = (int) ComplianceSettings::get()['BatasMinimumKepatuhanKCKR'];
-        $vars   = $notif->buildVars($jenis, $row, $minPct);
-        $html   = $notif->buildHtml($redaksi[$def['param']], $jenis, $row, $minPct);
+        $cs        = ComplianceSettings::get();
+        $minPct    = (int) $cs['BatasMinimumKepatuhanKCKR'];
+        $mulaiAuto = (string) ($cs['AutoBlokir_MulaiTanggal'] ?? '');
+        $vars      = $notif->buildVars($jenis, $row, $minPct, $mulaiAuto);
+        $html      = $notif->buildHtml($redaksi[$def['param']], $jenis, $row, $minPct, $mulaiAuto);
 
         return $then($html, $row, $vars, $def);
     }

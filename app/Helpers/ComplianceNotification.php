@@ -283,22 +283,28 @@ class ComplianceNotification
      *   - email pengingat : tanggal penerbit AKAN diblokir, yaitu jatuh tempo
      *                       terdekat yang belum terlewat.
      */
-    public function buildVars(string $jenis, object $row, int $minPct): array
+    public function buildVars(string $jenis, object $row, int $minPct, ?string $autoBlokirMulaiTanggal = null): array
     {
+        // pengingat-kckr sengaja TIDAK memakai deadline per-item (TGL_BLOKIR_KCKR) —
+        // penerbit yang masuk jenis ini sudah di bawah ambang KCKR SEKARANG (lihat
+        // ComplianceSendNotifications::isEligible), jadi tanggal yang relevan buat
+        // mereka adalah kapan fitur auto blokir mulai berlaku, bukan jatuh tempo
+        // item yang mungkin sudah lama lewat.
         $tglBlokir = match ($jenis) {
             'blokir-kt', 'blokir-kckr' => $row->TGL_BLOKIR_TERCATAT ?? null,
             'pengingat-kt'             => $row->TGL_BLOKIR_KT      ?? null,
-            'pengingat-kckr'           => $row->TGL_BLOKIR_KCKR    ?? null,
+            'pengingat-kckr'           => (trim((string) $autoBlokirMulaiTanggal) !== '' ? $autoBlokirMulaiTanggal : ($row->TGL_BLOKIR_KCKR ?? null)),
         };
 
         $ts = $tglBlokir ? strtotime((string) $tglBlokir) : false;
 
         // Email blokir tidak boleh memuat tanggal kosong. Kalau riwayat
         // PENERBIT_STATUS belum punya catatannya (penerbit lama, atau saat
-        // preview), pakai hari ini — email blokir memang dikirim pada atau
-        // segera setelah pemblokiran.
+        // preview), pakai AutoBlokir_MulaiTanggal (tanggal resmi mulai berlakunya
+        // auto blokir) — fallback ke hari ini kalau setting itu pun kosong.
         if (!$ts && !self::JENIS[$jenis]['reminder']) {
-            $ts = strtotime('today');
+            $mulai = trim((string) $autoBlokirMulaiTanggal);
+            $ts    = ($mulai !== '' ? strtotime($mulai) : false) ?: strtotime('today');
         }
 
         // Sisa hari dihitung antar tengah malam, bukan dari jam berapa proses
@@ -321,13 +327,13 @@ class ComplianceNotification
         ];
     }
 
-    public function buildHtml(string $redaksi, string $jenis, object $row, int $minPct): string
+    public function buildHtml(string $redaksi, string $jenis, object $row, int $minPct, ?string $autoBlokirMulaiTanggal = null): string
     {
         $def = self::JENIS[$jenis];
 
         // Redaksi sudah memuat sapaan, rekap, tautan portal, dan penutup —
         // pembungkus ini hanya menambah kop, badge, dan catatan kaki.
-        $isi = strtr($redaksi, $this->buildVars($jenis, $row, $minPct));
+        $isi = strtr($redaksi, $this->buildVars($jenis, $row, $minPct, $autoBlokirMulaiTanggal));
 
         $judul = htmlspecialchars($def['subject'], ENT_QUOTES, 'UTF-8');
         $badge = $def['reminder'] ? 'badge-warning' : 'badge-danger';

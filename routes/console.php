@@ -55,6 +55,24 @@ Schedule::command('compliance:recompute-status')
     ->before(fn() => $scheduleLog('compliance:recompute-status', 'START'))
     ->after(fn() => $scheduleLog('compliance:recompute-status', 'DONE'));
 
+// Kirim email pengingat & pemberitahuan blokir kepatuhan ke alamat ASLI penerbit
+// (--to=auto: EMAIL1, fallback EMAIL2). --force wajib di sini karena scheduler
+// jalan non-interaktif — tanpa itu, konfirmasi "kirim ke email asli?" otomatis
+// dijawab "tidak" dan tidak ada yang terkirim.
+//
+// Populasi & jadwal kirimnya sepenuhnya dikendalikan lewat setting di halaman
+// Pengaturan Kepatuhan (BatasMinimumKepatuhanKCKR, AutoBlokir_Aktif,
+// AutoBlokir_MulaiTanggal) — tidak perlu ubah baris ini untuk itu.
+Schedule::command('compliance:send-notifications --to=auto --force')
+    ->dailyAt('07:00')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping(30)
+    ->onOneServer()
+    ->runInBackground()
+    ->evenInMaintenanceMode()
+    ->before(fn() => $scheduleLog('compliance:send-notifications', 'START'))
+    ->after(fn() => $scheduleLog('compliance:send-notifications', 'DONE'));
+
 Schedule::exec('find ' . storage_path('logs') . ' -name "laravel-*.log" -mtime +7 -delete')
     ->weekly();
 
