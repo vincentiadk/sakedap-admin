@@ -298,6 +298,9 @@
             document.getElementById('chartSection').classList.remove('d-none');
             document.getElementById('tablesSection').classList.remove('d-none');
 
+            // Resize chart setelah container visible (d-none → display block butuh 1 tick)
+            setTimeout(() => trenChart && trenChart.resize(), 50);
+
             // Build export URL
             const exportUrl = '{{ route("physical_reception_performance.export") }}?' + params.toString();
             const exportBtn = document.getElementById('btnExport');
