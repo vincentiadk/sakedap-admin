@@ -41,8 +41,9 @@
                     <select class="form-select" id="fMedia">
                         <option value="">Semua jenis media</option>
                         @foreach($medias as $m)
-                            <option value="{{ $m['id'] }}" {{ (int) $m['id'] === 141 ? 'selected' : '' }}>
-                                {{ $m['name'] }} ({{ number_format($m['jml'], 0, ',', '.') }})
+                            @php $mId = is_array($m) ? $m['id'] : $m->id; $mName = is_array($m) ? $m['name'] : $m->name; $mJml = is_array($m) ? ($m['jml'] ?? 0) : ($m->jml ?? 0); @endphp
+                            <option value="{{ $mId }}" {{ (int) $mId === 141 ? 'selected' : '' }}>
+                                {{ $mName }} ({{ number_format($mJml, 0, ',', '.') }})
                             </option>
                         @endforeach
                     </select>

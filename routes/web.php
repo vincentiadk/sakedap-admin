@@ -480,6 +480,12 @@ Route::middleware('authentication')->group(function () {
             Route::post('data',   'ValidationPerformanceController@data')->name('validation_performance.data');
             Route::get('export',  'ValidationPerformanceController@export')->name('validation_performance.export');
         });
+
+        Route::prefix('physical-reception-performance')->group(function () {
+            Route::get('/',       'PhysicalReceptionPerformanceController@index')->name('physical_reception_performance.index');
+            Route::post('data',   'PhysicalReceptionPerformanceController@data')->name('physical_reception_performance.data');
+            Route::get('export',  'PhysicalReceptionPerformanceController@export')->name('physical_reception_performance.export');
+        });
     });
 
     Route::prefix('administration-system')->namespace('AdministrationSystem')->group(function () {

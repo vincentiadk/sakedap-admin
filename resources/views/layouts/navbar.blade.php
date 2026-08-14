@@ -256,7 +256,8 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <a href="{{ url('report/kinerja') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'kinerja' ? 'active' : '' }}">Laporan Kinerja</a>
-                                                <a href="{{ url('report/validation-performance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'validation-performance' ? 'active' : '' }}">Kinerja Validasi Koleksi</a>
+                                                <a href="{{ url('report/validation-performance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'validation-performance' ? 'active' : '' }}">Kinerja Validasi Karya Digital</a>
+                                                <a href="{{ url('report/physical-reception-performance') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'report' && Request::segment(2) == 'physical-reception-performance' ? 'active' : '' }}">Kinerja Penerimaan Karya Fisik</a>
                                             </div>
                                         </div>
                                     </div>
