@@ -58,31 +58,32 @@ class PhysicalReceptionPerformanceController extends Controller
             'media_id'    => 'nullable|integer',
             'granular'    => 'nullable|in:hari,bulan,tahun',
             'province_id' => 'nullable|integer',
+            'tujuan'      => 'nullable|in:perpusnas,provinsi',
         ]);
 
-        [$start, $end, $mediaId, $granular, $provinceId] = $this->resolveFilter($request);
+        [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
 
-        $cacheKey = 'physrecperf:' . md5("$start|$end|$mediaId|$granular|$provinceId");
+        $cacheKey = 'physrecperf:' . md5("$start|$end|$mediaId|$granular|$provinceId|$tujuan");
 
         try {
-            $payload = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular, $provinceId) {
+            $payload = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular, $provinceId, $tujuan) {
                 return [
-                    'ringkasan'   => $this->fetchRingkasan($start, $end, $mediaId, $provinceId),
-                    'tren'        => $this->fetchTren($start, $end, $mediaId, $granular, $provinceId),
-                    'per_cabang'  => $this->fetchPerCabang($start, $end, $mediaId, $provinceId),
-                    'per_petugas' => $this->fetchPerPetugas($start, $end, $mediaId, $provinceId),
+                    'ringkasan'   => $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan),
+                    'tren'        => $this->fetchTren($start, $end, $mediaId, $granular, $provinceId, $tujuan),
+                    'per_cabang'  => $this->fetchPerCabang($start, $end, $mediaId, $provinceId, $tujuan),
+                    'per_petugas' => $this->fetchPerPetugas($start, $end, $mediaId, $provinceId, $tujuan),
                 ];
             });
         } catch (\Throwable $e) {
             Log::channel('daily')->error('PhysicalReceptionPerformance: query gagal', [
                 'error'  => $e->getMessage(),
-                'filter' => compact('start', 'end', 'mediaId', 'granular', 'provinceId'),
+                'filter' => compact('start', 'end', 'mediaId', 'granular', 'provinceId', 'tujuan'),
             ]);
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
 
         return response()->json(array_merge(['success' => true], $payload, [
-            'filter' => compact('start', 'end', 'mediaId', 'granular', 'provinceId'),
+            'filter' => compact('start', 'end', 'mediaId', 'granular', 'provinceId', 'tujuan'),
         ]));
     }
 
@@ -98,13 +99,13 @@ class PhysicalReceptionPerformanceController extends Controller
             'province_id' => 'nullable|integer',
         ]);
 
-        [$start, $end, $mediaId, $granular, $provinceId] = $this->resolveFilter($request);
+        [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
 
         try {
-            $ringkasan  = $this->fetchRingkasan($start, $end, $mediaId, $provinceId);
-            $tren       = $this->fetchTren($start, $end, $mediaId, $granular, $provinceId);
-            $perCabang  = $this->fetchPerCabang($start, $end, $mediaId, $provinceId);
-            $perPetugas = $this->fetchPerPetugas($start, $end, $mediaId, $provinceId);
+            $ringkasan  = $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan);
+            $tren       = $this->fetchTren($start, $end, $mediaId, $granular, $provinceId, $tujuan);
+            $perCabang  = $this->fetchPerCabang($start, $end, $mediaId, $provinceId, $tujuan);
+            $perPetugas = $this->fetchPerPetugas($start, $end, $mediaId, $provinceId, $tujuan);
         } catch (\Throwable $e) {
             return back()->with('error', 'Gagal mengambil data: ' . $e->getMessage());
         }
@@ -157,10 +158,11 @@ class PhysicalReceptionPerformanceController extends Controller
 
         // Sheet 3 – Per Cabang
         $this->sheetTabel($spreadsheet, 'Per Cabang', 'Penerimaan per Cabang', $meta,
-            ['Cabang', 'Provinsi', 'Surat', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'],
+            ['Cabang', 'Provinsi', 'Tujuan', 'Surat', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'],
             array_map(fn($r) => [
                 $r['cabang']       ?? '-',
                 $r['provinsi']     ?? '-',
+                $r['tujuan']       ?? '-',
                 (int) ($r['total_surat']  ?? 0),
                 (int) ($r['total_judul']  ?? 0),
                 (int) ($r['total_accept'] ?? 0),
@@ -168,7 +170,7 @@ class PhysicalReceptionPerformanceController extends Controller
                 (int) ($r['total_hibah']  ?? 0),
                 (int) ($r['total_retur']  ?? 0),
             ], $perCabang),
-            [30, 22, 10, 10, 12, 12, 10, 10]
+            [30, 22, 12, 10, 10, 12, 12, 10, 10]
         );
 
         // Sheet 4 – Per Petugas
@@ -203,6 +205,8 @@ class PhysicalReceptionPerformanceController extends Controller
 
     // ── Query helpers ────────────────────────────────────────────────────────
 
+    private const PERPUSNAS_BRANCH_ID = 37;
+
     private function resolveFilter(Request $request): array
     {
         $start      = date('Y-m-d', strtotime($request->start));
@@ -210,19 +214,19 @@ class PhysicalReceptionPerformanceController extends Controller
         $mediaId    = $request->media_id ? (int) $request->media_id : null;
         $granular   = in_array($request->granular, ['hari', 'bulan', 'tahun']) ? $request->granular : 'bulan';
         $provinceId = $request->province_id ? (int) $request->province_id : null;
+        $tujuan     = in_array($request->tujuan, ['perpusnas', 'provinsi']) ? $request->tujuan : null;
 
         // Non-perpusnas hanya bisa lihat provinsi sendiri
         if (!Main::isPerpusnas()) {
             $provinceId = (int) session('province_id');
         }
 
-        return [$start, $end, $mediaId, $granular, $provinceId];
+        return [$start, $end, $mediaId, $granular, $provinceId, $tujuan];
     }
 
-    private function baseWhere(string $start, string $end, ?int $mediaId, ?int $provinceId): string
+    private function baseWhere(string $start, string $end, ?int $mediaId, ?int $provinceId, ?string $tujuan): string
     {
         // Pisah NVL jadi dua cabang OR supaya Oracle bisa pakai index
-        // pada received_date dan accept_date secara terpisah.
         $ds = "TO_DATE('{$start}','YYYY-MM-DD')";
         $de = "TO_DATE('{$end}','YYYY-MM-DD') + 1";
 
@@ -232,6 +236,12 @@ class PhysicalReceptionPerformanceController extends Controller
         $where .= "   OR";
         $where .= "   (ld.received_date IS NULL     AND l.accept_date    >= {$ds} AND l.accept_date    < {$de})";
         $where .= " )";
+
+        if ($tujuan === 'perpusnas') {
+            $where .= " AND l.branch_id = " . self::PERPUSNAS_BRANCH_ID;
+        } elseif ($tujuan === 'provinsi') {
+            $where .= " AND l.branch_id != " . self::PERPUSNAS_BRANCH_ID;
+        }
 
         if ($mediaId) {
             $where .= " AND ld.collection_type_id = {$mediaId}";
@@ -243,9 +253,9 @@ class PhysicalReceptionPerformanceController extends Controller
         return $where;
     }
 
-    private function fetchRingkasan(string $start, string $end, ?int $mediaId, ?int $provinceId): array
+    private function fetchRingkasan(string $start, string $end, ?int $mediaId, ?int $provinceId, ?string $tujuan): array
     {
-        $where  = $this->baseWhere($start, $end, $mediaId, $provinceId);
+        $where  = $this->baseWhere($start, $end, $mediaId, $provinceId, $tujuan);
         $result = QueryAPI::get("
             SELECT
                 COUNT(DISTINCT l.letter_id)        AS total_surat,
@@ -272,9 +282,9 @@ class PhysicalReceptionPerformanceController extends Controller
         ];
     }
 
-    private function fetchTren(string $start, string $end, ?int $mediaId, string $granular, ?int $provinceId): array
+    private function fetchTren(string $start, string $end, ?int $mediaId, string $granular, ?int $provinceId, ?string $tujuan): array
     {
-        $where  = $this->baseWhere($start, $end, $mediaId, $provinceId);
+        $where  = $this->baseWhere($start, $end, $mediaId, $provinceId, $tujuan);
         $format = match ($granular) {
             'hari'  => 'YYYY-MM-DD',
             'tahun' => 'YYYY',
@@ -314,14 +324,17 @@ class PhysicalReceptionPerformanceController extends Controller
         ])->toArray();
     }
 
-    private function fetchPerCabang(string $start, string $end, ?int $mediaId, ?int $provinceId): array
+    private function fetchPerCabang(string $start, string $end, ?int $mediaId, ?int $provinceId, ?string $tujuan): array
     {
-        $where = $this->baseWhere($start, $end, $mediaId, $provinceId);
+        $where = $this->baseWhere($start, $end, $mediaId, $provinceId, $tujuan);
 
         $rows = QueryAPI::get("
             SELECT
                 NVL(b.name, '(Tidak Diketahui)')   AS cabang,
-                NVL(prov.namapropinsi, '-')         AS provinsi,
+                CASE WHEN l.branch_id = " . self::PERPUSNAS_BRANCH_ID . " THEN 'Perpusnas'
+                     ELSE NVL(prov.namapropinsi, '-') END                   AS provinsi,
+                CASE WHEN l.branch_id = " . self::PERPUSNAS_BRANCH_ID . " THEN 'Perpustakaan Nasional RI'
+                     ELSE 'Provinsi' END                                    AS tujuan,
                 COUNT(DISTINCT l.letter_id)         AS total_surat,
                 COUNT(ld.letter_detail_id)          AS total_judul,
                 SUM(NVL(ld.qty_accept, 0))          AS total_accept,
@@ -333,7 +346,7 @@ class PhysicalReceptionPerformanceController extends Controller
             LEFT JOIN branchs b ON b.id = l.branch_id
             LEFT JOIN propinsi prov ON prov.id = b.province_id
             WHERE {$where}
-            GROUP BY b.name, prov.namapropinsi
+            GROUP BY b.name, prov.namapropinsi, l.branch_id
             ORDER BY COUNT(ld.letter_detail_id) DESC
         ");
 
@@ -342,6 +355,7 @@ class PhysicalReceptionPerformanceController extends Controller
         return collect($rows)->map(fn($r) => [
             'cabang'       => $r->CABANG,
             'provinsi'     => $r->PROVINSI,
+            'tujuan'       => $r->TUJUAN,
             'total_surat'  => (int) $r->TOTAL_SURAT,
             'total_judul'  => (int) $r->TOTAL_JUDUL,
             'total_accept' => (int) $r->TOTAL_ACCEPT,
@@ -351,9 +365,9 @@ class PhysicalReceptionPerformanceController extends Controller
         ])->toArray();
     }
 
-    private function fetchPerPetugas(string $start, string $end, ?int $mediaId, ?int $provinceId): array
+    private function fetchPerPetugas(string $start, string $end, ?int $mediaId, ?int $provinceId, ?string $tujuan): array
     {
-        $where = $this->baseWhere($start, $end, $mediaId, $provinceId);
+        $where = $this->baseWhere($start, $end, $mediaId, $provinceId, $tujuan);
 
         $rows = QueryAPI::get("
             SELECT

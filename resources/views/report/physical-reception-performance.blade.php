@@ -62,6 +62,18 @@
                 @if(Main::isPerpusnas())
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1">
+                        <i class="ph-building-office me-1 text-primary"></i> Tujuan Pengiriman
+                    </label>
+                    <select class="form-select" id="fTujuan">
+                        <option value="">Semua Tujuan</option>
+                        <option value="perpusnas">Perpusnas</option>
+                        <option value="provinsi">Provinsi</option>
+                    </select>
+                </div>
+                @endif
+                @if(Main::isPerpusnas())
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold mb-1">
                         <i class="ph-map-pin me-1 text-primary"></i> Provinsi
                     </label>
                     <select class="form-select" id="fProvince" data-placeholder="Semua Provinsi"></select>
@@ -152,8 +164,9 @@
         </div>
     </div>
 
-    {{-- ── 2 kolom: Per Cabang & Per Petugas ─────────────────────────────── --}}
+    {{-- ── Per Cabang (Perpusnas only) + Per Petugas ─────────────────────── --}}
     <div class="row g-3 mb-4 d-none" id="tablesSection">
+        @if(Main::isPerpusnas())
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header border-bottom">
@@ -165,6 +178,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Cabang</th>
+                                    <th>Tujuan</th>
                                     <th class="text-center">Surat</th>
                                     <th class="text-center">Judul</th>
                                     <th class="text-center text-success">Diterima</th>
@@ -172,14 +186,15 @@
                                 </tr>
                             </thead>
                             <tbody id="tbodyCabang">
-                                <tr><td colspan="5" class="text-center text-muted py-4">Belum ada data</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted py-4">Belum ada data</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        @endif
+        <div class="col-lg-{{ Main::isPerpusnas() ? 6 : 12 }}">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header border-bottom">
                     <h6 class="mb-0 fw-semibold"><i class="ph-user-circle me-1 text-primary"></i> Per Petugas</h6>
@@ -250,6 +265,7 @@
         const end     = document.getElementById('fEnd').value;
         const mediaId = document.getElementById('fMedia').value;
         const granular= document.getElementById('fGranular').value;
+        const tujuan  = document.getElementById('fTujuan')?.value ?? '';
         const prov    = document.getElementById('fProvince')?.value ?? '';
 
         if (!start || !end) {
@@ -265,6 +281,7 @@
 
         const params = new URLSearchParams({ start, end, granular });
         if (mediaId)  params.set('media_id', mediaId);
+        if (tujuan)   params.set('tujuan', tujuan);
         if (prov)     params.set('province_id', prov);
 
         fetch('{{ route("physical_reception_performance.data") }}', {
@@ -364,15 +381,20 @@
     function renderCabang(rows) {
         const tbody = document.getElementById('tbodyCabang');
         if (!rows || !rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data</td></tr>';
             return;
         }
         tbody.innerHTML = rows.map(function(r) {
+            const isPerpusnas = r.tujuan && r.tujuan.toLowerCase().includes('nasional');
+            const badge = isPerpusnas
+                ? '<span class="badge bg-primary bg-opacity-10 text-primary small">Perpusnas</span>'
+                : '<span class="badge bg-success bg-opacity-10 text-success small">Provinsi</span>';
             return `<tr>
                 <td>
                     <div class="fw-semibold">${escHtml(r.cabang)}</div>
                     <small class="text-muted">${escHtml(r.provinsi)}</small>
                 </td>
+                <td>${badge}</td>
                 <td class="text-center">${fmt(r.total_surat)}</td>
                 <td class="text-center">${fmt(r.total_judul)}</td>
                 <td class="text-center text-success fw-semibold">${fmt(r.total_accept)}</td>
