@@ -63,13 +63,14 @@ class PhysicalReceptionPerformanceController extends Controller
 
         [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
 
-        $cacheKey = 'physrecperf:' . md5("$start|$end|$mediaId|$granular|$provinceId|$tujuan");
+        $cacheKey = 'physrecperf_v2:' . md5("$start|$end|$mediaId|$granular|$provinceId|$tujuan");
 
         try {
             $payload = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular, $provinceId, $tujuan) {
                 return [
                     'ringkasan'   => $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan),
                     'tren'        => $this->fetchTren($start, $end, $mediaId, $granular, $provinceId, $tujuan),
+                    'per_media'   => $this->fetchPerMedia($start, $end, $provinceId, $tujuan),
                     'per_cabang'  => $this->fetchPerCabang($start, $end, $mediaId, $provinceId, $tujuan),
                     'per_petugas' => $this->fetchPerPetugas($start, $end, $mediaId, $provinceId, $tujuan),
                 ];
@@ -104,6 +105,7 @@ class PhysicalReceptionPerformanceController extends Controller
         try {
             $ringkasan  = $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan);
             $tren       = $this->fetchTren($start, $end, $mediaId, $granular, $provinceId, $tujuan);
+            $perMedia   = $this->fetchPerMedia($start, $end, $provinceId, $tujuan);
             $perCabang  = $this->fetchPerCabang($start, $end, $mediaId, $provinceId, $tujuan);
             $perPetugas = $this->fetchPerPetugas($start, $end, $mediaId, $provinceId, $tujuan);
         } catch (\Throwable $e) {
@@ -156,7 +158,21 @@ class PhysicalReceptionPerformanceController extends Controller
             [16, 10, 10, 12, 12, 10, 10]
         );
 
-        // Sheet 3 – Per Cabang
+        // Sheet 3 – Per Media
+        $this->sheetTabel($spreadsheet, 'Per Jenis Media', 'Penerimaan per Jenis Media', $meta,
+            ['Jenis Media', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'],
+            array_map(fn($r) => [
+                $r['media']        ?? '-',
+                (int) ($r['total_judul']  ?? 0),
+                (int) ($r['total_accept'] ?? 0),
+                (int) ($r['total_reject'] ?? 0),
+                (int) ($r['total_hibah']  ?? 0),
+                (int) ($r['total_retur']  ?? 0),
+            ], $perMedia),
+            [30, 10, 12, 12, 10, 10]
+        );
+
+        // Sheet 4 – Per Cabang
         $this->sheetTabel($spreadsheet, 'Per Cabang', 'Penerimaan per Cabang', $meta,
             ['Cabang', 'Provinsi', 'Tujuan', 'Surat', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'],
             array_map(fn($r) => [
@@ -316,6 +332,40 @@ class PhysicalReceptionPerformanceController extends Controller
         return collect($rows)->map(fn($r) => [
             'periode'      => $r->PERIODE,
             'total_surat'  => (int) $r->TOTAL_SURAT,
+            'total_judul'  => (int) $r->TOTAL_JUDUL,
+            'total_accept' => (int) $r->TOTAL_ACCEPT,
+            'total_reject' => (int) $r->TOTAL_REJECT,
+            'total_hibah'  => (int) $r->TOTAL_HIBAH,
+            'total_retur'  => (int) $r->TOTAL_RETUR,
+        ])->toArray();
+    }
+
+    private function fetchPerMedia(string $start, string $end, ?int $provinceId, ?string $tujuan): array
+    {
+        // Per media selalu semua media (tidak difilter mediaId) agar overview lengkap
+        $where = $this->baseWhere($start, $end, null, $provinceId, $tujuan);
+
+        $rows = QueryAPI::get("
+            SELECT
+                NVL(m.name, '(Tidak Diketahui)')   AS media,
+                COUNT(ld.letter_detail_id)          AS total_judul,
+                SUM(NVL(ld.qty_accept, 0))          AS total_accept,
+                SUM(NVL(ld.qty_reject, 0))          AS total_reject,
+                SUM(NVL(ld.qty_hibah,  0))          AS total_hibah,
+                SUM(NVL(ld.qty_retur,  0))          AS total_retur
+            FROM letter_detail ld
+            LEFT JOIN letter l ON l.letter_id = ld.letter_id
+            LEFT JOIN branchs b ON b.id = l.branch_id
+            LEFT JOIN collectionmedias m ON m.id = ld.collection_type_id
+            WHERE {$where}
+            GROUP BY m.name
+            ORDER BY COUNT(ld.letter_detail_id) DESC
+        ");
+
+        if (!$rows) return [];
+
+        return collect($rows)->map(fn($r) => [
+            'media'        => $r->MEDIA,
             'total_judul'  => (int) $r->TOTAL_JUDUL,
             'total_accept' => (int) $r->TOTAL_ACCEPT,
             'total_reject' => (int) $r->TOTAL_REJECT,

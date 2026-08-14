@@ -164,6 +164,32 @@
         </div>
     </div>
 
+    {{-- ── Per Jenis Media ─────────────────────────────────────────────────── --}}
+    <div class="card border-0 shadow-sm mb-4 d-none" id="mediaSection">
+        <div class="card-header border-bottom">
+            <h6 class="mb-0 fw-semibold"><i class="ph-squares-four me-1 text-primary"></i> Per Jenis Media <small class="text-muted fw-normal">(selalu semua media, abaikan filter Jenis Media di atas)</small></h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Jenis Media</th>
+                            <th class="text-center">Judul</th>
+                            <th class="text-center text-success">Diterima</th>
+                            <th class="text-center text-danger">Ditolak</th>
+                            <th class="text-center text-warning">Hibah</th>
+                            <th class="text-center text-secondary">Retur</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyMedia">
+                        <tr><td colspan="6" class="text-center text-muted py-4">Belum ada data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- ── Per Cabang (Perpusnas only) + Per Petugas ─────────────────────── --}}
     <div class="row g-3 mb-4 d-none" id="tablesSection">
         @if(Main::isPerpusnas())
@@ -306,6 +332,7 @@
 
             renderCards(res.ringkasan);
             renderChart(res.tren, 'total_accept', 'Copy Diterima');
+            renderMedia(res.per_media);
             renderCabang(res.per_cabang);
             renderPetugas(res.per_petugas);
 
@@ -313,6 +340,7 @@
             document.getElementById('emptyState').classList.add('d-none');
             document.getElementById('cardsSection').classList.remove('d-none');
             document.getElementById('chartSection').classList.remove('d-none');
+            document.getElementById('mediaSection').classList.remove('d-none');
             document.getElementById('tablesSection').classList.remove('d-none');
 
             // Resize chart setelah container visible (d-none → display block butuh 1 tick)
@@ -376,6 +404,32 @@
         });
 
         window.addEventListener('resize', () => trenChart && trenChart.resize());
+    }
+
+    function renderMedia(rows) {
+        const tbody = document.getElementById('tbodyMedia');
+        if (!rows || !rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data</td></tr>';
+            return;
+        }
+        // Hitung total untuk persentase bar
+        const maxJudul = Math.max(...rows.map(r => r.total_judul || 0), 1);
+        tbody.innerHTML = rows.map(function(r) {
+            const pct = Math.round((r.total_judul / maxJudul) * 100);
+            return `<tr>
+                <td>
+                    <div class="fw-semibold mb-1">${escHtml(r.media)}</div>
+                    <div class="progress" style="height:4px">
+                        <div class="progress-bar bg-primary" style="width:${pct}%"></div>
+                    </div>
+                </td>
+                <td class="text-center fw-semibold">${fmt(r.total_judul)}</td>
+                <td class="text-center text-success">${fmt(r.total_accept)}</td>
+                <td class="text-center text-danger">${fmt(r.total_reject)}</td>
+                <td class="text-center text-warning">${fmt(r.total_hibah)}</td>
+                <td class="text-center text-secondary">${fmt(r.total_retur)}</td>
+            </tr>`;
+        }).join('');
     }
 
     function renderCabang(rows) {
