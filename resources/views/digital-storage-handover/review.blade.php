@@ -131,10 +131,10 @@
                             <select class="form-select" name="persentase_kckr" id="persentase_kckr">
                                 <option value="">Semua</option>
                                 <option value="0-20">0–20% (Sangat Tidak Patuh)</option>
-                                <option value="21-40">21–40% (Tidak Patuh)</option>
-                                <option value="41-60">41–60% (Cukup Patuh)</option>
-                                <option value="61-80">61–80% (Patuh)</option>
-                                <option value="81-100">&gt;80% (Sangat Patuh)</option>
+                                <option value="21-40">&gt;20–40% (Tidak Patuh)</option>
+                                <option value="41-60">&gt;40–60% (Cukup Patuh)</option>
+                                <option value="61-80">&gt;60–80% (Patuh)</option>
+                                <option value="81-100">&gt;80–100% (Sangat Patuh)</option>
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6">

@@ -380,7 +380,17 @@ class ComplianceRecomputeStatus extends Command
                     ? $this->resetNotifClause($newStatus)
                     : '';
 
-                $sqlUpdate = "UPDATE PENERBIT SET STATUS_AKHIR = '{$newSafe}', IS_LOCK = {$newLock}{$resetNotif} WHERE ID = {$id}";
+                // LOCK_DATE mencatat KAPAN kunci SSKCKR dipasang. Hanya ditulis saat
+                // transisi kunci 0 -> 1; saat dilepas (1 -> 0) dikosongkan kembali.
+                // Kunci yang tidak berubah tidak menyentuh LOCK_DATE.
+                $lockClause = '';
+                if ((int) $d['old_lock'] === 0 && (int) $newLock === 1) {
+                    $lockClause = ", LOCK_DATE = TO_DATE('{$now}','YYYY-MM-DD HH24:MI:SS')";
+                } elseif ((int) $d['old_lock'] === 1 && (int) $newLock === 0) {
+                    $lockClause = ", LOCK_DATE = NULL";
+                }
+
+                $sqlUpdate = "UPDATE PENERBIT SET STATUS_AKHIR = '{$newSafe}', IS_LOCK = {$newLock}{$lockClause}{$resetNotif} WHERE ID = {$id}";
                 $resUpdate = odbc_exec($conn, $sqlUpdate);
                 if (!$resUpdate) {
                     $failed++;

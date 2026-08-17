@@ -17,12 +17,15 @@ class ReviewController extends Controller
 
     // Sama seperti bucket "% KCKR" di halaman Kepatuhan (ComplianceV3Controller),
     // supaya operator melihat pengelompokan yang konsisten di kedua tempat.
+    // Batas bawah EKSKLUSIF kecuali bucket pertama, supaya nilai pecahan di
+    // batas (mis. 20.05, 40.3) tidak jatuh di celah antar-bucket. Contoh:
+    // 20.0 -> '0-20', 20.00001 -> '21-40'. Lihat pencocokan di datatable().
     private const PERSENTASE_BUCKETS = [
-        '0-20'   => [0, 20],
-        '21-40'  => [21, 40],
-        '41-60'  => [41, 60],
-        '61-80'  => [61, 80],
-        '81-100' => [81, 100],
+        '0-20'   => [0,  20],   // 0  <= pct <= 20
+        '21-40'  => [20, 40],   // 20 <  pct <= 40
+        '41-60'  => [40, 60],   // 40 <  pct <= 60
+        '61-80'  => [60, 80],   // 60 <  pct <= 80
+        '81-100' => [80, 100],  // 80 <  pct <= 100
     ];
 
     public function __construct()
@@ -228,7 +231,10 @@ class ReviewController extends Controller
                     return false;
                 }
                 $pct = $pctMap[$pid];
-                return $pct >= $min && $pct <= $max;
+                // Batas bawah inklusif hanya untuk bucket pertama (min 0);
+                // sisanya eksklusif supaya tidak ada celah di angka bulat.
+                $lolosBawah = $min == 0 ? $pct >= $min : $pct > $min;
+                return $lolosBawah && $pct <= $max;
             }));
 
             usort($matched, function ($a, $b) use ($sortDir) {
