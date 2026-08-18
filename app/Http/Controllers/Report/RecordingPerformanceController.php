@@ -24,14 +24,35 @@ class RecordingPerformanceController extends Controller
     private const CACHE_TTL          = 1800; // 30 menit
     private const PERPUSNAS_BRANCH_ID = 37;
 
+    // Filter hanya menampilkan media yang punya kode kategori di
+    // WORKSHEETS.CATEGORY: KC (Karya Cetak), KRA (Karya Rekam Analog),
+    // KRD (Karya Rekam Digital). Media tanpa kode (CATEGORY null) tidak muncul.
+    // Dijangkau lewat collections.media_id -> collectionmedias.worksheet_id
+    // -> worksheets.id
+    private const KATEGORI_FISIK = "('KC','KRA','KRD')";
+
+    private function mediaFisikSubquery(): string
+    {
+        return "c.media_id IN (
+            SELECT cm.id FROM collectionmedias cm
+            JOIN worksheets w ON w.id = cm.worksheet_id
+            WHERE w.category IN " . self::KATEGORI_FISIK . "
+        )";
+    }
+
     // ── Entry points ─────────────────────────────────────────────────────────
 
     public function index()
     {
+        // Hanya media pencatatan fisik (KC + KRA); media digital (KRD) tidak
+        // ditampilkan supaya operator tidak bisa memilih di luar cakupan laporan.
         $medias = QueryAPI::get("
-            SELECT cm.id, cm.name
+            SELECT cm.id, cm.name, w.category
             FROM collectionmedias cm
-            ORDER BY cm.name
+            JOIN worksheets w ON w.id = cm.worksheet_id
+            WHERE w.category IN " . self::KATEGORI_FISIK . "
+              AND NVL(cm.isdelete, 0) = 0
+            ORDER BY w.category, cm.name
         ") ?? [];
 
         $provinces = QueryAPI::get("
@@ -127,56 +148,61 @@ class RecordingPerformanceController extends Controller
         $s->setCellValue('A2', 'Periode: ' . date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)));
         $s->setCellValue('A4', 'Indikator')->setCellValue('B4', 'Nilai');
         $s->fromArray([
-            ['Total Judul Dicatat',  $r['total_judul']  ?? 0],
-            ['Hari Aktif',          $r['jml_hari']     ?? 0],
-            ['Rata-rata / Hari',    $r['rata2_hari']   ?? 0],
+            ['Total Judul (katalog unik)', $r['total_judul'] ?? 0],
+            ['Total Eksemplar (koleksi)',  $r['total_eks']   ?? 0],
+            ['Hari Aktif',                 $r['jml_hari']    ?? 0],
+            ['Rata-rata Eks / Hari',       $r['rata2_hari']  ?? 0],
         ], null, 'A5');
 
         // Sheet 2: Tren
         $s = $spreadsheet->getSheet(1);
-        $s->fromArray(['Periode', 'Total Judul', 'Cabang Aktif'], null, 'A1');
+        $s->fromArray(['Periode', 'Judul', 'Eksemplar', 'Cabang Aktif'], null, 'A1');
         $row = 2;
         foreach ($tren as $t) {
             $s->setCellValue("A$row", $t->PERIODE ?? '');
             $s->setCellValue("B$row", $t->TOTAL_JUDUL ?? 0);
-            $s->setCellValue("C$row", $t->JML_CABANG ?? 0);
+            $s->setCellValue("C$row", $t->TOTAL_EKS ?? 0);
+            $s->setCellValue("D$row", $t->JML_CABANG ?? 0);
             $row++;
         }
 
         // Sheet 3: Per Petugas
         $s = $spreadsheet->getSheet(2);
-        $s->fromArray(['Petugas', 'Total Judul', 'Hari Aktif', 'Rata-rata / Hari'], null, 'A1');
+        $s->fromArray(['Petugas', 'Judul', 'Eksemplar', 'Hari Aktif', 'Rata-rata Eks / Hari'], null, 'A1');
         $row = 2;
         foreach ($perPetugas as $pt) {
             $s->setCellValue("A$row", $pt->PETUGAS ?? '');
             $s->setCellValue("B$row", $pt->TOTAL_JUDUL ?? 0);
-            $s->setCellValue("C$row", $pt->JML_HARI ?? 0);
-            $s->setCellValue("D$row", $pt->RATA2_HARI ?? 0);
+            $s->setCellValue("C$row", $pt->TOTAL_EKS ?? 0);
+            $s->setCellValue("D$row", $pt->JML_HARI ?? 0);
+            $s->setCellValue("E$row", $pt->RATA2_HARI ?? 0);
             $row++;
         }
 
         // Sheet 4: Per Media
         $s = $spreadsheet->getSheet(3);
-        $s->fromArray(['Jenis Media', 'Total Judul', '%'], null, 'A1');
-        $totalJudul = array_sum(array_map(fn($m) => $m->TOTAL_JUDUL ?? 0, $perMedia));
+        $s->fromArray(['Jenis Media', 'Judul', 'Eksemplar', '% Eks'], null, 'A1');
+        $totalEks = array_sum(array_map(fn($m) => $m->TOTAL_EKS ?? 0, $perMedia));
         $row = 2;
         foreach ($perMedia as $m) {
-            $judul = $m->TOTAL_JUDUL ?? 0;
-            $pct   = $totalJudul > 0 ? round($judul / $totalJudul * 100, 1) : 0;
+            $eks = $m->TOTAL_EKS ?? 0;
+            $pct = $totalEks > 0 ? round($eks / $totalEks * 100, 1) : 0;
             $s->setCellValue("A$row", $m->NAMA_MEDIA ?? '');
-            $s->setCellValue("B$row", $judul);
-            $s->setCellValue("C$row", $pct . '%');
+            $s->setCellValue("B$row", $m->TOTAL_JUDUL ?? 0);
+            $s->setCellValue("C$row", $eks);
+            $s->setCellValue("D$row", $pct . '%');
             $row++;
         }
 
         // Sheet 5: Per Cabang
         $s = $spreadsheet->getSheet(4);
-        $s->fromArray(['Cabang', 'Provinsi', 'Total Judul'], null, 'A1');
+        $s->fromArray(['Cabang', 'Provinsi', 'Judul', 'Eksemplar'], null, 'A1');
         $row = 2;
         foreach ($perCabang as $c) {
             $s->setCellValue("A$row", $c->NAMA_CABANG ?? '');
             $s->setCellValue("B$row", $c->NAMA_PROPINSI ?? '');
             $s->setCellValue("C$row", $c->TOTAL_JUDUL ?? 0);
+            $s->setCellValue("D$row", $c->TOTAL_EKS ?? 0);
             $row++;
         }
 
@@ -221,6 +247,7 @@ class RecordingPerformanceController extends Controller
         $de = "TO_DATE('{$end}','YYYY-MM-DD') + 1";
 
         $where = "c.createdate >= {$ds} AND c.createdate < {$de}";
+        $where .= " AND " . $this->mediaFisikSubquery();
 
         if ($mediaId)    $where .= " AND c.media_id = {$mediaId}";
         if ($provinceId) $where .= " AND b.province_id = {$provinceId}";
@@ -232,9 +259,12 @@ class RecordingPerformanceController extends Controller
     {
         $where = $this->baseWhere($start, $end, $mediaId, $provinceId);
 
+        // Judul = katalog unik (COUNT DISTINCT catalog_id); Eks = baris koleksi
+        // (COUNT id). Satu judul bisa punya banyak eksemplar.
         $row = QueryAPI::get("
             SELECT
-                COUNT(c.id)                    AS total_judul,
+                COUNT(DISTINCT c.catalog_id)   AS total_judul,
+                COUNT(c.id)                    AS total_eks,
                 COUNT(DISTINCT TRUNC(c.createdate)) AS jml_hari,
                 COUNT(DISTINCT c.branch_id)    AS jml_cabang,
                 ROUND(COUNT(c.id) /
@@ -246,6 +276,7 @@ class RecordingPerformanceController extends Controller
 
         return [
             'total_judul' => $row->TOTAL_JUDUL  ?? 0,
+            'total_eks'   => $row->TOTAL_EKS    ?? 0,
             'jml_hari'    => $row->JML_HARI     ?? 0,
             'jml_cabang'  => $row->JML_CABANG   ?? 0,
             'rata2_hari'  => $row->RATA2_HARI   ?? 0,
@@ -265,7 +296,8 @@ class RecordingPerformanceController extends Controller
         $rows = QueryAPI::get("
             SELECT
                 {$grpExpr}              AS periode,
-                COUNT(c.id)             AS total_judul,
+                COUNT(DISTINCT c.catalog_id) AS total_judul,
+                COUNT(c.id)             AS total_eks,
                 COUNT(DISTINCT c.branch_id) AS jml_cabang
             FROM collections c
             LEFT JOIN branchs b ON b.id = c.branch_id
@@ -287,15 +319,17 @@ class RecordingPerformanceController extends Controller
         $rows = QueryAPI::get("
             SELECT
                 NVL(cm.name, '(Tidak ada media)') AS nama_media,
-                COUNT(c.id)                        AS total_judul
+                COUNT(DISTINCT c.catalog_id)       AS total_judul,
+                COUNT(c.id)                        AS total_eks
             FROM collections c
             LEFT JOIN branchs b ON b.id = c.branch_id
             LEFT JOIN collectionmedias cm ON cm.id = c.media_id
             WHERE c.createdate >= {$ds}
               AND c.createdate <  {$de}
+              AND {$this->mediaFisikSubquery()}
               {$whereProvince}
             GROUP BY cm.name
-            ORDER BY total_judul DESC
+            ORDER BY total_eks DESC
         ") ?? [];
 
         return is_array($rows) ? $rows : [$rows];
@@ -309,13 +343,14 @@ class RecordingPerformanceController extends Controller
             SELECT
                 NVL(b.name, '(Tidak diketahui)')        AS nama_cabang,
                 NVL(p.namapropinsi, '—')                 AS nama_propinsi,
-                COUNT(c.id)                              AS total_judul
+                COUNT(DISTINCT c.catalog_id)             AS total_judul,
+                COUNT(c.id)                              AS total_eks
             FROM collections c
             LEFT JOIN branchs b  ON b.id  = c.branch_id
             LEFT JOIN propinsi p ON p.id  = b.province_id
             WHERE {$where}
             GROUP BY b.name, p.namapropinsi
-            ORDER BY total_judul DESC
+            ORDER BY total_eks DESC
         ") ?? [];
 
         return is_array($rows) ? $rows : [$rows];
@@ -325,18 +360,24 @@ class RecordingPerformanceController extends Controller
     {
         $where = $this->baseWhere($start, $end, $mediaId, $provinceId);
 
+        // Tampilkan nama lengkap petugas; createby berisi username/NIP, jadi
+        // di-join ke USERS. Akun tanpa padanan di USERS (mis. akun non-staf)
+        // fallback ke username-nya sendiri.
         $rows = QueryAPI::get("
             SELECT
-                NVL(c.createby, '(tidak diketahui)')    AS petugas,
-                COUNT(c.id)                              AS total_judul,
+                NVL(MAX(u.fullname), NVL(c.createby, '(tidak diketahui)')) AS petugas,
+                NVL(c.createby, '(tidak diketahui)')     AS username,
+                COUNT(DISTINCT c.catalog_id)             AS total_judul,
+                COUNT(c.id)                              AS total_eks,
                 COUNT(DISTINCT TRUNC(c.createdate))      AS jml_hari,
                 ROUND(COUNT(c.id) /
                     NULLIF(COUNT(DISTINCT TRUNC(c.createdate)), 0), 1) AS rata2_hari
             FROM collections c
             LEFT JOIN branchs b ON b.id = c.branch_id
+            LEFT JOIN users u ON UPPER(u.username) = UPPER(c.createby)
             WHERE {$where}
             GROUP BY c.createby
-            ORDER BY total_judul DESC
+            ORDER BY total_eks DESC
         ") ?? [];
 
         return is_array($rows) ? $rows : [$rows];

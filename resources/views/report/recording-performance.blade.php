@@ -43,8 +43,12 @@
                     <select class="form-select" id="fMedia">
                         <option value="">Semua jenis media</option>
                         @foreach($medias as $m)
-                            @php $mId = is_array($m) ? ($m['id'] ?? $m['ID'] ?? '') : ($m->id ?? $m->ID ?? ''); $mName = is_array($m) ? ($m['name'] ?? $m['NAME'] ?? '') : ($m->name ?? $m->NAME ?? ''); @endphp
-                            <option value="{{ $mId }}">{{ $mName }}</option>
+                            @php
+                                $mId  = is_array($m) ? ($m['id'] ?? $m['ID'] ?? '') : ($m->id ?? $m->ID ?? '');
+                                $mName = is_array($m) ? ($m['name'] ?? $m['NAME'] ?? '') : ($m->name ?? $m->NAME ?? '');
+                                $mCat = is_array($m) ? ($m['category'] ?? $m['CATEGORY'] ?? '') : ($m->category ?? $m->CATEGORY ?? '');
+                            @endphp
+                            <option value="{{ $mId }}">{{ $mName }}{{ $mCat ? ' ('.$mCat.')' : '' }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -99,18 +103,29 @@
 
     {{-- ── Kartu ringkasan ─────────────────────────────────────────────────── --}}
     <div class="row g-3 mb-4 d-none" id="cardsSection">
-        <div class="col-md-3">
+        <div class="col-md-3 col-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2 text-muted mb-1">
-                        <i class="ph-books"></i><small>Total Judul Dicatat</small>
+                        <i class="ph-books"></i><small>Judul (katalog unik)</small>
                     </div>
                     <h3 class="mb-0 fw-semibold text-success" id="cTotal">—</h3>
-                    <small class="text-muted" id="cTotalSub">&nbsp;</small>
+                    <small class="text-muted">judul berbeda dicatat</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 text-muted mb-1">
+                        <i class="ph-stack"></i><small>Eksemplar (koleksi)</small>
+                    </div>
+                    <h3 class="mb-0 fw-semibold text-success" id="cEks">—</h3>
+                    <small class="text-muted">total eksemplar dicatat</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2 text-muted mb-1">
@@ -121,18 +136,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2 text-muted mb-1">
-                        <i class="ph-chart-line-up"></i><small>Rata-rata / Hari</small>
+                        <i class="ph-chart-line-up"></i><small>Rata-rata Eks / Hari</small>
                     </div>
                     <h3 class="mb-0 fw-semibold text-primary" id="cRata2">—</h3>
-                    <small class="text-muted">judul per hari aktif</small>
+                    <small class="text-muted">eksemplar per hari aktif</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2 text-muted mb-1">
@@ -173,9 +188,10 @@
                     <thead class="table-light">
                         <tr>
                             <th>Petugas</th>
-                            <th class="text-end">Total Judul</th>
+                            <th class="text-end">Judul</th>
+                            <th class="text-end">Eksemplar</th>
                             <th class="text-end">Hari Aktif</th>
-                            <th class="text-end">Rata-rata / Hari</th>
+                            <th class="text-end">Rata-rata Eks / Hari</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -203,7 +219,8 @@
                                 <tr>
                                     <th>Jenis Media</th>
                                     <th class="text-end">Judul</th>
-                                    <th style="width:120px">Proporsi</th>
+                                    <th class="text-end">Eksemplar</th>
+                                    <th style="width:110px">Proporsi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -230,6 +247,7 @@
                                     <th>Cabang</th>
                                     <th>Provinsi</th>
                                     <th class="text-end">Judul</th>
+                                    <th class="text-end">Eksemplar</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -363,7 +381,7 @@
     // ── Render cards ─────────────────────────────────────────────────────────
     function renderCards(r) {
         document.getElementById('cTotal').textContent   = num(r.total_judul);
-        document.getElementById('cTotalSub').textContent = (r.jml_hari ? r.jml_hari + ' hari aktif' : ' ');
+        document.getElementById('cEks').textContent      = num(r.total_eks);
         document.getElementById('cHari').textContent    = num(r.jml_hari);
         document.getElementById('cRata2').textContent   = num(r.rata2_hari);
         document.getElementById('cCabang').textContent  = num(r.jml_cabang);
@@ -372,7 +390,8 @@
     // ── Render chart ─────────────────────────────────────────────────────────
     function renderChart(rows) {
         var labels = rows.map(function (r) { return r.PERIODE || ''; });
-        var values = rows.map(function (r) { return r.TOTAL_JUDUL || 0; });
+        var judul  = rows.map(function (r) { return r.TOTAL_JUDUL || 0; });
+        var eks    = rows.map(function (r) { return r.TOTAL_EKS || 0; });
 
         var el = document.getElementById('trenChart');
         if (!trenChart) {
@@ -380,21 +399,32 @@
         }
         trenChart.setOption({
             tooltip: { trigger: 'axis' },
-            grid:    { left: 60, right: 20, top: 20, bottom: 60 },
+            legend:  { data: ['Judul', 'Eksemplar'], top: 0 },
+            grid:    { left: 60, right: 20, top: 30, bottom: 60 },
             xAxis: {
                 type: 'category',
                 data: labels,
                 axisLabel: { rotate: labels.length > 12 ? 45 : 0, fontSize: 11 },
             },
-            yAxis: { type: 'value', name: 'Judul' },
-            series: [{
-                name: 'Total Judul',
-                type: 'bar',
-                data: values,
-                itemStyle: { color: '#28a745' },
-                label: { show: values.length <= 24, position: 'top', fontSize: 10,
-                    formatter: function (p) { return p.value > 0 ? p.value.toLocaleString('id-ID') : ''; } },
-            }],
+            yAxis: { type: 'value' },
+            series: [
+                {
+                    name: 'Judul',
+                    type: 'bar',
+                    data: judul,
+                    itemStyle: { color: '#28a745' },
+                    label: { show: true, position: 'top', fontSize: 10,
+                        formatter: function (p) { return p.value > 0 ? p.value.toLocaleString('id-ID') : ''; } },
+                },
+                {
+                    name: 'Eksemplar',
+                    type: 'bar',
+                    data: eks,
+                    itemStyle: { color: '#0d6efd' },
+                    label: { show: true, position: 'top', fontSize: 10,
+                        formatter: function (p) { return p.value > 0 ? p.value.toLocaleString('id-ID') : ''; } },
+                },
+            ],
         });
     }
 
@@ -403,31 +433,34 @@
         var html = '';
         rows.forEach(function (r) {
             html += '<tr>' +
-                '<td class="fw-semibold"><i class="ph-user me-1 text-muted"></i>' + esc(r.PETUGAS) + '</td>' +
+                '<td class="fw-semibold"><i class="ph-user me-1 text-muted"></i>' + esc(r.PETUGAS) +
+                    (r.USERNAME && r.USERNAME !== r.PETUGAS ? '<br><small class="text-muted ms-4">' + esc(r.USERNAME) + '</small>' : '') + '</td>' +
                 '<td class="text-end">' + num(r.TOTAL_JUDUL) + '</td>' +
+                '<td class="text-end">' + num(r.TOTAL_EKS) + '</td>' +
                 '<td class="text-end">' + num(r.JML_HARI) + '</td>' +
                 '<td class="text-end text-primary fw-semibold">' + num(r.RATA2_HARI) + '</td>' +
                 '</tr>';
         });
         document.querySelector('#tblPetugas tbody').innerHTML = html ||
-            '<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada data histori pencatatan.</td></tr>';
+            '<tr><td colspan="5" class="text-center text-muted py-4">Tidak ada data histori pencatatan.</td></tr>';
     }
 
     // ── Render per media ─────────────────────────────────────────────────────
     function renderMedia(rows) {
-        var maxJudul = Math.max.apply(null, rows.map(function (r) { return r.TOTAL_JUDUL || 0; }).concat([1]));
+        var maxEks = Math.max.apply(null, rows.map(function (r) { return r.TOTAL_EKS || 0; }).concat([1]));
         var html = '';
         rows.forEach(function (r) {
-            var judul = r.TOTAL_JUDUL || 0;
-            var pct   = Math.round(judul / maxJudul * 100);
+            var eks = r.TOTAL_EKS || 0;
+            var pct = Math.round(eks / maxEks * 100);
             html += '<tr>' +
                 '<td class="fw-semibold">' + esc(r.NAMA_MEDIA) + '</td>' +
-                '<td class="text-end">' + num(judul) + '</td>' +
+                '<td class="text-end">' + num(r.TOTAL_JUDUL) + '</td>' +
+                '<td class="text-end">' + num(eks) + '</td>' +
                 '<td><div class="progress" style="height:8px;"><div class="progress-bar bg-success" style="width:' + pct + '%"></div></div></td>' +
                 '</tr>';
         });
         document.querySelector('#tblMedia tbody').innerHTML = html ||
-            '<tr><td colspan="3" class="text-center text-muted py-4">Tidak ada data.</td></tr>';
+            '<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada data.</td></tr>';
     }
 
     // ── Render per cabang ────────────────────────────────────────────────────
@@ -440,10 +473,11 @@
                 '<td class="fw-semibold">' + esc(r.NAMA_CABANG) + '</td>' +
                 '<td class="text-muted">' + esc(r.NAMA_PROPINSI) + '</td>' +
                 '<td class="text-end">' + num(r.TOTAL_JUDUL) + '</td>' +
+                '<td class="text-end">' + num(r.TOTAL_EKS) + '</td>' +
                 '</tr>';
         });
         el.innerHTML = html ||
-            '<tr><td colspan="3" class="text-center text-muted py-4">Tidak ada data.</td></tr>';
+            '<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada data.</td></tr>';
     }
 
     // ── Export ───────────────────────────────────────────────────────────────
