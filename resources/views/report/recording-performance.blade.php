@@ -76,6 +76,21 @@
                     </select>
                 </div>
                 @endif
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1">
+                        <i class="ph-user me-1 text-success"></i> Petugas
+                    </label>
+                    <select class="form-select" id="fUser">
+                        <option value="">Semua petugas</option>
+                        @foreach($petugas as $pg)
+                            @php
+                                $uName = is_array($pg) ? ($pg['username'] ?? $pg['USERNAME'] ?? '') : ($pg->username ?? $pg->USERNAME ?? '');
+                                $uFull = is_array($pg) ? ($pg['fullname'] ?? $pg['FULLNAME'] ?? '') : ($pg->fullname ?? $pg->FULLNAME ?? '');
+                            @endphp
+                            <option value="{{ $uName }}">{{ $uFull ? $uFull.' ('.$uName.')' : $uName }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-{{ Main::isPerpusnas() ? 12 : 2 }} d-flex gap-2 align-items-end">
                     <button class="btn btn-success px-4" id="btnLoad">
                         <i class="ph-magnifying-glass me-1"></i> Tampilkan
@@ -331,6 +346,7 @@
             media_id:    mediaId,
             granular:    granular,
             province_id: province,
+            user:        document.getElementById('fUser') ? document.getElementById('fUser').value : '',
         });
 
         fetch('{{ route("recording_performance.data") }}', {
@@ -493,6 +509,7 @@
             media_id:    document.getElementById('fMedia').value,
             granular:    document.getElementById('fGranular').value,
             province_id: document.getElementById('fProvince') ? document.getElementById('fProvince').value : '',
+            user:        document.getElementById('fUser') ? document.getElementById('fUser').value : '',
         });
         window.location = '{{ route("recording_performance.export") }}?' + params.toString();
     });

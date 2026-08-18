@@ -48,6 +48,21 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1">
+                        <i class="ph-user me-1 text-primary"></i> Validator
+                    </label>
+                    <select class="form-select" id="fUser">
+                        <option value="">Semua validator</option>
+                        @foreach($petugas as $pg)
+                            @php
+                                $uName = is_array($pg) ? ($pg['username'] ?? $pg['USERNAME'] ?? '') : ($pg->username ?? $pg->USERNAME ?? '');
+                                $uFull = is_array($pg) ? ($pg['fullname'] ?? $pg['FULLNAME'] ?? '') : ($pg->fullname ?? $pg->FULLNAME ?? '');
+                            @endphp
+                            <option value="{{ $uName }}">{{ $uFull ? $uFull.' ('.$uName.')' : $uName }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1">
                         <i class="ph-rows me-1 text-primary"></i> Tren per
@@ -239,7 +254,8 @@ $(function () {
             start:    $('#fStart').val(),
             end:      $('#fEnd').val(),
             media_id: $('#fMedia').val(),
-            granular: $('#fGranular').val()
+            granular: $('#fGranular').val(),
+            user:     $('#fUser').val()
         };
 
         if (!payload.start || !payload.end) { alertBox('warning', 'Isi rentang tanggalnya dulu.'); return; }
@@ -324,7 +340,8 @@ $(function () {
             start:    start,
             end:      end,
             media_id: $('#fMedia').val(),
-            granular: $('#fGranular').val()
+            granular: $('#fGranular').val(),
+            user:     $('#fUser').val()
         });
         window.location = '{{ route('validation_performance.export') }}?' + qs;
     });

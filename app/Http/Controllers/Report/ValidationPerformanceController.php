@@ -28,12 +28,23 @@ class ValidationPerformanceController extends Controller
     private const MIN_SAMPEL       = 5;    // jeda minimum agar median bermakna
     private const CACHE_TTL        = 600;  // 10 menit
 
+    // Filter validator (E_COLLECTIONS.VALIDATED_BY_NAME = username/NIP).
+    private ?string $userFilter = null;
+
+    private function userClause(): string
+    {
+        if (!$this->userFilter) return '';
+        $safe = str_replace("'", "''", $this->userFilter);
+        return " AND UPPER(C.VALIDATED_BY_NAME) = UPPER('{$safe}')";
+    }
+
     public function index()
     {
         return view('layouts.index', [
             'data' => [
                 'content' => 'report.validation-performance',
                 'medias'  => $this->fetchMedias(),
+                'petugas' => $this->fetchPetugas(),
                 'plugins' => ['daterangepicker'],
             ]
         ]);
@@ -53,6 +64,7 @@ class ValidationPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
         try {
             $payload = $this->buildPayload($start, $end, $mediaId, $granular);
@@ -92,6 +104,7 @@ class ValidationPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
         try {
             $payload = $this->buildPayload($start, $end, $mediaId, $granular);
@@ -135,7 +148,7 @@ class ValidationPerformanceController extends Controller
 
     private function buildPayload(string $start, string $end, ?int $mediaId, string $granular): array
     {
-        $cacheKey = 'valperf:' . md5("$start|$end|$mediaId|$granular");
+        $cacheKey = 'valperf:' . md5("$start|$end|$mediaId|$granular|{$this->userFilter}");
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular) {
             $conn = $this->getOracleConnection();
@@ -171,6 +184,7 @@ class ValidationPerformanceController extends Controller
               AND C.VALIDATED_AT <  TO_DATE('{$end}','YYYY-MM-DD') + 1
               AND C.VALIDATED_BY_NAME IS NOT NULL
               {$filterMedia}
+              {$this->userClause()}
         ";
     }
 
@@ -286,6 +300,7 @@ class ValidationPerformanceController extends Controller
                 WHERE C.VALIDATED_AT >= TO_DATE('{$start}','YYYY-MM-DD')
                   AND C.VALIDATED_AT <  TO_DATE('{$end}','YYYY-MM-DD') + 1
                   AND C.VALIDATED_BY_NAME IS NOT NULL
+                  {$this->userClause()}
             ) G
             JOIN COLLECTIONMEDIAS M ON M.ID = G.COLLECTION_MEDIA_ID
             WHERE G.JEDA IS NOT NULL
@@ -309,6 +324,35 @@ class ValidationPerformanceController extends Controller
                 GROUP BY M.ID, M.NAME
                 ORDER BY COUNT(C.ID) DESC
             ");
+        });
+    }
+
+    // ── Daftar validator untuk dropdown ──────────────────────────────────────
+
+    private function fetchPetugas(): array
+    {
+        return Cache::remember('valperf:petugas', 3600, function () {
+            $conn = $this->getOracleConnection();
+
+            // ORDER BY NVL(MAX(FULLNAME),USERNAME) memicu ORA-00935 (group
+            // function nested too deeply), jadi diurutkan di PHP.
+            $rows = $this->all($conn, "
+                SELECT USERNAME, MAX(FULLNAME) AS FULLNAME FROM (
+                    SELECT C.VALIDATED_BY_NAME AS USERNAME, U.FULLNAME
+                    FROM E_COLLECTIONS C
+                    LEFT JOIN USERS U ON UPPER(U.USERNAME) = UPPER(C.VALIDATED_BY_NAME)
+                    WHERE C.VALIDATED_BY_NAME IS NOT NULL
+                      AND C.VALIDATED_AT >= ADD_MONTHS(TRUNC(SYSDATE), -18)
+                )
+                GROUP BY USERNAME
+            ");
+
+            usort($rows, function ($a, $b) {
+                $ka = ($a['FULLNAME'] ?? $a['fullname'] ?? '') ?: ($a['USERNAME'] ?? $a['username'] ?? '');
+                $kb = ($b['FULLNAME'] ?? $b['fullname'] ?? '') ?: ($b['USERNAME'] ?? $b['username'] ?? '');
+                return strcasecmp((string) $ka, (string) $kb);
+            });
+            return $rows;
         });
     }
 

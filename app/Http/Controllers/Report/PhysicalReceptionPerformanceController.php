@@ -26,6 +26,16 @@ class PhysicalReceptionPerformanceController extends Controller
     private const STATUS_DITERIMA = "'DITERIMA PENUH','DITERIMA PARSIAL','DITERIMA'";
     private const CACHE_TTL       = 1800; // 30 menit (query berat, 124rb+ baris)
 
+    // Filter petugas penerima (lampiran_detail.received_by = username/NIP).
+    private ?string $userFilter = null;
+
+    private function userClause(): string
+    {
+        if (!$this->userFilter) return '';
+        $safe = str_replace("'", "''", $this->userFilter);
+        return " AND UPPER(ld.received_by) = UPPER('{$safe}')";
+    }
+
     // ── Index ────────────────────────────────────────────────────────────────
 
     public function index()
@@ -39,10 +49,32 @@ class PhysicalReceptionPerformanceController extends Controller
             ") ?? [];
         });
 
+        $petugas = Cache::remember('physrecperf:petugas', 3600, function () {
+            // ORDER BY dengan agregat ditolak lapisan API — diurutkan di PHP.
+            $rows = QueryAPI::get("
+                SELECT username, MAX(fullname) AS fullname FROM (
+                    SELECT ld.received_by AS username, u.fullname
+                    FROM letter_detail ld
+                    LEFT JOIN users u ON UPPER(u.username) = UPPER(ld.received_by)
+                    WHERE ld.received_by IS NOT NULL
+                      AND ld.received_date >= ADD_MONTHS(TRUNC(SYSDATE), -18)
+                )
+                GROUP BY username
+            ") ?? [];
+
+            usort($rows, function ($a, $b) {
+                $ka = ($a->FULLNAME ?? '') ?: ($a->USERNAME ?? '');
+                $kb = ($b->FULLNAME ?? '') ?: ($b->USERNAME ?? '');
+                return strcasecmp((string) $ka, (string) $kb);
+            });
+            return $rows;
+        });
+
         return view('layouts.index', [
             'data' => [
                 'content' => 'report.physical-reception-performance',
                 'medias'  => $medias,
+                'petugas' => $petugas,
                 'plugins' => ['daterangepicker', 'select2'],
             ]
         ]);
@@ -62,8 +94,9 @@ class PhysicalReceptionPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
-        $cacheKey = 'physrecperf_v2:' . md5("$start|$end|$mediaId|$granular|$provinceId|$tujuan");
+        $cacheKey = 'physrecperf_v2:' . md5("$start|$end|$mediaId|$granular|$provinceId|$tujuan|{$this->userFilter}");
 
         try {
             $payload = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular, $provinceId, $tujuan) {
@@ -101,6 +134,7 @@ class PhysicalReceptionPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
         try {
             $ringkasan  = $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan);
@@ -265,6 +299,7 @@ class PhysicalReceptionPerformanceController extends Controller
         if ($provinceId) {
             $where .= " AND b.province_id = {$provinceId}";
         }
+        $where .= $this->userClause();
 
         return $where;
     }

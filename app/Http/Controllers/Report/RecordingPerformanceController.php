@@ -31,6 +31,30 @@ class RecordingPerformanceController extends Controller
     // -> worksheets.id
     private const KATEGORI_FISIK = "('KC','KRA','KRD')";
 
+    // Filter petugas (username/NIP di collections.createby). Disimpan sebagai
+    // properti supaya tidak perlu diteruskan ke setiap method fetch; baseWhere
+    // dan fetchPerMedia membacanya langsung.
+    private ?string $userFilter = null;
+
+    private function userClause(): string
+    {
+        if (!$this->userFilter) return '';
+        $safe = str_replace("'", "''", $this->userFilter);
+        return " AND UPPER(c.createby) = UPPER('{$safe}')";
+    }
+
+    /** Urutkan daftar petugas by nama (fallback username) di PHP. */
+    private function sortPetugas(array $rows): array
+    {
+        $get = fn($r, $k) => is_array($r) ? ($r[$k] ?? $r[strtoupper($k)] ?? '') : ($r->$k ?? $r->{strtoupper($k)} ?? '');
+        usort($rows, function ($a, $b) use ($get) {
+            $ka = $get($a, 'fullname') ?: $get($a, 'username');
+            $kb = $get($b, 'fullname') ?: $get($b, 'username');
+            return strcasecmp((string) $ka, (string) $kb);
+        });
+        return $rows;
+    }
+
     private function mediaFisikSubquery(): string
     {
         return "c.media_id IN (
@@ -61,11 +85,28 @@ class RecordingPerformanceController extends Controller
             ORDER BY p.namapropinsi
         ") ?? [];
 
+        // Daftar petugas untuk filter: username/NIP yang pernah mencatat,
+        // dengan nama lengkap dari USERS bila ada.
+        // ORDER BY dengan agregat ditolak lapisan API, jadi diurutkan di PHP.
+        $petugas = QueryAPI::get("
+            SELECT createby AS username, MAX(fullname) AS fullname
+            FROM (
+                SELECT c.createby, u.fullname
+                FROM collections c
+                LEFT JOIN users u ON UPPER(u.username) = UPPER(c.createby)
+                WHERE c.createby IS NOT NULL
+                  AND c.createdate >= ADD_MONTHS(TRUNC(SYSDATE), -18)
+            )
+            GROUP BY createby
+        ") ?? [];
+        $petugas = $this->sortPetugas($petugas);
+
         return view('layouts.index', [
             'data' => [
                 'content'   => 'report.recording-performance',
                 'medias'    => $medias,
                 'provinces' => $provinces,
+                'petugas'   => $petugas,
                 'plugins'   => ['daterangepicker'],
             ]
         ]);
@@ -82,8 +123,9 @@ class RecordingPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular, $provinceId] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
-        $cacheKey = 'recperf_v2:' . md5("$start|$end|$mediaId|$granular|$provinceId");
+        $cacheKey = 'recperf_v2:' . md5("$start|$end|$mediaId|$granular|$provinceId|{$this->userFilter}");
 
         try {
             $payload = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($start, $end, $mediaId, $granular, $provinceId) {
@@ -122,6 +164,7 @@ class RecordingPerformanceController extends Controller
         ]);
 
         [$start, $end, $mediaId, $granular, $provinceId] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
 
         try {
             $ringkasan   = $this->fetchRingkasan($start, $end, $mediaId, $provinceId);
@@ -248,6 +291,7 @@ class RecordingPerformanceController extends Controller
 
         $where = "c.createdate >= {$ds} AND c.createdate < {$de}";
         $where .= " AND " . $this->mediaFisikSubquery();
+        $where .= $this->userClause();
 
         if ($mediaId)    $where .= " AND c.media_id = {$mediaId}";
         if ($provinceId) $where .= " AND b.province_id = {$provinceId}";
@@ -327,6 +371,7 @@ class RecordingPerformanceController extends Controller
             WHERE c.createdate >= {$ds}
               AND c.createdate <  {$de}
               AND {$this->mediaFisikSubquery()}
+              {$this->userClause()}
               {$whereProvince}
             GROUP BY cm.name
             ORDER BY total_eks DESC

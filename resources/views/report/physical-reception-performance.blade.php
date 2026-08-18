@@ -79,6 +79,21 @@
                     <select class="form-select" id="fProvince" data-placeholder="Semua Provinsi"></select>
                 </div>
                 @endif
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1">
+                        <i class="ph-user me-1 text-primary"></i> Petugas
+                    </label>
+                    <select class="form-select" id="fUser">
+                        <option value="">Semua petugas</option>
+                        @foreach($petugas as $pg)
+                            @php
+                                $uName = is_array($pg) ? ($pg['username'] ?? $pg['USERNAME'] ?? '') : ($pg->username ?? $pg->USERNAME ?? '');
+                                $uFull = is_array($pg) ? ($pg['fullname'] ?? $pg['FULLNAME'] ?? '') : ($pg->fullname ?? $pg->FULLNAME ?? '');
+                            @endphp
+                            <option value="{{ $uName }}">{{ $uFull ? $uFull.' ('.$uName.')' : $uName }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <button class="btn btn-primary w-100" id="btnLoad">
                         <i class="ph-magnifying-glass me-1"></i> Tampilkan
@@ -293,6 +308,7 @@
         const granular= document.getElementById('fGranular').value;
         const tujuan  = document.getElementById('fTujuan')?.value ?? '';
         const prov    = document.getElementById('fProvince')?.value ?? '';
+        const user    = document.getElementById('fUser')?.value ?? '';
 
         if (!start || !end) {
             Swal.fire('Perhatian', 'Isi rentang tanggal terlebih dahulu.', 'warning');
@@ -309,6 +325,7 @@
         if (mediaId)  params.set('media_id', mediaId);
         if (tujuan)   params.set('tujuan', tujuan);
         if (prov)     params.set('province_id', prov);
+        if (user)     params.set('user', user);
 
         fetch('{{ route("physical_reception_performance.data") }}', {
             method: 'POST',
