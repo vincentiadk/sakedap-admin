@@ -96,7 +96,10 @@
                         <i class="ph-magnifying-glass me-1"></i> Tampilkan
                     </button>
                     <a href="#" class="btn btn-outline-success btn-sm" id="btnExport" style="height:38px;line-height:26px;">
-                        <i class="ph-microsoft-excel-logo me-1"></i> Ekspor
+                        <i class="ph-microsoft-excel-logo me-1"></i> Excel
+                    </a>
+                    <a href="#" class="btn btn-outline-danger btn-sm" id="btnPdf" style="height:38px;line-height:26px;">
+                        <i class="ph-file-pdf me-1"></i> PDF
                     </a>
                 </div>
             </div>
@@ -512,6 +515,24 @@
             user:        document.getElementById('fUser') ? document.getElementById('fUser').value : '',
         });
         window.location = '{{ route("recording_performance.export") }}?' + params.toString();
+    });
+
+    // ── PDF ──────────────────────────────────────────────────────────────────
+    document.getElementById('btnPdf').addEventListener('click', function (e) {
+        e.preventDefault();
+        var start = document.getElementById('fStart').value;
+        var end   = document.getElementById('fEnd').value;
+        if (!start || !end) { alertBox('warning', 'Isi rentang tanggalnya dulu.'); return; }
+
+        var params = new URLSearchParams({
+            start:       start,
+            end:         end,
+            media_id:    document.getElementById('fMedia').value,
+            granular:    document.getElementById('fGranular').value,
+            province_id: document.getElementById('fProvince') ? document.getElementById('fProvince').value : '',
+            user:        document.getElementById('fUser') ? document.getElementById('fUser').value : '',
+        });
+        window.open('{{ route("recording_performance.pdf") }}?' + params.toString(), '_blank');
     });
 
     // ── Events ───────────────────────────────────────────────────────────────

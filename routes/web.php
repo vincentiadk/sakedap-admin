@@ -479,18 +479,21 @@ Route::middleware('authentication')->group(function () {
             Route::get('/',       'ValidationPerformanceController@index')->name('validation_performance.index');
             Route::post('data',   'ValidationPerformanceController@data')->name('validation_performance.data');
             Route::get('export',  'ValidationPerformanceController@export')->name('validation_performance.export');
+            Route::get('pdf',     'ValidationPerformanceController@pdf')->name('validation_performance.pdf');
         });
 
         Route::prefix('physical-reception-performance')->group(function () {
             Route::get('/',       'PhysicalReceptionPerformanceController@index')->name('physical_reception_performance.index');
             Route::post('data',   'PhysicalReceptionPerformanceController@data')->name('physical_reception_performance.data');
             Route::get('export',  'PhysicalReceptionPerformanceController@export')->name('physical_reception_performance.export');
+            Route::get('pdf',     'PhysicalReceptionPerformanceController@pdf')->name('physical_reception_performance.pdf');
         });
 
         Route::prefix('recording-performance')->group(function () {
             Route::get('/',       'RecordingPerformanceController@index')->name('recording_performance.index');
             Route::post('data',   'RecordingPerformanceController@data')->name('recording_performance.data');
             Route::get('export',  'RecordingPerformanceController@export')->name('recording_performance.export');
+            Route::get('pdf',     'RecordingPerformanceController@pdf')->name('recording_performance.pdf');
         });
     });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -41,6 +42,16 @@ class RecordingPerformanceController extends Controller
         if (!$this->userFilter) return '';
         $safe = str_replace("'", "''", $this->userFilter);
         return " AND UPPER(c.createby) = UPPER('{$safe}')";
+    }
+
+    /** Label filter petugas: "Nama (NIP)" bila ketemu, kalau tidak NIP saja. */
+    private function userLabel(string $kosong): string
+    {
+        if (!$this->userFilter) return $kosong;
+        $safe = str_replace("'", "''", $this->userFilter);
+        $u = QueryAPI::get("SELECT fullname FROM users WHERE UPPER(username) = UPPER('{$safe}')", true);
+        $nama = $u->FULLNAME ?? $u->fullname ?? null;
+        return $nama ? "{$nama} ({$this->userFilter})" : $this->userFilter;
     }
 
     /** Urutkan daftar petugas by nama (fallback username) di PHP. */
@@ -258,6 +269,76 @@ class RecordingPerformanceController extends Controller
             'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        $request->validate([
+            'start'       => 'required|date',
+            'end'         => 'required|date|after_or_equal:start',
+            'media_id'    => 'nullable|integer',
+            'granular'    => 'nullable|in:hari,bulan,tahun',
+            'province_id' => 'nullable|integer',
+        ]);
+
+        [$start, $end, $mediaId, $granular, $provinceId] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
+
+        try {
+            $r        = $this->fetchRingkasan($start, $end, $mediaId, $provinceId);
+            $tren     = $this->fetchTren($start, $end, $mediaId, $granular, $provinceId);
+            $media    = $this->fetchPerMedia($start, $end, $provinceId);
+            $cabang   = $this->fetchPerCabang($start, $end, $mediaId, $provinceId);
+            $petugas  = $this->fetchPerPetugas($start, $end, $mediaId, $provinceId);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menyiapkan PDF: ' . $e->getMessage());
+        }
+
+        $mediaLabel = 'Semua Jenis Media';
+        if ($mediaId) {
+            $found = collect($this->fetchMediasForLabel())->firstWhere('ID', $mediaId);
+            $mediaLabel = $found->NAME ?? "Media ID {$mediaId}";
+        }
+
+        $meta = [
+            'Periode'     => date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)),
+            'Jenis Media' => $mediaLabel,
+            'Petugas'     => $this->userLabel('Semua petugas'),
+        ];
+
+        $sections = [
+            ['title' => 'Ringkasan', 'type' => 'kv', 'rows' => [
+                ['Total Judul (katalog unik)', number_format((int) ($r['total_judul'] ?? 0), 0, ',', '.')],
+                ['Total Eksemplar (koleksi)',  number_format((int) ($r['total_eks'] ?? 0), 0, ',', '.')],
+                ['Hari Aktif',                 (int) ($r['jml_hari'] ?? 0)],
+                ['Rata-rata Eks / Hari',       $r['rata2_hari'] ?? 0],
+                ['Cabang Aktif',               (int) ($r['jml_cabang'] ?? 0)],
+            ]],
+            ['title' => 'Per Petugas', 'headers' => ['Petugas', 'Judul', 'Eksemplar', 'Hari', 'Rata-rata'], 'num' => [1, 2, 3, 4],
+                'rows' => array_map(fn($x) => [$x->PETUGAS ?? '-', $x->TOTAL_JUDUL ?? 0, $x->TOTAL_EKS ?? 0, $x->JML_HARI ?? 0, $x->RATA2_HARI ?? 0], $petugas)],
+            ['title' => 'Per Jenis Media', 'headers' => ['Media', 'Judul', 'Eksemplar'], 'num' => [1, 2],
+                'rows' => array_map(fn($x) => [$x->NAMA_MEDIA ?? '-', $x->TOTAL_JUDUL ?? 0, $x->TOTAL_EKS ?? 0], $media)],
+            ['title' => 'Per Cabang', 'headers' => ['Cabang', 'Provinsi', 'Judul', 'Eksemplar'], 'num' => [2, 3],
+                'rows' => array_map(fn($x) => [$x->NAMA_CABANG ?? '-', $x->NAMA_PROPINSI ?? '-', $x->TOTAL_JUDUL ?? 0, $x->TOTAL_EKS ?? 0], $cabang)],
+            ['title' => 'Tren per ' . ucfirst($granular), 'headers' => ['Periode', 'Judul', 'Eksemplar', 'Cabang'], 'num' => [1, 2, 3],
+                'rows' => array_map(fn($x) => [$x->PERIODE ?? '-', $x->TOTAL_JUDUL ?? 0, $x->TOTAL_EKS ?? 0, $x->JML_CABANG ?? 0], $tren)],
+        ];
+
+        $pdf = Pdf::loadView('pdf.report-kinerja', [
+            'title'    => 'Kinerja Pencatatan Koleksi Fisik',
+            'meta'     => $meta,
+            'sections' => $sections,
+        ])->setPaper('a4', 'portrait')->setWarnings(false);
+
+        return $pdf->stream('kinerja-pencatatan-' . $start . '-' . $end . '.pdf');
+    }
+
+    /** Daftar media untuk resolusi label (dipakai export & pdf). */
+    private function fetchMediasForLabel()
+    {
+        return QueryAPI::get("
+            SELECT cm.id AS ID, cm.name AS NAME FROM collectionmedias cm
+        ") ?? [];
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

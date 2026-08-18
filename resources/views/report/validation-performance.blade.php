@@ -82,6 +82,9 @@
                     <a href="#" class="btn btn-outline-success btn-sm" id="btnExport">
                         <i class="ph-microsoft-excel-logo me-1"></i> Unduh Excel
                     </a>
+                    <a href="#" class="btn btn-outline-danger btn-sm" id="btnPdf">
+                        <i class="ph-file-pdf me-1"></i> Unduh PDF
+                    </a>
                 </div>
             </div>
             <div id="pageAlert" class="mt-3"></div>
@@ -344,6 +347,21 @@ $(function () {
             user:     $('#fUser').val()
         });
         window.location = '{{ route('validation_performance.export') }}?' + qs;
+    });
+
+    $('#btnPdf').on('click', function (e) {
+        e.preventDefault();
+        var start = $('#fStart').val(), end = $('#fEnd').val();
+        if (!start || !end) { alertBox('warning', 'Isi rentang tanggalnya dulu.'); return; }
+
+        var qs = $.param({
+            start:    start,
+            end:      end,
+            media_id: $('#fMedia').val(),
+            granular: $('#fGranular').val(),
+            user:     $('#fUser').val()
+        });
+        window.open('{{ route('validation_performance.pdf') }}?' + qs, '_blank');
     });
 
     $('#btnLoad').on('click', load);

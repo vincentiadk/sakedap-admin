@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +35,16 @@ class PhysicalReceptionPerformanceController extends Controller
         if (!$this->userFilter) return '';
         $safe = str_replace("'", "''", $this->userFilter);
         return " AND UPPER(ld.received_by) = UPPER('{$safe}')";
+    }
+
+    /** Label filter petugas: "Nama (NIP)" bila ketemu, kalau tidak NIP saja. */
+    private function userLabel(string $kosong): string
+    {
+        if (!$this->userFilter) return $kosong;
+        $safe = str_replace("'", "''", $this->userFilter);
+        $u = QueryAPI::get("SELECT fullname FROM users WHERE UPPER(username) = UPPER('{$safe}')", true);
+        $nama = $u->FULLNAME ?? $u->fullname ?? null;
+        return $nama ? "{$nama} ({$this->userFilter})" : $this->userFilter;
     }
 
     // ── Index ────────────────────────────────────────────────────────────────
@@ -251,6 +262,65 @@ class PhysicalReceptionPerformanceController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control'       => 'no-store, no-cache',
         ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        $request->validate([
+            'start'       => 'required|date',
+            'end'         => 'required|date|after_or_equal:start',
+            'media_id'    => 'nullable|integer',
+            'granular'    => 'nullable|in:hari,bulan,tahun',
+            'province_id' => 'nullable|integer',
+        ]);
+
+        [$start, $end, $mediaId, $granular, $provinceId, $tujuan] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
+
+        try {
+            $rk      = $this->fetchRingkasan($start, $end, $mediaId, $provinceId, $tujuan);
+            $tren    = $this->fetchTren($start, $end, $mediaId, $granular, $provinceId, $tujuan);
+            $media   = $this->fetchPerMedia($start, $end, $provinceId, $tujuan);
+            $cabang  = $this->fetchPerCabang($start, $end, $mediaId, $provinceId, $tujuan);
+            $petugas = $this->fetchPerPetugas($start, $end, $mediaId, $provinceId, $tujuan);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menyiapkan PDF: ' . $e->getMessage());
+        }
+
+        $meta = [
+            'Periode' => date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)),
+            'Tujuan'  => $tujuan ? ucfirst($tujuan) : 'Semua tujuan',
+            'Petugas' => $this->userLabel('Semua petugas'),
+        ];
+
+        $n = fn($v) => number_format((int) $v, 0, ',', '.');
+
+        $sections = [
+            ['title' => 'Ringkasan', 'type' => 'kv', 'rows' => [
+                ['Total Surat Masuk',   $n($rk['total_surat']  ?? 0)],
+                ['Total Judul',         $n($rk['total_judul']  ?? 0)],
+                ['Total Copy Diterima', $n($rk['total_accept'] ?? 0)],
+                ['Total Copy Ditolak',  $n($rk['total_reject'] ?? 0)],
+                ['Total Hibah',         $n($rk['total_hibah']  ?? 0)],
+                ['Total Retur',         $n($rk['total_retur']  ?? 0)],
+            ]],
+            ['title' => 'Per Petugas', 'headers' => ['Petugas', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'], 'num' => [1, 2, 3, 4, 5],
+                'rows' => array_map(fn($r) => [$r['petugas'] ?? '-', $r['total_judul'] ?? 0, $r['total_accept'] ?? 0, $r['total_reject'] ?? 0, $r['total_hibah'] ?? 0, $r['total_retur'] ?? 0], $petugas)],
+            ['title' => 'Per Jenis Media', 'headers' => ['Media', 'Judul', 'Diterima', 'Ditolak', 'Hibah', 'Retur'], 'num' => [1, 2, 3, 4, 5],
+                'rows' => array_map(fn($r) => [$r['media'] ?? '-', $r['total_judul'] ?? 0, $r['total_accept'] ?? 0, $r['total_reject'] ?? 0, $r['total_hibah'] ?? 0, $r['total_retur'] ?? 0], $media)],
+            ['title' => 'Per Cabang', 'headers' => ['Cabang', 'Provinsi', 'Surat', 'Judul', 'Diterima', 'Ditolak'], 'num' => [2, 3, 4, 5],
+                'rows' => array_map(fn($r) => [$r['cabang'] ?? '-', $r['provinsi'] ?? '-', $r['total_surat'] ?? 0, $r['total_judul'] ?? 0, $r['total_accept'] ?? 0, $r['total_reject'] ?? 0], $cabang)],
+            ['title' => 'Tren per ' . ucfirst($granular), 'headers' => ['Periode', 'Surat', 'Judul', 'Diterima', 'Ditolak'], 'num' => [1, 2, 3, 4],
+                'rows' => array_map(fn($r) => [$r['periode'] ?? '-', $r['total_surat'] ?? 0, $r['total_judul'] ?? 0, $r['total_accept'] ?? 0, $r['total_reject'] ?? 0], $tren)],
+        ];
+
+        $pdf = Pdf::loadView('pdf.report-kinerja', [
+            'title'    => 'Kinerja Penerimaan Karya Fisik',
+            'meta'     => $meta,
+            'sections' => $sections,
+        ])->setPaper('a4', 'portrait')->setWarnings(false);
+
+        return $pdf->stream('kinerja-penerimaan-' . $start . '-' . $end . '.pdf');
     }
 
     // ── Query helpers ────────────────────────────────────────────────────────

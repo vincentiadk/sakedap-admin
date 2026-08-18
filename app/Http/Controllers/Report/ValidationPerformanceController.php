@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Helpers\QueryAPI;
 use App\Http\Controllers\Controller;
 use App\Traits\OracleHelper;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +38,16 @@ class ValidationPerformanceController extends Controller
         if (!$this->userFilter) return '';
         $safe = str_replace("'", "''", $this->userFilter);
         return " AND UPPER(C.VALIDATED_BY_NAME) = UPPER('{$safe}')";
+    }
+
+    /** Label filter petugas: "Nama (NIP)" bila ketemu, kalau tidak NIP saja. */
+    private function userLabel(string $kosong): string
+    {
+        if (!$this->userFilter) return $kosong;
+        $safe = str_replace("'", "''", $this->userFilter);
+        $u = QueryAPI::get("SELECT fullname FROM users WHERE UPPER(username) = UPPER('{$safe}')", true);
+        $nama = $u->FULLNAME ?? $u->fullname ?? null;
+        return $nama ? "{$nama} ({$this->userFilter})" : $this->userFilter;
     }
 
     public function index()
@@ -129,6 +141,63 @@ class ValidationPerformanceController extends Controller
         ];
 
         return $this->buildWorkbook($payload, $meta, $granular, $request);
+    }
+
+    public function pdf(Request $request)
+    {
+        $request->validate([
+            'start'    => 'required|date',
+            'end'      => 'required|date|after_or_equal:start',
+            'media_id' => 'nullable|integer',
+            'granular' => 'nullable|in:hari,bulan,tahun',
+        ]);
+
+        [$start, $end, $mediaId, $granular] = $this->resolveFilter($request);
+        $this->userFilter = $request->user ? trim((string) $request->user) : null;
+
+        try {
+            $payload = $this->buildPayload($start, $end, $mediaId, $granular);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menyiapkan PDF: ' . $e->getMessage());
+        }
+
+        $mediaLabel = 'Semua Jenis Media';
+        if ($mediaId) {
+            $found = collect($this->fetchMedias())->firstWhere('id', $mediaId);
+            $mediaLabel = $found['name'] ?? "Media ID {$mediaId}";
+        }
+
+        $r = $payload['ringkasan'];
+        $meta = [
+            'Periode'     => date('d/m/Y', strtotime($start)) . ' – ' . date('d/m/Y', strtotime($end)),
+            'Jenis Media' => $mediaLabel,
+            'Validator'   => $this->userLabel('Semua validator'),
+        ];
+
+        $sections = [
+            ['title' => 'Ringkasan', 'type' => 'kv', 'rows' => [
+                ['Total Validasi',                  number_format((int) ($r['total_validasi'] ?? 0), 0, ',', '.')],
+                ['Jumlah Validator',                (int) ($r['jml_validator'] ?? 0)],
+                ['Jumlah Hari Kerja',               (int) ($r['jml_hari'] ?? 0)],
+                ['Waktu Kerja / Koleksi (median)',  ($r['median_menit'] ?? '-') . ' menit'],
+                ['Waktu Tunggu (median, hari)',     $r['median_tunggu'] ?? '-'],
+                ['Koleksi Menunggu > 90 Hari',      number_format((int) ($r['diatas_90_hari'] ?? 0), 0, ',', '.')],
+            ]],
+            ['title' => 'Per Validator', 'headers' => ['Validator', 'NIP', 'Koleksi', 'Hari', 'Per Hari', 'Median (mnt)'], 'num' => [2, 3, 4, 5],
+                'rows' => array_map(fn($v) => [$v['validator'] ?? '-', $v['nip'] ?? '', $v['n_jeda'] ?? 0, $v['hari_kerja'] ?? 0, $v['per_hari'] ?? 0, $v['median_menit'] ?? '-'], $payload['validator'])],
+            ['title' => 'Tren per ' . ucfirst($granular), 'headers' => ['Periode', 'Koleksi', 'Validator', 'Median (mnt)'], 'num' => [1, 2, 3],
+                'rows' => array_map(fn($t) => [$t['periode'] ?? '-', $t['n_jeda'] ?? 0, $t['jml_validator'] ?? 0, $t['median_menit'] ?? '-'], $payload['tren'])],
+            ['title' => 'Per Jenis Media', 'headers' => ['Media', 'Koleksi', 'Validator', 'Median (mnt)'], 'num' => [1, 2, 3],
+                'rows' => array_map(fn($m) => [$m['media'] ?? '-', $m['n_jeda'] ?? 0, $m['jml_validator'] ?? 0, $m['median_menit'] ?? '-'], $payload['media'])],
+        ];
+
+        $pdf = Pdf::loadView('pdf.report-kinerja', [
+            'title'    => 'Kinerja Validasi Karya Digital',
+            'meta'     => $meta,
+            'sections' => $sections,
+        ])->setPaper('a4', 'portrait')->setWarnings(false);
+
+        return $pdf->stream('kinerja-validasi-' . $start . '-' . $end . '.pdf');
     }
 
     // ── Pembangun data bersama ───────────────────────────────────────────────
@@ -234,8 +303,11 @@ class ValidationPerformanceController extends Controller
         $minN   = self::MIN_SAMPEL;
         $jeda   = $this->jedaSubquery($start, $end, $mediaId);
 
+        // Nama validator dari USERS; kalau NIP tak punya padanan, tampilkan
+        // NIP-nya sendiri (jangan kosong). Join case-insensitive, konsisten
+        // dengan query lain.
         return $this->all($conn, "
-            SELECT U.FULLNAME                                                  AS VALIDATOR,
+            SELECT NVL(U.FULLNAME, G.VALIDATED_BY_NAME)                        AS VALIDATOR,
                    G.VALIDATED_BY_NAME                                         AS NIP,
                    COUNT(*)                                                    AS N_JEDA,
                    COUNT(DISTINCT G.HARI)                                      AS HARI_KERJA,
@@ -244,7 +316,7 @@ class ValidationPerformanceController extends Controller
                    SUM(CASE WHEN G.JEDA > {$ambang} THEN 1 ELSE 0 END)         AS JEDA_PANJANG,
                    SUM(CASE WHEN G.JEDA <= 1 THEN 1 ELSE 0 END)                AS JEDA_KILAT
             FROM ({$jeda}) G
-            LEFT JOIN USERS U ON U.USERNAME = G.VALIDATED_BY_NAME
+            LEFT JOIN USERS U ON UPPER(U.USERNAME) = UPPER(G.VALIDATED_BY_NAME)
             WHERE G.JEDA IS NOT NULL
             GROUP BY U.FULLNAME, G.VALIDATED_BY_NAME
             HAVING COUNT(*) >= {$minN}

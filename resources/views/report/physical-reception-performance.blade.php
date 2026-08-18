@@ -15,6 +15,10 @@
                    class="btn btn-sm btn-outline-primary d-none">
                     <i class="ph-microsoft-excel-logo me-1"></i> Unduh Excel
                 </a>
+                <a href="{{ route('physical_reception_performance.pdf') }}" id="btnPdf"
+                   class="btn btn-sm btn-outline-danger d-none" target="_blank">
+                    <i class="ph-file-pdf me-1"></i> Unduh PDF
+                </a>
             </div>
         </div>
     </div>
@@ -363,11 +367,15 @@
             // Resize chart setelah container visible (d-none → display block butuh 1 tick)
             setTimeout(() => trenChart && trenChart.resize(), 50);
 
-            // Build export URL
-            const exportUrl = '{{ route("physical_reception_performance.export") }}?' + params.toString();
+            // Build export URL (Excel & PDF pakai params yang sama)
+            const qs = params.toString();
             const exportBtn = document.getElementById('btnExport');
-            exportBtn.href  = exportUrl;
+            exportBtn.href  = '{{ route("physical_reception_performance.export") }}?' + qs;
             exportBtn.classList.remove('d-none');
+
+            const pdfBtn = document.getElementById('btnPdf');
+            pdfBtn.href = '{{ route("physical_reception_performance.pdf") }}?' + qs;
+            pdfBtn.classList.remove('d-none');
         })
         .catch(function(err) {
             Swal.fire('Gagal', err.message || 'Terjadi kesalahan saat memuat data.', 'error');
