@@ -137,6 +137,17 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 text-muted mb-1">
+                        <i class="ph-flag"></i><small>Ditandai Bermasalah</small>
+                    </div>
+                    <h3 class="mb-0 fw-semibold text-danger" id="cBermasalah">—</h3>
+                    <small class="text-muted">status "Bermasalah" pada rentang &amp; filter ini</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="alert alert-info border-0 d-flex align-items-start gap-2">
@@ -170,9 +181,10 @@
                                     <th class="text-end">Per Hari</th>
                                     <th class="text-end">Median</th>
                                     <th class="text-end" title="Jeda di bawah 1 menit — indikasi validasi berkelompok">&lt;1 mnt</th>
+                                    <th class="text-end text-danger" title="Koleksi yang ditandai status Bermasalah pada rentang ini">Bermasalah</th>
                                 </tr>
                             </thead>
-                            <tbody><tr><td colspan="6" class="text-center text-muted py-4">Klik tombol muat.</td></tr></tbody>
+                            <tbody><tr><td colspan="7" class="text-center text-muted py-4">Klik tombol muat.</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -197,9 +209,10 @@
                                     <th class="text-end">Koleksi</th>
                                     <th class="text-end">Validator</th>
                                     <th class="text-end">Median</th>
+                                    <th class="text-end text-danger">Bermasalah</th>
                                 </tr>
                             </thead>
-                            <tbody><tr><td colspan="4" class="text-center text-muted py-4">—</td></tr></tbody>
+                            <tbody><tr><td colspan="5" class="text-center text-muted py-4">—</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -285,6 +298,8 @@ $(function () {
                 $('#cTungguSub').text(r.diatas_90_hari
                     ? num(r.diatas_90_hari) + ' koleksi menunggu >90 hari' : ' ');
 
+                $('#cBermasalah').text(num(r.total_bermasalah));
+
                 $('#cValidator').text(num(r.jml_validator));
                 $('#cValidatorSub').text(r.jeda_kilat ? num(r.jeda_kilat) + ' jeda <1 menit' : ' ');
 
@@ -299,10 +314,11 @@ $(function () {
                         '<td class="text-end">' + num(v.per_hari) + '</td>' +
                         '<td class="text-end fw-semibold">' + mnt(v.median_menit) + '</td>' +
                         '<td class="text-end text-muted">' + num(v.jeda_kilat) + '</td>' +
+                        '<td class="text-end ' + (v.bermasalah ? 'text-danger fw-semibold' : 'text-muted') + '">' + num(v.bermasalah) + '</td>' +
                         '</tr>';
                 });
                 $('#tblValidator tbody').html(rows ||
-                    '<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data pada rentang ini.</td></tr>');
+                    '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data pada rentang ini.</td></tr>');
 
                 // Tren
                 rows = '';
@@ -310,10 +326,11 @@ $(function () {
                     rows += '<tr><td class="fw-semibold">' + esc(t.periode) + '</td>' +
                         '<td class="text-end">' + num(t.n_jeda) + '</td>' +
                         '<td class="text-end">' + num(t.jml_validator) + '</td>' +
-                        '<td class="text-end">' + mnt(t.median_menit) + '</td></tr>';
+                        '<td class="text-end">' + mnt(t.median_menit) + '</td>' +
+                        '<td class="text-end ' + (t.bermasalah ? 'text-danger fw-semibold' : 'text-muted') + '">' + num(t.bermasalah) + '</td></tr>';
                 });
                 $('#tblTren tbody').html(rows ||
-                    '<tr><td colspan="4" class="text-center text-muted py-4">—</td></tr>');
+                    '<tr><td colspan="5" class="text-center text-muted py-4">—</td></tr>');
 
                 // Per media
                 rows = '';

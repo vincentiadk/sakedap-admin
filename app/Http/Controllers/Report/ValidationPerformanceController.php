@@ -40,6 +40,20 @@ class ValidationPerformanceController extends Controller
         return " AND UPPER(C.VALIDATED_BY_NAME) = UPPER('{$safe}')";
     }
 
+    /**
+     * Filter validator untuk baris historydata "Bermasalah". Bukan cocokkan kolom
+     * biasa — nilai BARU "rejected_by_name" digali dari isi diff (lihat komentar di
+     * fetchRingkasan). Formatnya selalu " --> {nilai}<br/>" karena updated_at selalu
+     * ikut ditulis setelahnya oleh QueryAPI::update(), jadi aman diasumsikan ada "<".
+     * Case-sensitive (NIP/username biasanya konsisten hurufnya di seluruh sistem).
+     */
+    private function userClauseHistoryRejected(string $alias): string
+    {
+        if (!$this->userFilter) return '';
+        $safe = str_replace(["'", '%', '_'], ["''", '\%', '\_'], $this->userFilter);
+        return " AND {$alias}.NOTE LIKE '%rejected_by_name : %--> {$safe}<%' ESCAPE '\\'";
+    }
+
     /** Label filter petugas: "Nama (NIP)" bila ketemu, kalau tidak NIP saja. */
     private function userLabel(string $kosong): string
     {
@@ -177,16 +191,17 @@ class ValidationPerformanceController extends Controller
         $sections = [
             ['title' => 'Ringkasan', 'type' => 'kv', 'rows' => [
                 ['Total Validasi',                  number_format((int) ($r['total_validasi'] ?? 0), 0, ',', '.')],
+                ['Ditandai Bermasalah',             number_format((int) ($r['total_bermasalah'] ?? 0), 0, ',', '.')],
                 ['Jumlah Validator',                (int) ($r['jml_validator'] ?? 0)],
                 ['Jumlah Hari Kerja',               (int) ($r['jml_hari'] ?? 0)],
                 ['Waktu Kerja / Koleksi (median)',  ($r['median_menit'] ?? '-') . ' menit'],
                 ['Waktu Tunggu (median, hari)',     $r['median_tunggu'] ?? '-'],
                 ['Koleksi Menunggu > 90 Hari',      number_format((int) ($r['diatas_90_hari'] ?? 0), 0, ',', '.')],
             ]],
-            ['title' => 'Per Validator', 'headers' => ['Validator', 'NIP', 'Koleksi', 'Hari', 'Per Hari', 'Median (mnt)'], 'num' => [2, 3, 4, 5],
-                'rows' => array_map(fn($v) => [$v['validator'] ?? '-', $v['nip'] ?? '', $v['n_jeda'] ?? 0, $v['hari_kerja'] ?? 0, $v['per_hari'] ?? 0, $v['median_menit'] ?? '-'], $payload['validator'])],
-            ['title' => 'Tren per ' . ucfirst($granular), 'headers' => ['Periode', 'Koleksi', 'Validator', 'Median (mnt)'], 'num' => [1, 2, 3],
-                'rows' => array_map(fn($t) => [$t['periode'] ?? '-', $t['n_jeda'] ?? 0, $t['jml_validator'] ?? 0, $t['median_menit'] ?? '-'], $payload['tren'])],
+            ['title' => 'Per Validator', 'headers' => ['Validator', 'NIP', 'Koleksi', 'Hari', 'Per Hari', 'Median (mnt)', 'Bermasalah'], 'num' => [2, 3, 4, 5, 6],
+                'rows' => array_map(fn($v) => [$v['validator'] ?? '-', $v['nip'] ?? '', $v['n_jeda'] ?? 0, $v['hari_kerja'] ?? 0, $v['per_hari'] ?? 0, $v['median_menit'] ?? '-', $v['bermasalah'] ?? 0], $payload['validator'])],
+            ['title' => 'Tren per ' . ucfirst($granular), 'headers' => ['Periode', 'Koleksi', 'Validator', 'Median (mnt)', 'Bermasalah'], 'num' => [1, 2, 3, 4],
+                'rows' => array_map(fn($t) => [$t['periode'] ?? '-', $t['n_jeda'] ?? 0, $t['jml_validator'] ?? 0, $t['median_menit'] ?? '-', $t['bermasalah'] ?? 0], $payload['tren'])],
             ['title' => 'Per Jenis Media', 'headers' => ['Media', 'Koleksi', 'Validator', 'Median (mnt)'], 'num' => [1, 2, 3],
                 'rows' => array_map(fn($m) => [$m['media'] ?? '-', $m['n_jeda'] ?? 0, $m['jml_validator'] ?? 0, $m['median_menit'] ?? '-'], $payload['media'])],
         ];
@@ -292,7 +307,26 @@ class ValidationPerformanceController extends Controller
               {$filterMedia}
         ");
 
-        return array_merge($ringkasan, $tunggu);
+        // Koleksi yang ditandai "Bermasalah" (status=3). SENGAJA bukan dari
+        // E_COLLECTIONS.REJECTED_AT/REJECTED_BY_NAME — kolom itu cuma simpan nilai
+        // TERAKHIR, jadi kalau satu koleksi ditandai bermasalah oleh beberapa
+        // reviewer di waktu berbeda, cuma kejadian paling akhir yang kebaca dan
+        // kejadian2 sebelumnya hilang. `historydata` sifatnya append-only (satu baris
+        // per QueryAPI::update(), otomatis lewat flag issavehistory) jadi riwayat
+        // lengkapnya tetap ada. ACTIONBY di baris ini kosong (update via API generik),
+        // makanya "siapa"-nya digali dari isi diff-nya sendiri: "rejected_by_name : ... --> {user}".
+        $bermasalah = $this->one($conn, "
+            SELECT COUNT(*) AS TOTAL_BERMASALAH
+            FROM historydata H
+            " . ($mediaId ? "JOIN E_COLLECTIONS EC ON TO_CHAR(EC.ID) = H.IDREF AND EC.COLLECTION_MEDIA_ID = {$mediaId}" : '') . "
+            WHERE UPPER(H.TABLENAME) = 'E_COLLECTIONS'
+              AND H.ACTIONDATE >= TO_DATE('{$start}','YYYY-MM-DD')
+              AND H.ACTIONDATE <  TO_DATE('{$end}','YYYY-MM-DD') + 1
+              AND REGEXP_LIKE(H.NOTE, 'status : [0-9]+ *--> *3(<|\$)')
+              " . $this->userClauseHistoryRejected('H') . "
+        ");
+
+        return array_merge($ringkasan, $tunggu, $bermasalah);
     }
 
     // ── Panel 2: per validator ───────────────────────────────────────────────
@@ -312,7 +346,7 @@ class ValidationPerformanceController extends Controller
         // "Total Validasi" di fetchRingkasan(). Statistik yang benar-benar butuh
         // jeda (median, jeda panjang/kilat) tetap aman karena sudah dibungkus
         // CASE WHEN G.JEDA ... — otomatis melewatkan baris NULL tanpa perlu WHERE.
-        return $this->all($conn, "
+        $rows = $this->all($conn, "
             SELECT NVL(U.FULLNAME, G.VALIDATED_BY_NAME)                        AS VALIDATOR,
                    G.VALIDATED_BY_NAME                                         AS NIP,
                    COUNT(*)                                                    AS N_JEDA,
@@ -327,6 +361,78 @@ class ValidationPerformanceController extends Controller
             HAVING COUNT(G.JEDA) >= {$minN}
             ORDER BY COUNT(*) DESC
         ");
+
+        // Tempelkan hitungan "Bermasalah" per validator (cocokkan by NIP). Validator
+        // yang cuma punya penandaan bermasalah — nggak lolos ambang sampel jeda di
+        // atas, atau memang jarang menyetujui koleksi — tetap dimunculkan di baris
+        // tambahan, supaya tidak hilang dari laporan.
+        $bermasalahMap = $this->fetchBermasalahPerValidatorMap($conn, $start, $end, $mediaId);
+        $seenNip = [];
+        foreach ($rows as &$r) {
+            $nipKey = strtoupper((string) ($r['nip'] ?? ''));
+            $r['bermasalah'] = $bermasalahMap[$nipKey] ?? 0;
+            $seenNip[$nipKey] = true;
+        }
+        unset($r);
+
+        foreach ($bermasalahMap as $nipKey => $total) {
+            if ($nipKey === '' || isset($seenNip[$nipKey])) {
+                continue;
+            }
+            $rows[] = [
+                'validator'    => $nipKey,
+                'nip'          => $nipKey,
+                'n_jeda'       => 0,
+                'hari_kerja'   => 0,
+                'per_hari'     => 0,
+                'median_menit' => null,
+                'jeda_panjang' => 0,
+                'jeda_kilat'   => 0,
+                'bermasalah'   => $total,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Peta [NIP => jumlah] koleksi yang ditandai "Bermasalah" per validator, dari
+     * historydata (lihat komentar di fetchRingkasan soal kenapa bukan dari
+     * E_COLLECTIONS.REJECTED_BY_NAME). NIP digali dari nilai BARU pada diff
+     * "rejected_by_name : ... --> {NIP}" pakai REGEXP_SUBSTR dengan grup tangkap.
+     */
+    private function fetchBermasalahPerValidatorMap($conn, string $start, string $end, ?int $mediaId): array
+    {
+        $mediaJoin = $mediaId ? "JOIN E_COLLECTIONS EC ON TO_CHAR(EC.ID) = H.IDREF AND EC.COLLECTION_MEDIA_ID = {$mediaId}" : '';
+
+        // NOTE itu CLOB — REGEXP_SUBSTR atasnya ikut mewarisi tipe CLOB, dan Oracle
+        // tidak bisa GROUP BY/ORDER BY CLOB langsung (ORA-00932). Di-CAST ke
+        // VARCHAR2 dulu; NIP/username jauh di bawah 200 karakter jadi aman dipotong.
+        $nipExpr = "CAST(TRIM(REGEXP_SUBSTR(H.NOTE, 'rejected_by_name : [^<]*--> ([^<]*)', 1, 1, NULL, 1)) AS VARCHAR2(200))";
+
+        $rows = $this->all($conn, "
+            SELECT {$nipExpr} AS NIP,
+                   COUNT(*) AS TOTAL
+            FROM historydata H
+            {$mediaJoin}
+            WHERE UPPER(H.TABLENAME) = 'E_COLLECTIONS'
+              AND H.ACTIONDATE >= TO_DATE('{$start}','YYYY-MM-DD')
+              AND H.ACTIONDATE <  TO_DATE('{$end}','YYYY-MM-DD') + 1
+              AND REGEXP_LIKE(H.NOTE, 'status : [0-9]+ *--> *3(<|\$)')
+              {$this->userClauseHistoryRejected('H')}
+            GROUP BY {$nipExpr}
+        ");
+
+        $map = [];
+        foreach ($rows as $r) {
+            $nip = strtoupper((string) ($r['nip'] ?? ''));
+            if ($nip === '') {
+                continue;
+            }
+            $map[$nip] = (int) ($r['total'] ?? 0);
+        }
+
+        return $map;
     }
 
     // ── Panel 3: tren per periode ────────────────────────────────────────────
@@ -344,7 +450,7 @@ class ValidationPerformanceController extends Controller
 
         // Sama seperti fetchPerValidator() — tidak difilter WHERE JEDA IS NOT NULL,
         // supaya COUNT(*) konsisten dengan "Total Validasi" (lihat komentar di sana).
-        return $this->all($conn, "
+        $rows = $this->all($conn, "
             SELECT TO_CHAR(VALIDATED_AT, '{$format}')                          AS PERIODE,
                    COUNT(*)                                                    AS N_JEDA,
                    COUNT(DISTINCT VALIDATED_BY_NAME)                           AS JML_VALIDATOR,
@@ -354,6 +460,70 @@ class ValidationPerformanceController extends Controller
             GROUP BY TO_CHAR(VALIDATED_AT, '{$format}')
             ORDER BY 1
         ");
+
+        // Tempelkan hitungan "Bermasalah" per periode (cocokkan by periode). Periode
+        // yang cuma punya penandaan bermasalah (nggak ada validasi disetujui sama
+        // sekali hari/bulan itu) tetap dimunculkan sebagai baris tambahan.
+        $bermasalahMap = $this->fetchBermasalahPerPeriodeMap($conn, $start, $end, $mediaId, $format);
+        $seenPeriode = [];
+        foreach ($rows as &$r) {
+            $p = (string) ($r['periode'] ?? '');
+            $r['bermasalah'] = $bermasalahMap[$p] ?? 0;
+            $seenPeriode[$p] = true;
+        }
+        unset($r);
+
+        foreach ($bermasalahMap as $periode => $total) {
+            if ($periode === '' || isset($seenPeriode[$periode])) {
+                continue;
+            }
+            $rows[] = [
+                'periode'       => $periode,
+                'n_jeda'        => 0,
+                'jml_validator' => 0,
+                'jml_hari'      => 0,
+                'median_menit'  => null,
+                'bermasalah'    => $total,
+            ];
+        }
+        usort($rows, fn($a, $b) => strcmp((string) $a['periode'], (string) $b['periode']));
+
+        return $rows;
+    }
+
+    /**
+     * Peta [periode => jumlah] koleksi ditandai "Bermasalah", dikelompokkan
+     * dengan format tanggal yang sama dengan panel Tren (hari/bulan/tahun).
+     * Sama seperti fetchBermasalahPerValidatorMap(), tapi group by ACTIONDATE
+     * bukan NIP.
+     */
+    private function fetchBermasalahPerPeriodeMap($conn, string $start, string $end, ?int $mediaId, string $format): array
+    {
+        $mediaJoin = $mediaId ? "JOIN E_COLLECTIONS EC ON TO_CHAR(EC.ID) = H.IDREF AND EC.COLLECTION_MEDIA_ID = {$mediaId}" : '';
+
+        $rows = $this->all($conn, "
+            SELECT TO_CHAR(H.ACTIONDATE, '{$format}') AS PERIODE,
+                   COUNT(*) AS TOTAL
+            FROM historydata H
+            {$mediaJoin}
+            WHERE UPPER(H.TABLENAME) = 'E_COLLECTIONS'
+              AND H.ACTIONDATE >= TO_DATE('{$start}','YYYY-MM-DD')
+              AND H.ACTIONDATE <  TO_DATE('{$end}','YYYY-MM-DD') + 1
+              AND REGEXP_LIKE(H.NOTE, 'status : [0-9]+ *--> *3(<|\$)')
+              {$this->userClauseHistoryRejected('H')}
+            GROUP BY TO_CHAR(H.ACTIONDATE, '{$format}')
+        ");
+
+        $map = [];
+        foreach ($rows as $r) {
+            $p = (string) ($r['periode'] ?? '');
+            if ($p === '') {
+                continue;
+            }
+            $map[$p] = (int) ($r['total'] ?? 0);
+        }
+
+        return $map;
     }
 
     // ── Panel 4: per jenis media ─────────────────────────────────────────────
@@ -473,6 +643,7 @@ class ValidationPerformanceController extends Controller
         $row = $this->tulisJudul($s1, 'Kinerja Validasi Koleksi — Ringkasan', $meta, 2);
         $ringkasanRows = [
             ['Total validasi',                  (int) ($r['total_validasi'] ?? 0)],
+            ['Ditandai bermasalah',             (int) ($r['total_bermasalah'] ?? 0)],
             ['Jumlah validator',                (int) ($r['jml_validator'] ?? 0)],
             ['Jumlah hari kerja',               (int) ($r['jml_hari'] ?? 0)],
             ['Waktu kerja / koleksi (median)',  $this->menit($r['median_menit'] ?? null)],
@@ -494,7 +665,7 @@ class ValidationPerformanceController extends Controller
         // Sheet 2 — Per validator
         $this->sheetTabel(
             $spreadsheet, 'Per Validator', 'Kinerja per Validator', $meta,
-            ['Validator', 'NIP', 'Koleksi', 'Hari Kerja', 'Per Hari', 'Median (menit)', 'Jeda Panjang', 'Jeda < 1 mnt'],
+            ['Validator', 'NIP', 'Koleksi', 'Hari Kerja', 'Per Hari', 'Median (menit)', 'Jeda Panjang', 'Jeda < 1 mnt', 'Bermasalah'],
             array_map(fn($v) => [
                 $v['validator'] ?? '(tidak dikenal)',
                 (string) ($v['nip'] ?? ''),
@@ -504,22 +675,24 @@ class ValidationPerformanceController extends Controller
                 $v['median_menit'] ?? '-',
                 (int) ($v['jeda_panjang'] ?? 0),
                 (int) ($v['jeda_kilat'] ?? 0),
+                (int) ($v['bermasalah'] ?? 0),
             ], $payload['validator']),
-            [34, 20, 12, 12, 12, 15, 14, 14]
+            [34, 20, 12, 12, 12, 15, 14, 14, 14]
         );
 
         // Sheet 3 — Tren
         $this->sheetTabel(
             $spreadsheet, 'Tren', 'Tren per ' . ucfirst($granular), $meta,
-            ['Periode', 'Koleksi', 'Validator', 'Hari', 'Median (menit)'],
+            ['Periode', 'Koleksi', 'Validator', 'Hari', 'Median (menit)', 'Bermasalah'],
             array_map(fn($t) => [
                 $t['periode'] ?? '',
                 (int) ($t['n_jeda'] ?? 0),
                 (int) ($t['jml_validator'] ?? 0),
                 (int) ($t['jml_hari'] ?? 0),
                 $t['median_menit'] ?? '-',
+                (int) ($t['bermasalah'] ?? 0),
             ], $payload['tren']),
-            [16, 12, 14, 10, 15]
+            [16, 12, 14, 10, 15, 14]
         );
 
         // Sheet 4 — Per media
