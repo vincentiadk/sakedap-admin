@@ -115,11 +115,17 @@
                                 <textarea name="title" class="form-control" id="title" rows="5" placeholder="...................." {{ $kdtLock }}>{{ $collection->TITLE ?? $collection->TITLE_ORI }}</textarea>
                             </div>
                         </div>
+                        @php
+                            // Kode & jenisnya dikunci HANYA kalau dua-duanya sudah terisi
+                            // dari awal (data lama) — supaya tidak diubah sembarangan.
+                            // Kalau salah satu masih kosong, tetap bisa diisi admin.
+                            $codeLocked = trim((string) $collection->CODE_TYPE) !== '' && trim((string) $collection->CODE) !== '';
+                        @endphp
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Kode</label>
                             <div class="col-md-10">
                                 <div class="input-group">
-                                    <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" readonly>
+                                    <select class="form-select w-auto flex-grow-0" name="code_type" id="code_type" @if($codeLocked) disabled @endif>
                                         <option value="">Tidak Ada</option>
                                         <option value="1" {{ $collection->CODE_TYPE == 1 ? 'selected' : ''  }}>ISBN</option>
                                         <option value="2" {{ $collection->CODE_TYPE == 2 ? 'selected' : ''  }}>ISMN</option>
@@ -127,12 +133,24 @@
                                         <option value="4" {{ $collection->CODE_TYPE == 4 ? 'selected' : ''  }}>ISSN</option>
                                         <option value="5" {{ $collection->CODE_TYPE == 5 ? 'selected' : ''  }}>ISAN</option>
                                     </select>
-                                    <input type="text" class="form-control" name="code" id="code" value="{{ empty($collection->CODE) ? '-' : $collection->CODE }}" placeholder="...................." readonly>
+                                    @if($codeLocked)
+                                        {{-- select disabled tidak ikut ke-serialize(); nilainya
+                                             dititipkan lewat input tersembunyi ini supaya tetap terkirim. --}}
+                                        <input type="hidden" name="code_type" value="{{ $collection->CODE_TYPE }}">
+                                    @endif
+                                    <input type="text" class="form-control" name="code" id="code" value="{{ trim((string) $collection->CODE) }}" placeholder="Kosongkan jika tidak ada, mis. 1256-0987" @if($codeLocked) readonly @endif>
                                 </div>
                             </div>
                         </div>
-                        @if($collection->CODE_TYPE == 1)
-                        <div class="form-group row">
+                        {{--
+                            Tampil/sembunyi field ini diatur JS (lihat toggleIsbnStatusRow),
+                            bereaksi langsung ke perubahan dropdown Kode — TIDAK cuma dari
+                            kondisi saat halaman dimuat. Supaya begitu admin pilih "ISBN" dan
+                            isi kodenya, field Status ISBN langsung kelihatan tanpa reload.
+                            class d-none di sini cuma nilai awal (dihitung ulang oleh JS
+                            begitu halaman siap).
+                        --}}
+                        <div class="form-group row {{ $collection->CODE_TYPE == 1 ? '' : 'd-none' }}" id="isbn_status_row">
                             <label class="col-form-label col-md-2">
                                 Status ISBN <span class="text-danger fw-bold">*</span>
                                 @if($isbnDepositStatus === 'sesuai')
@@ -149,7 +167,6 @@
                                 </select>
                             </div>
                         </div>
-                        @endif
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Kota <span class="text-danger fw-bold">*</span></label>
                             <div class="col-md-10">
@@ -202,7 +219,10 @@
                         <div class="form-group row">
                             <label class="col-form-label col-md-2">Waktu Terbit</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal" {{ $kdtLock }}>
+                                {{-- SENGAJA tidak ikut $kdtLock: banyak data KDT lama tidak
+                                     menyertakan waktu terbit, jadi admin tetap harus bisa
+                                     mengisinya manual walau KDT-nya sudah tervalidasi. --}}
+                                <input type="text" class="form-control" name="publish_time" id="publish_time" value="{{ ($collection->PUBLICATION_DAY && $collection->PUBLICATION_MONTH && $collection->PUBLICATION_YEAR) ? $collection->PUBLICATION_YEAR . '/' . $collection->PUBLICATION_MONTH . '/' . $collection->PUBLICATION_DAY : '' }}" placeholder="Pilih Tanggal">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -527,6 +547,16 @@
             tags: true,
             tokenSeparators: [';']
         });
+
+        // Status ISBN muncul begitu tipe kode "ISBN" dipilih — tidak perlu
+        // simpan+reload dulu buat lihat/isi field ini. Tetap ditampilkan walau
+        // nomor kodenya belum diisi (biar admin bisa isi kode & status sekalian);
+        // wajib-diisi-nya baru dicek pas submit (lihat fungsi submitted()).
+        function toggleIsbnStatusRow() {
+            $('#isbn_status_row').toggleClass('d-none', $('#code_type').val() !== '1');
+        }
+        $('#code_type').on('change', toggleIsbnStatusRow);
+        toggleIsbnStatusRow();
     });
 
     $(document).ready(function() {
@@ -1185,13 +1215,14 @@
     }
 
     function submitted(param) {
-        @if($collection->CODE_TYPE == 1)
-        if (param !== 'cancel-review' && !$('#isbn_deposit_status').val()) {
+        // Dicek dari nilai form SAAT INI (bukan kondisi saat halaman dimuat) —
+        // supaya kode ISBN yang baru diisi di form ini pun ikut kena wajib isi.
+        var isIsbnWithCode = $('#code_type').val() === '1' && $('#code').val().trim() !== '';
+        if (param !== 'cancel-review' && isIsbnWithCode && !$('#isbn_deposit_status').val()) {
             showValidation(['Status ISBN wajib diisi sebelum menyimpan.']);
             $('.btn-to-top button').click();
             return;
         }
-        @endif
 
         $.ajax({
             url: '{{ url("digital-storage-handover/review/detail/" . $collection->ID) }}?param=' + param,

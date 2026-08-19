@@ -581,6 +581,17 @@ class ReviewController extends Controller
                 ]);
             }
 
+            // "-" adalah placeholder tampilan lama, bukan nilai kode sungguhan —
+            // kalau admin kirim itu (belum sempat diganti), perlakukan sebagai kosong.
+            // Dihitung di sini (bukan cuma dari $collection lama) supaya kode ISBN
+            // yang BARU DIISI di submission ini juga langsung kena syarat Status ISBN,
+            // bukan cuma kode yang sudah tersimpan dari sebelumnya.
+            $codeInput = trim((string) ($request->code ?? ''));
+            if ($codeInput === '-') {
+                $codeInput = '';
+            }
+            $isIsbnWithCode = $request->code_type === '1' && $codeInput !== '';
+
             if (in_array($request->status, [3, 5])) {
                 $validation = Validator::make($request->all(), [
                     'status' => 'required',
@@ -603,7 +614,7 @@ class ReviewController extends Controller
                     'received_at.required'         => 'Tanggal terima tidak boleh kosong',
                 ];
 
-                if ($collection->CODE_TYPE === '1') {
+                if ($isIsbnWithCode) {
                     $rules['isbn_deposit_status']              = 'required|in:sesuai,tidak_sesuai';
                     $messages['isbn_deposit_status.required']  = 'Status ISBN wajib diisi';
                     $messages['isbn_deposit_status.in']        = 'Status ISBN tidak valid';
@@ -630,9 +641,13 @@ class ReviewController extends Controller
                     $publishTs      = $request->filled('publish_time') ? strtotime($request->publish_time) : null;
                     $editionDateVal = $request->filled('edition_date') ? date('Y-m-d H:i:s', strtotime($request->edition_date)) : null;
 
+                    // $codeInput sudah dihitung sebelum blok validasi di atas.
+
                     $updateData = [
                         'city_id' => $request->city_id,
                         'title_ori' => $request->title,
+                        'code' => $codeInput !== '' ? $codeInput : null,
+                        'code_type' => $request->filled('code_type') ? $request->code_type : null,
                         'album' => $request->album,
                         'slug' => Str::slug($request->title, '-'),
                         'series' => $request->series,
@@ -712,9 +727,12 @@ class ReviewController extends Controller
                         }
                     }
 
-                    // Simpan status deposit ISBN jika koleksi ber-ISBN dan ada nilai yang dikirim
-                    if ((int) $collection->CODE_TYPE === 1 && $request->filled('isbn_deposit_status')) {
-                        $isbnNoSave = trim(preg_replace('/[\s\-]/', '', $collection->CODE ?? ''));
+                    // Simpan status deposit ISBN jika koleksi ber-ISBN dan ada nilai yang dikirim.
+                    // Pakai kode yang BARU DISUBMIT ($codeInput), bukan $collection->CODE yang
+                    // lama — supaya ISBN yang baru saja diisi di form ini ikut kesimpan juga,
+                    // bukan cuma yang sudah ada dari sebelumnya.
+                    if ($request->code_type === '1' && $request->filled('isbn_deposit_status')) {
+                        $isbnNoSave = trim(preg_replace('/[\s\-]/', '', $codeInput));
                         if ($isbnNoSave) {
                             $piRow = QueryAPI::get("
                                 select id from penerbit_isbn
