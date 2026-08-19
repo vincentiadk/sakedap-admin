@@ -306,6 +306,12 @@ class ValidationPerformanceController extends Controller
         // Nama validator dari USERS; kalau NIP tak punya padanan, tampilkan
         // NIP-nya sendiri (jangan kosong). Join case-insensitive, konsisten
         // dengan query lain.
+        // SENGAJA tidak "WHERE G.JEDA IS NOT NULL" di sini — itu akan membuang
+        // validasi PERTAMA tiap validator per hari (baris itu memang tidak punya
+        // jeda-sebelumnya buat dihitung), bikin COUNT(*) di sini beda dari kartu
+        // "Total Validasi" di fetchRingkasan(). Statistik yang benar-benar butuh
+        // jeda (median, jeda panjang/kilat) tetap aman karena sudah dibungkus
+        // CASE WHEN G.JEDA ... — otomatis melewatkan baris NULL tanpa perlu WHERE.
         return $this->all($conn, "
             SELECT NVL(U.FULLNAME, G.VALIDATED_BY_NAME)                        AS VALIDATOR,
                    G.VALIDATED_BY_NAME                                         AS NIP,
@@ -317,9 +323,8 @@ class ValidationPerformanceController extends Controller
                    SUM(CASE WHEN G.JEDA <= 1 THEN 1 ELSE 0 END)                AS JEDA_KILAT
             FROM ({$jeda}) G
             LEFT JOIN USERS U ON UPPER(U.USERNAME) = UPPER(G.VALIDATED_BY_NAME)
-            WHERE G.JEDA IS NOT NULL
             GROUP BY U.FULLNAME, G.VALIDATED_BY_NAME
-            HAVING COUNT(*) >= {$minN}
+            HAVING COUNT(G.JEDA) >= {$minN}
             ORDER BY COUNT(*) DESC
         ");
     }
@@ -337,6 +342,8 @@ class ValidationPerformanceController extends Controller
             default => 'YYYY-MM',
         };
 
+        // Sama seperti fetchPerValidator() — tidak difilter WHERE JEDA IS NOT NULL,
+        // supaya COUNT(*) konsisten dengan "Total Validasi" (lihat komentar di sana).
         return $this->all($conn, "
             SELECT TO_CHAR(VALIDATED_AT, '{$format}')                          AS PERIODE,
                    COUNT(*)                                                    AS N_JEDA,
@@ -344,7 +351,6 @@ class ValidationPerformanceController extends Controller
                    COUNT(DISTINCT HARI)                                        AS JML_HARI,
                    ROUND(MEDIAN(CASE WHEN JEDA <= {$ambang} THEN JEDA END), 1) AS MEDIAN_MENIT
             FROM ({$jeda})
-            WHERE JEDA IS NOT NULL
             GROUP BY TO_CHAR(VALIDATED_AT, '{$format}')
             ORDER BY 1
         ");
@@ -356,6 +362,8 @@ class ValidationPerformanceController extends Controller
     {
         $ambang = self::AMBANG_ISTIRAHAT;
 
+        // Sama seperti fetchPerValidator()/fetchTren() — tidak difilter
+        // WHERE JEDA IS NOT NULL, supaya COUNT(*) konsisten dengan "Total Validasi".
         return $this->all($conn, "
             SELECT M.ID                                                        AS MEDIA_ID,
                    M.NAME                                                      AS MEDIA,
@@ -375,7 +383,6 @@ class ValidationPerformanceController extends Controller
                   {$this->userClause()}
             ) G
             JOIN COLLECTIONMEDIAS M ON M.ID = G.COLLECTION_MEDIA_ID
-            WHERE G.JEDA IS NOT NULL
             GROUP BY M.ID, M.NAME
             ORDER BY COUNT(*) DESC
         ");
