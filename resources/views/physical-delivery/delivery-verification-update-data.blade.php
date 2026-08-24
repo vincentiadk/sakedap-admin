@@ -454,6 +454,34 @@
                                                     <div class="manual-input-{{ $randStr }}" style="display:{{ ($cp->CATALOG_ID ?: '') ? 'none' : '' }}">
                                                         <label class="form-label">Judul Terbitan Berkala <span class="text-danger">*</span></label>
                                                         <input type="text" class="form-control cp_manual_title_{{ $randStr }}" name="cp_manual_title[]" placeholder="Masukkan judul terbitan berkala" value="{{ $cp->TITLE }}" {{ $receivedBy ? 'readonly' : '' }}>
+                                                        <div class="row g-2 mt-1">
+                                                            <div class="col-lg-6">
+                                                                <label class="form-label">ISSN</label>
+                                                                <input type="text" class="form-control" name="cp_issn[]" placeholder="mis. 1234-5678" value="{{ $cp->ISSN }}" {{ $receivedBy ? 'readonly' : '' }}>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <label class="form-label">
+                                                                    <i class="ph-file me-1"></i>Jenis Media
+                                                                </label>
+                                                                <select class="form-select select2-basic" name="cp_media_type[]" {{ $receivedBy ? 'disabled' : '' }}>
+                                                                    <option value="">-- Pilih Jenis --</option>
+                                                                    @foreach($media as $m)
+                                                                        <option value="{{ $m->NAME }}" {{ strtoupper($cp->JENIS_MEDIA ?? '') === strtoupper($m->NAME) ? 'selected' : '' }}>{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <label class="form-label">
+                                                                    <i class="ph-repeat me-1"></i>Kala Terbit
+                                                                </label>
+                                                                <select class="form-select select2-basic" name="cp_kala_terbit[]" {{ $receivedBy ? 'disabled' : '' }}>
+                                                                    <option value="">-- Pilih Kala Terbit --</option>
+                                                                    @foreach(['Harian','Mingguan','Bulanan','3 Bulan Sekali','4 Bulan Sekali','6 Bulan Sekali','Tahunan','2 Tahun Sekali','3 Tahun Sekali'] as $kt)
+                                                                        <option value="{{ $kt }}" {{ strtoupper($cp->KALA_TERBIT ?? '') === strtoupper($kt) ? 'selected' : '' }}>{{ $kt }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="border rounded p-3 mt-3 bg-light">
                                                         <div class="row g-3">
@@ -1068,6 +1096,34 @@
                                 <div class="manual-input-${randStr}" style="display: none;">
                                     <label class="form-label">Judul Terbitan Berkala <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control cp_manual_title_${randStr}" name="cp_manual_title[]" placeholder="Masukkan judul terbitan berkala">
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-lg-6">
+                                            <label class="form-label">ISSN</label>
+                                            <input type="text" class="form-control" name="cp_issn[]" placeholder="mis. 1234-5678">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="form-label">
+                                                <i class="ph-file me-1"></i>Jenis Media
+                                            </label>
+                                            <select class="form-select select2-basic" name="cp_media_type[]">
+                                                <option value="">-- Pilih Jenis --</option>
+                                                @foreach($media as $m)
+                                                    <option value="{{ $m->NAME }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="form-label">
+                                                <i class="ph-repeat me-1"></i>Kala Terbit
+                                            </label>
+                                            <select class="form-select select2-basic" name="cp_kala_terbit[]">
+                                                <option value="">-- Pilih Kala Terbit --</option>
+                                                @foreach(['Harian','Mingguan','Bulanan','3 Bulan Sekali','4 Bulan Sekali','6 Bulan Sekali','Tahunan','2 Tahun Sekali','3 Tahun Sekali'] as $kt)
+                                                    <option value="{{ $kt }}">{{ $kt }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="border rounded p-3 mt-3 bg-light">
                                     <div class="row g-3">
@@ -1116,6 +1172,9 @@
             $('.catalog-input-' + randStr).slideDown();
             $('.manual-input-' + randStr).slideUp();
             $('.cp_manual_title_' + randStr).val('');
+            $('.manual-input-' + randStr + ' input[name="cp_issn[]"]').val('');
+            $('.manual-input-' + randStr + ' select[name="cp_media_type[]"]').val('').trigger('change');
+            $('.manual-input-' + randStr + ' select[name="cp_kala_terbit[]"]').val('').trigger('change');
         } else {
             $('.catalog-input-' + randStr).slideUp();
             $('.manual-input-' + randStr).slideDown();

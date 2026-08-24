@@ -5,7 +5,6 @@ namespace App\Http\Controllers\PhysicalDelivery;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
-use App\Helpers\RajaOngkir;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -192,10 +191,13 @@ class CreateReceiptController extends Controller
                         $receiptNumber = 'LSG' . date('YmdHis');
                     }
 
-                    if (QueryAPI::get("select LETTER_ID from letter where receipt_no = '$receiptNumber'", true)) {
+                    // Dicek kombinasi resi + jasa kirim, bukan resi doang — nomor resi
+                    // dari kurir berbeda bisa kebetulan sama (mis. dua-duanya "123456").
+                    $receiptNumberSafe = str_replace("'", "''", $receiptNumber);
+                    if (QueryAPI::get("select LETTER_ID from letter where receipt_no = '$receiptNumberSafe' and jasa_pengiriman_id = " . (int) $deliveryServiceId, true)) {
                         return response()->json([
                             'code' => 400,
-                            'error' => ['Resi telah terdaftar pada sistem']
+                            'error' => ['Resi ini sudah terdaftar untuk jasa kirim yang sama']
                         ]);
                     }
 
@@ -214,26 +216,13 @@ class CreateReceiptController extends Controller
                     $cacheDuration = 60;
 
                     $weight = 0;
+                    // Tanggal resi (waybill_date) TIDAK dicek real-time ke RajaOngkir lagi
+                    // di sini — API-nya bisa lambat/timeout (10 detik) dan bikin proses
+                    // simpan kerasa ngehang. Nilainya diisi tanggal sekarang dulu, lalu
+                    // dikoreksi belakangan oleh job terjadwal (lihat SyncWaybillDate).
                     $letterDate = $now;
                     $status = 'DITERIMA PENUH';
                     $totalPackage = 0;
-
-                    if ($deliveryServiceId != 1) {
-                        $awbQueryParam = http_build_query([
-                            'awb' => $receiptNumber,
-                            'courier' => $deliveryService->CODE ?? null
-                        ]);
-
-                        $awb = RajaOngkir::post('track/waybill?' . $awbQueryParam);
-
-                        if ($awb && isset($awb->details->waybill_date)) {
-                            $rawDate = $awb->details->waybill_date . ' ' . ($awb->details->waybill_time ?? '00:00:00');
-                            $parsed = strtotime($rawDate);
-                            $letterDate = $parsed ? date('Y-m-d H:i:s', $parsed) : $now;
-                        } else {
-                            $letterDate = $now;
-                        }
-                    }
 
                     $auditData = [
                         'create_date' => $now,
@@ -250,6 +239,7 @@ class CreateReceiptController extends Controller
                         'letter_number' => $request->cover_letter_number,
                         'accept_date' => $request->accept_date . ' ' . date('H:i:s', strtotime($now)),
                         'sender' => $request->sender_name,
+                        'phone' => $request->phone,
                         'is_printed' => $request->param == 'save-print' ? 1 : 0,
                         'publisher_id' => $request->executor_id,
                         'is_sendedemail' => $request->param == 'save-send-email' ? 1 : 0,
@@ -266,7 +256,19 @@ class CreateReceiptController extends Controller
 
                     $letter = QueryAPI::create('letter', $letterData, false);
                     $executorId = (int) $request->executor_id;
-                    $letterExecutor = QueryAPI::get("select * from penerbit where id = $executorId", true);
+                    // Join kabupaten sekalian — dipakai buat isi publisher_city/publisher_address
+                    // koleksi terbitan berkala yang tidak pakai katalog (lihat blok cp di bawah).
+                    $letterExecutor = QueryAPI::get("
+                        select
+                            penerbit.*,
+                            kabupaten.namakab as namakab
+                        from
+                            penerbit
+                        left join
+                            kabupaten on kabupaten.id = penerbit.city_id
+                        where
+                            penerbit.id = $executorId
+                    ", true);
 
                     if (!$letter) {
                         return response()->json([
@@ -359,7 +361,7 @@ class CreateReceiptController extends Controller
                                 'received_date' => $now,
                                 'checked' => 1,
                             ];
-
+                            
                             $letterDetail = QueryAPI::create('letter_detail', $letterDetailData, false);
 
                             if ($qtyAccept > 0) {
@@ -482,6 +484,27 @@ class CreateReceiptController extends Controller
                             $catalogId = isset($request->cp_catalog_id[$key]) ? $request->cp_catalog_id[$key] : null;
                             $manualTitle = isset($request->cp_manual_title[$key]) ? $request->cp_manual_title[$key] : null;
 
+                            // ISSN & Jenis Media diisi SEKALI per judul (bukan per edisi) —
+                            // cuma relevan waktu tidak pakai katalog dari database, karena
+                            // katalog sudah punya data itu sendiri. Diterapkan ke SEMUA baris
+                            // edisi (cpe) di bawah judul ini.
+                            //
+                            // PENTING: simpan ke kolom ISSN, JANGAN ke kolom ISBN — kolom ISBN
+                            // dipakai DeliveryVerificationController::index() buat memutuskan
+                            // baris ini masuk tab "Koleksi ISBN" atau "Terbitan Berkala" waktu
+                            // tanda terima ini dibuka lagi buat diedit (isbn diisi -> selalu
+                            // dianggap ISBN, edisi_serial/TTES tidak pernah dicek).
+                            $issn = isset($request->cp_issn[$key]) ? trim((string) $request->cp_issn[$key]) : null;
+                            $kalaTerbit = isset($request->cp_kala_terbit[$key]) ? trim((string) $request->cp_kala_terbit[$key]) : null;
+                            $mediaName = strtoupper(trim((string) ($request->cp_media_type[$key] ?? '')));
+                            $manualMedia = null;
+
+                            if ($mediaName) {
+                                $manualMedia = Cache::remember('collectionmedias:' . $mediaName, $cacheDuration, function () use ($mediaName) {
+                                    return QueryAPI::get("select * from collectionmedias where upper(name) = '$mediaName'", true);
+                                });
+                            }
+
                             if (!isset($request->cpe[$key]) || !is_array($request->cpe[$key])) {
                                 continue;
                             }
@@ -540,9 +563,15 @@ class CreateReceiptController extends Controller
                                     'letter_id' => $letter->LETTER_ID ?? null,
                                     'author' => $catalog->AUTHOR ?? null,
                                     'publisher' => $catalog->NAME_PENERBIT ?? ($letterExecutor->NAME ?? null),
-                                    'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
-                                    'publish_year' => $catalog->PUBLISHYEAR ?? null,
-                                    'publisher_city' => $catalog->NAMAKAB ?? null,
+                                    // Kalau tidak pakai katalog, alamat/kota diambil dari data
+                                    // Pelaksana Serah (penerbit yang dipilih di form) — bukan
+                                    // dibiarkan kosong.
+                                    'publisher_address' => $catalog->ALAMAT_PENERBIT ?? ($letterExecutor->ALAMAT ?? null),
+                                    // Tahun terbit diambil dari TTES Awal edisi ini (per-edisi,
+                                    // karena tiap edisi terbitan berkala bisa beda tahun) kalau
+                                    // tidak ada data katalog.
+                                    'publish_year' => $catalog->PUBLISHYEAR ?? ($firstTTES ? date('Y', strtotime($firstTTES)) : null),
+                                    'publisher_city' => $catalog->NAMAKAB ?? ($letterExecutor->NAMAKAB ?? null),
                                     'is_receivedate' => 1,
                                     'edisi_serial' => $edition,
                                     'ttes_awal' => $firstTTES,
@@ -552,7 +581,12 @@ class CreateReceiptController extends Controller
                                     'qty_reject' => $qtyReject,
                                     'province_id' => $catalog->PROPINSIID ?? null,
                                     'kab_id' => $catalog->CITY_ID ?? null,
-                                    'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
+                                    'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($manualMedia->ID ?? null),
+                                    'jenis_media' => $manualMedia->NAME ?? null,
+                                    'issn' => $issn ?: null,
+                                    // Kala terbit — sama seperti ISSN/Jenis Media, diisi sekali per
+                                    // judul dan berlaku ke semua edisi di bawahnya.
+                                    'kala_terbit' => $kalaTerbit ?: null,
                                     'penerbit_id' => $catalog->PENERBIT_ID ?? null,
                                     'received_by' => $currentUser,
                                     'received_date' => $now,

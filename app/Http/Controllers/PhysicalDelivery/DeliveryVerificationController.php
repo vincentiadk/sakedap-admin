@@ -948,11 +948,15 @@ class DeliveryVerificationController extends Controller
                     l.*,
                     jp.name as name_jasa_pengiriman,
                     p.name as name_penerbit,
+                    p.alamat as alamat_penerbit,
+                    kb.namakab as namakab_penerbit,
                     b.name as name_branch
                 from
                     letter l
                 left join
                     penerbit p on p.id = l.penerbit_id
+                left join
+                    kabupaten kb on kb.id = p.city_id
                 left join
                     jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
                 left join
@@ -966,6 +970,15 @@ class DeliveryVerificationController extends Controller
             if (!$letter) {
                 abort(404, 'Letter not found');
             }
+
+            // Dipakai sebagai fallback publisher/alamat/kota "Terbitan Berkala" tanpa
+            // katalog — sebelumnya merujuk $letterExecutor yang TIDAK PERNAH
+            // didefinisikan di method ini (selalu null, fallback-nya tidak pernah kepakai).
+            $letterExecutor = (object) [
+                'NAME'    => $letter->NAME_PENERBIT ?? null,
+                'ALAMAT'  => $letter->ALAMAT_PENERBIT ?? null,
+                'NAMAKAB' => $letter->NAMAKAB_PENERBIT ?? null,
+            ];
 
             $letterDetailSql = "
                 select
@@ -1215,6 +1228,24 @@ class DeliveryVerificationController extends Controller
                             $firstTTES = $request->cp_first_ttes[$key] ?? null;
                             $endTTES = $request->cp_end_ttes[$key] ?? null;
 
+                            // ISSN & Jenis Media — cuma relevan waktu tidak pakai katalog
+                            // dari database (katalog sudah punya datanya sendiri). Simpan
+                            // ke kolom ISSN (bukan ISBN!) — kolom ISBN dipakai untuk
+                            // mengklasifikasikan baris ini masuk tab "Koleksi ISBN" vs
+                            // "Terbitan Berkala" waktu halaman ini dimuat ulang (lihat index()),
+                            // jadi tidak boleh ikut keisi supaya baris ini tetap kebaca sebagai
+                            // terbitan berkala.
+                            $issn = isset($request->cp_issn[$key]) ? trim((string) $request->cp_issn[$key]) : null;
+                            $kalaTerbit = isset($request->cp_kala_terbit[$key]) ? trim((string) $request->cp_kala_terbit[$key]) : null;
+                            $mediaName = strtoupper(trim((string) ($request->cp_media_type[$key] ?? '')));
+                            $manualMedia = null;
+
+                            if ($mediaName) {
+                                $manualMedia = Cache::remember('collectionmedias:' . $mediaName, $cacheDuration, function () use ($mediaName) {
+                                    return QueryAPI::get("select * from collectionmedias where upper(name) = '$mediaName'", true);
+                                });
+                            }
+
                             $letterDetailData = [
                                 'title' => $catalog->TITLE ?? ($manualTitle ?? ''),
                                 'copy' => $letter->BRANCH_ID == 37 ? 2 : 1,
@@ -1223,9 +1254,9 @@ class DeliveryVerificationController extends Controller
                                 'letter_id' => $letter->LETTER_ID ?? null,
                                 'author' => $catalog->AUTHOR ?? null,
                                 'publisher' => $catalog->NAME_PENERBIT ?? ($letterExecutor->NAME ?? null),
-                                'publisher_address' => $catalog->ALAMAT_PENERBIT ?? null,
-                                'publish_year' => $catalog->PUBLISHYEAR ?? null,
-                                'publisher_city' => $catalog->NAMAKAB ?? null,
+                                'publisher_address' => $catalog->ALAMAT_PENERBIT ?? ($letterExecutor->ALAMAT ?? null),
+                                'publish_year' => $catalog->PUBLISHYEAR ?? ($firstTTES ? date('Y', strtotime($firstTTES)) : null),
+                                'publisher_city' => $catalog->NAMAKAB ?? ($letterExecutor->NAMAKAB ?? null),
                                 'is_receivedate' => 1,
                                 'edisi_serial' => $edition,
                                 'ttes_awal' => $firstTTES,
@@ -1233,7 +1264,10 @@ class DeliveryVerificationController extends Controller
                                 'catalog_id' => $catalogId,
                                 'province_id' => $catalog->PROPINSIID ?? null,
                                 'kab_id' => $catalog->CITY_ID ?? null,
-                                'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? null,
+                                'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($manualMedia->ID ?? null),
+                                'jenis_media' => $manualMedia->NAME ?? null,
+                                'issn' => $issn ?: null,
+                                'kala_terbit' => $kalaTerbit ?: null,
                                 'penerbit_id' => $catalog->PENERBIT_ID ?? null,
                                 'received_by' => $currentUser,
                                 'received_date' => $now,

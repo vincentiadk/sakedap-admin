@@ -171,6 +171,10 @@
                                     <i class="ph-identification-card me-1"></i>
                                     ISBN
                                 </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 130px">
+                                    <i class="ph-identification-card me-1"></i>
+                                    ISSN
+                                </th>
                                 <th class="text-nowrap" rowspan="2" style="min-width: 100px">
                                     <i class="ph-books me-1"></i>
                                     Jilid
@@ -178,6 +182,14 @@
                                 <th class="text-nowrap" rowspan="2" style="min-width: 100px">
                                     <i class="ph-note me-1"></i>
                                     Edisi
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 160px">
+                                    <i class="ph-calendar-blank me-1"></i>
+                                    Periode Terbit
+                                </th>
+                                <th class="text-nowrap" rowspan="2" style="min-width: 120px">
+                                    <i class="ph-repeat me-1"></i>
+                                    Kala Terbit
                                 </th>
                                 <th class="text-center text-nowrap" colspan="2">
                                     <i class="ph-package me-1"></i>
@@ -237,8 +249,19 @@
                                             <button type="button" class="btn btn-sm btn-warning" onclick="isbnNumbering('{{ $ld->LETTER_DETAIL_ID }}')">Simpan</button>
                                         </div>
                                     </td>
+                                    <td class="align-middle">{{ $ld->ISSN ?: '-' }}</td>
                                     <td class="align-middle">{{ $ld->NOMORPANGGILJILID ?: '-' }}</td>
                                     <td class="align-middle">{{ $ld->EDISI_SERIAL ?: '-' }}</td>
+                                    <td class="align-middle text-nowrap">
+                                        @if($ld->TTES_AWAL || $ld->TTES_AKHIR)
+                                            {{ $ld->TTES_AWAL ? \Carbon\Carbon::parse($ld->TTES_AWAL)->format('d/m/Y') : '-' }}
+                                            &ndash;
+                                            {{ $ld->TTES_AKHIR ? \Carbon\Carbon::parse($ld->TTES_AKHIR)->format('d/m/Y') : '-' }}
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="align-middle">{{ $ld->KALA_TERBIT ?: '-' }}</td>
                                     <td class="text-center align-middle">
                                         <span class="badge bg-success">{{ $ld->QTY_ACCEPT ?: 0 }}</span>
                                     </td>

@@ -884,7 +884,7 @@
             $('#data-collection-periodicals').prepend(`
                 <tr class="periodical-row-${ randStr } animate__animated animate__fadeIn">
                     <td width="5%" rowspan="2" class="align-top pt-3">
-                        <input type="hidden" name="cp[]" value="1">
+                        <input type="hidden" name="cp[${ randStr }]" value="1">
                         <button type="button" class="btn btn-danger" onclick="removeItemPeriodicals('${ randStr }')" data-bs-toggle="tooltip" title="Hapus terbitan berkala">
                             <i class="ph-trash"></i>
                         </button>
@@ -906,7 +906,7 @@
                                     </label>
                                 </div>
                                 <div class="catalog-input-${ randStr }">
-                                    <input type="hidden" class="cp_catalog_id_${ randStr }" name="cp_catalog_id[]">
+                                    <input type="hidden" class="cp_catalog_id_${ randStr }" name="cp_catalog_id[${ randStr }]">
                                     <label class="form-label">
                                         Pilih Katalog <span class="text-danger">*</span>
                                     </label>
@@ -919,7 +919,38 @@
                                     <label class="form-label">
                                         Judul Terbitan Berkala <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control cp_manual_title_${ randStr }" name="cp_manual_title[]" placeholder="Masukkan judul terbitan berkala">
+                                    <input type="text" class="form-control cp_manual_title_${ randStr }" name="cp_manual_title[${ randStr }]" placeholder="Masukkan judul terbitan berkala">
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-lg-6">
+                                            <label class="form-label">ISSN</label>
+                                            <input type="text" class="form-control" name="cp_issn[${ randStr }]" placeholder="mis. 1234-5678">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="form-label">
+                                                <i class="ph-file me-1"></i>Jenis Media
+                                            </label>
+                                            <select class="form-select select2-basic" name="cp_media_type[${ randStr }]">
+                                                <option value="">-- Pilih Jenis --</option>
+                                                @foreach($media as $m)
+                                                    <option value="{{ $m->NAME }}">{{ $m->NAME }} [{{ $m->DEPOSITFORMAT_CODE }}]</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="form-label">
+                                                <i class="ph-repeat me-1"></i>Kala Terbit
+                                            </label>
+                                            <select class="form-select select2-basic" name="cp_kala_terbit[${ randStr }]">
+                                                <option value="">-- Pilih Kala Terbit --</option>
+                                                @foreach(['Harian','Mingguan','Bulanan','3 Bulan Sekali','4 Bulan Sekali','6 Bulan Sekali','Tahunan','2 Tahun Sekali','3 Tahun Sekali'] as $kt)
+                                                    <option value="{{ $kt }}">{{ $kt }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="ph-info me-1"></i>Cukup diisi sekali untuk judul ini — otomatis berlaku untuk semua edisi di bawah.
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -972,6 +1003,9 @@
             $('.catalog-input-' + randStr).slideDown();
             $('.manual-input-' + randStr).slideUp();
             $('.cp_manual_title_' + randStr).val('');
+            $('.manual-input-' + randStr + ' input[name^="cp_issn"]').val('');
+            $('.manual-input-' + randStr + ' select[name^="cp_media_type"]').val('').trigger('change');
+            $('.manual-input-' + randStr + ' select[name^="cp_kala_terbit"]').val('').trigger('change');
         } else {
             $('.catalog-input-' + randStr).slideUp();
             $('.manual-input-' + randStr).slideDown();
@@ -1018,25 +1052,25 @@
 
         editionContainer.prepend(`
             <div class="edition-row-${ randStr } border rounded p-3 mb-3 bg-light animate__animated animate__fadeIn">
-                <input type="hidden" name="cpe[][]" value="${ parentRandStr }">
+                <input type="hidden" name="cpe[${ parentRandStr }][]" value="1">
                 <div class="row g-3 align-items-end">
                     <div class="col-lg-2">
                         <label class="form-label small">
                             <i class="ph-hash me-1"></i>Edisi Serial
                         </label>
-                        <input type="text" class="form-control form-control-sm" name="cpe_edition[][]" placeholder="No. Edisi">
+                        <input type="text" class="form-control form-control-sm" name="cpe_edition[${ parentRandStr }][]" placeholder="No. Edisi">
                     </div>
                     <div class="col-lg-2">
                         <label class="form-label small">
                             <i class="ph-calendar me-1"></i>TTES Awal
                         </label>
-                        <input type="text" class="form-control form-control-sm date-single" name="cpe_first_ttes[][]" placeholder="Pilih tanggal">
+                        <input type="text" class="form-control form-control-sm date-single" name="cpe_first_ttes[${ parentRandStr }][]" placeholder="Pilih tanggal">
                     </div>
                     <div class="col-lg-2">
                         <label class="form-label small">
                             <i class="ph-calendar-check me-1"></i>TTES Akhir
                         </label>
-                        <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[][]" placeholder="Pilih tanggal">
+                        <input type="text" class="form-control form-control-sm date-single" name="cpe_end_ttes[${ parentRandStr }][]" placeholder="Pilih tanggal">
                     </div>
                     <div class="col-lg-4">
                         <label class="form-label small">
@@ -1046,14 +1080,14 @@
                             <span class="input-group-text">Total</span>
                             <input type="number" class="form-control cpe-total-${ randStr }" readonly>
                             <span class="input-group-text">Terima</span>
-                            <select class="form-select cpe-accept-${ randStr }" name="cpe_qty_accept[][]" onchange="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
+                            <select class="form-select cpe-accept-${ randStr }" name="cpe_qty_accept[${ parentRandStr }][]" onchange="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                                 <option value="0" selected>0</option>
                                 @for($k = 1; $k <= $acceptDefault; $k++)
                                     <option value="{{ $k }}">{{ $k }}</option>
                                 @endfor
                             </select>
                             <span class="input-group-text">Tolak</span>
-                            <input type="number" class="form-control cpe-reject-${ randStr }" name="cpe_qty_reject[][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
+                            <input type="number" class="form-control cpe-reject-${ randStr }" name="cpe_qty_reject[${ parentRandStr }][]" value="0" oninput="calculateQtyTotal('.cpe-total-${ randStr }', '.cpe-accept-${ randStr }', '.cpe-reject-${ randStr }', '.cpe-description-${ randStr }')">
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -1066,7 +1100,7 @@
                         <label class="form-label small">
                             <i class="ph-note-pencil me-1"></i>Keterangan
                         </label>
-                        <select class="form-select form-select-sm cpe-description-${ randStr }" name="cpe_description[][]" multiple></select>
+                        <select class="form-select form-select-sm cpe-description-${ randStr }" name="cpe_description[${ parentRandStr }][]" multiple></select>
                     </div>
                 </div>
             </div>
