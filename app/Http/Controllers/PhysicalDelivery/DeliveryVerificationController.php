@@ -950,6 +950,8 @@ class DeliveryVerificationController extends Controller
                     p.name as name_penerbit,
                     p.alamat as alamat_penerbit,
                     kb.namakab as namakab_penerbit,
+                    p.province_id as province_id_penerbit,
+                    p.city_id as city_id_penerbit,
                     b.name as name_branch
                 from
                     letter l
@@ -975,10 +977,15 @@ class DeliveryVerificationController extends Controller
             // katalog — sebelumnya merujuk $letterExecutor yang TIDAK PERNAH
             // didefinisikan di method ini (selalu null, fallback-nya tidak pernah kepakai).
             $letterExecutor = (object) [
-                'NAME'    => $letter->NAME_PENERBIT ?? null,
-                'ALAMAT'  => $letter->ALAMAT_PENERBIT ?? null,
-                'NAMAKAB' => $letter->NAMAKAB_PENERBIT ?? null,
+                'NAME'        => $letter->NAME_PENERBIT ?? null,
+                'ALAMAT'      => $letter->ALAMAT_PENERBIT ?? null,
+                'NAMAKAB'     => $letter->NAMAKAB_PENERBIT ?? null,
+                'PROVINCE_ID' => $letter->PROVINCE_ID_PENERBIT ?? null,
+                'CITY_ID'     => $letter->CITY_ID_PENERBIT ?? null,
             ];
+            // penerbit_id milik letter itu sendiri (pelaksana serah) — dipakai sebagai
+            // fallback letter_detail.penerbit_id utk item cni/cp yang tidak match katalog.
+            $letterExecutorId = $letter->PENERBIT_ID ?? null;
 
             $letterDetailSql = "
                 select
@@ -1162,12 +1169,12 @@ class DeliveryVerificationController extends Controller
                                 'publisher_city' => $catalog->NAMAKAB ?? null,
                                 'is_receivedate' => 1,
                                 'catalog_id' => $catalogId,
-                                'province_id' => $catalog->PROPINSIID ?? null,
-                                'kab_id' => $catalog->CITY_ID ?? null,
+                                'province_id' => $catalog->PROPINSIID ?? ($letterExecutor->PROVINCE_ID ?? null),
+                                'kab_id' => $catalog->CITY_ID ?? ($letterExecutor->CITY_ID ?? null),
                                 'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($getCollectionMedia->ID ?? null),
                                 'deskripsifisik' => $physicalDescription,
                                 'jenis_media' => $getCollectionMedia->NAME ?? null,
-                                'penerbit_id' => $catalog->PENERBIT_ID ?? null,
+                                'penerbit_id' => $catalog->PENERBIT_ID ?? $letterExecutorId,
                                 'nomorpanggiljilid' => $binding,
                                 'qrcbn' => $qrcbn,
                                 'isbd' => $isbd,
@@ -1262,13 +1269,13 @@ class DeliveryVerificationController extends Controller
                                 'ttes_awal' => $firstTTES,
                                 'ttes_akhir' => $endTTES,
                                 'catalog_id' => $catalogId,
-                                'province_id' => $catalog->PROPINSIID ?? null,
-                                'kab_id' => $catalog->CITY_ID ?? null,
+                                'province_id' => $catalog->PROPINSIID ?? ($letterExecutor->PROVINCE_ID ?? null),
+                                'kab_id' => $catalog->CITY_ID ?? ($letterExecutor->CITY_ID ?? null),
                                 'collection_type_id' => $catalog->COLLECTIONMEDIA_ID ?? ($manualMedia->ID ?? null),
                                 'jenis_media' => $manualMedia->NAME ?? null,
                                 'issn' => $issn ?: null,
                                 'kala_terbit' => $kalaTerbit ?: null,
-                                'penerbit_id' => $catalog->PENERBIT_ID ?? null,
+                                'penerbit_id' => $catalog->PENERBIT_ID ?? $letterExecutorId,
                                 'received_by' => $currentUser,
                                 'received_date' => $now,
                                 'checked' => 1,
