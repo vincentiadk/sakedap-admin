@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\PhysicalDelivery;
 
+use App\Helpers\Main;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Helpers\QueryAPI;
@@ -94,6 +96,13 @@ class SingleVerificationController extends Controller
         $isbnLd2 = self::isbnNorm('ld2.isbn');
         $isbnCol = self::isbnNorm('c.isbn');
 
+        // Hak edit: Perpusnas boleh semua, provinsi hanya kiriman ke provinsinya.
+        // Ini hanya untuk menata tampilan -- penegakan sebenarnya ada di
+        // updateReceivedDate(), yang memeriksa ulang ke database.
+        $canEditExpr = Main::isPerpusnas()
+            ? '1 = 1'
+            : 'b.province_id = ' . (int) session('province_id');
+
         $where = " l.status <> 'DRAFT' ";
 
         if ($mode === 'isbn') {
@@ -130,7 +139,7 @@ class SingleVerificationController extends Controller
                         ROW_NUMBER() OVER (ORDER BY l.create_date DESC, ld.letter_detail_id DESC) AS rn,
                         ld.letter_detail_id, ld.title, ld.copy, ld.quantity,
                         ld.qty_accept, ld.qty_reject, ld.qty_hibah, ld.isbn,
-                        ld.publisher, ld.publish_year, p.name AS pub_name,
+                        ld.author, ld.publisher, ld.publish_year, p.name AS pub_name,
                         ld.remark, ld.letter_id, l.status, l.branch_id,
                         l.type_of_delivery, ld.isbn_status,
                         jp.name AS jasa_pengiriman_name,
@@ -140,6 +149,8 @@ class SingleVerificationController extends Controller
                              ELSE u.fullname END AS received_by_name,
                         l.accept_date,
                         b.name AS destination_library,
+                        b.province_id AS destination_province_id,
+                        CASE WHEN {$canEditExpr} THEN 1 ELSE 0 END AS can_edit,
                         {$isbnLd} AS isbn_norm,
                         CASE WHEN l.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK', 'DITERIMA')
                              THEN 1 ELSE 0 END AS in_hist
@@ -206,6 +217,110 @@ class SingleVerificationController extends Controller
         ]);
     }
 
+    /**
+     * Hapus satu judul yang BELUM diterima.
+     *
+     * Tiga syarat, semuanya diperiksa ulang di server:
+     * 1. Datanya ada.
+     * 2. Penggunanya berhak atas provinsi tujuan kiriman itu.
+     * 3. Belum ada tanggal terima -- yang sudah diterima tidak boleh dihapus.
+     */
+    public function destroy(Request $request)
+    {
+        $id = (int) $request->letter_detail_id;
+        $row = $this->findForEdit($id);
+
+        if (!$row) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Data tidak ditemukan.'
+            ], 404);
+        }
+
+        if (!$this->mayHandle($row)) {
+            return response()->json([
+                'code' => 403,
+                'message' => 'Anda hanya dapat menghapus kiriman ke provinsi Anda sendiri.'
+            ], 403);
+        }
+
+        if (!empty($row->RECEIVED_DATE)) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Judul ini sudah diterima, tidak dapat dihapus.'
+            ], 422);
+        }
+
+        try {
+            if (!QueryAPI::delete('letter_detail', $id)) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Gagal menghapus data.'
+                ], 500);
+            }
+
+            Log::info('Hapus judul belum diterima', [
+                'letter_detail_id' => $id,
+                'letter_id' => $row->LETTER_ID,
+                'title' => $row->TITLE,
+                'oleh' => session('username'),
+            ]);
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Judul berhasil dihapus.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Ambil data letter_detail berikut provinsi tujuannya, langsung dari
+     * database. Sengaja tidak memakai apa pun dari request -- branch_id yang
+     * dikirim browser bisa diubah pengguna, jadi tidak boleh dipercaya.
+     */
+    private function findForEdit($letterDetailId): ?object
+    {
+        $id = (int) $letterDetailId;
+
+        if ($id <= 0) {
+            return null;
+        }
+
+        return QueryAPI::get("
+            SELECT
+                ld.letter_detail_id,
+                ld.received_date,
+                ld.title,
+                l.letter_id,
+                l.status,
+                l.branch_id,
+                b.province_id,
+                b.name AS destination_library
+            FROM letter_detail ld
+            JOIN letter l ON l.letter_id = ld.letter_id
+            JOIN branchs b ON b.id = l.branch_id
+            WHERE ld.letter_detail_id = {$id}
+        ", true, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT);
+    }
+
+    /**
+     * Perpusnas boleh menangani semua kiriman; petugas provinsi hanya kiriman
+     * yang ditujukan ke provinsinya sendiri.
+     */
+    private function mayHandle(object $row): bool
+    {
+        if (Main::isPerpusnas()) {
+            return true;
+        }
+
+        return (int) $row->PROVINCE_ID === (int) session('province_id');
+    }
+
     private function escapeSql(string $value): string
     {
         $value = str_replace('\\', '\\\\', $value);
@@ -219,6 +334,50 @@ class SingleVerificationController extends Controller
     public function updateReceivedDate(Request $request)
     {
         $id = $request->letter_detail_id;
+
+        $row = $this->findForEdit($id);
+
+        if (!$row) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Data tidak ditemukan.'
+            ], 404);
+        }
+
+        if (!$this->mayHandle($row)) {
+            return response()->json([
+                'code' => 403,
+                'message' => 'Anda hanya dapat memproses penerimaan untuk kiriman ke provinsi Anda sendiri.'
+            ], 403);
+        }
+
+        // Tanggal terima tidak boleh di masa depan. Atribut "max" di browser
+        // gampang dilewati, jadi diperiksa lagi di sini.
+        $tanggalTerima = trim((string) $request->received_date);
+
+        if ($tanggalTerima === '') {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Tanggal terima wajib diisi.'
+            ], 422);
+        }
+
+        try {
+            $tanggal = Carbon::parse($tanggalTerima)->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Format tanggal terima tidak valid.'
+            ], 422);
+        }
+
+        if ($tanggal->greaterThan(Carbon::today())) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Tanggal terima tidak boleh melebihi hari ini (' . Carbon::today()->format('d/m/Y') . ').'
+            ], 422);
+        }
+
         try {
             if ($request->ISBN ?: null && (int) $request->detail_qty_accept > 0) {
                 QueryAPI::setReceiveDate([

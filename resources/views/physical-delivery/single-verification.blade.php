@@ -73,6 +73,16 @@
                         </div>
 
                         <div id="searchResultWrapper" style="max-height: 520px; overflow-y: auto;">
+                            <div id="searchLoading" class="d-none py-4">
+                                <div class="text-center text-muted mb-3">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Mencari data...
+                                </div>
+                                <div class="skeleton-item"></div>
+                                <div class="skeleton-item"></div>
+                                <div class="skeleton-item"></div>
+                            </div>
+
                             <div id="emptyResult" class="text-center text-muted py-5">
                                 <i class="ph-books fs-1 d-block mb-2"></i>
                                 Belum ada hasil pencarian
@@ -99,104 +109,144 @@
                             <div id="detailPanel" class="d-none">
                                 <div class="card mb-3 bg-light">
                                     <div class="card-body">
-                                        <div class="row g-3">
+                                        <div class="row g-1">
                                             <div class="col-md-12">
-                                                <label class="form-label text-muted mb-1">Judul</label>
-                                                <div class="fw-semibold" id="detail_title">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">Judul</label>
+                                                    <div class="field-value fw-semibold" id="detail_title">-</div>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">ISBN</label>
-                                                <div id="detail_isbn">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">ISBN</label>
+                                                    <div class="field-value" id="detail_isbn">-</div>
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Status ISBN</label>
-                                                <select id="detail_isbn_status" class="form-select"  name="detail_isbn_status">
-                                                    <option value="" selected="true">Pilih Status ISBN</option>
-                                                    <option value="berISBN">berISBN</option>
-                                                    @foreach($status_isbn as $si)
-                                                    <option value="{{$si->KODE}}"> {{ $si->KODE }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Penerbit</label>
-                                                <div id="detail_publisher">-</div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Tahun Terbit</label>
-                                                <div id="detail_year">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label" for="detail_isbn_status">Status ISBN</label>
+                                                    <select id="detail_isbn_status" class="form-select form-select-sm field-value" name="detail_isbn_status">
+                                                        <option value="" selected="true">Pilih Status ISBN</option>
+                                                        <option value="berISBN">berISBN</option>
+                                                        @foreach($status_isbn as $si)
+                                                        <option value="{{$si->KODE}}"> {{ $si->KODE }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Status Resi</label>
-                                                <div id="detail_status">-</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Status Item</label>
-                                                <div id="detail_item_status">-</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Tanggal Terima</label>
-                                                <div id="detail_received_date">-</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">User Penerima</label>
-                                                <div id="detail_received_by">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">Penerbit</label>
+                                                    <div class="field-value" id="detail_publisher">-</div>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Tujuan Perpustakaan</label>
-                                                <div id="detail_destination_library">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">Tahun Terbit</label>
+                                                    <div class="field-value" id="detail_year">-</div>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Jenis Pengiriman</label>
-                                                <div id="detail_type_of_delivery">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">Status Resi</label>
+                                                    <div class="field-value" id="detail_status">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="field-inline">
+                                                    <label class="field-label">Status Item</label>
+                                                    <div class="field-value" id="detail_item_status">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="field-inline">
+                                                    <label class="field-label">Tanggal Terima</label>
+                                                    <div class="field-value" id="detail_received_date">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="field-inline">
+                                                    <label class="field-label">User Penerima</label>
+                                                    <div class="field-value" id="detail_received_by">-</div>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label text-muted mb-1">Jasa Pengiriman</label>
-                                                <div id="detail_jasa_pengiriman">-</div>
+                                                <div class="field-inline">
+                                                    <label class="field-label">Tujuan Perpustakaan</label>
+                                                    <div class="field-value" id="detail_destination_library">-</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="field-inline">
+                                                    <label class="field-label">Jenis Pengiriman</label>
+                                                    <div class="field-value" id="detail_type_of_delivery">-</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="field-inline">
+                                                    <label class="field-label">Jasa Pengiriman</label>
+                                                    <div class="field-value" id="detail_jasa_pengiriman">-</div>
+                                                </div>
                                             </div>
                                             <div class="col-md-12 d-none" id="systemSummaryWrapper">
                                                 <div class="border rounded p-3 bg-white" id="systemSummaryBox">
                                                     <div class="fw-semibold mb-2">Ringkasan Data di Sistem</div>
 
-                                                    <div class="row g-3 small">
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Dikirim ke Perpusnas</div>
-                                                            <div class="fw-semibold" id="info_total_copy_sistem">0</div>
+                                                    <div class="row g-1 gx-4 small">
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Riwayat Eks Dikirim ke Perpusnas</span>
+                                                                <span class="stat-value" id="info_total_copy_sistem">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Diterima ke Perpusnas</div>
-                                                            <div class="fw-semibold" id="info_total_accept_sistem">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Riwayat Eks Diterima ke Perpusnas</span>
+                                                                <span class="stat-value" id="info_total_accept_sistem">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Dikirim ke Provinsi</div>
-                                                            <div class="fw-semibold" id="info_total_copy_prov">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Riwayat Eks Dikirim ke Provinsi</span>
+                                                                <span class="stat-value" id="info_total_copy_prov">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Riwayat Eks Diterima di Provinsi</div>
-                                                            <div class="fw-semibold" id="info_total_accept_prov">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Riwayat Eks Diterima di Provinsi</span>
+                                                                <span class="stat-value" id="info_total_accept_prov">0</span>
+                                                            </div>
                                                         </div>
-                                                         <div class="col-md-3">
-                                                            <div class="text-muted">Total Eks Dikirim ke Perpusnas dan Provinsi</div>
-                                                            <div class="fw-semibold" id="info_total_copy_all">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Total Eks Dikirim ke Perpusnas dan Provinsi</span>
+                                                                <span class="stat-value" id="info_total_copy_all">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Eks yang dikirim saat ini</div>
-                                                            <div class="fw-semibold" id="info_collection_current">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Eks yang dikirim saat ini</span>
+                                                                <span class="stat-value" id="info_collection_current">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Koleksi sudah dicatat</div>
-                                                            <div class="fw-semibold" id="info_total_collection_sistem">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Koleksi sudah dicatat</span>
+                                                                <span class="stat-value" id="info_total_collection_sistem">0</span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-3">
-                                                            <div class="text-muted">Eks Lebih Perpusnas</div>
-                                                            <div class="fw-semibold" id="info_collection_other">0</div>
+                                                        <div class="col-md-6">
+                                                            <div class="stat-inline">
+                                                                <span class="stat-label">Eks Lebih Perpusnas</span>
+                                                                <span class="stat-value" id="info_collection_other">0</span>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -334,11 +384,102 @@
     .input-group input {
         background-color: #fff !important;
     }
+
+    .result-destination {
+        font-size: 12px;
+        color: #0d6efd;
+        margin-top: 2px;
+    }
+
+    /* Kiriman di luar wewenang: tetap terbaca, tapi jelas tidak bisa diproses */
+    .result-item-locked {
+        background: #fbfbfc;
+        border-style: dashed;
+    }
+
+    .result-item-locked .result-title {
+        color: #6b7280;
+    }
+
+    /* Rangka abu-abu saat menunggu hasil pencarian */
+    .skeleton-item {
+        height: 62px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, #f1f3f5 25%, #e9ecef 37%, #f1f3f5 63%);
+        background-size: 400% 100%;
+        animation: skeleton-loading 1.2s ease-in-out infinite;
+    }
+
+    @keyframes skeleton-loading {
+        0% { background-position: 100% 50%; }
+        100% { background-position: 0 50%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .skeleton-item { animation: none; }
+    }
+
+    /* Field tampilan: label dan nilai sebaris, bukan bertumpuk */
+    .field-inline {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-height: 26px;
+        padding: 2px 0;
+    }
+
+    .field-inline .field-label {
+        flex: 0 0 138px;
+        margin: 0;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .field-inline .field-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 13px;
+        word-break: break-word;
+    }
+
+    /* Angka ringkasan: label kiri, nilai rata kanan */
+    .stat-inline {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 3px 0;
+        border-bottom: 1px dashed #e9ecef;
+    }
+
+    .stat-inline .stat-label {
+        color: #6b7280;
+        min-width: 0;
+    }
+
+    .stat-inline .stat-value {
+        flex: 0 0 auto;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 767.98px) {
+        .field-inline .field-label {
+            flex-basis: 110px;
+        }
+    }
 </style>
 <script>
     // Dummy data sementara untuk simulasi tampilan
     const dummyBooks = [];
     let currentMode = null;
+
+    // Nama yang akan tercatat sebagai penerima saat data disimpan.
+    // Server mengisi received_by dari session('username'), lalu ditampilkan
+    // sebagai fullname -- jadi yang dipratinjau di sini fullname-nya.
+    const NAMA_PENGGUNA = @json(session('name') ?: (session('username') ?: '-'));
     select2Serverside('#detail_status_isbn', 'status-isbn');
     $('.plus').click(function() {
         let input = $(this).siblings('input');
@@ -416,20 +557,45 @@
         info.innerText = `${data.length} data`;
 
         data.forEach(item => {
+            const meta = [item.AUTHOR, item.PUBLISHER, item.PUBLISH_YEAR]
+                .filter(v => v !== null && v !== undefined && String(v).trim() !== '')
+                .join(' • ');
+
+            // Hapus hanya untuk yang belum diterima dan memang jadi wewenang pengguna.
+            const belumDiterima = (item.STATUS_CODE || '').toLowerCase() === 'verification';
+            const bolehUbah = String(item.CAN_EDIT) === '1';
+
+            const tombolHapus = (belumDiterima && bolehUbah)
+                ? `<button type="button" class="btn btn-outline-danger btn-sm btn-hapus-judul mt-1"
+                        data-id="${item.LETTER_DETAIL_ID}" title="Hapus judul ini">
+                        <i class="ph-trash"></i>
+                   </button>`
+                : '';
+
+            const tandaKunci = bolehUbah
+                ? ''
+                : `<span class="badge bg-secondary-subtle text-secondary mt-1" title="Kiriman ini bukan untuk provinsi Anda">
+                        <i class="ph-lock-simple me-1"></i>Hanya lihat
+                   </span>`;
+
             const html = `
-                <div class="result-item" data-id="${item.LETTER_DETAIL_ID}" data-index="${i}">
+                <div class="result-item ${bolehUbah ? '' : 'result-item-locked'}" data-id="${item.LETTER_DETAIL_ID}" data-index="${i}">
                     <div class="d-flex justify-content-between align-items-start gap-2">
-                        <div>
+                        <div class="flex-grow-1 min-w-0">
                             <div class="result-title">${item.TITLE}</div>
                             <div class="result-meta mb-1">
-                                ISBN: ${item.ISBN || '-'} <br>
-                                ${item.AUTHOR} • ${item.PUBLISHER} • ${item.PUBLISH_YEAR}
+                                ISBN: ${item.ISBN || '-'}${meta ? '<br>' + meta : ''}
+                            </div>
+                            <div class="result-destination">
+                                <i class="ph-map-pin me-1"></i>${item.DESTINATION_LIBRARY || '-'}
                             </div>
                         </div>
                         <div>
                             <div class="d-flex flex-column align-items-end gap-1">
                                 ${getStatusBadge(item)}
                                 <span class="badge bg-primary-subtle text-primary">Resi: ${item.STATUS}</span>
+                                ${tandaKunci}
+                                ${tombolHapus}
                             </div>
                         </div>
                     </div>
@@ -440,7 +606,12 @@
         });
 
         document.querySelectorAll('.result-item').forEach(el => {
-            el.addEventListener('click', function () {
+            el.addEventListener('click', function (e) {
+                // Klik tombol hapus tidak boleh ikut memilih baris.
+                if (e.target.closest('.btn-hapus-judul')) {
+                    return;
+                }
+
                 document.querySelectorAll('.result-item').forEach(x => x.classList.remove('active'));
                 this.classList.add('active');
 
@@ -448,6 +619,73 @@
                 const selected = data[index];
 
                 fillDetail(selected);
+            });
+        });
+
+        document.querySelectorAll('.btn-hapus-judul').forEach(el => {
+            el.addEventListener('click', function (e) {
+                e.stopPropagation();
+
+                const id = this.dataset.id;
+                const index = Number(this.closest('.result-item').dataset.index);
+                const judul = data[index] ? data[index].TITLE : '';
+
+                konfirmasiHapusJudul(id, judul);
+            });
+        });
+    }
+
+    function konfirmasiHapusJudul(id, judul) {
+        Swal.fire({
+            title: 'Anda yakin?',
+            html: `Judul berikut akan dihapus permanen:<br><b>${judul}</b>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-danger me-2',
+                cancelButton: 'btn btn-outline-secondary'
+            },
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menghapus...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            $.ajax({
+                url: '{{ url("physical-delivery/single-verification/destroy") }}',
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                dataType: 'JSON',
+                data: { letter_detail_id: id },
+                success: function (response) {
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: response.message || 'Judul berhasil dihapus.',
+                        icon: 'success',
+                        customClass: { confirmButton: 'btn btn-primary' },
+                    });
+                    clearDetail();
+                    doSearch();
+                },
+                error: function (xhr) {
+                    const pesan = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'Gagal menghapus data.';
+
+                    Swal.fire({
+                        title: 'Gagal',
+                        text: pesan,
+                        icon: 'error',
+                        customClass: { confirmButton: 'btn btn-primary' },
+                    });
+                }
             });
         });
     }
@@ -483,8 +721,7 @@
         document.getElementById('detail_status').innerHTML = getStatusResiBadge(item.STATUS);
         document.getElementById('detail_item_status').innerHTML = getStatusBadge(item);
         document.getElementById('detail_destination_library').innerText = item.DESTINATION_LIBRARY || item.LIBRARY_NAME || '-';
-        document.getElementById('detail_received_by').innerText = item.RECEIVED_BY_NAME ?? '-';
-        document.getElementById('detail_received_date').innerText = item.RECEIVED_DATE ?? '-';
+        setInfoPenerimaan(item);
         document.getElementById('detail_type_of_delivery').innerText = item.TYPE_OF_DELIVERY || '-';
         document.getElementById('detail_jasa_pengiriman').innerText = item.JASA_PENGIRIMAN_NAME || '-';
         document.getElementById('detail_copy').value = item.COPY || '0';
@@ -513,6 +750,23 @@
         btnReceive.classList.add('d-none');
         btnReceiveAgain.classList.add('d-none');
 
+        // Petugas provinsi hanya boleh memproses kiriman ke provinsinya sendiri.
+        // Server memeriksa ulang hal yang sama saat menyimpan.
+        if (String(item.CAN_EDIT) !== '1') {
+            receivedDateInput.setAttribute('readonly', true);
+            receivedDateInput.required = false;
+            verificationNote.innerText =
+                'Kiriman ini ditujukan ke ' + (item.DESTINATION_LIBRARY || 'perpustakaan lain') +
+                '. Anda hanya dapat melihat datanya.';
+            $('.plus, .minus').hide();
+            $('#detail_isbn_status').prop('disabled', true);
+            $('#detail_reject_reason').prop('readonly', true);
+            return;
+        }
+
+        $('#detail_isbn_status').prop('disabled', false);
+        $('#detail_reject_reason').prop('readonly', false);
+
         if ((item.STATUS_CODE || '').toLowerCase() === 'verification') {
             receivedDateInput.removeAttribute('readonly');
             receivedDateInput.required = true;
@@ -539,7 +793,103 @@
             $('#detail_qty_accept').prop('readonly', true);
             $('#detail_qty_reject').prop('readonly', true);
         }
+
+        // Isi otomatis tanggal hari ini kalau kolomnya masih bisa diubah dan
+        // belum ada isinya, supaya petugas tidak perlu memilih tanggal tiap kali.
+        // Yang sudah diterima tidak tersentuh -- kolomnya sudah readonly di atas.
+        if (!receivedDateInput.hasAttribute('readonly') && !receivedDateInput.value) {
+            receivedDateInput.value = todayForInput();
+        }
+
+        // Tidak boleh memilih tanggal ke depan. Server memeriksa hal yang sama.
+        receivedDateInput.setAttribute('max', todayForInput());
+
+        // Dipanggil lagi di sini karena setInfoPenerimaan() berjalan sebelum
+        // kolom tanggal di atas terisi.
+        perbaruiPratinjauTanggal();
     }
+
+    /**
+     * Tanggal Terima & User Penerima.
+     * Sudah diterima  -> tampil biasa.
+     * Belum diterima  -> merah, disertai nilai yang akan tersimpan dalam kurung.
+     *                    Untuk kiriman di luar wewenang, kurungnya tidak
+     *                    ditampilkan karena pengguna itu memang tidak akan
+     *                    menjadi penerimanya.
+     */
+    function setInfoPenerimaan(item) {
+        const elTanggal = document.getElementById('detail_received_date');
+        const elUser = document.getElementById('detail_received_by');
+
+        const sudahDiterima = !!(item.RECEIVED_DATE && String(item.RECEIVED_DATE).trim() !== '');
+        const bolehUbah = String(item.CAN_EDIT) === '1';
+
+        [elTanggal, elUser].forEach(el => el.classList.remove('text-danger', 'fw-semibold'));
+
+        if (sudahDiterima) {
+            elTanggal.innerText = formatTanggalTampil(item.RECEIVED_DATE);
+            elUser.innerText = item.RECEIVED_BY_NAME || '-';
+            return;
+        }
+
+        [elTanggal, elUser].forEach(el => el.classList.add('text-danger', 'fw-semibold'));
+
+        if (!bolehUbah) {
+            elTanggal.innerText = 'Belum diterima';
+            elUser.innerText = 'Belum diterima';
+            return;
+        }
+
+        elUser.innerText = `Belum diterima (akan diisi: ${NAMA_PENGGUNA})`;
+        perbaruiPratinjauTanggal();
+    }
+
+    /**
+     * Isi dalam kurung pada "Tanggal Terima" mengikuti kolom isian di bawah,
+     * jadi petugas langsung melihat tanggal apa yang akan tersimpan.
+     * Hanya berlaku selama data belum diterima -- ditandai kelas text-danger
+     * yang dipasang setInfoPenerimaan().
+     */
+    function perbaruiPratinjauTanggal() {
+        const elTanggal = document.getElementById('detail_received_date');
+
+        if (!elTanggal.classList.contains('text-danger')) {
+            return;
+        }
+
+        const diisi = document.getElementById('received_date').value;
+
+        elTanggal.innerText = diisi
+            ? `Belum diterima (akan diisi: ${formatTanggalIndo(diisi)})`
+            : 'Belum diterima (tanggal belum diisi)';
+    }
+
+    // "2026-07-08 12:00:00 AM" -> "08/07/2026"
+    function formatTanggalTampil(nilai) {
+        if (!nilai) return '-';
+
+        return formatTanggalIndo(String(nilai).split(' ')[0]);
+    }
+
+    // "2026-09-04" -> "04/09/2026"
+    function formatTanggalIndo(iso) {
+        if (!iso) return '-';
+
+        const bagian = iso.split('-');
+
+        return bagian.length === 3 ? `${bagian[2]}/${bagian[1]}/${bagian[0]}` : iso;
+    }
+
+    function todayForInput() {
+        // Dibentuk dari komponen tanggal lokal, bukan toISOString(), supaya
+        // tidak meleset sehari akibat konversi ke UTC.
+        const d = new Date();
+        const bulan = String(d.getMonth() + 1).padStart(2, '0');
+        const tanggal = String(d.getDate()).padStart(2, '0');
+
+        return `${d.getFullYear()}-${bulan}-${tanggal}`;
+    }
+
     function toggleSystemSummary(item) {
         const rawIsbn = (item.ISBN || '').trim();
         const normalizedIsbn = rawIsbn.replace(/-/g, '').trim();
@@ -637,9 +987,11 @@
                 limit: 20
             },
             beforeSend: function () {
-                $('#searchResultInfo').text('Mencari...');
+                tampilkanLoadingPencarian(true);
             },
             success: function (response) {
+                tampilkanLoadingPencarian(false);
+
                 if (response.code === 200) {
                     renderResults(response.data || []);
                     clearDetail();
@@ -649,12 +1001,49 @@
                 }
             },
             error: function () {
+                tampilkanLoadingPencarian(false);
                 $('#searchResultInfo').text('Gagal mengambil data');
                 renderResults([]);
                 clearDetail();
             }
         });
     }
+
+    function tampilkanLoadingPencarian(sedangMencari) {
+        const loading = document.getElementById('searchLoading');
+        const list = document.getElementById('searchResultList');
+        const empty = document.getElementById('emptyResult');
+        const btn = document.getElementById('btnSearch');
+
+        if (sedangMencari) {
+            $('#searchResultInfo').text('Mencari...');
+            loading.classList.remove('d-none');
+            list.classList.add('d-none');
+            empty.classList.add('d-none');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mencari';
+        } else {
+            loading.classList.add('d-none');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ph-magnifying-glass"></i> Cari';
+        }
+    }
+
+    // Pratinjau dalam kurung mengikuti tanggal yang diketik/dipilih petugas.
+    document.getElementById('received_date').addEventListener('input', function () {
+        if (this.value && this.value > todayForInput()) {
+            Swal.fire({
+                title: 'Tanggal tidak valid',
+                text: 'Tanggal terima tidak boleh melebihi hari ini (' + formatTanggalIndo(todayForInput()) + ').',
+                icon: 'warning',
+                customClass: { confirmButton: 'btn btn-primary' },
+            });
+
+            this.value = todayForInput();
+        }
+
+        perbaruiPratinjauTanggal();
+    });
 
     document.getElementById('btnSearch').addEventListener('click', doSearch);
 
@@ -788,6 +1177,9 @@
 
         if (!receivedDate) {
             errors.push('Tanggal terima wajib diisi.');
+        } else if (receivedDate > todayForInput()) {
+            // Format YYYY-MM-DD bisa dibandingkan langsung sebagai teks.
+            errors.push('Tanggal terima tidak boleh melebihi hari ini (' + formatTanggalIndo(todayForInput()) + ').');
         }
         if (copy <= 0) {
             errors.push('Jumlah eksemplar dikirim harus lebih dari 0.');
