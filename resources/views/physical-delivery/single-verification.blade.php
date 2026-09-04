@@ -401,6 +401,18 @@
         color: #6b7280;
     }
 
+    /* Data dari pengajuan ISBN penerbit, bukan dari penerimaan */
+    .result-item-registry {
+        cursor: default;
+        border-color: #ffc107;
+        background: #fffdf5;
+    }
+
+    .result-item-registry:hover {
+        border-color: #ffc107;
+        background: #fffdf5;
+    }
+
     /* Rangka abu-abu saat menunggu hasil pencarian */
     .skeleton-item {
         height: 62px;
@@ -537,7 +549,7 @@
         return `<span class="badge ${badgeClass} badge-status">${text}</span>`;
     }
 
-    function renderResults(data) {
+    function renderResults(data, registry) {
         let i = 0;
         const list = document.getElementById('searchResultList');
         const empty = document.getElementById('emptyResult');
@@ -546,6 +558,12 @@
         list.innerHTML = '';
 
         if (!data.length) {
+            // Belum ada di penerimaan, tapi ISBN-nya terdaftar di data penerbit.
+            if (registry && registry.length) {
+                renderRegistry(registry);
+                return;
+            }
+
             list.classList.add('d-none');
             empty.classList.remove('d-none');
             info.innerText = '0 data';
@@ -572,11 +590,19 @@
                    </button>`
                 : '';
 
-            const tandaKunci = bolehUbah
-                ? ''
-                : `<span class="badge bg-secondary-subtle text-secondary mt-1" title="Kiriman ini bukan untuk provinsi Anda">
-                        <i class="ph-lock-simple me-1"></i>Hanya lihat
-                   </span>`;
+            let tandaKunci = '';
+
+            if (!bolehUbah) {
+                const alasan = alasanTidakBisaProses(item);
+
+                tandaKunci = bukanKaryaCetak(item)
+                    ? `<span class="badge bg-warning-subtle text-warning-emphasis mt-1" title="${alasan}">
+                            <i class="ph-disc me-1"></i>Bukan karya cetak
+                       </span>`
+                    : `<span class="badge bg-secondary-subtle text-secondary mt-1" title="${alasan}">
+                            <i class="ph-lock-simple me-1"></i>Hanya lihat
+                       </span>`;
+            }
 
             const html = `
                 <div class="result-item ${bolehUbah ? '' : 'result-item-locked'}" data-id="${item.LETTER_DETAIL_ID}" data-index="${i}">
@@ -633,6 +659,127 @@
                 konfirmasiHapusJudul(id, judul);
             });
         });
+    }
+
+    /**
+     * ISBN tidak ada di LETTER_DETAIL, tapi terdaftar di PENERBIT_ISBN.
+     * Ditampilkan sebagai keterangan saja -- tidak bisa diproses penerimaannya
+     * karena belum ada data pengirimannya.
+     */
+    function renderRegistry(rows) {
+        const list = document.getElementById('searchResultList');
+        const empty = document.getElementById('emptyResult');
+        const info = document.getElementById('searchResultInfo');
+
+        empty.classList.add('d-none');
+        list.classList.remove('d-none');
+        info.innerText = `${rows.length} data ISBN penerbit`;
+
+        let html = `
+            <div class="alert alert-warning d-flex gap-2 mb-3">
+                <i class="ph-warning-circle fs-5"></i>
+                <div>
+                    <div class="fw-semibold">Belum ada di data pengiriman</div>
+                    <div class="small">
+                        Data di bawah ini <b>bukan berasal dari data pengiriman</b>, melainkan
+                        dari <b>data pengajuan ISBN penerbit</b> &mdash; karena penerbitnya
+                        belum mengisi data pengiriman untuk ISBN ini.
+                        Penerimaan baru dapat diproses setelah data pengirimannya masuk.
+                    </div>
+                </div>
+            </div>
+        `;
+
+        rows.forEach(row => {
+            const meta = [row.AUTHOR, row.PUB_NAME, row.TAHUN_TERBIT]
+                .filter(v => v !== null && v !== undefined && String(v).trim() !== '')
+                .join(' • ');
+
+            const catatanMedia = bukanKaryaCetak(row)
+                ? `<div class="alert alert-secondary py-2 px-3 small mb-2">
+                        <i class="ph-disc me-1"></i>ISBN ini adalah ISBN <b>${namaJenisMedia(row)}</b>.
+                        Verifikasi fisik hanya untuk karya cetak.
+                   </div>`
+                : '';
+
+            html += `
+                <div class="result-item result-item-registry">
+                    <div class="result-title">${row.TITLE || '(judul belum terdata)'}</div>
+                    <div class="result-meta mb-2">
+                        ISBN: ${row.ISBN_NO || '-'}${meta ? '<br>' + meta : ''}
+                    </div>
+                    ${catatanMedia}
+                    <div class="row g-1 small">
+                        <div class="col-12">
+                            <div class="stat-inline">
+                                <span class="stat-label">Status pengajuan ISBN</span>
+                                <span class="stat-value">${row.STATUS || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="stat-inline">
+                                <span class="stat-label">Diterima Perpusnas</span>
+                                <span class="stat-value ${row.RECEIVED_DATE_KCKR ? '' : 'text-danger'}">
+                                    ${row.RECEIVED_DATE_KCKR ? formatTanggalTampil(row.RECEIVED_DATE_KCKR) : 'Belum'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="stat-inline">
+                                <span class="stat-label">Diterima Provinsi</span>
+                                <span class="stat-value ${row.RECEIVED_DATE_PROV ? '' : 'text-danger'}">
+                                    ${row.RECEIVED_DATE_PROV ? formatTanggalTampil(row.RECEIVED_DATE_PROV) : 'Belum'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        list.innerHTML = html;
+    }
+
+    /**
+     * Nama jenis media untuk ditampilkan. Tabel JENIS_MEDIA baru berisi id 1,
+     * jadi kode dipakai sebagai cadangan selama sisanya belum diisi.
+     */
+    function namaJenisMedia(item) {
+        const nama = (item.JENIS_MEDIA_NAME || '').trim();
+
+        if (nama) {
+            return nama;
+        }
+
+        const kode = kodeJenisMedia(item);
+
+        return kode ? `jenis media kode ${kode}` : 'tidak diketahui';
+    }
+
+    function kodeJenisMedia(item) {
+        const kode = item.JENIS_MEDIA;
+
+        return (kode === null || kode === undefined) ? '' : String(kode).trim();
+    }
+
+    function bukanKaryaCetak(item) {
+        const kode = kodeJenisMedia(item);
+
+        return kode !== '' && kode !== '1';
+    }
+
+    /**
+     * Kenapa satu baris tidak bisa diproses. Dua sebab yang berbeda, jadi
+     * pesannya juga harus berbeda -- jangan sampai petugas mengira ini soal
+     * wilayah padahal soal jenis media.
+     */
+    function alasanTidakBisaProses(item) {
+        if (bukanKaryaCetak(item)) {
+            return `ISBN ini adalah ISBN ${namaJenisMedia(item)}. Verifikasi fisik hanya untuk karya cetak.`;
+        }
+
+        return 'Kiriman ini ditujukan ke ' + (item.DESTINATION_LIBRARY || 'perpustakaan lain') +
+            '. Anda hanya dapat melihat datanya.';
     }
 
     function konfirmasiHapusJudul(id, judul) {
@@ -755,9 +902,7 @@
         if (String(item.CAN_EDIT) !== '1') {
             receivedDateInput.setAttribute('readonly', true);
             receivedDateInput.required = false;
-            verificationNote.innerText =
-                'Kiriman ini ditujukan ke ' + (item.DESTINATION_LIBRARY || 'perpustakaan lain') +
-                '. Anda hanya dapat melihat datanya.';
+            verificationNote.innerText = alasanTidakBisaProses(item);
             $('.plus, .minus').hide();
             $('#detail_isbn_status').prop('disabled', true);
             $('#detail_reject_reason').prop('readonly', true);
@@ -993,7 +1138,7 @@
                 tampilkanLoadingPencarian(false);
 
                 if (response.code === 200) {
-                    renderResults(response.data || []);
+                    renderResults(response.data || [], response.registry || []);
                     clearDetail();
                 } else {
                     renderResults([]);

@@ -150,7 +150,7 @@ class SingleVerificationController extends Controller
                         l.accept_date,
                         b.name AS destination_library,
                         b.province_id AS destination_province_id,
-                        CASE WHEN {$canEditExpr} THEN 1 ELSE 0 END AS can_edit,
+                        CASE WHEN {$canEditExpr} THEN 1 ELSE 0 END AS boleh_wilayah,
                         {$isbnLd} AS isbn_norm,
                         CASE WHEN l.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK', 'DITERIMA')
                              THEN 1 ELSE 0 END AS in_hist
@@ -186,6 +186,19 @@ class SingleVerificationController extends Controller
                   AND c.branch_id = {$branchId}
                   AND {$isbnCol} IN (SELECT isbn_norm FROM base)
                 GROUP BY {$isbnCol}
+            ),
+            media AS (
+                -- Jenis media dari pengajuan ISBN penerbit. Verifikasi fisik
+                -- hanya untuk karya cetak (jenis_media = 1).
+                -- isbn_no di PENERBIT_ISBN selalu tanpa tanda hubung, sama
+                -- bentuknya dengan isbn_norm, jadi bisa dibandingkan langsung.
+                SELECT
+                    pi.isbn_no AS isbn_norm,
+                    MAX(pt.jenis_media) AS jenis_media
+                FROM penerbit_isbn pi
+                JOIN penerbit_terbitan pt ON pt.id = pi.penerbit_terbitan_id
+                WHERE pi.isbn_no IN (SELECT isbn_norm FROM base)
+                GROUP BY pi.isbn_no
             )
             SELECT
                 t.*,
@@ -198,15 +211,36 @@ class SingleVerificationController extends Controller
                     NVL(h.copy_sistem, 0)   - CASE WHEN b.in_hist = 1 AND b.branch_id  = 37 THEN NVL(b.copy, 0)       ELSE 0 END AS total_copy_sistem,
                     NVL(h.accept_prov, 0)   - CASE WHEN b.in_hist = 1 AND b.branch_id <> 37 THEN NVL(b.qty_accept, 0) ELSE 0 END AS total_accept_prov,
                     NVL(h.accept_sistem, 0) - CASE WHEN b.in_hist = 1 AND b.branch_id  = 37 THEN NVL(b.qty_accept, 0) ELSE 0 END AS total_accept_sistem,
-                    NVL(c.total_collection_sistem, 0) AS total_collection_sistem
+                    NVL(c.total_collection_sistem, 0) AS total_collection_sistem,
+                    m.jenis_media,
+                    jm.name AS jenis_media_name,
+                    -- Boleh diproses bila: wilayahnya cocok DAN jenis medianya
+                    -- karya cetak. ISBN yang tidak ada di pengajuan ISBN
+                    -- (jenis_media NULL) tetap diizinkan -- kirimannya sudah
+                    -- terlanjur ada, tidak ada bukti bahwa itu non-cetak.
+                    CASE
+                        WHEN b.boleh_wilayah = 1 AND (m.jenis_media IS NULL OR m.jenis_media = '1')
+                        THEN 1 ELSE 0
+                    END AS can_edit
                 FROM base b
                 LEFT JOIN hist h ON h.isbn_norm = b.isbn_norm
                 LEFT JOIN col c ON c.isbn_norm = b.isbn_norm
+                LEFT JOIN media m ON m.isbn_norm = b.isbn_norm
+                LEFT JOIN jenis_media jm ON TO_CHAR(jm.id) = m.jenis_media
             ) t
             ORDER BY t.rn
         ";
         //Log::info($sql);
         $data = QueryAPI::get($sql, false, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT) ?? [];
+
+        // Tidak ketemu di penerimaan? Cari di data ISBN penerbit, supaya petugas
+        // tahu bukunya memang terdaftar tapi belum pernah masuk pengiriman --
+        // bukan sekadar "tidak ditemukan".
+        $registry = [];
+
+        if (!$data && $mode === 'isbn') {
+            $registry = $this->searchPenerbitIsbn($isbnKeys ?? []);
+        }
 
         return response()->json([
             'code' => 200,
@@ -214,7 +248,51 @@ class SingleVerificationController extends Controller
             'mode' => $mode,
             'count' => count($data),
             'data' => $data,
+            'registry' => $registry,
         ]);
+    }
+
+    /**
+     * Cari ISBN di PENERBIT_ISBN (data pengajuan ISBN penerbit).
+     *
+     * Kolom isbn_no di sana selalu tanpa tanda hubung, jadi dibandingkan
+     * mentah -- 0,16 detik, sedangkan dibungkus REPLACE() jadi 0,40 detik
+     * karena index tidak terpakai.
+     */
+    private function searchPenerbitIsbn(array $isbnKeys): array
+    {
+        if (!$isbnKeys) {
+            return [];
+        }
+
+        $list = "'" . implode("', '", $isbnKeys) . "'";
+
+        // ROWNUM, bukan FETCH FIRST -- databasenya Oracle 11g.
+        $rows = QueryAPI::get("
+            SELECT * FROM (
+                SELECT
+                    pi.id AS penerbit_isbn_id,
+                    pi.isbn_no,
+                    pt.title,
+                    pt.author,
+                    pt.tahun_terbit,
+                    p.name AS pub_name,
+                    pi.status,
+                    pi.tanggal_terbit,
+                    pi.received_date_kckr,
+                    pi.received_date_prov,
+                    pt.jenis_media,
+                    jm.name AS jenis_media_name
+                FROM penerbit_isbn pi
+                LEFT JOIN penerbit_terbitan pt ON pt.id = pi.penerbit_terbitan_id
+                LEFT JOIN penerbit p ON p.id = pi.penerbit_id
+                LEFT JOIN jenis_media jm ON TO_CHAR(jm.id) = pt.jenis_media
+                WHERE pi.isbn_no IN ({$list})
+                ORDER BY pi.id DESC
+            ) WHERE ROWNUM <= 10
+        ", false, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT) ?? [];
+
+        return is_array($rows) ? $rows : [];
     }
 
     /**
@@ -300,12 +378,52 @@ class SingleVerificationController extends Controller
                 l.status,
                 l.branch_id,
                 b.province_id,
-                b.name AS destination_library
+                b.name AS destination_library,
+                (
+                    SELECT MAX(pt.jenis_media)
+                    FROM penerbit_isbn pi
+                    JOIN penerbit_terbitan pt ON pt.id = pi.penerbit_terbitan_id
+                    WHERE pi.isbn_no = REPLACE(ld.isbn, '-', '')
+                ) AS jenis_media
             FROM letter_detail ld
             JOIN letter l ON l.letter_id = ld.letter_id
             JOIN branchs b ON b.id = l.branch_id
             WHERE ld.letter_detail_id = {$id}
         ", true, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT);
+    }
+
+    /**
+     * Verifikasi fisik hanya untuk karya cetak (penerbit_terbitan.jenis_media = 1).
+     * ISBN yang tidak terdaftar di pengajuan ISBN (NULL) tetap diizinkan --
+     * kirimannya sudah ada dan tidak ada bukti bahwa itu bukan karya cetak.
+     */
+    private function mediaBolehDiterima(object $row): bool
+    {
+        $jenis = $row->JENIS_MEDIA ?? null;
+
+        return $jenis === null || trim((string) $jenis) === '' || trim((string) $jenis) === '1';
+    }
+
+    /**
+     * Nama jenis media untuk pesan ke pengguna. Tabel JENIS_MEDIA baru berisi
+     * id 1; selama sisanya belum diisi, kodenya yang ditampilkan.
+     */
+    private function namaJenisMedia($kode): string
+    {
+        $kode = trim((string) $kode);
+
+        if ($kode === '') {
+            return 'tidak diketahui';
+        }
+
+        $nama = QueryAPI::get(
+            "SELECT name FROM jenis_media WHERE TO_CHAR(id) = '" . preg_replace('/[^0-9]/', '', $kode) . "'",
+            true,
+            self::CONNECT_TIMEOUT,
+            self::QUERY_TIMEOUT
+        );
+
+        return $nama->NAME ?? ('jenis media kode ' . $kode);
     }
 
     /**
@@ -349,6 +467,14 @@ class SingleVerificationController extends Controller
                 'code' => 403,
                 'message' => 'Anda hanya dapat memproses penerimaan untuk kiriman ke provinsi Anda sendiri.'
             ], 403);
+        }
+
+        if (!$this->mediaBolehDiterima($row)) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'ISBN ini adalah ISBN ' . $this->namaJenisMedia($row->JENIS_MEDIA)
+                    . '. Verifikasi fisik hanya untuk karya cetak.'
+            ], 422);
         }
 
         // Tanggal terima tidak boleh di masa depan. Atribut "max" di browser
