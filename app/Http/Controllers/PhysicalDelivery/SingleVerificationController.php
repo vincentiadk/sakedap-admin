@@ -213,7 +213,6 @@ class SingleVerificationController extends Controller
                     NVL(h.accept_sistem, 0) - CASE WHEN b.in_hist = 1 AND b.branch_id  = 37 THEN NVL(b.qty_accept, 0) ELSE 0 END AS total_accept_sistem,
                     NVL(c.total_collection_sistem, 0) AS total_collection_sistem,
                     m.jenis_media,
-                    jm.name AS jenis_media_name,
                     -- Boleh diproses bila: wilayahnya cocok DAN jenis medianya
                     -- karya cetak. ISBN yang tidak ada di pengajuan ISBN
                     -- (jenis_media NULL) tetap diizinkan -- kirimannya sudah
@@ -226,7 +225,6 @@ class SingleVerificationController extends Controller
                 LEFT JOIN hist h ON h.isbn_norm = b.isbn_norm
                 LEFT JOIN col c ON c.isbn_norm = b.isbn_norm
                 LEFT JOIN media m ON m.isbn_norm = b.isbn_norm
-                LEFT JOIN jenis_media jm ON TO_CHAR(jm.id) = m.jenis_media
             ) t
             ORDER BY t.rn
         ";
@@ -281,12 +279,10 @@ class SingleVerificationController extends Controller
                     pi.tanggal_terbit,
                     pi.received_date_kckr,
                     pi.received_date_prov,
-                    pt.jenis_media,
-                    jm.name AS jenis_media_name
+                    pt.jenis_media
                 FROM penerbit_isbn pi
                 LEFT JOIN penerbit_terbitan pt ON pt.id = pi.penerbit_terbitan_id
                 LEFT JOIN penerbit p ON p.id = pi.penerbit_id
-                LEFT JOIN jenis_media jm ON TO_CHAR(jm.id) = pt.jenis_media
                 WHERE pi.isbn_no IN ({$list})
                 ORDER BY pi.id DESC
             ) WHERE ROWNUM <= 10
@@ -405,25 +401,12 @@ class SingleVerificationController extends Controller
     }
 
     /**
-     * Nama jenis media untuk pesan ke pengguna. Tabel JENIS_MEDIA baru berisi
-     * id 1; selama sisanya belum diisi, kodenya yang ditampilkan.
+     * jenis_media = 1 berarti Karya Cetak, selainnya Karya Rekam.
+     * Konvensi yang sama dipakai di laporan kepatuhan.
      */
     private function namaJenisMedia($kode): string
     {
-        $kode = trim((string) $kode);
-
-        if ($kode === '') {
-            return 'tidak diketahui';
-        }
-
-        $nama = QueryAPI::get(
-            "SELECT name FROM jenis_media WHERE TO_CHAR(id) = '" . preg_replace('/[^0-9]/', '', $kode) . "'",
-            true,
-            self::CONNECT_TIMEOUT,
-            self::QUERY_TIMEOUT
-        );
-
-        return $nama->NAME ?? ('jenis media kode ' . $kode);
+        return trim((string) $kode) === '1' ? 'Karya Cetak' : 'Karya Rekam';
     }
 
     /**

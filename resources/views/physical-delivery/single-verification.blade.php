@@ -741,19 +741,11 @@
     }
 
     /**
-     * Nama jenis media untuk ditampilkan. Tabel JENIS_MEDIA baru berisi id 1,
-     * jadi kode dipakai sebagai cadangan selama sisanya belum diisi.
+     * jenis_media = 1 berarti Karya Cetak, selainnya Karya Rekam.
+     * Konvensi yang sama dipakai di laporan kepatuhan.
      */
     function namaJenisMedia(item) {
-        const nama = (item.JENIS_MEDIA_NAME || '').trim();
-
-        if (nama) {
-            return nama;
-        }
-
-        const kode = kodeJenisMedia(item);
-
-        return kode ? `jenis media kode ${kode}` : 'tidak diketahui';
+        return bukanKaryaCetak(item) ? 'Karya Rekam Digital' : 'Karya Cetak';
     }
 
     function kodeJenisMedia(item) {
