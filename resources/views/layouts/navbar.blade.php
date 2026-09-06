@@ -106,6 +106,7 @@
                                                 <a href="{{ url('physical-delivery/in-delivery') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'in-delivery' ? 'active' : '' }}">Dalam Pengiriman</a>
                                                 <a href="{{ url('physical-delivery/accept') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'accept' ? 'active' : '' }}">Diterima</a>
                                                 <a href="{{ url('physical-delivery/create-receipt') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'create-receipt' ? 'active' : '' }}">Tambah Bukti Penerimaan</a>
+                                                <a href="{{ url('physical-delivery/queue') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'physical-delivery' && Request::segment(2) == 'queue' ? 'active' : '' }}">Daftar Antrian</a>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="border-start-lg ps-lg-3 py-2">
@@ -270,6 +271,9 @@
                                                     @if(Main::isSuperAdmin())
                                                         <a href="{{ url('administration-system/setting-system') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'setting-system' ? 'active' : '' }}">Pengaturan Sistem</a>
                                                     @endif
+                                                    {{-- Tiap perpustakaan mengelola lokasi dan PC-nya sendiri;
+                                                         batas wilayahnya ditegakkan di QueueSettingController. --}}
+                                                    <a href="{{ url('administration-system/queue-setting') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'queue-setting' ? 'active' : '' }}">Pengaturan Antrian</a>
                                                     @if(Main::isSuperAdmin() || Main::isPerpusnas())
                                                         <a href="{{ url('administration-system/compliance-setting') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'compliance-setting' ? 'active' : '' }}">Pengaturan Kepatuhan KCKR</a>
                                                         <a href="{{ url('administration-system/notification-test') }}" class="dropdown-item rounded pb-0 {{ Request::segment(1) == 'administration-system' && Request::segment(2) == 'notification-test' ? 'active' : '' }}">Uji Notifikasi Kepatuhan</a>

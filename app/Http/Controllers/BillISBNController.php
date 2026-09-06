@@ -86,6 +86,14 @@ class BillISBNController extends Controller
             $filter['call_number'] = $request->call_number;
         }
 
+        if ($request->status_perpusnas !== null && $request->status_perpusnas !== '') {
+            $filter['isperpusnas'] = intval($request->status_perpusnas);
+        }
+
+        if ($request->status_province !== null && $request->status_province !== '') {
+            $filter['isprovinsi'] = intval($request->status_province);
+        }
+
         if ($request->received_date_kckr) {
             $explodeDate = explode(' - ', $request->received_date_kckr);
             $startDate = Carbon::parse($explodeDate[0])->format('Y-m-d');

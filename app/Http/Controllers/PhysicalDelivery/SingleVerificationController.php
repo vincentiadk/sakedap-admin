@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\PhysicalDelivery;
 
+use App\Helpers\AntrianFisik;
 use App\Helpers\Main;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -140,7 +141,7 @@ class SingleVerificationController extends Controller
                         ld.letter_detail_id, ld.title, ld.copy, ld.quantity,
                         ld.qty_accept, ld.qty_reject, ld.qty_hibah, ld.isbn,
                         ld.author, ld.publisher, ld.publish_year, p.name AS pub_name,
-                        ld.remark, ld.letter_id, l.status, l.branch_id,
+                        ld.remark, ld.letter_id, l.status, l.branch_id, l.receipt_no,
                         l.type_of_delivery, ld.isbn_status,
                         jp.name AS jasa_pengiriman_name,
                         CASE WHEN l.status = 'DITERIMA' THEN l.accept_date
@@ -151,6 +152,7 @@ class SingleVerificationController extends Controller
                         b.name AS destination_library,
                         b.province_id AS destination_province_id,
                         CASE WHEN {$canEditExpr} THEN 1 ELSE 0 END AS boleh_wilayah,
+                        " . AntrianFisik::columns() . ",
                         {$isbnLd} AS isbn_norm,
                         CASE WHEN l.status IN ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'CEK FISIK', 'DITERIMA')
                              THEN 1 ELSE 0 END AS in_hist
@@ -161,6 +163,7 @@ class SingleVerificationController extends Controller
                     LEFT JOIN users u_l ON u_l.username = l.create_by
                     LEFT JOIN jasa_pengiriman jp ON jp.id = l.jasa_pengiriman_id
                     JOIN branchs b ON b.id = l.branch_id
+                    " . AntrianFisik::joins('l', 'jp') . "
                     WHERE {$where}
                 ) WHERE rn <= {$limit}
             ),
@@ -371,6 +374,7 @@ class SingleVerificationController extends Controller
                 ld.received_date,
                 ld.title,
                 l.letter_id,
+                l.receipt_no,
                 l.status,
                 l.branch_id,
                 b.province_id,
@@ -487,6 +491,16 @@ class SingleVerificationController extends Controller
             ], 422);
         }
 
+        // Dus asal judul ini. Resi berdus tunggal terisi sendiri; selain itu
+        // diambil dari "dus aktif" yang dipilih petugas.
+        $dus = AntrianFisik::tentukanDus((int) $row->LETTER_ID);
+
+        if ($dus['error']) {
+            return response()->json(['code' => 422, 'message' => $dus['error']], 422);
+        }
+
+        $letterAntrianId = $dus['id'];
+
         try {
             if ($request->ISBN ?: null && (int) $request->detail_qty_accept > 0) {
                 QueryAPI::setReceiveDate([
@@ -505,12 +519,48 @@ class SingleVerificationController extends Controller
                 'remark' => $request->detail_reject_reason,
                 'checked' => 1
             ];
+
+            if ($letterAntrianId) {
+                $params['letter_antrian_id'] = $letterAntrianId;
+            }
             if ($request->received_by_name == "no_name") {
                 $params = array_merge($params, [
                     'received_by' => session('username'),
                 ]);
             }
             QueryAPI::update('letter_detail', $id, $params, false);
+
+            // Dus yang dicatat manual satpam belum tahu resinya. Petugas
+            // menemukan resinya lewat pencarian ISBN, jadi begitu penerimaan
+            // pertama dari dus itu disimpan, seluruh dus dalam kirimannya
+            // ikut tertaut ke resi ini.
+            if ($dus['taut_kiriman']) {
+                $jml = AntrianFisik::tautkanKiriman($dus['taut_kiriman'], (int) $row->LETTER_ID);
+
+                if ($jml > 0) {
+                    // Session ikut diperbarui supaya pengaman "dus milik resi
+                    // lain" aktif untuk judul-judul berikutnya.
+                    $aktif = session(AntrianFisik::SESSION_DUS);
+                    $aktif['letter_id'] = (int) $row->LETTER_ID;
+                    $aktif['receipt_no'] = $row->RECEIPT_NO ?? '';
+                    session([AntrianFisik::SESSION_DUS => $aktif]);
+
+                    Log::info('Dus manual tertaut otomatis lewat penerimaan', [
+                        'kiriman_id' => $dus['taut_kiriman'],
+                        'letter_id' => $row->LETTER_ID,
+                        'letter_detail_id' => $id,
+                        'dus_tertaut' => $jml,
+                        'oleh' => session('username'),
+                    ]);
+                }
+            }
+
+            // Dusnya sudah dibuka petugas verifikasi -- statusnya tidak lagi
+            // "diterima_satpam". Kegagalan di sini tidak membatalkan
+            // penerimaan yang sudah tersimpan.
+            if ($letterAntrianId) {
+                AntrianFisik::tandaiDiproses($letterAntrianId);
+            }
             $letterDetail = QueryAPI::get("
                 select
                     sum(copy) as total_data,

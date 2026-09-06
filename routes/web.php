@@ -126,6 +126,21 @@ Route::middleware('authentication')->group(function () {
             Route::delete('destroy-letter/{id}', 'AcceptController@destroyLetter');
         });
 
+        Route::prefix('queue')->group(function () {
+            Route::get('/', 'QueueController@index');
+            Route::post('datatable', 'QueueController@datatable');
+            Route::post('selesaikan', 'QueueController@selesaikan');
+        });
+
+        Route::prefix('queue-link')->group(function () {
+            Route::post('search', 'QueueLinkController@search');
+            Route::post('search-letter', 'QueueLinkController@searchLetter');
+            Route::post('link', 'QueueLinkController@link');
+            Route::get('active', 'QueueLinkController@active');
+            Route::post('set-active', 'QueueLinkController@setActive');
+            Route::post('clear-active', 'QueueLinkController@clearActive');
+        });
+
         Route::prefix('create-receipt')->group(function () {
             Route::get('/', 'CreateReceiptController@index');
             Route::get('search-isbn', 'CreateReceiptController@searchISBN');
@@ -517,6 +532,25 @@ Route::middleware('authentication')->group(function () {
             Route::get('summary',  'ComplianceNotificationHistoryController@summary')->name('notification_history.summary');
             Route::get('detail',   'ComplianceNotificationHistoryController@detail')->name('notification_history.detail');
             Route::get('export',   'ComplianceNotificationHistoryController@exportDetail')->name('notification_history.export');
+        });
+
+        Route::prefix('queue-setting')->group(function () {
+            Route::get('/', 'QueueSettingController@index');
+
+            Route::prefix('lokasi')->group(function () {
+                Route::post('datatable', 'QueueSettingController@lokasiDatatable');
+                Route::get('options', 'QueueSettingController@lokasiOptions');
+                Route::get('show', 'QueueSettingController@lokasiShow');
+                Route::post('save', 'QueueSettingController@lokasiSave');
+                Route::post('destroy', 'QueueSettingController@lokasiDestroy');
+            });
+
+            Route::prefix('pc')->group(function () {
+                Route::post('datatable', 'QueueSettingController@pcDatatable');
+                Route::get('show', 'QueueSettingController@pcShow');
+                Route::post('save', 'QueueSettingController@pcSave');
+                Route::post('destroy', 'QueueSettingController@pcDestroy');
+            });
         });
 
         Route::prefix('setting-system')->group(function () {

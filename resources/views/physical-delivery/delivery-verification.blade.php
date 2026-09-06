@@ -290,6 +290,10 @@
                                 <i class="ph-truck me-1"></i>
                                 Jasa Kirim
                             </th>
+                            <th class="text-nowrap text-center" rowspan="2" style="min-width: 150px">
+                                <i class="ph-shipping-container me-1"></i>
+                                Fisik
+                            </th>
                             <th class="text-nowrap" rowspan="2" style="min-width: 200px">
                                 <i class="ph-map-pin me-1"></i>
                                 Tujuan
@@ -381,6 +385,7 @@
                 { orderable: true, className: 'align-middle text-center' },
                 { orderable: true, className: 'align-middle' },
                 { orderable: true, className: 'align-middle text-wrap' },
+                { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-wrap' },
                 { orderable: false, className: 'align-middle text-center' },
                 { orderable: false, className: 'align-middle text-center' },

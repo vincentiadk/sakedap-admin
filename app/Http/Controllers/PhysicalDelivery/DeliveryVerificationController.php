@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\PhysicalDelivery;
 
+use App\Helpers\AntrianFisik;
 use App\Helpers\ISBN;
 use App\Helpers\Main;
 use App\Helpers\QueryAPI;
@@ -41,6 +42,7 @@ class DeliveryVerificationController extends Controller
             'l.check_date',
             'l.receipt_no',
             'jp.name',
+            null,
             'b.name',
             null,
             null,
@@ -223,7 +225,8 @@ class DeliveryVerificationController extends Controller
                                     when l.status in ('TERKIRIM', 'CEK FISIK')
                                     then nvl(td.total_title_delivery, 0)
                                     else 0
-                                end as total_title_delivery
+                                end as total_title_delivery,
+                                " . AntrianFisik::columns() . "
                             from
                                 letter l
                             left join
@@ -232,6 +235,7 @@ class DeliveryVerificationController extends Controller
                                 jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
                             left join
                                 branchs b on b.id = l.branch_id
+                            " . AntrianFisik::joins('l', 'jp') . "
                             left join
                                 (
                                     select
@@ -317,6 +321,7 @@ class DeliveryVerificationController extends Controller
                     $aging,
                     $val->RECEIPT_NO,
                     $val->NAME_JASA_PENGIRIMAN,
+                    AntrianFisik::badge($val),
                     $val->NAME_BRANCH,
                     $val->TOTAL_TITLE_DELIVERY,
                     $val->TOTAL_EKS_DELIVERY,

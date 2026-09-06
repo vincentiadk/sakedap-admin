@@ -130,6 +130,28 @@
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">
+                                <i class="ph-flag me-1"></i>
+                                Status Perpusnas
+                            </label>
+                            <select class="form-select" name="status_perpusnas" id="status_perpusnas">
+                                <option value="">Semua</option>
+                                <option value="1">Sudah Diterima</option>
+                                <option value="0">Belum Diterima</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="ph-flag me-1"></i>
+                                Status Provinsi
+                            </label>
+                            <select class="form-select" name="status_province" id="status_province">
+                                <option value="">Semua</option>
+                                <option value="1">Sudah Diterima</option>
+                                <option value="0">Belum Diterima</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
                                 <i class="ph-calendar-check me-1"></i>
                                 Tgl Terima KCKR
                             </label>

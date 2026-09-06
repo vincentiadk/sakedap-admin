@@ -22,6 +22,30 @@
             <span class="badge bg-info text-white">Cari berdasarkan Judul / ISBN</span>
         </div>
         <div class="card-body">
+            {{-- Dus yang sedang dibuka petugas. Setiap penerimaan yang disimpan
+                 otomatis dicatat berasal dari dus ini. --}}
+            <div class="alert alert-primary d-flex align-items-center justify-content-between gap-2 d-none" id="dusAktifBar">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="ph-package fs-5"></i>
+                    <div>
+                        <span class="small">Sedang membuka dus</span>
+                        <div class="fw-semibold" id="dusAktifTeks">-</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="gantiDus()"
+                            title="Pindah ke dus lain, dus ini tidak ditutup">Ganti</button>
+                    <button type="button" class="btn btn-light btn-sm" onclick="selesaiDus()"
+                            title="Tandai dus ini selesai dikerjakan">Selesai</button>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3 d-none" id="dusKosongBar">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="bukaPilihDus()">
+                    <i class="ph-package me-1"></i>Buka Dus
+                </button>
+            </div>
+
             <div class="row g-3">
                 {{-- PANEL KIRI --}}
                 <div class="col-lg-5">
@@ -195,6 +219,24 @@
                                                     <div class="field-value" id="detail_jasa_pengiriman">-</div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-md-12">
+                                                <div class="field-inline">
+                                                    {{-- Tingkat kiriman, bukan judul: dus tidak terhubung ke
+                                                         letter_detail, jadi seluruh judul dalam satu resi
+                                                         menampilkan angka yang sama. --}}
+                                                    <label class="field-label" title="Berlaku untuk seluruh resi, bukan judul ini saja">
+                                                        Fisik Kiriman
+                                                    </label>
+                                                    <div class="field-value d-flex align-items-center gap-2 flex-wrap">
+                                                        <span id="detail_fisik">-</span>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm d-none"
+                                                                id="btnTautkanAntrian" onclick="bukaTautAntrian()">
+                                                            <i class="ph-link me-1"></i>Tautkan Antrian
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-md-12 d-none" id="systemSummaryWrapper">
                                                 <div class="border rounded p-3 bg-white" id="systemSummaryBox">
                                                     <div class="fw-semibold mb-2">Ringkasan Data di Sistem</div>
@@ -346,6 +388,65 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-pilih-dus" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilih Dus yang Sedang Dibuka</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">
+                    Setelah dipilih, setiap penerimaan yang Anda simpan akan dicatat berasal dari dus ini
+                    &mdash; tanpa perlu memilih ulang tiap judul. Ganti kalau berpindah dus.
+                </p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="pilih_dus_keyword"
+                           placeholder="Nomor antrian di stiker, contoh: KCKR_0926_1"
+                           onkeypress="if(event.key === 'Enter') { event.preventDefault(); cariDus(); }">
+                    <button type="button" class="btn btn-primary" onclick="cariDus()">
+                        <i class="ph-magnifying-glass me-1"></i>Cari
+                    </button>
+                </div>
+                <div id="pilih_dus_hasil"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-taut-antrian" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tautkan Antrian Fisik</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="taut_letter_id">
+                <p class="text-muted small">
+                    Cari kiriman berdasarkan <b>nomor antrian pada stiker di dus</b>, atau nomor resi.
+                    Penautan berlaku untuk seluruh dus dalam satu kiriman.
+                </p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="taut_keyword"
+                           placeholder="Contoh: KCKR_0926_1 atau 987654"
+                           onkeypress="if(event.key === 'Enter') { event.preventDefault(); cariAntrian(); }">
+                    <button type="button" class="btn btn-primary" onclick="cariAntrian()">
+                        <i class="ph-magnifying-glass me-1"></i>Cari
+                    </button>
+                </div>
+                <div id="taut_hasil"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .result-item {
         cursor: pointer;
@@ -493,6 +594,11 @@
     // sebagai fullname -- jadi yang dipratinjau di sini fullname-nya.
     const NAMA_PENGGUNA = @json(session('name') ?: (session('username') ?: '-'));
     select2Serverside('#detail_status_isbn', 'status-isbn');
+
+    // Dus aktif bertahan di session, jadi harus dibaca ulang tiap halaman dibuka.
+    $(function() {
+        muatDusAktif();
+    });
     $('.plus').click(function() {
         let input = $(this).siblings('input');
         input.val(parseInt(input.val()) + 1);
@@ -861,6 +967,7 @@
         document.getElementById('detail_item_status').innerHTML = getStatusBadge(item);
         document.getElementById('detail_destination_library').innerText = item.DESTINATION_LIBRARY || item.LIBRARY_NAME || '-';
         setInfoPenerimaan(item);
+        setInfoFisik(item);
         document.getElementById('detail_type_of_delivery').innerText = item.TYPE_OF_DELIVERY || '-';
         document.getElementById('detail_jasa_pengiriman').innerText = item.JASA_PENGIRIMAN_NAME || '-';
         document.getElementById('detail_copy').value = item.COPY || '0';
@@ -944,6 +1051,482 @@
         // Dipanggil lagi di sini karena setInfoPenerimaan() berjalan sebelum
         // kolom tanggal di atas terisi.
         perbaruiPratinjauTanggal();
+    }
+
+    /**
+     * Keberadaan fisik dus dari LETTER_ANTRIAN. Ini melacak hal yang berbeda
+     * dari status resi: resi bisa masih "TERKIRIM" padahal dusnya sudah tiba
+     * di pos satpam.
+     */
+    function setInfoFisik(item) {
+        const el = document.getElementById('detail_fisik');
+        const btn = document.getElementById('btnTautkanAntrian');
+        const status = (item.FISIK_STATUS || '').trim();
+
+        el.classList.remove('text-danger', 'text-success', 'fw-semibold');
+
+        // Tombol taut hanya untuk yang berhak memproses kiriman ini --
+        // aturannya sama dengan penerimaan, dan server memeriksa ulang.
+        const bolehTaut = String(item.CAN_EDIT) === '1' && item.LETTER_ID;
+
+        btn.classList.toggle('d-none', !bolehTaut);
+        btn.dataset.letterId = item.LETTER_ID || '';
+        btn.dataset.receiptNo = item.RECEIPT_NO || '';
+
+        if (!status) {
+            el.classList.add('text-danger');
+            el.innerText = 'Belum tiba';
+            btn.innerHTML = '<i class="ph-link me-1"></i>Tautkan Antrian';
+            return;
+        }
+
+        el.classList.add('fw-semibold');
+        btn.innerHTML = '<i class="ph-arrows-clockwise me-1"></i>Ubah Tautan';
+
+        const bagian = [ucfirstKata(status.replace(/_/g, ' '))];
+        const dus = parseInt(item.FISIK_JML_DUS || 0, 10);
+        const totalDus = parseInt(item.FISIK_TOTAL_DUS || 0, 10);
+
+        if (dus > 0) {
+            bagian.push(dus + (totalDus > 0 ? '/' + totalDus : '') + ' dus');
+        }
+
+        if (item.FISIK_LOKASI) {
+            bagian.push('di ' + item.FISIK_LOKASI);
+        }
+
+        let teks = bagian.join(' · ');
+
+        // Ditaut lewat resi + ekspedisi, bukan letter_id -- perlu ditandai
+        // supaya petugas tahu kecocokannya tidak langsung.
+        if (item.FISIK_TAUTAN === 'receipt_no') {
+            teks += ' (cocok via resi)';
+        }
+
+        el.innerText = teks;
+    }
+
+    function ucfirstKata(teks) {
+        return teks.charAt(0).toUpperCase() + teks.slice(1);
+    }
+
+    // ---- Dus aktif ----
+
+    const URL_DUS = '{{ url("physical-delivery/queue-link") }}';
+
+    function muatDusAktif() {
+        $.get(URL_DUS + '/active', function (res) {
+            tampilkanDusAktif(res.data);
+        });
+    }
+
+    function tampilkanDusAktif(dus) {
+        const bar = document.getElementById('dusAktifBar');
+        const kosong = document.getElementById('dusKosongBar');
+
+        if (!dus) {
+            bar.classList.add('d-none');
+            kosong.classList.remove('d-none');
+            return;
+        }
+
+        kosong.classList.add('d-none');
+        bar.classList.remove('d-none');
+
+        const asal = dus.letter_id
+            ? 'resi ' + dus.receipt_no
+            : 'belum tertaut resi — akan tertaut saat penerimaan pertama disimpan';
+
+        document.getElementById('dusAktifTeks').innerText =
+            dus.nomor + ' — dus ' + dus.nomor_dus + '/' + dus.jumlah_dus + ' · ' + asal;
+    }
+
+    function bukaPilihDus() {
+        $('#pilih_dus_keyword').val('');
+        $('#pilih_dus_hasil').html('<div class="text-muted small">Masukkan nomor antrian dari stiker di dus.</div>');
+        $('#modal-pilih-dus').modal('show');
+    }
+
+    function cariDus() {
+        const keyword = $('#pilih_dus_keyword').val().trim();
+
+        if (!keyword) return;
+
+        $('#pilih_dus_hasil').html('<div class="text-muted small"><span class="spinner-border spinner-border-sm me-2"></span>Mencari...</div>');
+
+        $.ajax({
+            url: URL_DUS + '/search',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { keyword: keyword },
+            success: function (res) {
+                const rows = res.data || [];
+
+                if (!rows.length) {
+                    $('#pilih_dus_hasil').html('<div class="alert alert-warning py-2 px-3 small mb-0">Tidak ada kiriman yang cocok.</div>');
+                    return;
+                }
+
+                // Satu kiriman bisa berisi banyak dus; petugas memilih dus mana
+                // yang ada di tangannya, bukan kirimannya.
+                let html = '';
+
+                rows.forEach(function (r) {
+                    // Dus yang dicatat manual satpam belum tahu resinya, tapi
+                    // tetap bisa dipilih. Resinya ketahuan sendiri saat
+                    // petugas menyimpan penerimaan pertama dari dus ini.
+                    const belumTertaut = !r.LETTER_ID;
+
+                    const keterangan = belumTertaut
+                        ? `<div class="small text-warning-emphasis mb-2">
+                               <i class="ph-info me-1"></i>Dicatat manual satpam, belum tertaut ke resi.
+                               Akan tertaut sendiri saat Anda menyimpan penerimaan pertama dari dus ini.
+                           </div>`
+                        : '';
+
+                    html += `
+                        <div class="border ${belumTertaut ? 'border-warning bg-light' : ''} rounded p-2 mb-2">
+                            <div class="fw-semibold">${r.KIRIMAN_ID}</div>
+                            <div class="small text-muted mb-2">
+                                Resi ${r.LETTER_RECEIPT_NO || r.RECEIPT_NO || '-'} &bull; ${r.EKSPEDISI || '-'}
+                                &bull; ${r.JML_DUS}/${r.TOTAL_DUS || '?'} dus
+                                &bull; ${r.LOKASI_NAMA || 'lokasi belum ditentukan'}
+                            </div>
+                            ${keterangan}
+                            <div id="dus-${r.KIRIMAN_ID}" class="d-flex flex-wrap gap-1">
+                                <span class="text-muted small">Memuat daftar dus...</span>
+                            </div>
+                        </div>`;
+                });
+
+                $('#pilih_dus_hasil').html(html);
+
+                rows.forEach(function (r) {
+                    muatDaftarDus(r.KIRIMAN_ID);
+                });
+            },
+            error: function (xhr) {
+                const r = xhr.responseJSON || {};
+                $('#pilih_dus_hasil').html('<div class="alert alert-danger py-2 px-3 small mb-0">' +
+                    (r.message || 'Gagal mencari.') + '</div>');
+            }
+        });
+    }
+
+    function cariResiUntukDus(kirimanId) {
+        const kw = $('#resi-kw-' + kirimanId).val().trim();
+        const wadah = $('#resi-hasil-' + kirimanId);
+
+        if (!kw) return;
+
+        wadah.html('<div class="text-muted small"><span class="spinner-border spinner-border-sm me-2"></span>Mencari resi...</div>');
+
+        $.ajax({
+            url: URL_DUS + '/search-letter',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { keyword: kw },
+            success: function (res) {
+                const rows = res.data || [];
+
+                if (!rows.length) {
+                    wadah.html(
+                        '<div class="small text-danger mb-1">Tidak ada resi yang cocok.</div>' +
+                        '<div class="small text-muted">Coba <b>nama penerbit</b> yang tertera di dus. ' +
+                        'Kalau penerbitnya memang belum pernah membuat data pengiriman, buatkan dulu lewat ' +
+                        '<a href="{{ url("physical-delivery/create-receipt") }}" target="_blank">Tambah Bukti Penerimaan</a>.</div>'
+                    );
+                    return;
+                }
+
+                wadah.html(rows.map(function (l) {
+                    const noResi = (l.RECEIPT_NO || '').trim()
+                        ? l.RECEIPT_NO
+                        : '<span class="text-warning-emphasis">(tanpa nomor resi)</span>';
+
+                    return `
+                        <div class="d-flex justify-content-between align-items-center gap-2 border-top pt-2 mt-2">
+                            <div class="small">
+                                <div class="fw-semibold">${noResi} <span class="text-muted">&bull; ${l.STATUS}</span></div>
+                                <div class="text-muted">
+                                    ${l.PENERBIT || '-'}<br>
+                                    ${l.EKSPEDISI || '-'} &rarr; ${l.TUJUAN || '-'}
+                                    ${parseInt(l.DUS_TERTAUT || 0, 10) > 0
+                                        ? ' &bull; sudah ada ' + l.DUS_TERTAUT + ' dus tertaut' : ''}
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm text-nowrap"
+                                    onclick="tautkanLaluPilih('${kirimanId}', ${l.LETTER_ID})">
+                                <i class="ph-link me-1"></i>Tautkan
+                            </button>
+                        </div>`;
+                }).join(''));
+            },
+            error: function (xhr) {
+                const r = xhr.responseJSON || {};
+                wadah.html('<div class="small text-danger">' + (r.message || 'Gagal mencari resi.') + '</div>');
+            }
+        });
+    }
+
+    /** Tautkan kiriman ke resi, lalu muat ulang daftar dus supaya bisa dipilih. */
+    function tautkanLaluPilih(kirimanId, letterId) {
+        $.ajax({
+            url: URL_DUS + '/link',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { letter_id: letterId, kiriman_id: kirimanId },
+            success: function (res) {
+                notification('success', res.message);
+                cariDus();
+            },
+            error: function (xhr) {
+                const r = xhr.responseJSON || {};
+                Swal.fire({
+                    title: 'Gagal',
+                    text: r.message || 'Gagal menautkan.',
+                    icon: 'error',
+                    customClass: { confirmButton: 'btn btn-primary' },
+                });
+            }
+        });
+    }
+
+    function muatDaftarDus(kirimanId) {
+        $.ajax({
+            url: URL_DUS + '/search',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { keyword: kirimanId, per_dus: 1 },
+            success: function (res) {
+                const list = res.dus || [];
+                const wadah = document.getElementById('dus-' + kirimanId);
+
+                if (!wadah) return;
+
+                if (!list.length) {
+                    wadah.innerHTML = '<span class="text-muted small">Tidak ada dus.</span>';
+                    return;
+                }
+
+                wadah.innerHTML = list.map(function (d) {
+                    return `<button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="pilihDus(${d.ID})">
+                                Dus ${d.NOMOR_DUS} <span class="text-muted">(${d.NOMOR_ANTRIAN})</span>
+                            </button>`;
+                }).join('');
+            }
+        });
+    }
+
+    function pilihDus(id) {
+        $.ajax({
+            url: URL_DUS + '/set-active',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { letter_antrian_id: id },
+            success: function (res) {
+                $('#modal-pilih-dus').modal('hide');
+                tampilkanDusAktif(res.data);
+                notification('success', res.message);
+            },
+            error: function (xhr) {
+                const r = xhr.responseJSON || {};
+                Swal.fire({
+                    title: 'Gagal',
+                    text: r.message || 'Gagal memilih dus.',
+                    icon: 'error',
+                    customClass: { confirmButton: 'btn btn-primary' },
+                });
+            }
+        });
+    }
+
+    function selesaiDus() {
+        Swal.fire({
+            title: 'Dus sudah selesai?',
+            text: 'Dus ini akan ditandai selesai. Pastikan seluruh isinya sudah diverifikasi.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Selesai',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-primary me-2',
+                cancelButton: 'btn btn-outline-secondary'
+            },
+        }).then(function (hasil) {
+            if (!hasil.isConfirmed) return;
+
+            $.ajax({
+                url: URL_DUS + '/clear-active',
+                type: 'POST',
+                dataType: 'JSON',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                data: { selesai: 1 },
+                success: function (res) {
+                    tampilkanDusAktif(null);
+                    notification('success', res.message);
+                }
+            });
+        });
+    }
+
+    /** Berpindah dus tanpa menutup dus lama. */
+    function gantiDus() {
+        $.ajax({
+            url: URL_DUS + '/clear-active',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            success: function () {
+                tampilkanDusAktif(null);
+                bukaPilihDus();
+            }
+        });
+    }
+
+    // ---- Penautan antrian fisik ----
+
+    function bukaTautAntrian() {
+        const btn = document.getElementById('btnTautkanAntrian');
+
+        $('#taut_letter_id').val(btn.dataset.letterId);
+        $('#taut_keyword').val(btn.dataset.receiptNo || '');
+        $('#taut_hasil').html('<div class="text-muted small">Masukkan nomor antrian dari stiker di dus, atau nomor resi.</div>');
+        $('#modal-taut-antrian').modal('show');
+
+        if (btn.dataset.receiptNo) {
+            cariAntrian();
+        }
+    }
+
+    function cariAntrian() {
+        const keyword = $('#taut_keyword').val().trim();
+
+        if (!keyword) {
+            return;
+        }
+
+        $('#taut_hasil').html('<div class="text-muted small"><span class="spinner-border spinner-border-sm me-2"></span>Mencari...</div>');
+
+        $.ajax({
+            url: '{{ url("physical-delivery/queue-link/search") }}',
+            type: 'POST',
+            dataType: 'JSON',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            data: { keyword: keyword },
+            success: function (res) {
+                const rows = res.data || [];
+
+                if (!rows.length) {
+                    $('#taut_hasil').html(
+                        '<div class="alert alert-warning py-2 px-3 small mb-0">' +
+                        'Tidak ada antrian yang cocok. Periksa lagi nomor di stiker, atau ' +
+                        'dusnya memang belum dicatat satpam.</div>'
+                    );
+                    return;
+                }
+
+                const letterId = $('#taut_letter_id').val();
+                let html = '';
+
+                rows.forEach(function (r) {
+                    const sudahKeIni = String(r.LETTER_ID || '') === String(letterId);
+                    const keResiLain = r.LETTER_ID && !sudahKeIni;
+
+                    let catatan = '';
+
+                    if (sudahKeIni) {
+                        catatan = '<div class="small text-success mt-1">Sudah tertaut ke resi ini</div>';
+                    } else if (keResiLain) {
+                        catatan = '<div class="small text-danger mt-1">' +
+                            '<i class="ph-warning me-1"></i>Saat ini tertaut ke resi ' +
+                            (r.LETTER_RECEIPT_NO || r.LETTER_ID) + '. Menautkan ulang akan memindahkannya.</div>';
+                    }
+
+                    html += `
+                        <div class="border rounded p-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-semibold">${r.NOMOR_PERTAMA}</div>
+                                    <div class="small text-muted">
+                                        Resi: ${r.RECEIPT_NO || '-'} &bull; ${r.EKSPEDISI || '-'}<br>
+                                        ${r.JML_DUS}/${r.TOTAL_DUS || '?'} dus &bull; ${r.LOKASI_NAMA || 'lokasi belum ditentukan'}<br>
+                                        Dicatat ${r.NAMA_PETUGAS || '-'} pada ${r.WAKTU_TERIMA || '-'}
+                                    </div>
+                                    ${catatan}
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm text-nowrap ${sudahKeIni ? 'disabled' : ''}"
+                                        onclick="tautkanAntrian('${String(r.KIRIMAN_ID).replace(/'/g, "\\'")}')">
+                                    <i class="ph-link me-1"></i>Tautkan
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                $('#taut_hasil').html(html);
+            },
+            error: function (xhr) {
+                const r = xhr.responseJSON || {};
+                $('#taut_hasil').html('<div class="alert alert-danger py-2 px-3 small mb-0">' +
+                    (r.message || 'Gagal mencari antrian.') + '</div>');
+            }
+        });
+    }
+
+    function tautkanAntrian(kirimanId) {
+        Swal.fire({
+            title: 'Anda yakin?',
+            html: `Kiriman <b>${kirimanId}</b> akan ditautkan ke resi ini. Seluruh dus dalam kiriman tersebut ikut tertaut.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Tautkan',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-primary me-2',
+                cancelButton: 'btn btn-outline-secondary'
+            },
+        }).then(function (hasil) {
+            if (!hasil.isConfirmed) return;
+
+            $.ajax({
+                url: '{{ url("physical-delivery/queue-link/link") }}',
+                type: 'POST',
+                dataType: 'JSON',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                data: {
+                    letter_id: $('#taut_letter_id').val(),
+                    kiriman_id: kirimanId,
+                },
+                success: function (res) {
+                    $('#modal-taut-antrian').modal('hide');
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: res.message,
+                        icon: 'success',
+                        customClass: { confirmButton: 'btn btn-primary' },
+                    }).then(function () {
+                        // Muat ulang supaya kolom Keberadaan Fisik ikut terbarui.
+                        doSearch();
+                    });
+                },
+                error: function (xhr) {
+                    const r = xhr.responseJSON || {};
+                    Swal.fire({
+                        title: 'Gagal',
+                        text: r.message || 'Gagal menautkan antrian.',
+                        icon: 'error',
+                        customClass: { confirmButton: 'btn btn-primary' },
+                    });
+                }
+            });
+        });
     }
 
     /**
