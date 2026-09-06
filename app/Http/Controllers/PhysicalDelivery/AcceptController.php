@@ -15,6 +15,14 @@ use Illuminate\Support\Str;
 
 class AcceptController extends Controller
 {
+    /**
+     * Batas waktu pemanggilan QueryAPI untuk endpoint datatable.
+     * Tanpa batas (default QueryAPI = 0) request bisa menggantung selamanya
+     * dan menghabiskan worker php-fpm saat API/Oracle sedang berat.
+     */
+    private const CONNECT_TIMEOUT = 5;
+    private const QUERY_TIMEOUT = 30;
+
     public function index()
     {
         return view('layouts.index', [
@@ -83,10 +91,12 @@ class AcceptController extends Controller
             $whereCondition[] = "l.branch_id = $request->branch_id";
         }
         if ($request->create_by) {
-            $whereCondition[] = "upper(l.create_by) LIKE '%" . strtoupper(trim($request->create_by)) . "%' OR upper(u_create.fullname) LIKE '%" . strtoupper(trim($request->create_by)) . "%'";
+            $createBy = strtoupper(trim($request->create_by));
+            $whereCondition[] = "(upper(l.create_by) like '%$createBy%' or exists (select 1 from users u where u.username = l.create_by and upper(u.fullname) like '%$createBy%'))";
         }
         if ($request->is_verification_by) {
-            $whereCondition[] = "upper(l.is_verification_by) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%' OR upper(u_verified.fullname) LIKE '%" . strtoupper(trim($request->is_verification_by)) . "%'";
+            $verificationBy = strtoupper(trim($request->is_verification_by));
+            $whereCondition[] = "(upper(l.is_verification_by) like '%$verificationBy%' or exists (select 1 from users u where u.username = l.is_verification_by and upper(u.fullname) like '%$verificationBy%'))";
         }
         if ($request->date) {
             $explodeDate = explode(' - ', $request->date);
@@ -123,7 +133,7 @@ class AcceptController extends Controller
                 count(*) as total
             from
                 letter
-        ", true)->TOTAL ?? 0;
+        ", true, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT)->TOTAL ?? 0;
 
         $totalFiltered = QueryAPI::get("
             select
@@ -136,89 +146,83 @@ class AcceptController extends Controller
                 jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
             left join
                 branchs b on b.id = l.branch_id
-            left join
-                users u_create on l.create_by = u_create.username
-            left join
-                users u_verified on l.is_verification_by = u_verified.username
             $whereClause
-        ", true)->TOTAL ?? 0;
-
-        $queryData = QueryAPI::get("
+        ", true, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT)->TOTAL ?? 0;
+        $sql = "
+            with pg as (
+                select
+                    *
+                from
+                    (
+                        select
+                            rownum as rnum,
+                            data.*
+                        from
+                            (
+                                select
+                                    l.letter_id,
+                                    l.penerbit_id,
+                                    l.accept_date,
+                                    l.receipt_no,
+                                    l.type_of_delivery,
+                                    l.status,
+                                    l.create_by,
+                                    l.is_verification_by,
+                                    b.name as name_branch,
+                                    jp.name as name_jasa_pengiriman,
+                                    p.name as name_penerbit,
+                                    p.email1, p.email2, p.telp1, p.telp2, p.provinsi, p.city,
+                                    (select max(u.fullname) from users u where u.username = l.create_by) as createfullname,
+                                    (select max(u.fullname) from users u where u.username = l.is_verification_by) as verifiedfullname
+                                from
+                                    letter l
+                                left join
+                                    penerbit p on p.id = l.penerbit_id
+                                left join
+                                    jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
+                                left join
+                                    branchs b on b.id = l.branch_id
+                                $whereClause
+                                $orderBy
+                            ) data
+                        where
+                            rownum <= $length
+                    )
+                where
+                    rnum > $start
+            ),
+            agg as (
+                select
+                    letter_id,
+                    sum(copy) as total_eks_delivery,
+                    sum(quantity) as total_title_delivery,
+                    sum(case when qty_accept > 0 then qty_accept else 0 end) as total_eks_receipt,
+                    sum(case when qty_accept > 0 then quantity else 0 end) as total_title_receipt,
+                    sum(case when qty_reject > 0 then qty_reject else 0 end) as total_eks_grant,
+                    sum(case when qty_reject > 0 then quantity else 0 end) as total_title_grant
+                from
+                    letter_detail
+                where
+                    letter_id in (select letter_id from pg)
+                group by
+                    letter_id
+            )
             select
-                *
+                pg.*,
+                nvl(agg.total_eks_delivery, 0) as total_eks_delivery,
+                nvl(agg.total_title_delivery, 0) as total_title_delivery,
+                nvl(agg.total_eks_receipt, 0) as total_eks_receipt,
+                nvl(agg.total_title_receipt, 0) as total_title_receipt,
+                nvl(agg.total_eks_grant, 0) as total_eks_grant,
+                nvl(agg.total_title_grant, 0) as total_title_grant
             from
-                (
-                    select
-                        rownum as rnum,
-                        data.*
-                    from
-                        (
-                            select distinct
-                                l.*,
-                                b.name as name_branch,
-                                jp.name as name_jasa_pengiriman,
-                                p.name as name_penerbit,
-                                p.email1, p.email2, p.telp1, p.telp2, p.provinsi, p.city,
-                                nvl(td.total_eks_receipt, 0) as total_eks_receipt,
-                                nvl(td.total_title_receipt, 0) as total_title_receipt,
-                                u_create.fullname as createfullname,
-                                u_verified.fullname as verifiedfullname,
-                                case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
-                                    then nvl(td.total_eks_delivery, 0)
-                                    else 0
-                                end as total_eks_delivery,
-                                case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
-                                    then nvl(td.total_title_delivery, 0)
-                                    else 0
-                                end as total_title_delivery,
-                                case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
-                                    then nvl(td.total_eks_grant, 0)
-                                    else 0
-                                end as total_eks_grant,
-                                case
-                                    when l.status in ('DITERIMA PENUH', 'DITERIMA PARSIAL', 'DITERIMA')
-                                    then nvl(td.total_title_grant, 0)
-                                    else 0
-                                end as total_title_grant
-                            from
-                                letter l
-                            left join
-                                penerbit p on p.id = l.penerbit_id
-                            left join
-                                jasa_pengiriman jp on jp.id = l.jasa_pengiriman_id
-                            left join
-                                branchs b on b.id = l.branch_id
-                            left join
-                                (
-                                    select
-                                        letter_id,
-                                        sum(copy) as total_eks_delivery,
-                                        sum(quantity) as total_title_delivery,
-                                        sum(case when qty_accept > 0 then qty_accept else 0 end) as total_eks_receipt,
-                                        sum(case when qty_accept > 0 then quantity else 0 end) as total_title_receipt,
-                                        sum(case when qty_reject > 0 then qty_reject else 0 end) as total_eks_grant,
-                                        sum(case when qty_reject > 0 then quantity else 0 end) as total_title_grant
-                                    from
-                                        letter_detail
-                                    group by
-                                        letter_id
-                                ) td on td.letter_id = l.letter_id
-                            left join
-                                users u_create on l.create_by = u_create.username
-                            left join
-                                users u_verified on l.is_verification_by = u_verified.username
-                            $whereClause
-                            $orderBy
-                        ) data
-                    where
-                        rownum <= $length
-                )
-            where
-                rnum > $start
-        ");
+                pg
+            left join
+                agg on agg.letter_id = pg.letter_id
+            order by
+                pg.rnum
+        ";
+        $queryData = QueryAPI::get($sql, false, self::CONNECT_TIMEOUT, self::QUERY_TIMEOUT);
 
         if ($queryData) {
             foreach ($queryData as $val) {
