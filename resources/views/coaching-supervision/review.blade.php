@@ -257,13 +257,13 @@
                         </div>
                         <div class="card-body">
                             <div class="btn-group d-flex" role="group">
-                                <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="3" onchange="changeStatus()">
-                                <label class="btn btn-outline-danger" for="status-2">
+                                <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="3" onchange="changeStatus()">
+                                <label class="btn btn-outline-danger" for="status-3">
                                     <i class="ph-x-circle me-1"></i>
                                     Bermasalah
                                 </label>
-                                <input type="radio" class="btn-check" name="status" id="status-3" autocomplete="off" value="2" onchange="changeStatus()">
-                                <label class="btn btn-outline-success" for="status-3">
+                                <input type="radio" class="btn-check" name="status" id="status-2" autocomplete="off" value="2" onchange="changeStatus()">
+                                <label class="btn btn-outline-success" for="status-2">
                                     <i class="ph-check-circle me-1"></i>
                                     Terima
                                 </label>
