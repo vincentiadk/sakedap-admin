@@ -113,15 +113,25 @@ class QueueSettingController extends Controller
         ];
 
         try {
+            // Sama seperti pcSave(): penolakan datang lewat nilai kembalian,
+            // bukan exception, jadi harus diperiksa.
             if ($request->id) {
-                QueryAPI::update('letter_antrian_lokasi', (int) $request->id, $payload, false);
+                $berhasil = (bool) QueryAPI::update('letter_antrian_lokasi', (int) $request->id, $payload, false);
                 $pesan = 'Lokasi berhasil diperbarui';
             } else {
                 // Lokasi baru selalu milik perpustakaan pembuatnya.
                 $payload['branch_id'] = (int) session('branch_id');
                 $payload['create_date'] = date('Y-m-d H:i:s');
-                QueryAPI::create('letter_antrian_lokasi', $payload, false);
+                $berhasil = (bool) QueryAPI::create('letter_antrian_lokasi', $payload, false);
                 $pesan = 'Lokasi berhasil ditambahkan';
+            }
+
+            if (!$berhasil) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Data lokasi ditolak database dan tidak tersimpan. '
+                        . 'Pesan lengkapnya ada di storage/logs/sakedap-api-*.log.'
+                ], 500);
             }
 
             return response()->json(['code' => 200, 'message' => $pesan]);
@@ -239,16 +249,39 @@ class QueueSettingController extends Controller
         }
 
         // PC hanya boleh ditempelkan ke lokasi milik sendiri.
-        if (!$this->lokasiMilikSendiri((int) $request->lokasi_id)) {
+        //
+        // Baris lokasinya sekalian diambil karena BRANCH_ID pada
+        // LETTER_ANTRIAN_PC wajib diisi dan terikat FK gabungan
+        // (BRANCH_ID, LOKASI_ID) ke LETTER_ANTRIAN_LOKASI -- jadi nilainya
+        // harus mengikuti lokasi yang dipilih, bukan branch pengguna. Untuk
+        // pengguna Perpusnas keduanya bisa berbeda.
+        $lokasi = QueryAPI::get(
+            "select id, branch_id from letter_antrian_lokasi where id = " . (int) $request->lokasi_id,
+            true,
+            self::CONNECT_TIMEOUT,
+            self::QUERY_TIMEOUT
+        );
+
+        if (!$lokasi) {
+            return response()->json(['code' => 422, 'message' => 'Lokasi tidak ditemukan.'], 422);
+        }
+
+        if (!Main::isPerpusnas() && (int) $lokasi->BRANCH_ID !== (int) session('branch_id')) {
             return $this->tolakBukanMilikSendiri();
         }
 
-        // Satu IP hanya boleh terdaftar sekali, kalau tidak lokasi PC jadi ambigu.
+        $branchId = (int) $lokasi->BRANCH_ID;
+
+        // Satu IP hanya boleh terdaftar sekali, kalau tidak lokasi PC jadi
+        // ambigu. Dibatasi per perpustakaan mengikuti UQ_LA_PC_IP
+        // (BRANCH_ID, IP_ADDRESS): IP yang sama di jaringan perpustakaan lain
+        // bukan bentrok, dan menolaknya akan memblokir pendaftaran yang sah.
         $ip = str_replace("'", "''", $request->ip_address);
         $kecuali = $request->id ? ' and id <> ' . (int) $request->id : '';
 
         $kembar = QueryAPI::get(
-            "select count(*) as total from letter_antrian_pc where ip_address = '$ip'$kecuali",
+            "select count(*) as total from letter_antrian_pc
+             where branch_id = {$branchId} and ip_address = '$ip'$kecuali",
             true,
             self::CONNECT_TIMEOUT,
             self::QUERY_TIMEOUT
@@ -262,6 +295,7 @@ class QueueSettingController extends Controller
         }
 
         $payload = [
+            'branch_id' => $branchId,
             'ip_address' => $request->ip_address,
             'lokasi_id' => (int) $request->lokasi_id,
             'keterangan' => trim((string) $request->keterangan) ?: null,
@@ -270,13 +304,24 @@ class QueueSettingController extends Controller
         ];
 
         try {
+            // Hasil simpan wajib dibaca: QueryAPI menolak lewat nilai
+            // kembalian (false / array kosong), bukan exception. Tanpa ini
+            // penolakan Oracle tetap dilaporkan "berhasil" ke petugas.
             if ($request->id) {
-                QueryAPI::update('letter_antrian_pc', (int) $request->id, $payload, false);
+                $berhasil = (bool) QueryAPI::update('letter_antrian_pc', (int) $request->id, $payload, false);
                 $pesan = 'PC berhasil diperbarui';
             } else {
                 $payload['create_date'] = date('Y-m-d H:i:s');
-                QueryAPI::create('letter_antrian_pc', $payload, false);
+                $berhasil = (bool) QueryAPI::create('letter_antrian_pc', $payload, false);
                 $pesan = 'PC berhasil ditambahkan';
+            }
+
+            if (!$berhasil) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Data PC ditolak database dan tidak tersimpan. '
+                        . 'Pesan lengkapnya ada di storage/logs/sakedap-api-*.log.'
+                ], 500);
             }
 
             return response()->json(['code' => 200, 'message' => $pesan]);

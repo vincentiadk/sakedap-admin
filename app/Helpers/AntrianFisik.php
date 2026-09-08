@@ -94,11 +94,28 @@ class AntrianFisik
     /**
      * Status dus setelah petugas verifikasi mulai membukanya.
      *
-     * Penamaannya mengikuti gaya yang sudah dipakai satpam ("diterima_satpam").
-     * Daftar status belum ditetapkan bersama, jadi nilai ini perlu disepakati
-     * dengan pembuat aplikasi satpam supaya keduanya membaca kode yang sama.
+     * Nilainya ditentukan oleh CK_LETTER_ANTRIAN_STATUS di Oracle. Kode lain
+     * ditolak dengan ORA-02290 -- jangan menambah status di sini tanpa
+     * mengubah constraint-nya lebih dulu
+     * (lihat database/oracle/letter_antrian_status_diproses.sql).
+     *
+     * Dibedakan dari 'diterima_kckr' milik aplikasi satpam: kode itu berarti
+     * dus sudah diserahkan ke KCKR, sedangkan 'diproses' berarti petugas
+     * verifikasi sedang membukanya. Satu kode untuk dua arti membuat dus yang
+     * baru diserahkan tidak bisa dibedakan dari dus yang sedang dikerjakan
+     * petugas lain.
      */
     public const STATUS_DIPROSES = 'diproses';
+
+    /** Seluruh kode yang diterima CK_LETTER_ANTRIAN_STATUS. */
+    public const STATUS_SAH = [
+        'menunggu',
+        'diterima_satpam',
+        'transit',
+        'diterima_kckr',
+        'diproses',
+        'selesai',
+    ];
 
     /**
      * Status dus setelah petugas menyatakan isinya habis dikerjakan.
@@ -143,12 +160,25 @@ class AntrianFisik
                 return false;
             }
 
-            QueryAPI::update('letter_antrian', $letterAntrianId, [
+            // Hasil update wajib dibaca: QueryAPI::update() mengembalikan false
+            // saat Oracle menolak (misalnya ORA-02290 dari
+            // CK_LETTER_ANTRIAN_STATUS) tanpa melempar exception. Mengabaikan
+            // nilainya membuat status yang gagal berubah terlihat berhasil.
+            $berhasil = QueryAPI::update('letter_antrian', $letterAntrianId, [
                 'status' => $status,
                 'update_date' => date('Y-m-d H:i:s'),
             ], false);
 
-            return true;
+            if (!$berhasil) {
+                Log::warning('Status dus ditolak saat disimpan', [
+                    'letter_antrian_id' => $letterAntrianId,
+                    'status_diminta' => $status,
+                    'status_sekarang' => $dus->STATUS,
+                    'petunjuk' => 'cek storage/logs/sakedap-api-*.log untuk pesan Oracle',
+                ]);
+            }
+
+            return (bool) $berhasil;
         } catch (\Exception $e) {
             Log::warning('Gagal mengubah status dus jadi ' . $status, [
                 'letter_antrian_id' => $letterAntrianId,
@@ -266,6 +296,46 @@ class AntrianFisik
     }
 
     /**
+     * Kelas warna badge untuk satu kode status. Kode di luar daftar tetap
+     * ditampilkan (abu-abu), bukan disembunyikan -- constraint bisa saja
+     * diperluas tanpa kode ini ikut diperbarui.
+     */
+    public static function warnaStatus($status): string
+    {
+        $warna = [
+            'menunggu' => 'bg-secondary bg-opacity-10 text-secondary',
+            'diterima_satpam' => 'bg-warning bg-opacity-10 text-warning',
+            'transit' => 'bg-primary bg-opacity-10 text-primary',
+            'diterima_kckr' => 'bg-teal bg-opacity-10 text-teal',
+            self::STATUS_DIPROSES => 'bg-info bg-opacity-10 text-info',
+            self::STATUS_SELESAI => 'bg-success bg-opacity-10 text-success',
+        ];
+
+        return $warna[strtolower(trim((string) $status))]
+            ?? 'bg-secondary bg-opacity-10 text-secondary';
+    }
+
+    /**
+     * Label untuk petugas. "Diterima kckr" hasil olah otomatis tidak terbaca,
+     * jadi kode yang dikenal diberi teks sendiri.
+     */
+    public static function labelStatus($status): string
+    {
+        $kode = strtolower(trim((string) $status));
+
+        $label = [
+            'menunggu' => 'Menunggu',
+            'diterima_satpam' => 'Diterima satpam',
+            'transit' => 'Transit',
+            'diterima_kckr' => 'Diterima KCKR',
+            self::STATUS_DIPROSES => 'Sedang diproses',
+            self::STATUS_SELESAI => 'Selesai',
+        ];
+
+        return $label[$kode] ?? ucfirst(str_replace('_', ' ', trim((string) $status)));
+    }
+
+    /**
      * Ringkasan siap tampil untuk satu baris hasil query.
      */
     public static function badge($row): string
@@ -276,18 +346,8 @@ class AntrianFisik
             return '<span class="badge bg-secondary bg-opacity-10 text-secondary">Belum tiba</span>';
         }
 
-        $warna = [
-            'diterima_satpam' => 'bg-warning bg-opacity-10 text-warning',
-            self::STATUS_DIPROSES => 'bg-info bg-opacity-10 text-info',
-            'diterima' => 'bg-success bg-opacity-10 text-success',
-            'selesai' => 'bg-success bg-opacity-10 text-success',
-            'batal' => 'bg-danger bg-opacity-10 text-danger',
-        ];
-
-        $kelas = $warna[strtolower($status)] ?? 'bg-info bg-opacity-10 text-info';
-        $label = ucfirst(str_replace('_', ' ', $status));
-
-        $html = '<span class="badge ' . $kelas . '">' . e($label) . '</span>';
+        $html = '<span class="badge ' . self::warnaStatus($status) . '">'
+            . e(self::labelStatus($status)) . '</span>';
 
         $dus = (int) ($row->FISIK_JML_DUS ?? 0);
         $total = (int) ($row->FISIK_TOTAL_DUS ?? 0);

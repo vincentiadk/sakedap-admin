@@ -66,6 +66,7 @@
                             <th class="text-center text-nowrap" style="min-width: 120px"><i class="ph-truck me-1"></i>Cara Datang</th>
                             <th class="text-nowrap" style="min-width: 160px"><i class="ph-user me-1"></i>Ekspedisi / Pengirim</th>
                             <th class="text-nowrap" style="min-width: 160px"><i class="ph-barcode me-1"></i>No. Resi</th>
+                            <th class="text-nowrap" style="min-width: 180px"><i class="ph-buildings me-1"></i>Penerbit</th>
                             <th class="text-center text-nowrap" style="min-width: 110px"><i class="ph-package me-1"></i>Jumlah</th>
                             <th class="text-nowrap" style="min-width: 150px"><i class="ph-map-pin me-1"></i>Lokasi</th>
                             <th class="text-nowrap" style="min-width: 130px"><i class="ph-user-circle me-1"></i>Petugas</th>
@@ -192,6 +193,7 @@
                 { orderable: true,  className: 'align-middle text-center' },
                 { orderable: true,  className: 'align-middle text-wrap' },
                 { orderable: true,  className: 'align-middle' },
+                { orderable: true,  className: 'align-middle text-wrap' },
                 { orderable: true,  className: 'align-middle text-center' },
                 { orderable: true,  className: 'align-middle text-wrap' },
                 { orderable: true,  className: 'align-middle' },

@@ -27,6 +27,7 @@ class QueueController extends Controller
         'a.cara_datang',
         'a.ekspedisi',
         'a.receipt_no',
+        'p.name',
         'a.jumlah_dus',
         'l.nama',
         'a.nama_petugas',
@@ -131,9 +132,14 @@ class QueueController extends Controller
             $orderBy = 'order by ' . self::COLUMNS[$order[0]['column']] . ' ' . $arah;
         }
 
+        // Penerbit hanya diketahui lewat resi: dus yang dicatat manual satpam
+        // belum punya letter_id, jadi join-nya harus left dan kolomnya boleh
+        // kosong -- bukan alasan untuk menyembunyikan barisnya.
         $joins = "
             from letter_antrian a
             left join letter_antrian_lokasi l on l.id = a.lokasi_id
+            left join letter lt on lt.letter_id = a.letter_id
+            left join penerbit p on p.id = lt.penerbit_id
         ";
 
         $totalData = QueryAPI::get("
@@ -164,7 +170,9 @@ class QueueController extends Controller
                         a.letter_id,
                         a.kiriman_id,
                         a.nomor_dus,
-                        l.nama as lokasi_nama
+                        l.nama as lokasi_nama,
+                        lt.penerbit_id,
+                        p.name as penerbit_nama
                     $joins
                     $whereClause
                     $orderBy
@@ -190,6 +198,17 @@ class QueueController extends Controller
             if ($val->LETTER_ID) {
                 $resi .= '<br><a href="' . url('physical-delivery/accept/detail/' . $val->LETTER_ID) . '"'
                     . ' class="small" target="_blank">Lihat resi</a>';
+            }
+
+            // Dus tanpa resi belum bisa diketahui penerbitnya -- dibedakan
+            // dari resi yang penerbitnya memang kosong di master.
+            if (!$val->LETTER_ID) {
+                $penerbit = '<span class="text-muted">Belum tertaut resi</span>';
+            } elseif ($val->PENERBIT_NAMA) {
+                $penerbit = '<div>' . e($val->PENERBIT_NAMA) . '</div>'
+                    . '<small class="text-muted">ID ' . e($val->PENERBIT_ID) . '</small>';
+            } else {
+                $penerbit = '<span class="text-muted">-</span>';
             }
 
             $perkiraan = [];
@@ -223,6 +242,7 @@ class QueueController extends Controller
                 '<span class="badge bg-info bg-opacity-10 text-info text-capitalize">' . ($val->CARA_DATANG ?: '-') . '</span>',
                 $pengirim,
                 $resi,
+                $penerbit,
                 $dus,
                 $lokasi,
                 $val->NAMA_PETUGAS ?: '-',
@@ -240,31 +260,18 @@ class QueueController extends Controller
     }
 
     /**
-     * STATUS berisi kode teks, misalnya "diterima_satpam". Daftar kode yang
-     * mungkin belum terdokumentasi, jadi kode apa pun tetap ditampilkan --
-     * garis bawah diganti spasi dan diawali huruf besar. Warna hanya untuk
-     * kode yang sudah dikenal; sisanya abu-abu, bukan disembunyikan.
+     * Warna dan labelnya dipusatkan di AntrianFisik supaya layar antrian dan
+     * layar verifikasi tidak pelan-pelan berbeda. Kode di luar daftar tetap
+     * ditampilkan apa adanya, bukan disembunyikan.
      */
     private function badgeStatus($status): string
     {
-        $kode = trim((string) $status);
-
-        if ($kode === '') {
+        if (trim((string) $status) === '') {
             return '<span class="badge bg-secondary bg-opacity-10 text-secondary">-</span>';
         }
 
-        $warna = [
-            'diterima_satpam' => 'bg-warning bg-opacity-10 text-warning',
-            'diproses' => 'bg-info bg-opacity-10 text-info',
-            'diterima' => 'bg-success bg-opacity-10 text-success',
-            'selesai' => 'bg-success bg-opacity-10 text-success',
-            'batal' => 'bg-danger bg-opacity-10 text-danger',
-        ];
-
-        $kelas = $warna[strtolower($kode)] ?? 'bg-secondary bg-opacity-10 text-secondary';
-        $label = ucfirst(str_replace('_', ' ', $kode));
-
-        return '<span class="badge ' . $kelas . '">' . e($label) . '</span>';
+        return '<span class="badge ' . AntrianFisik::warnaStatus($status) . '">'
+            . e(AntrianFisik::labelStatus($status)) . '</span>';
     }
 
     /**

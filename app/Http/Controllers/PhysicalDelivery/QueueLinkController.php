@@ -243,7 +243,7 @@ class QueueLinkController extends Controller
         // penerimaan pertama dari dus tersebut.
         $dus = QueryAPI::get("
             SELECT a.id, a.nomor_antrian, a.nomor_dus, a.jumlah_dus, a.kiriman_id,
-                   a.letter_id, l.receipt_no, b.province_id
+                   a.letter_id, a.status, l.receipt_no, b.province_id
             FROM letter_antrian a
             LEFT JOIN letter l ON l.letter_id = a.letter_id
             LEFT JOIN branchs b ON b.id = l.branch_id
@@ -263,6 +263,30 @@ class QueueLinkController extends Controller
                 'code' => 403,
                 'message' => 'Dus ini milik kiriman ke provinsi lain.'
             ], 403);
+        }
+
+        // Dus dinyatakan "diproses" sejak dibuka, bukan sejak penerimaan
+        // pertama tersimpan. Petugas bisa membuka dus lalu lama tidak
+        // menyimpan apa pun -- selama itu dus terlihat masih "diterima_satpam"
+        // di daftar antrian, seolah belum disentuh siapa pun, dan petugas lain
+        // bisa mengambil dus yang sama.
+        //
+        // Dus yang dibatalkan tidak ikut diubah: membukanya kembali tidak
+        // boleh diam-diam menghidupkan kiriman yang sudah dibatalkan.
+        $ditandai = false;
+
+        if (strtolower(trim((string) $dus->STATUS)) !== 'batal') {
+            $ditandai = AntrianFisik::tandaiDiproses((int) $dus->ID);
+        }
+
+        if ($ditandai) {
+            Log::info('Dus ditandai diproses karena dibuka petugas', [
+                'letter_antrian_id' => (int) $dus->ID,
+                'nomor_antrian' => $dus->NOMOR_ANTRIAN,
+                'letter_id' => $dus->LETTER_ID ? (int) $dus->LETTER_ID : null,
+                'status_sebelumnya' => $dus->STATUS,
+                'oleh' => session('username'),
+            ]);
         }
 
         session([AntrianFisik::SESSION_DUS => [
