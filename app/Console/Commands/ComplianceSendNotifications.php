@@ -21,6 +21,8 @@ class ComplianceSendNotifications extends Command
                             {--limit=0          : Batasi jumlah email yang dikirim (0 = tanpa batas)}
                             {--cooldown=7       : Jeda minimum (hari) antar email pengingat ke penerbit yang sama}
                             {--reminder-days=7  : Kirim pengingat bila tanggal blokir tinggal <= N hari lagi}
+                            {--min-pct=         : Override ambang kepatuhan KCKR (0-100) khusus run ini, TANPA mengubah setting BatasMinimumKepatuhanKCKR. Untuk mengumumkan rencana kenaikan ambang. Hanya boleh dengan --jenis pengingat saja.}
+                            {--tanggal-mulai=   : Override tanggal mulai berlaku (YYYY-MM-DD) khusus run ini, TANPA mengubah setting AutoBlokir_MulaiTanggal. Menentukan isi placeholder tanggal_blokir dan jendela H-N. Hanya boleh dengan --jenis pengingat saja.}
                             {--force            : Lewati konfirmasi saat mengirim ke email asli penerbit}
                             {--preview          : Uji redaksi: abaikan syarat status/cooldown. Wajib --to=tester dan --penerbit}';
 
@@ -49,6 +51,14 @@ class ComplianceSendNotifications extends Command
         $reminderDays = max(1, (int) $this->option('reminder-days'));
         $penerbitId   = $this->option('penerbit') !== null ? (int) $this->option('penerbit') : null;
         $terminal     = gethostname() ?: '127.0.0.1';
+
+        // Override khusus run ini. Dipakai untuk MENGUMUMKAN rencana perubahan
+        // ambang/tanggal sebelum perubahan itu benar-benar diberlakukan, tanpa
+        // menyentuh setting hidup yang sedang dipakai autoblokir yang berjalan.
+        $minPctOverride = trim((string) ($this->option('min-pct') ?? ''));
+        $minPctOverride = $minPctOverride === '' ? null : $minPctOverride;
+        $mulaiOverride  = trim((string) ($this->option('tanggal-mulai') ?? ''));
+        $mulaiOverride  = $mulaiOverride === '' ? null : $mulaiOverride;
 
         $tStart = microtime(true);
         $lap    = fn() => round(microtime(true) - $tStart, 2);
@@ -89,6 +99,37 @@ class ComplianceSendNotifications extends Command
             }
             if (!$penerbitId) {
                 $this->error('--preview wajib disertai --penerbit=<id> supaya jelas data siapa yang dirender.');
+                return 1;
+            }
+        }
+
+        // ── Validasi override ────────────────────────────────────────────────
+        if ($minPctOverride !== null) {
+            if (!ctype_digit($minPctOverride) || (int) $minPctOverride > 100) {
+                $this->error("--min-pct harus bilangan bulat 0-100. Diberikan: '{$minPctOverride}'");
+                return 1;
+            }
+            $minPctOverride = (int) $minPctOverride;
+        }
+
+        if ($mulaiOverride !== null) {
+            $d = \DateTime::createFromFormat('Y-m-d', $mulaiOverride);
+            if (!$d || $d->format('Y-m-d') !== $mulaiOverride) {
+                $this->error("--tanggal-mulai harus format YYYY-MM-DD. Diberikan: '{$mulaiOverride}'");
+                return 1;
+            }
+        }
+
+        // Override adalah alat PENGUMUMAN, bukan alat eksekusi. Mengizinkannya
+        // pada jenis blokir berarti surat "akun Anda diblokir" bisa dikirim
+        // memakai ambang/tanggal karangan baris perintah, berbeda dari ambang
+        // yang benar-benar dipakai compliance:recompute-status untuk memblokir —
+        // penerbit diberi tahu diblokir padahal sistem tidak memblokirnya.
+        if ($minPctOverride !== null || $mulaiOverride !== null) {
+            $jenisBlokir = array_values(array_filter($jenisList, fn($j) => !self::JENIS[$j]['reminder']));
+            if (!empty($jenisBlokir)) {
+                $this->error('--min-pct/--tanggal-mulai hanya boleh untuk jenis pengingat, bukan ' . implode(', ', $jenisBlokir) . '.');
+                $this->line('  Pakai --jenis=pengingat-kckr (atau pengingat-kt,pengingat-kckr).');
                 return 1;
             }
         }
@@ -143,6 +184,26 @@ class ComplianceSendNotifications extends Command
             $autoBlokirActive       = ComplianceSettings::isAutoBlokirActive($cs);
             $autoBlokirMulaiTanggal = (string) ($cs['AutoBlokir_MulaiTanggal'] ?? '');
             $this->line('  Auto Blokir (setting) : ' . ($autoBlokirActive ? 'AKTIF' : 'NONAKTIF/belum mulai — email blokir-kckr dilewati'));
+
+            // ── Terapkan override ────────────────────────────────────────────
+            if ($minPctOverride !== null) {
+                $this->warn("  OVERRIDE ambang       : {$minPct}% (setting) --> {$minPctOverride}% (run ini saja)");
+                $minPct = $minPctOverride;
+            }
+
+            if ($mulaiOverride !== null) {
+                $mulaiAsli = $autoBlokirMulaiTanggal !== '' ? substr($autoBlokirMulaiTanggal, 0, 10) : '(kosong)';
+                $autoBlokirMulaiTanggal = $mulaiOverride;
+
+                // Tanggal yang diumumkan harus sekaligus menjadi acuan "sudah
+                // berlaku atau belum" untuk run ini. Tanpa ini, pengingat mustahil
+                // terkirim saat autoblokir yang berjalan sudah AKTIF di ambang lama:
+                // syarat pengingat-kckr mensyaratkan !$autoBlokirActive.
+                $autoBlokirActive = date('Y-m-d') >= $mulaiOverride;
+
+                $this->warn("  OVERRIDE tgl mulai    : {$mulaiAsli} (setting) --> {$mulaiOverride} (run ini saja)");
+                $this->warn('  Acuan "sudah berlaku" : ' . ($autoBlokirActive ? 'SUDAH LEWAT — pengingat tidak akan terkirim' : 'BELUM — fase pengingat'));
+            }
             $this->line('');
 
             $redaksi = $this->notif->loadRedaksi();
